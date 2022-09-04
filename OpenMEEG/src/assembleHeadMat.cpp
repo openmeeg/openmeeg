@@ -72,6 +72,8 @@ namespace OpenMEEG {
         template <typename TYPE,typename Selector>
         TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock,const bool verbose=true) {
 
+            if (verbose)
+                std::cerr << "Assembling Head Matrix" << std::endl;
             TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
 
@@ -81,10 +83,14 @@ namespace OpenMEEG {
             for (const auto& mp : geo.communicating_mesh_pairs()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
+                if (verbose)
+                    std::cerr << "    Assembling " << mesh1.name() << " x " << mesh2.name();
 
-                if (disableBlock(mesh1,mesh2))
+                if (disableBlock(mesh1,mesh2)) {
+                    if (verbose)
+                        std::cerr << " (skipped)" << std::endl;
                     continue;
-
+                }
                 const double factor     =  mp.relative_orientation()*K;
                 const double SCondCoeff =  factor*geo.sigma_inv(mesh1,mesh2);
                 const double NCondCoeff =  factor*geo.sigma(mesh1,mesh2);
@@ -93,18 +99,26 @@ namespace OpenMEEG {
                 const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
 
                 if (&mesh1==&mesh2) {
+                    if (verbose)
+                        std::cerr << " (self) setting blocks";
                     HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator,verbose));
                     operators.set_blocks(coeffs,symmatrix);
                 } else {
+                    if (verbose)
+                        std::cerr << "setting blocks";
                     HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator,verbose));
                     operators.set_blocks(coeffs,symmatrix);
                 }
+                if (verbose)
+                    std::cerr << " done" << std::endl;
             }
 
             // Deflate all current barriers as one
-
+            if (verbose)
+                std::cerr << "    Deflating current barriers";
             deflate(symmatrix,geo);
-
+            if (verbose)
+                std::cerr << " done" << std::endl;
             return symmatrix;
         }
     }
@@ -130,28 +144,39 @@ namespace OpenMEEG {
 
     Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0,const bool verbose=true) {
 
+        if (verbose)
+            std::cerr << "Computing HeadMatrix." << std::endl;
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
+        if (verbose)
+            std::cerr << "    Found cortex mesh " << cortex.name() << std::endl;
         const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex),verbose);
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
+        if (verbose)
+            std::cerr << "    Copying symmatrix into the returned matrix";
         const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
+        if (verbose)
+            std::cerr << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
         matrix.set(0.0);
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
-                std::cerr << "Processing mesh " << mesh.name() << " : vertices";
+                if (verbose)
+                    std::cerr << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));
                 if (!mesh.current_barrier()) {
-                    std::cerr << " : triangles";
+                    if (verbose)
+                        std::cerr << " : triangles";
                     for (const auto& triangle : mesh.triangles())
                         matrix.setlin(iNl++,symmatrix.getlin(triangle.index()));
                 }
-                std::cerr << " done." << std::endl;
+                if (verbose)
+                    std::cerr << " done." << std::endl;
             }
 
         return matrix;

@@ -168,7 +168,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     # dipole_in_cortex = True
 
     integrator = om.Integrator(3, 0, 0.005)
-    hm = om.HeadMat(geom, integrator, False)
+    hm = om.HeadMat(geom, integrator, True)
     hminv = hm.inverse()  # invert hm with a copy
     hminv_inplace = om.HeadMat(geom, integrator, False)
     hminv_inplace.invert()  # invert hm inplace (no copy)
