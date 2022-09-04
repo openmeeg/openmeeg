@@ -82,7 +82,8 @@ namespace OpenMEEG {
 
             ThreadException e;
             ProgressBar pb(triangles1.size());
-            #pragma omp parallel for
+            // TODO: disable OPENMP for now
+            // #pragma omp parallel for
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
             #elif defined OPENMP_ITERATOR
@@ -232,7 +233,8 @@ namespace OpenMEEG {
                 const analyticS analyS(triangle1);
                 const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
 
-                #pragma omp parallel for
+                // TODO: disable OPENMP for now
+                // #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
                 for (Triangles::const_iterator tit2=tit1; tit2!=triangles.end(); ++tit2) {
                     const Triangle& triangle2 = *tit2;
@@ -480,7 +482,8 @@ namespace OpenMEEG {
             ProgressBar pb(mesh1.vertices().size());
             const VerticesRefs& m2_vertices = mesh2.vertices();
             for (const auto& vertex1 : mesh1.vertices()) {
-                #pragma omp parallel for
+                // TODO: disable OPENMP for now
+                // #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
                 for (const auto& vertex2 : m2_vertices) {
                 #elif defined OPENMP_ITERATOR
