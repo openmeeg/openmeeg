@@ -100,12 +100,12 @@ namespace OpenMEEG {
 
                 if (&mesh1==&mesh2) {
                     if (verbose)
-                        std::cerr << " (self) setting blocks";
+                        std::cerr << " (self) setting blocks" << std::endl;
                     HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator,verbose));
                     operators.set_blocks(coeffs,symmatrix);
                 } else {
                     if (verbose)
-                        std::cerr << "setting blocks";
+                        std::cerr << " setting blocks" << std::endl;
                     HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator,verbose));
                     operators.set_blocks(coeffs,symmatrix);
                 }
