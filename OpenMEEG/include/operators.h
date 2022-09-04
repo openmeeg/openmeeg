@@ -128,14 +128,25 @@ namespace OpenMEEG {
         static double N(const double factor,const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
 
             double result = 0.0;
+            Vect3 CB1;
+            Vect3 CB2;
             for (const auto& tp1 : m1.triangles(V1)) {
-                const Edge& edge1 = tp1->edge(V1);
-                const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
+                try {
+                    const Edge& edge1 = tp1->edge(V1);
+                    CB1 = edge1.vertex(0)-edge1.vertex(1);
+                } catch (const OpenMEEG::UnknownVertex& e) {
+                    std::ostringstream oss;
+                    oss << "Error for triangle " << tp1 << " of mesh " << m1.name() << ": " << e.what();
+                    throw OpenMEEG::UnknownVertex(oss.str());
+                }
                 for (const auto& tp2 : m2.triangles(V2)) {
-
-                    const Edge& edge2 = tp2->edge(V2);
-                    const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
-
+                    try {
+                        const Edge& edge2 = tp2->edge(V2);
+                        CB2 = edge2.vertex(0)-edge2.vertex(1);
+                    } catch (const OpenMEEG::UnknownVertex& e) {
+                        std::cerr << "Error for triangle " << tp2 << " of mesh " << m2.name() << std::endl;
+                        throw;
+                    }
                     result -= factor*dotprod(CB1,CB2)*matrix(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
                 }
             }
@@ -275,7 +286,8 @@ namespace OpenMEEG {
             // When meshes are equal, optimized computation for a symmetric matrix.
 
             for (auto vit1=mesh.vertices().begin(); vit1!=mesh.vertices().end(); ++vit1) {
-                #pragma omp parallel for
+                // TODO: disable OPENMP for now
+                // #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
                 for (auto vit2=vit1; vit2<mesh.vertices().end(); ++vit2) {
                 #else
