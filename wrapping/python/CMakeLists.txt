@@ -142,7 +142,7 @@ if (BUILD_TESTING)
     endif()
     set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geometry.py test_python.py test_mesh.py)
     foreach (test ${PYTHON_TEST_FILES})
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} -m pytest --tb=short -ra ${TEST_PYTHON_ARGS} -svv ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} -m pytest --tb=short -ra ${TEST_PYTHON_ARGS} -vv ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "

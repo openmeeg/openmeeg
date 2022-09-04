@@ -14,6 +14,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  PYTHONUNBUFFERED: '1'
 
 defaults:
   run:
