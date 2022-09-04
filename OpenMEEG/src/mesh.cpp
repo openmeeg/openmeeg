@@ -392,7 +392,7 @@ namespace OpenMEEG {
         for (auto& V1 : vertices()) {
             for (auto& tp1 : triangles(*V1)) {
                 try {
-                    const Edge& edge1 = tp1->edge(*V1);
+                    tp1->edge(*V1);
                 } catch (const OpenMEEG::UnknownVertex&) {
                     std::ostringstream oss;
                     oss << "Mesh " << name() << " invalid during " << when << ", requested triangle vertex address:" << std::endl << "  " << &V1 << " (" << V1 << ")" << std::endl << "but valid triangle vertex addresses are:" << std::endl;
