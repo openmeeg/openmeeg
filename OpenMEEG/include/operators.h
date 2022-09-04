@@ -424,7 +424,8 @@ namespace OpenMEEG {
                 const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
 
                 const Triangles& m2_triangles = mesh2.triangles();
-                #pragma omp parallel for
+                // TODO: disable OPENMP for now
+                // #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
                 for (const auto& triangle2 : m2_triangles) {
                 #elif defined OPENMP_ITERATOR
