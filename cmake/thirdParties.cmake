@@ -22,6 +22,6 @@ if (USE_VTK)
             add_compile_options(-Wno-inconsistent-missing-override)
         endif()
         # set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
-        message(STATUS "-- Found VTK, including requested VTK IO support...")
+        message(STATUS "Found VTK, including requested VTK IO support...")
     endif()
 endif()

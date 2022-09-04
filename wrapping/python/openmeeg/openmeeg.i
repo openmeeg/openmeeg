@@ -343,6 +343,18 @@ namespace OpenMEEG {
             Vertex* v3 = get_vertex(array,i,2);
             mesh->triangles().push_back(Triangle(v1,v2,v3));
         }
+        // ensure all vertices are found in the mesh
+        // the vertex_index that fails later should be called by
+        // triangle->edges(), so let's use that here
+        for (const auto& t2 : mesh->triangles()) {
+            for (const auto& e : t2.edges()) {
+                if (t2.edge(e.vertex(0)) == t2.edge(e.vertex(1))) {  // the .edge() call hits vertex_index, so might raise an error actually
+                    std::ostringstream oss;
+                    oss << "Triangle edge with vertices " << e.vertex(0) << " and " << e.vertex(1) << " redundant in mesh \"" << mesh->name() << "\"";
+                    throw Error(SWIG_ValueError,oss.str().c_str());
+                }
+            }
+        }
     }
 %}
 

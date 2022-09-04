@@ -23,7 +23,7 @@ if (USE_OPENMP)
                 set(OPENMP_DEFINITIONS ${OPENMP_DEFINITIONS} ${i})
             endif()
         endforeach()
-        message(STATUS "-- Found OpenMP library " ${OpenMP_CXX_LIBRARIES})
+        message(STATUS "Found OpenMP library " ${OpenMP_CXX_LIBRARIES})
     endif()
 endif()
 
