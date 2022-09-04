@@ -144,8 +144,9 @@ namespace OpenMEEG {
                         const Edge& edge2 = tp2->edge(V2);
                         CB2 = edge2.vertex(0)-edge2.vertex(1);
                     } catch (const OpenMEEG::UnknownVertex& e) {
-                        std::cerr << "Error for triangle " << tp2 << " of mesh " << m2.name() << std::endl;
-                        throw;
+                        std::ostringstream oss;
+                        oss << "Error for triangle " << tp2 << " of mesh " << m2.name() << ": " << e.what();
+                        throw OpenMEEG::UnknownVertex(oss.str());
                     }
                     result -= factor*dotprod(CB1,CB2)*matrix(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
                 }
