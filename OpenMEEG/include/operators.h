@@ -137,7 +137,7 @@ namespace OpenMEEG {
                     CB1 = edge1.vertex(0)-edge1.vertex(1);
                 } catch (const OpenMEEG::UnknownVertex&) {
                     std::ostringstream oss;
-                    oss << "Outer loop mesh " << m1.name() << " requested vertex " << V1 << " (" << &V1 << ") but valid triangle vertices are:" << std::endl;
+                    oss << "Outer loop mesh " << m1.name() << " requested vertex:" << std::endl << "  " << V1 << " (" << &V1 << ")" << std::endl << "but valid triangle vertices are:" << std::endl;
                     for (unsigned i=0;i<3;++i)
                         oss << "  " << tp1->vertex(i) << " (" << &(tp1->vertex(i)) << ")" << std::endl;
                     throw OpenMEEG::UnknownVertex(oss.str());
