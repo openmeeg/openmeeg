@@ -29,7 +29,7 @@ namespace OpenMEEG {
         triangles().reserve(nt);
     }
 
-    /// Print informations about the mesh 
+    /// Print informations about the mesh
 
     void Mesh::info(const bool verbose) const {
         std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
@@ -385,5 +385,22 @@ namespace OpenMEEG {
             }
 
         return true;
+    }
+
+    void Mesh::check_consistency(const std::string& when) const {
+        // check that all vertices lead to triangles whose edges are defined
+        for (auto& V1 : vertices()) {
+            for (auto& tp1 : triangles(*V1)) {
+                try {
+                    const Edge& edge1 = tp1->edge(*V1);
+                } catch (const OpenMEEG::UnknownVertex&) {
+                    std::ostringstream oss;
+                    oss << "Mesh " << name() << " invalid during " << when << ", requested triangle vertex address:" << std::endl << "  " << &V1 << " (" << V1 << ")" << std::endl << "but valid triangle vertex addresses are:" << std::endl;
+                    for (unsigned i=0;i<3;++i)
+                        oss << "  " << &(tp1->vertex(i)) << std::endl;
+                    throw OpenMEEG::UnknownVertex(oss.str());
+                }
+            }
+        }
     }
 }

@@ -83,6 +83,8 @@ namespace OpenMEEG {
             for (const auto& mp : geo.communicating_mesh_pairs()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
+                mesh1.check_consistency("HeadMatrix->geo.communicating_mesh_pairs()");
+                mesh2.check_consistency("HeadMatrix->geo.communicating_mesh_pairs()");
                 if (verbose)
                     std::cout << "    Assembling " << mesh1.name() << " x " << mesh2.name();
 
@@ -147,6 +149,7 @@ namespace OpenMEEG {
         if (verbose)
             std::cout << "Computing HeadMatrix." << std::endl;
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
+        cortex.check_consistency("HeadMatrix->cortex");
         if (verbose)
             std::cout << "    Found cortex mesh " << cortex.name() << std::endl;
         const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex),verbose);
@@ -165,6 +168,7 @@ namespace OpenMEEG {
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
+                mesh.check_consistency("HeadMatrix->geo.meshes()");
                 if (verbose)
                     std::cout << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())

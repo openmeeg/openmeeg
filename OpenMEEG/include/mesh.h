@@ -126,6 +126,7 @@ namespace OpenMEEG {
         bool has_self_intersection() const;        ///< \brief Check whether the mesh self-intersects.
         bool intersection(const Mesh&) const;      ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const;      ///< \brief Check local orientation of mesh triangles.
+        void check_consistency(const std::string&) const;            ///< \brief Check mesh triangle/vertex consistency.
         void generate_indices();                   ///< \brief Generate indices (if allocate).
         void update(const bool topology_changed);  ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&);       ///< Merge two meshes.
@@ -151,7 +152,7 @@ namespace OpenMEEG {
         //  Triangles always have a contiguous range as they are never shared between meshes.
 
         Range triangles_range() const { return Range(triangles().front().index(),triangles().back().index()); }
-        
+
         /// \brief Get the triangles adjacent to vertex \param V .
 
         TrianglesRefs triangles(const Vertex& V) const { return vertex_triangles.at(&V); }

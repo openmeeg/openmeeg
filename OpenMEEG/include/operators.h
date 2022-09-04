@@ -222,6 +222,7 @@ namespace OpenMEEG {
         void S(const double coeff,T& matrix) const {
             base::message("S",mesh,mesh);
             ProgressBar pb(mesh.triangles().size());
+            mesh.check_consistency("S optimized computation start");
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
             // When meshes are equal, optimized computation for a symmetric matrix.
@@ -248,6 +249,7 @@ namespace OpenMEEG {
                 }
                 e.Rethrow();
             }
+            mesh.check_consistency("S optimized computation done");
         }
 
         template <typename T>
@@ -286,6 +288,7 @@ namespace OpenMEEG {
         void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh,mesh);
+            mesh.check_consistency("N optimized computation start");
 
             ThreadException e;
             ProgressBar pb(mesh.vertices().size());
@@ -308,6 +311,7 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
+            mesh.check_consistency("N optimized computation completion");
         }
 
         const Mesh&  mesh;
@@ -413,6 +417,8 @@ namespace OpenMEEG {
             base::message("S",mesh1,mesh2);
             ThreadException e;
             ProgressBar pb(mesh1.triangles().size());
+            mesh1.check_consistency("S computation start");
+            mesh2.check_consistency("S computation start");
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
 
@@ -444,6 +450,8 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
+            mesh1.check_consistency("S computation done");
+            mesh2.check_consistency("S computation done");
         }
 
         template <typename T>
@@ -477,6 +485,8 @@ namespace OpenMEEG {
         void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh1,mesh2);
+            mesh1.check_consistency("N computation start");
+            mesh2.check_consistency("N computation start");
 
             ThreadException e;
             ProgressBar pb(mesh1.vertices().size());
@@ -500,6 +510,8 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
+            mesh1.check_consistency("N computation done");
+            mesh2.check_consistency("N computation done");
         }
 
         const Mesh&  mesh1;

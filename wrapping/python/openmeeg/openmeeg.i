@@ -585,6 +585,7 @@ namespace OpenMEEG {
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
+            mesh.check_consistency("SWIG mesh creation");
         }
         return geometry;
     }
