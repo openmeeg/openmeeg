@@ -143,11 +143,15 @@ namespace OpenMEEG {
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
+                std::cerr << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));
-                if (!mesh.current_barrier())
+                if (!mesh.current_barrier()) {
+                    std::cerr << " : triangles";
                     for (const auto& triangle : mesh.triangles())
                         matrix.setlin(iNl++,symmatrix.getlin(triangle.index()));
+                }
+                std::cerr << " done." << std::endl;
             }
 
         return matrix;

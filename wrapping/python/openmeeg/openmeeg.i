@@ -272,6 +272,7 @@ namespace OpenMEEG {
     IndexMap
     geom_add_vertices(Geometry* geom,PyObject* pyobj) {
 
+        std::cerr << "    geom_add_vertices(geom, pyobj)";
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Vertices matrix should be an array.");
 
@@ -290,13 +291,13 @@ namespace OpenMEEG {
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,2));
             indmap.insert({ i, geom->add_vertex(Vertex(x,y,z)) });
         }
-
+        std::cerr << " done." << std::endl;
         return indmap;
     }
 
     void
     mesh_add_triangles(Mesh* mesh,PyObject* pyobj,const IndexMap& indmap) {
-
+        std::cerr << "    mesh_add_triangles for mesh " << mesh->name();
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
@@ -325,6 +326,7 @@ namespace OpenMEEG {
         if (PyArray_DIM(array,1)!=3)
             throw Error(SWIG_TypeError,"Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
 
+        std::cerr << " : reference_vertices";
         mesh->reference_vertices(indmap);
 
         auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
@@ -337,6 +339,7 @@ namespace OpenMEEG {
             return &(mesh->geometry().vertices().at(indmap.at(vi)));
         };
 
+        std::cerr << " : triangles";
         for (int unsigned i=0; i<nbTriangles; ++i) {
             Vertex* v1 = get_vertex(array,i,0);
             Vertex* v2 = get_vertex(array,i,1);
@@ -346,6 +349,7 @@ namespace OpenMEEG {
         // ensure all vertices are found in the mesh
         // the vertex_index that fails later should be called by
         // triangle->edges(), so let's use that here
+        std::cerr << " : check";
         for (const auto& t2 : mesh->triangles()) {
             for (const auto& e : t2.edges()) {
                 if (t2.edge(e.vertex(0)) == t2.edge(e.vertex(1))) {  // the .edge() call hits vertex_index, so might raise an error actually
@@ -355,6 +359,7 @@ namespace OpenMEEG {
                 }
             }
         }
+        std::cerr << " done." << std::endl;
     }
 %}
 
@@ -538,9 +543,9 @@ namespace OpenMEEG {
 
     Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=nullptr) {
         Mesh* mesh = new Mesh(geom);
+        mesh->name() = name;
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
-        mesh->name() = name;
         mesh->update(true);
         return mesh;
     }
@@ -551,6 +556,7 @@ namespace OpenMEEG {
 %extend OpenMEEG::Geometry {
 
     Geometry(PyObject* pylist) {
+        std::cerr << "Create Geometry from list of lists" << std::endl;
         if (pylist==nullptr || !PyList_Check(pylist))
             throw Error(SWIG_TypeError, "Argument to Geometry constructor must be a list");
 
