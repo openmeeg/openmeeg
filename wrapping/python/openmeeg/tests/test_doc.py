@@ -9,8 +9,7 @@ def test_doc():
 
     headmat_expected_docstring = """\
 HeadMat(Geometry geo, \
-Integrator integrator=OpenMEEG::Integrator(3,0,0.005), \
-bool const verbose=True) -> SymMatrix"""
+Integrator integrator=OpenMEEG::Integrator(3,0,0.005)) -> SymMatrix"""
     assert (
         doc == headmat_expected_docstring
     ), f"got: {repr(doc)} != expected: {repr(headmat_expected_docstring)}"
