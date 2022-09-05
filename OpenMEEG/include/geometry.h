@@ -234,7 +234,11 @@ namespace OpenMEEG {
             if (has_conductivities())
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
+            for (const auto& mesh : meshes())
+                mesh.check_consistency("finalize() domains().size() start");
             if (domains().size()!=0) {
+                for (const auto& mesh : meshes())
+                    mesh.check_consistency("finalize() domains().size() complete");
                 set_outermost_domain(outermost_domain());
                 check_geometry_is_nested();
             }
