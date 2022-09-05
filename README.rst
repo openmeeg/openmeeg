@@ -122,9 +122,9 @@ The steps are roughly:
 
 1. Install some variant of `Visual Studio <https://visualstudio.microsoft.com/downloads/>`__ (e.g., `2019 <https://visualstudio.microsoft.com/vs/older-downloads/>`__), the community variants are free and should work.
 2. Install the `Git for Windows SDK <https://github.com/git-for-windows/build-extra/releases>`_.
-3. Launch a ``x64 Visual Studio 2019 Command Prompt`` (i.e., a variant of ``cmd``),
+3. Launch a ``x64 Native Tools Command Prompt for VS 2019`` (i.e., a variant of ``cmd``),
    which can be done from the Start menu.
-4. Run ``C:\git-for-windows\usr\bin\bash.exe -l`` from within that prompt.
+4. Run ``C:\git-sdk-64\usr\bin\bash -l`` from within that prompt.
 
 .. note:: If you do not have access to Windows but need to debug it, consider
           using the `Windows VM dev images <https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/>`__.
@@ -154,6 +154,12 @@ Then you can build as usual::
 
     $ ./build_tools/cmake_configure.sh
     $ cmake --build build --config release
+
+The configure step will take a few minutes because this is the stage during
+which ``vcpkg`` builds dependencies (and HDF5 in particular takes some time).
+But once it has completed, any subsequent ``./build_tools/cmake_configure.sh``
+calls should be much faster because the completed dependency builds are stored
+in the ``vcpkg`` directory for future use.
 
 Testing
 ^^^^^^^
