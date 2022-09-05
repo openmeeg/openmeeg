@@ -149,6 +149,10 @@ in the compiled library::
     $ export CMAKE_CXX_FLAGS="-I$(cygpath -m $PWD/openblas/64/include)"
     $ export PATH=$PATH:$PWD/openblas/64/lib
 
+Then you also need the path to the compiled libraries for tests to work::
+
+    $ export PATH=$PATH:$PWD/build/OpenMEEG/Release:$PWD/build/OpenMEEGMaths/Release
+
 .. note:: Consider adding ``export`` statements to your ``~.bashrc`` to
           facilitate future debugging, but be sure to translate the ``$PWD``
           to the actual Unix-formatted path on your system, e.g.::
@@ -156,7 +160,7 @@ in the compiled library::
               export CMAKE_GENERATOR="Visual Studio 16 2019"
               export CMAKE_PREFIX_PATH=C:/Users/whoever/python/openmeeg/openblas/64
               export CMAKE_CXX_FLAGS="-IC:/Users/whoever/python/openmeeg/openblas/64/include"
-              export PATH=$PATH:/c/Users/whoever/python/openmeeg/openblas/64/lib
+              export PATH=$PATH:/c/Users/whoever/python/openmeeg/openblas/64/lib:/c/Users/whoever/python/openmeeg/build/OpenMEEG/Release:/c/Users/whoever/python/openmeeg/build/OpenMEEGMaths/Release
 
 Then you can build as usual::
 
@@ -168,6 +172,13 @@ which ``vcpkg`` builds dependencies (and HDF5 in particular takes some time).
 But once it has completed, any subsequent ``./build_tools/cmake_configure.sh``
 calls should be much faster because the completed dependency builds are stored
 in the ``vcpkg`` directory for future use.
+
+If you ever have problems with DLL linkage, consider using::
+
+    $ ./build_tools/install_dependency_walker.sh
+    $ ./Dependencies/DependenciesGui.exe
+
+to examine issues with ``OpenMEEGMaths.dll`` for example.
 
 Testing
 ^^^^^^^
