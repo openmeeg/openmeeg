@@ -52,7 +52,8 @@ def make_geometry(meshes, interfaces, domains):
             f"domains). Got {type(domains)}"
         )
 
-    # First add mesh points
+    # Normalize mesh inputs to numpy arrays
+
     for name, mesh in meshes.items():
         if isinstance(mesh, Mesh):
             meshes[name] = _mesh_vertices_and_triangles(mesh)
@@ -64,10 +65,21 @@ def make_geometry(meshes, interfaces, domains):
                 f"vertices and triangles). Got {type(mesh)}"
             )
 
-    # Create geometry from list-of-lists
-    meshes = [[name, mesh[0], mesh[1]] for name, mesh in meshes.items()]
-    geom = Geometry(meshes)
-    del meshes
+    # First add mesh points
+
+    indmaps = dict()
+    geom = Geometry()
+    for name, mesh in meshes.items():
+        indmaps[name] = geom.add_vertices(mesh[0])
+
+    # Create meshes
+
+    for name, mesh in meshes.items():
+        om_mesh = geom.add_mesh(name)
+        om_mesh.add_triangles(mesh[1], indmaps[name])
+        om_mesh.update(True)
+
+    del meshes,indmaps
 
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
