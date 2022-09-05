@@ -83,8 +83,8 @@ namespace OpenMEEG {
             for (const auto& mp : geo.communicating_mesh_pairs()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
-                mesh1.check_consistency("HeadMatrix->geo.communicating_mesh_pairs()");
-                mesh2.check_consistency("HeadMatrix->geo.communicating_mesh_pairs()");
+                mesh1.check_consistency("HeadMatrix->geo.communicating_mesh_pairs() mesh1");
+                mesh2.check_consistency("HeadMatrix->geo.communicating_mesh_pairs() mesh2");
                 if (verbose)
                     std::cout << "    Assembling " << mesh1.name() << " x " << mesh2.name();
 
