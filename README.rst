@@ -148,7 +148,10 @@ an env var to tell ``cmake`` how to interface with it::
 
 .. note:: Consider adding ``export`` statements to your ``~.bashrc`` to
           facilitate future debugging, but be sure to translate the ``$PWD``
-          to the actual Unix-formatted path on your system.
+          to the actual Unix-formatted path on your system, e.g.::
+
+              export CMAKE_GENERATOR="Visual Studio 16 2019"
+              export PKG_CONFIG_PATH=/c/Users/whoever/python/openmeeg/openblas/64/lib/pkgconfig
 
 Then you can build as usual::
 
