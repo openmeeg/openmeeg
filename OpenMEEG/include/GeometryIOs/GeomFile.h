@@ -53,11 +53,14 @@ namespace OpenMEEG::GeometryIOs {
 
         typedef GeometryIO base;
 
-        void load_meshes(Geometry& geometry) override;
-
         typedef enum { UNKNOWN_VERSION=-1, VERSION10, VERSION11 } VersionId;
 
+        // Implementation of virtual methods.
+
         const char* name() const override { return "geom"; }
+
+        void   load_meshes(Geometry& geometry) override;
+        void   load_domains(Geometry& geometry) override;
         Matrix load_data() const override { return Matrix(); }
 
         virtual void save_geom(const Geometry& geometry) override;
@@ -66,7 +69,7 @@ namespace OpenMEEG::GeometryIOs {
 
         GeometryIO* clone(const std::string& filename) const override { return new GeomFile(filename); }
 
-        void load_domains(Geometry& geometry) override;
+        // Helper functions.
 
         VersionId version(const unsigned major,const unsigned minor) const {
             VersionId id = UNKNOWN_VERSION;
@@ -139,6 +142,8 @@ namespace OpenMEEG::GeometryIOs {
 
         GeomFile(const std::string& filename=""): base(filename,"geom") { }
 
+        ~GeomFile() { ifs.close(); }
+
         static const GeomFile prototype;
 
         VersionId             version_id;
@@ -160,10 +165,8 @@ namespace OpenMEEG::GeometryIOs {
         unsigned major,minor; ///< version of the domain description
         ifs >> io_utils::match("# Domain Description ") >> major >> io_utils::match(".") >> minor;
 
-        if (ifs.fail()) {
-            ifs.close();
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
-        }
 
         version_id = version(major,minor);
         if (version_id==VERSION10)
@@ -172,7 +175,6 @@ namespace OpenMEEG::GeometryIOs {
 
         if (version_id==UNKNOWN_VERSION) {
              std::cerr << "Domain Description version not available !" << std::endl;
-             ifs.close();
              throw OpenMEEG::WrongFileFormat(fname);
         }
 
@@ -212,10 +214,8 @@ namespace OpenMEEG::GeometryIOs {
         ifs >> io_utils::skip_comments('#')
             >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
 
-        if (ifs.fail()) {
-            ifs.close();
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
-        }
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
         if (mesh_provided_as_interfaces) {
@@ -255,7 +255,6 @@ namespace OpenMEEG::GeometryIOs {
             if (!interface.is_mesh_orientations_coherent()) { // check and correct global orientation
                 std::cerr << "Interface \"" << interface.name() << "\" is not closed !" << std::endl
                           << "Please correct a mesh orientation when defining the interface in the geometry file." << std::endl;
-                ifs.close();
                 throw OpenMEEG::WrongFileFormat(fname);
             }
         }
@@ -265,10 +264,9 @@ namespace OpenMEEG::GeometryIOs {
         unsigned num_domains;
         ifs >> io_utils::skip_comments('#') >> io_utils::match("Domains") >> num_domains;
 
-        if (ifs.fail()) {
-            ifs.close();
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
-        }
+
         geometry.domains().resize(num_domains);
         for (auto& domain : geometry.domains()) {
             ifs >> io_utils::skip_comments('#') >> io_utils::match("Domain");
@@ -288,16 +286,14 @@ namespace OpenMEEG::GeometryIOs {
                     Interface& interface = interfaces_map.at(token);
                     domain.boundaries().push_back(SimpleDomain(interface,side));
                 } catch(...) {
-                    ifs.close();
                     throw OpenMEEG::NonExistingDomain<std::string>(domain.name(),token);
                 }
             }
         }
 
-        if (ifs.fail()) {
-            ifs.close();
+        if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
-        }
+
         ifs.close();
     }
 
