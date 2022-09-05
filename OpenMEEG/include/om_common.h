@@ -20,9 +20,8 @@ namespace OpenMEEG {
     using Strings = std::vector<std::string>;
 
     // how to compare doubles and floats
-    template<class T>
-    bool almost_equal(T x, T y, double eps = 1e3) {
-        return (std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * eps) || std::abs(x-y) < std::numeric_limits<T>::min();
+    template <typename T>
+    bool almost_equal(const T x,const T y,const double eps=1e3) {
+        return (std::abs(x-y)<std::numeric_limits<T>::epsilon()*std::abs(x+y)*eps) || std::abs(x-y)<std::numeric_limits<T>::min();
     }
 }
-
