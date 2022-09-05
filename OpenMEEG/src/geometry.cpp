@@ -437,11 +437,12 @@ namespace OpenMEEG {
         // TODO: Instead of marking meshes and vertices, remove them from the model ?
         // TODO: isolated is not the proper name. immersed, redundant, unnecessary ?
 
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() loops start");
         for (auto& domain : domains()) {
             if (almost_equal(domain.conductivity(),0.0)) {
                 for (auto& boundary : domain.boundaries()) {
                     for (auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        oriented_mesh.mesh().check_consistency("mark_current_barriers() start");
                         const bool fully_immersed = (oriented_mesh.mesh().current_barrier()==true);
                         oriented_mesh.mesh().current_barrier() = true;
                         if (fully_immersed) {
@@ -456,11 +457,12 @@ namespace OpenMEEG {
                             for (const auto& vertex : oriented_mesh.mesh().vertices())
                                 invalid_vertices_.insert(*vertex);
                         }
-                        oriented_mesh.mesh().check_consistency("mark_current_barriers() complete");
                     }
                 }
             }
         }
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 1: invalid vertices loop complete");
 
         //  Redefine outermost interface.
         //  The inside of a 0-cond domain is considered as a new outermost
@@ -473,6 +475,8 @@ namespace OpenMEEG {
                         for (auto& oriented_mesh : boundary.interface().oriented_meshes())
                             if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
                                 oriented_mesh.mesh().outermost() = true;
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 2: redifine outermost loop complete");
 
         //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
 
@@ -485,9 +489,14 @@ namespace OpenMEEG {
                     if (vfind!=mesh.vertices().end())
                         shared_vertices.insert(**vfind); //a shared vertex is found
                 }
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 3: shared loop complete");
 
         for (const auto& vertex : shared_vertices)
             invalid_vertices_.erase(vertex);
+
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 4: erasure loop complete");
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.
@@ -518,6 +527,8 @@ namespace OpenMEEG {
             if (conn.size()>1 && !conn.front()->isolated())
                 independant_parts.push_back(conn);
         }
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 5: independent parts loop 1 complete");
 
         //  Report isolated geometries
 
@@ -534,5 +545,7 @@ namespace OpenMEEG {
                 std::cout << "}." << std::endl;
             }
         }
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("mark_current_barriers() 6: independent parts loop 2 complete");
     }
 }
