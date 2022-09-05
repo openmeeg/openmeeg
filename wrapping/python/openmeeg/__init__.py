@@ -2,5 +2,6 @@ from . import _distributor_init
 from .openmeeg import *  # noqa
 from ._version import __version__
 from ._make_geometry import make_geometry, make_nested_geometry
+from openmeeg import Logger, WARNING
 
-.openmeeg.Logger.logger().set_info_level(.openmeeg.WARNING)
+Logger.logger().set_info_level(WARNING)
