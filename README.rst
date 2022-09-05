@@ -120,24 +120,25 @@ One configuration that makes Windows development easier is getting a usable
 Bash shell under Windows properly configured to compile using Visual Studio.
 The steps are roughly:
 
-1. Install some variant of Visual Studio (e.g., 2019)
-2. Install the `Git for Windows SDK <https://github.com/git-for-windows/build-extra/releases>`_
+1. Install some variant of `Visual Studio <https://visualstudio.microsoft.com/downloads/>`__ (e.g., `2019 <https://visualstudio.microsoft.com/vs/older-downloads/>`__), the community variants are free and should work.
+2. Install the `Git for Windows SDK <https://github.com/git-for-windows/build-extra/releases>`_.
 3. Launch a ``x64 Visual Studio 2019 Command Prompt`` (i.e., a variant of ``cmd``),
-   which can be done from the Start menu
-4. Run ``C:\git-for-windows\usr\bin\bash.exe -l`` from within that prompt
+   which can be done from the Start menu.
+4. Run ``C:\git-for-windows\usr\bin\bash.exe -l`` from within that prompt.
 
 For dependencies on Windows, we make use of ``vcpkg``. The default generator
 is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
 
     $ export CMAKE_GENERATOR="Visual Studio 16 2019"
 
-Then you can use our convenience script for setting up ``vcpkg``::
+Then you can use our convenience script for setting up ``vcpkg``. From the ``openmeeg``
+root, run::
 
     $ source ./build_tools/setup_vcpkg_compilation.sh
 
 Then you need MKL or OpenBLAS. The easiest way to get this is to use our
 OpenBLAS download script (which will download to ``$PWD/OpenBLAS``) and set an
-env vars to tell ``cmake`` how to interface with it::
+env var to tell ``cmake`` how to interface with it::
 
     $ ./build_tools/download_openblas.sh
     $ export PKG_CONFIG_PATH=$PWD/openblas/lib/pkgconfig
