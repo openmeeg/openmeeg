@@ -58,13 +58,13 @@ def test_python(data_path, tmp_path):
     # dipole_in_cortex = True
 
     integrator = om.Integrator(3, 0, 0.005)
-    hm = om.HeadMat(geom, integrator, False)
+    hm = om.HeadMat(geom, integrator)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom, integrator, False)
+    hminv_inplace = om.HeadMat(geom, integrator)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh, integrator, False)
+    ssm = om.SurfSourceMat(geom, mesh, integrator)
     ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     ds2mm = om.DipSource2MEGMat(dipoles, sensors)
@@ -113,8 +113,8 @@ def test_python(data_path, tmp_path):
 
     # Leadfield MEG in one line :
     gain_meg_surf_one_line = om.GainMEG(
-        om.HeadMat(geom, integrator, False).inverse(),
-        om.SurfSourceMat(geom, mesh, integrator, False),
+        om.HeadMat(geom, integrator).inverse(),
+        om.SurfSourceMat(geom, mesh, integrator),
         om.Head2MEGMat(geom, sensors),
         om.SurfSource2MEGMat(mesh, sensors),
     )
