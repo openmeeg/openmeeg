@@ -141,17 +141,22 @@ root, run::
 
 Then you need MKL or OpenBLAS. The easiest way to get this is to use our
 OpenBLAS download script (which will download to ``$PWD/openblas/64``) and set
-an env var to tell ``cmake`` how to interface with it::
+an envs var to tell ``cmake`` how to interface with it and how to find the DLL
+in the compiled library::
 
     $ ./build_tools/download_openblas.sh
-    $ export PKG_CONFIG_PATH=$PWD/openblas/64/lib/pkgconfig
+    $ export CMAKE_PREFIX_PATH=$(cygpath -m $PWD/openblas/64)
+    $ export CMAKE_CXX_FLAGS="-I$(cygpath -m $PWD/openblas/64/include)"
+    $ export PATH=$PATH:$PWD/openblas/64/lib
 
 .. note:: Consider adding ``export`` statements to your ``~.bashrc`` to
           facilitate future debugging, but be sure to translate the ``$PWD``
           to the actual Unix-formatted path on your system, e.g.::
 
               export CMAKE_GENERATOR="Visual Studio 16 2019"
-              export PKG_CONFIG_PATH=/c/Users/whoever/python/openmeeg/openblas/64/lib/pkgconfig
+              export CMAKE_PREFIX_PATH=C:/Users/whoever/python/openmeeg/openblas/64
+              export CMAKE_CXX_FLAGS="-IC:/Users/whoever/python/openmeeg/openblas/64/include"
+              export PATH=$PATH:/c/Users/whoever/python/openmeeg/openblas/64/lib
 
 Then you can build as usual::
 
@@ -169,7 +174,7 @@ Testing
 Once you have a complete build in ``build``, you can test with::
 
     $ cd build
-    $ ctest -C Release || ctest -C Release --rerun-failed --output-on-failure
+    $ ctest -C release || ctest -C release --rerun-failed --output-on-failure
 
 Optional build variables
 ^^^^^^^^^^^^^^^^^^^^^^^^
