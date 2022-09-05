@@ -388,7 +388,9 @@ namespace OpenMEEG {
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-            mesh.check_consistency("check_geometry_is_nested() complete");
+            std::ostringstream oss;
+            oss << "check_geometry_is_nested() complete, nested=" << nested << ", m_oriented=" << m_oriented;
+            mesh.check_consistency(oss.str());
             if (m_oriented==0) {
                 nested = false;
                 return;
