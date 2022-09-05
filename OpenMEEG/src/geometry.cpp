@@ -404,6 +404,8 @@ namespace OpenMEEG {
                     if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
                         // Communicating meshes are used for the definition of a common domain
                         meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
+                        mesh1.check_consistency("geom.make_mesh_pairs() mesh1");
+                        mesh2.check_consistency("geom.make_mesh_pairs() mesh2");
                     }
 
                     //  Lopp only over oriented pairs of meshes.
