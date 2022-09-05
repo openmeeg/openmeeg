@@ -402,6 +402,6 @@ namespace OpenMEEG {
                 }
             }
         }
-        std::cout << "Mesh " << name() << " consistent during " << when << std::endl;
+        std::cout << "Mesh " << name() << " (" << this << ") consistent during " << when << std::endl;
     }
 }
