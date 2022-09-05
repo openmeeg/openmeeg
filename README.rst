@@ -126,6 +126,9 @@ The steps are roughly:
    which can be done from the Start menu.
 4. Run ``C:\git-for-windows\usr\bin\bash.exe -l`` from within that prompt.
 
+.. note:: If you do not have access to Windows but need to debug it, consider
+          using the `Windows VM dev images <https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/>`__.
+
 For dependencies on Windows, we make use of ``vcpkg``. The default generator
 is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
 
@@ -137,15 +140,15 @@ root, run::
     $ source ./build_tools/setup_vcpkg_compilation.sh
 
 Then you need MKL or OpenBLAS. The easiest way to get this is to use our
-OpenBLAS download script (which will download to ``$PWD/OpenBLAS``) and set an
-env var to tell ``cmake`` how to interface with it::
+OpenBLAS download script (which will download to ``$PWD/openblas/64``) and set
+an env var to tell ``cmake`` how to interface with it::
 
     $ ./build_tools/download_openblas.sh
-    $ export PKG_CONFIG_PATH=$PWD/openblas/lib/pkgconfig
+    $ export PKG_CONFIG_PATH=$PWD/openblas/64/lib/pkgconfig
 
-.. note:: Consider adding these ``export`` statements to your ``~.bashrc`` to
+.. note:: Consider adding ``export`` statements to your ``~.bashrc`` to
           facilitate future debugging, but be sure to translate the ``$PWD``
-          to the actual path on your system.
+          to the actual Unix-formatted path on your system.
 
 Then you can build as usual::
 
