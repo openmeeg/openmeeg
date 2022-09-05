@@ -230,6 +230,8 @@ namespace OpenMEEG {
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
             // An outermost domain is defined as the only domain which has no inside. It is supposed to be
             // unique.
+            for (const auto& mesh : meshes())
+                mesh.check_consistency("finalize() start");
 
             if (has_conductivities())
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
