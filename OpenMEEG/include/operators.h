@@ -22,6 +22,7 @@
 #include <integrator.h>
 #include <analytics.h>
 
+#include <logger.h>
 #include <progressbar.h>
 
 namespace OpenMEEG {
@@ -62,13 +63,15 @@ namespace OpenMEEG {
         BlocksBase(const Integrator& intg): integrator(intg) { }
 
         void message(const char* op_name,const Mesh& mesh) const {
-            if (verbose)
-                std::cout << "OPERATOR " << std::left << std::setw(2) << op_name << "... (arg : mesh " << mesh.name() << " )" << std::endl;
+            log_stream(INFORMATION) << std::endl
+                                    << "OPERATOR " << std::left << std::setw(2) << op_name
+                                    << "... (arg : mesh " << mesh.name() << " )" << std::endl;
         }
 
         void message(const char* op_name,const Mesh& mesh1,const Mesh& mesh2) const {
-            if (verbose)
-                std::cout << "OPERATOR " << std::left << std::setw(2) << op_name << "... (arg : mesh " << mesh1.name() << " , mesh " << mesh2.name() << " )" << std::endl;
+            log_stream(INFORMATION) << "OPERATOR " << std::left << std::setw(2) << op_name
+                                    << "... (arg : mesh " << mesh1.name() << " , mesh " << mesh2.name() << " )"
+                                    << std::endl;
         }
 
     protected:
@@ -162,7 +165,6 @@ namespace OpenMEEG {
     protected:
 
         const Integrator integrator;
-        bool             verbose = true;
     };
 
     class DiagonalBlock: public BlocksBase {
@@ -187,7 +189,7 @@ namespace OpenMEEG {
 
     public:
 
-        DiagonalBlock(const Mesh& m,const Integrator& intg,const bool verbose=true): base(intg),mesh(m) { this->verbose = verbose; }
+        DiagonalBlock(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
@@ -210,7 +212,7 @@ namespace OpenMEEG {
         void set_Dstar_block(const double /* coeff */,T& /* matrix */) const { }
 
         template <typename T>
-        void addId(const double coeff,T& matrix) const {
+        void addIdentity(const double coeff,T& matrix) const {
             // The Matrix is incremented by the identity P1P0 operator
             base::message("Id",mesh);
             for (const auto& triangle : mesh.triangles())
@@ -321,11 +323,10 @@ namespace OpenMEEG {
     class PartialBlock {
     public:
 
-        PartialBlock(const Mesh& m,const bool verbose=true): mesh(m) { this->verbose = verbose; }
+        PartialBlock(const Mesh& m): mesh(m) { }
 
         void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
-            if (verbose)
-                std::cout << "PARTAL OPERATOR D..." << std::endl;
+            log_stream(INFORMATION) << "PARTAL OPERATOR D..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
                 for (const auto& vertex : points) {
@@ -337,8 +338,7 @@ namespace OpenMEEG {
         }
 
         void S(const double coeff,const Vertices& points,Matrix& matrix) const {
-            if (verbose)
-                std::cout << "PARTIAL OPERATOR S..." << std::endl;
+            log_stream(INFORMATION) << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
                 const analyticS analyS(triangle);
                 for (const auto& vertex : points)
@@ -349,10 +349,6 @@ namespace OpenMEEG {
     private:
 
         const Mesh& mesh;
-
-    protected:
-
-        bool verbose = true;
     };
 
     class NonDiagonalBlock: public BlocksBase  {
@@ -383,7 +379,7 @@ namespace OpenMEEG {
         //  - The gauss order parameter (for adaptive integration).
         //  - A verbosity parameters (for printing the action on the terminal).
 
-        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg,const bool verbose=true): base(intg),mesh1(m1),mesh2(m2) { this->verbose = verbose; }
+        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {

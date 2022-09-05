@@ -34,7 +34,7 @@ jobs:
         key: ${{ github.workflow }}-${{ github.job }}
     - name: Build
       run: |
-        sudo apt update
+        sudo apt -y update
         sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev python3-numpy
         ./build_tools/cmake_configure.sh
         cmake --build build --config Release

@@ -171,12 +171,16 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     print()
     print("*" * 80)
     print("HeadMat instantiation:")
-    hm = om.HeadMat(geom, integrator, True)
+    with om.use_log_level("debug"):
+        hm = om.HeadMat(geom, integrator)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom, integrator, False)
+    with om.use_log_level("debug"):
+        hminv_inplace = om.HeadMat(geom, integrator)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
+    ssm = om.SurfSourceMat(geom, mesh, integrator)
+    ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     h2em = om.Head2EEGMat(geom, patches)
 

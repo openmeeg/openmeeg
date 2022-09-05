@@ -10,6 +10,7 @@
 #endif
 
 #include <om_common.h>
+#include <logger.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <matop.h>
@@ -70,10 +71,9 @@ namespace OpenMEEG {
         };
 
         template <typename TYPE,typename Selector>
-        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock,const bool verbose=true) {
+        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
 
-            if (verbose)
-                std::cout << "Assembling Head Matrix" << std::endl;
+            log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
             TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
 
@@ -85,12 +85,10 @@ namespace OpenMEEG {
                 const Mesh& mesh2 = mp(1);
                 mesh1.check_consistency("HeadMatrix->geo.communicating_mesh_pairs() mesh1");
                 mesh2.check_consistency("HeadMatrix->geo.communicating_mesh_pairs() mesh2");
-                if (verbose)
-                    std::cout << "    Assembling " << mesh1.name() << " x " << mesh2.name();
+                log_stream(INFORMATION) << "    Assembling " << mesh1.name() << " x " << mesh2.name();
 
                 if (disableBlock(mesh1,mesh2)) {
-                    if (verbose)
-                        std::cout << " (skipped)" << std::endl;
+                    log_stream(INFORMATION) << " (skipped)" << std::endl;
                     continue;
                 }
                 const double factor     =  mp.relative_orientation()*K;
@@ -101,26 +99,21 @@ namespace OpenMEEG {
                 const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
 
                 if (&mesh1==&mesh2) {
-                    if (verbose)
-                        std::cout << " (self) setting blocks" << std::endl;
-                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator,verbose));
+                    log_stream(INFORMATION) << " (self) setting blocks" << std::endl;
+                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 } else {
-                    if (verbose)
-                        std::cout << " setting blocks" << std::endl;
-                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator,verbose));
+                    log_stream(INFORMATION) << " setting blocks" << std::endl;
+                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 }
-                if (verbose)
-                    std::cout << " done" << std::endl;
+                log_stream(INFORMATION) << " done" << std::endl;
             }
 
             // Deflate all current barriers as one
-            if (verbose)
-                std::cout << "    Deflating current barriers";
+            log_stream(INFORMATION) << "    Deflating current barriers";
             deflate(symmatrix,geo);
-            if (verbose)
-                std::cout << " done" << std::endl;
+            log_stream(INFORMATION) << " done" << std::endl;
             return symmatrix;
         }
     }
@@ -140,28 +133,24 @@ namespace OpenMEEG {
     }
     #endif
 
-    SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator,const bool verbose) {
-        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks(),verbose);
+    SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator) {
+        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks());
     }
 
-    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0,const bool verbose=true) {
+    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0) {
 
-        if (verbose)
-            std::cout << "Computing HeadMatrix." << std::endl;
+        log_stream(INFORMATION) << "Computing HeadMatrix." << std::endl;
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
         cortex.check_consistency("HeadMatrix->cortex");
-        if (verbose)
-            std::cout << "    Found cortex mesh " << cortex.name() << std::endl;
-        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex),verbose);
+        log_stream(INFORMATION) << "    Found cortex mesh " << cortex.name() << std::endl;
+        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
-        if (verbose)
-            std::cout << "    Copying symmatrix into the returned matrix";
+        log_stream(INFORMATION) << "    Copying symmatrix into the returned matrix";
         const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
-        if (verbose)
-            std::cout << " with " << Nl << " lines" << std::endl;
+        log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
         matrix.set(0.0);
@@ -169,26 +158,22 @@ namespace OpenMEEG {
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
                 mesh.check_consistency("HeadMatrix->geo.meshes()");
-                if (verbose)
-                    std::cout << "Processing mesh " << mesh.name() << " : vertices";
+                log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));
                 if (!mesh.current_barrier()) {
-                    if (verbose)
-                        std::cout << " : triangles";
+                    log_stream(INFORMATION) << " : triangles";
                     for (const auto& triangle : mesh.triangles())
                         matrix.setlin(iNl++,symmatrix.getlin(triangle.index()));
                 }
-                if (verbose)
-                    std::cout << " done." << std::endl;
+                log_stream(INFORMATION) << " done." << std::endl;
             }
 
         return matrix;
     }
 
     Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator,
-                       const bool verbose)
+                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator)
     {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using
         // a boundary element method".
@@ -208,20 +193,18 @@ namespace OpenMEEG {
         Matrix P;
         std::fstream f(filename.c_str());
         if (!f) {
-            const Matrix& mat = HeadMatrix(geo,Cortex,integrator,verbose);
+            const Matrix& mat = HeadMatrix(geo,Cortex,integrator);
 
             //  Construct P: the null-space projector.
             //  P is a projector: P^2 = P and mat*P*X = 0
 
             P = nullspace_projector(mat);
             if (filename.length()!=0) {
-                if (verbose)
-                    std::cout << "Saving projector P (" << filename << ")." << std::endl;
+                log_stream(INFORMATION) << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
             }
         } else {
-            if (verbose)
-                std::cout << "Loading projector P (" << filename << ")." << std::endl;
+            log_stream(INFORMATION) << "Loading projector P (" << filename << ")." << std::endl;
             P.load(filename);
         }
 
@@ -245,11 +228,9 @@ namespace OpenMEEG {
             alphas.set(0.);
             alpha1 = MM.frobenius_norm()/(1.e3*nRR_v);
             beta1  = alpha1*50000.;
-            if (verbose)
-                std::cout << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
+            log_stream(INFORMATION) << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
         } else {
-            if (verbose)
-                std::cout << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
+            log_stream(INFORMATION) << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
         }
 
         for (const auto& vertex : geo.vertices())
@@ -273,8 +254,7 @@ namespace OpenMEEG {
     }
 
     Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                        const double gamma,const std::string& filename,const Integrator& integrator,
-                        const bool verbose)
+                        const double gamma,const std::string& filename,const Integrator& integrator)
     {
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
@@ -306,15 +286,13 @@ namespace OpenMEEG {
         std::fstream f(filename.c_str());
         Matrix H;
         if (!f) {
-            H = HeadMatrix(geo,Cortex,integrator,M.nlin(),verbose);
+            H = HeadMatrix(geo,Cortex,integrator,M.nlin());
             if (filename.length()!=0) {
-                if (verbose)
-                    std::cout << "Saving matrix H (" << filename << ")." << std::endl;
+                log_stream(INFORMATION) << "Saving matrix H (" << filename << ")." << std::endl;
                 H.save(filename);
             }
         } else {
-            if (verbose)
-                std::cout << "Loading matrix H (" << filename << ")." << std::endl;
+            log_stream(INFORMATION) << "Loading matrix H (" << filename << ")." << std::endl;
             H.load(filename);
         }
 
@@ -343,14 +321,13 @@ namespace OpenMEEG {
                     for (const auto& triangle2 : mesh.triangles())
                         G(triangle1.index(),triangle2.index()) *= gamma;
 
-        if (verbose)
-            std::cout << "gamma = " << gamma << std::endl;
+        log_stream(INFORMATION) << "gamma = " << gamma << std::endl;
 
         G.invert();
         return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
     }
 
-    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points,const bool verbose) {
+    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points) {
 
         // Find the points per domain and generate the indices for the m_points
         // What happens if a point is on the boundary of a domain ? TODO
@@ -361,8 +338,8 @@ namespace OpenMEEG {
             const Vect3 point(points(i,0),points(i,1),points(i,2));
             const Domain& domain = geo.domain(point);
             if (domain.conductivity()==0.0) {
-                std::cout << " Surf2Vol: Point [ " << points.getlin(i) << "]"
-                          << " is inside a non-conductive domain. Point is dropped." << std::endl;
+                log_stream(INFORMATION) << " Surf2Vol: Point [ " << points.getlin(i) << "]"
+                                        << " is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
                 m_points[&domain].push_back(Vertex(point,index++));
             }
@@ -379,7 +356,7 @@ namespace OpenMEEG {
             for (const auto& boundary : domainptr->boundaries())
                 for (const auto& omesh : boundary.interface().oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    const PartialBlock block(mesh, verbose);
+                    const PartialBlock block(mesh);
                     const double coeff = boundary.mesh_orientation(omesh)*K;
                     block.addD(-coeff,pts,mat);
                     if (!mesh.current_barrier())
