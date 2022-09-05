@@ -117,15 +117,14 @@ Then you should be able to build as usual::
 Building on Windows
 ^^^^^^^^^^^^^^^^^^^
 One configuration that makes Windows development easier is getting a usable
-Bash shell under Windows with access to Visual Studio. The steps are roughly:
+Bash shell under Windows properly configured to compile using Visual Studio.
+The steps are roughly:
 
 1. Install some variant of Visual Studio (e.g., 2019)
 2. Install the `Git for Windows SDK <https://github.com/git-for-windows/build-extra/releases>`_
-3. Launch a ``Visual Studio 2019 Command Prompt`` (i.e., a variant of ``cmd``)
+3. Launch a ``x64 Visual Studio 2019 Command Prompt`` (i.e., a variant of ``cmd``),
+   which can be done from the Start menu
 4. Run ``C:\git-for-windows\usr\bin\bash.exe -l`` from within that prompt
-
-This gets you to a usable Bash shell with visual studio compilers accessible and
-configured properly.
 
 For dependencies on Windows, we make use of ``vcpkg``. The default generator
 is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
@@ -135,6 +134,17 @@ is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
 Then you can use our convenience script for setting up ``vcpkg``::
 
     $ source ./build_tools/setup_vcpkg_compilation.sh
+
+Then you need MKL or OpenBLAS. The easiest way to get this is to use our
+OpenBLAS download script (which will download to ``$PWD/OpenBLAS``) and set an
+env vars to tell ``cmake`` how to interface with it::
+
+    $ ./build_tools/download_openblas.sh
+    $ export PKG_CONFIG_PATH=$PWD/openblas/lib/pkgconfig
+
+.. note:: Consider adding these ``export`` statements to your ``~.bashrc`` to
+          facilitate future debugging, but be sure to translate the ``$PWD``
+          to the actual path on your system.
 
 Then you can build as usual::
 
