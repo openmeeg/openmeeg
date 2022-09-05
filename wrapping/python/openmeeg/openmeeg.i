@@ -587,6 +587,9 @@ namespace OpenMEEG {
             mesh.update(true);
             mesh.check_consistency("SWIG mesh creation");
         }
+        for (const auto& mesh : geometry->meshes())
+            mesh.check_consistency("SWIG Geometry instantiation complete");
+
         return geometry;
     }
 }
