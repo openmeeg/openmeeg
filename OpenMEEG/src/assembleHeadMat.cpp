@@ -10,6 +10,7 @@
 #endif
 
 #include <om_common.h>
+#include <logger.h>
 #include <matrix.h>
 #include <symmatrix.h>
 #include <matop.h>
@@ -66,7 +67,7 @@ namespace OpenMEEG {
         };
 
         template <typename TYPE,typename Selector>
-        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock,const bool verbose=true) {
+        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
 
             TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
@@ -89,10 +90,10 @@ namespace OpenMEEG {
                 const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
 
                 if (&mesh1==&mesh2) {
-                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator,verbose));
+                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 } else {
-                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator,verbose));
+                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 }
             }
@@ -120,14 +121,14 @@ namespace OpenMEEG {
     }
     #endif
 
-    SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator,const bool verbose) {
-        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks(),verbose);
+    SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator) {
+        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks());
     }
 
-    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0,const bool verbose=true) {
+    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0) {
 
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
-        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex),verbose);
+        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
@@ -150,8 +151,7 @@ namespace OpenMEEG {
     }
 
     Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator,
-                       const bool verbose)
+                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator)
     {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using
         // a boundary element method".
@@ -171,20 +171,18 @@ namespace OpenMEEG {
         Matrix P;
         std::fstream f(filename.c_str());
         if (!f) {
-            const Matrix& mat = HeadMatrix(geo,Cortex,integrator,verbose);
+            const Matrix& mat = HeadMatrix(geo,Cortex,integrator);
 
             //  Construct P: the null-space projector.
             //  P is a projector: P^2 = P and mat*P*X = 0
 
             P = nullspace_projector(mat);
             if (filename.length()!=0) {
-                if (verbose)
-                    std::cout << "Saving projector P (" << filename << ")." << std::endl;
+                log_stream(INFORMATION) << "Saving projector P (" << filename << ")." << std::endl;
                 P.save(filename);
             }
         } else {
-            if (verbose)
-                std::cout << "Loading projector P (" << filename << ")." << std::endl;
+            log_stream(INFORMATION) << "Loading projector P (" << filename << ")." << std::endl;
             P.load(filename);
         }
 
@@ -208,11 +206,9 @@ namespace OpenMEEG {
             alphas.set(0.);
             alpha1 = MM.frobenius_norm()/(1.e3*nRR_v);
             beta1  = alpha1*50000.;
-            if (verbose)
-                std::cout << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
+            log_stream(INFORMATION) << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
         } else {
-            if (verbose)
-                std::cout << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
+            log_stream(INFORMATION) << "alphas = " << alpha << "\tbeta = " << beta << std::endl;
         }
 
         for (const auto& vertex : geo.vertices())
@@ -236,8 +232,7 @@ namespace OpenMEEG {
     }
 
     Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                        const double gamma,const std::string& filename,const Integrator& integrator,
-                        const bool verbose)
+                        const double gamma,const std::string& filename,const Integrator& integrator)
     {
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
@@ -269,15 +264,13 @@ namespace OpenMEEG {
         std::fstream f(filename.c_str());
         Matrix H;
         if (!f) {
-            H = HeadMatrix(geo,Cortex,integrator,M.nlin(),verbose);
+            H = HeadMatrix(geo,Cortex,integrator,M.nlin());
             if (filename.length()!=0) {
-                if (verbose)
-                    std::cout << "Saving matrix H (" << filename << ")." << std::endl;
+                log_stream(INFORMATION) << "Saving matrix H (" << filename << ")." << std::endl;
                 H.save(filename);
             }
         } else {
-            if (verbose)
-                std::cout << "Loading matrix H (" << filename << ")." << std::endl;
+            log_stream(INFORMATION) << "Loading matrix H (" << filename << ")." << std::endl;
             H.load(filename);
         }
 
@@ -306,14 +299,13 @@ namespace OpenMEEG {
                     for (const auto& triangle2 : mesh.triangles())
                         G(triangle1.index(),triangle2.index()) *= gamma;
 
-        if (verbose)
-            std::cout << "gamma = " << gamma << std::endl;
+        log_stream(INFORMATION) << "gamma = " << gamma << std::endl;
 
         G.invert();
         return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
     }
 
-    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points,const bool verbose) {
+    Matrix Surf2VolMat(const Geometry& geo,const Matrix& points) {
 
         // Find the points per domain and generate the indices for the m_points
         // What happens if a point is on the boundary of a domain ? TODO
@@ -342,7 +334,7 @@ namespace OpenMEEG {
             for (const auto& boundary : domainptr->boundaries())
                 for (const auto& omesh : boundary.interface().oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    const PartialBlock block(mesh, verbose);
+                    const PartialBlock block(mesh);
                     const double coeff = boundary.mesh_orientation(omesh)*K;
                     block.addD(-coeff,pts,mat);
                     if (!mesh.current_barrier())

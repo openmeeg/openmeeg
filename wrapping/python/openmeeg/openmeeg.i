@@ -52,6 +52,7 @@
 %include <std_vector.i>
 
 %{
+    #include <logger.h>
     #include <vect3.h>
     #include <vertex.h>
     #include <triangle.h>
@@ -152,6 +153,9 @@ namespace OpenMEEG {
 }
 
 namespace OpenMEEG {
+
+    %naturalvar Logger;
+    class Logger;
 
     %naturalvar Mesh;
     class Mesh;
@@ -558,6 +562,7 @@ namespace OpenMEEG {
 
 // Input
 
+%include <logger.h>
 %include <vect3.h>
 %include <vertex.h>
 %include <triangle.h>

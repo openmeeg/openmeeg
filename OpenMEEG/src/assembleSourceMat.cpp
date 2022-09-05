@@ -17,7 +17,7 @@
 
 namespace OpenMEEG {
 
-    Matrix SurfSourceMat(const Geometry& geo,Mesh& source_mesh,const Integrator& integrator,const bool verbose) {
+    Matrix SurfSourceMat(const Geometry& geo,Mesh& source_mesh,const Integrator& integrator) {
 
         // Check that there is no overlapping between the geometry and the source mesh.
 
@@ -33,11 +33,10 @@ namespace OpenMEEG {
         source_mesh.outermost()       = true;
         source_mesh.current_barrier() = true;
 
-        if (verbose)
-            std::cout << std::endl
-                    << "assemble SurfSourceMat with " << source_mesh.vertices().size()
-                    << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
-                    << std::endl;
+        log_stream(INFORMATION) << std::endl
+                                << "assemble SurfSourceMat with " << source_mesh.vertices().size()
+                                << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
+                                << std::endl;
 
         Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),source_mesh.vertices().size());
         mat.set(0.0);
@@ -48,7 +47,7 @@ namespace OpenMEEG {
             for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                 const Mesh& mesh = oriented_mesh.mesh();
 
-                NonDiagonalBlock operators(mesh,source_mesh,integrator,verbose);
+                NonDiagonalBlock operators(mesh,source_mesh,integrator);
 
                 // First block is nVertexFistLayer*source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
@@ -129,7 +128,7 @@ namespace OpenMEEG {
                 operators.D(K*orientation,transmat); // D23 or D33 of the formula.
                 if (&mesh1==&mesh2) { // I_33 of the formula, orientation is necessarily 1.
                     DiagonalBlock block(mesh1,integrator);
-                    block.addId(-0.5,transmat);
+                    block.addIdentity(-0.5,transmat);
                 } else { // S_2 of the formula.
                     operators.S(-K*orientation*geo.sigma_inv(mesh1,mesh2),transmat);
                 }

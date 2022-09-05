@@ -1,5 +1,7 @@
 # Find the matio headers and library.
 #
+#  matio_DIR          - the matio directory
+#
 #  matio_INCLUDE_DIRS - where to find matio.h, etc.
 #  matio_LIBRARIES    - List of libraries.
 #  matio_FOUND        - True if matio found.
@@ -13,6 +15,10 @@
 #   We provide a module in case matio has not been found in config mode.
 
 if (NOT matio_LIBRARIES)
+
+    if (NOT matio_DIR AND EXISTS "$ENV{matio_dir}")
+        set(matio_DIR "$ENV{matio_dir}")
+    endif()
 
     if (MATIO_USE_STATIC_LIBRARIES)
         set(HDF5_USE_STATIC_LIBRARIES TRUE)
@@ -42,7 +48,7 @@ if (NOT matio_LIBRARIES)
     endif()
 
     # Look for the header file.
-    find_path(matio_INCLUDE_DIR HINTS $ENV{matio_dir}include NAMES matio.h)
+    find_path(matio_INCLUDE_DIR HINTS ${matio_DIR}/include NAMES matio.h)
 
     message(STATUS "matio.h ${matio_INCLUDE_DIR}")
     mark_as_advanced(matio_INCLUDE_DIR)
@@ -50,12 +56,12 @@ if (NOT matio_LIBRARIES)
     # Look for the library.
 
     # XXXX This needs to go out !
-    set(matio_LIB_SEARCH_PATHS C:/conda/Library/ C:/conda/Library/lib C:/conda/Library/bin $ENV{matio_dir}
-        $ENV{matio_dir}lib $ENV{matio_dir}bin)
+    set(matio_LIB_SEARCH_PATHS C:/conda/Library/ C:/conda/Library/lib C:/conda/Library/bin ${matio_DIR}
+        ${matio_DIR}/lib ${matio_DIR}/bin)
 
     set(MATIO_NAMES matio libmatio)
     if (MATIO_USE_STATIC_LIBRARIES)
-        set(MATIO_NAMES  libmatio.a libmatio-static.lib ${MATIO_NAMES})
+        set(MATIO_NAMES libmatio.a libmatio-static.lib ${MATIO_NAMES})
     endif()
 
     find_library(matio_LIBRARY HINTS ${matio_LIB_SEARCH_PATHS} NAMES ${MATIO_NAMES})

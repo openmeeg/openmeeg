@@ -7,8 +7,10 @@
 
 #pragma once
 
+#ifndef USE_PROGRESSBAR
 #include <cmath>
-#include <iostream>
+#include <logger.h>
+#endif
 
 namespace OpenMEEG {
 #ifndef USE_PROGRESSBAR
@@ -20,12 +22,12 @@ namespace OpenMEEG {
         void operator++() {
             const unsigned p = std::min(static_cast<unsigned>(floor(static_cast<double>((bar_size+1)*iter++)/max_iter)),bar_size);
             if (p!=pprev && iter>1) {
-                std::cout << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
+                log_stream(PROGRESS) << std::string(bar_size+2,'\b') << '[' << std::string(p,'*') << std::string(bar_size-p,'.') << ']';
                 pprev = p;
             }
             if (iter>=max_iter)
-                std::cout << std::endl;
-            std::cout.flush();
+                log_stream(PROGRESS) << std::endl;
+            log_stream(PROGRESS).flush();
         }
         
     private:
