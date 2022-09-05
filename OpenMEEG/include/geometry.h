@@ -161,8 +161,12 @@ namespace OpenMEEG {
 
         void set_outermost_domain(Domain& domain) {
             outer_domain = &domain;
+            for (const auto& mesh : meshes())
+                mesh.check_consistency("set_outermost_domain() loop start");
             for (auto& boundary : domain.boundaries())
                 boundary.interface().set_to_outermost();
+            for (const auto& mesh : meshes())
+                mesh.check_consistency("set_outermost_domain() loop complete");
         }
 
         bool    is_outermost(const Domain& domain) const { return outer_domain==&domain; }

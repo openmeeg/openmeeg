@@ -20,6 +20,8 @@ namespace OpenMEEG {
         // This domain should be unique. Otherwise the decomposition of the geometry
         // into domains is wrong. We assume here that it is correct.
 
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("outermost_domain() loop start");
         for (auto& domain : domains()) {
             bool outer = true;
             for (auto& boundary : domain.boundaries())
@@ -27,8 +29,11 @@ namespace OpenMEEG {
                     outer = false;
                     break;
                 }
-            if (outer)
+            if (outer) {
+                for (const auto& mesh : meshes())
+                    mesh.check_consistency("outermost_domain() loop complete");
                 return domain;
+            }
         }
 
         warning("Geometry::outermost_domain: Error outermost domain is not defined.");
@@ -366,6 +371,8 @@ namespace OpenMEEG {
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
         nested = true;
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("check_geometry_is_nested() domains loop start");
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
@@ -377,12 +384,14 @@ namespace OpenMEEG {
                 return;
             }
         }
+        for (const auto& mesh : meshes())
+            mesh.check_consistency("check_geometry_is_nested() domains loop complete");
 
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
 
         for (const auto& mesh : meshes()) {
+            mesh.check_consistency("check_geometry_is_nested() meshh loop start");
             unsigned m_oriented = 0;
-            mesh.check_consistency("check_geometry_is_nested() start");
             for (const auto& domain : domains())
                 for (const auto& boundary : domain.boundaries())
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
