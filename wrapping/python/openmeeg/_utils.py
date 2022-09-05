@@ -1,8 +1,14 @@
 from contextlib import contextmanager
 
-from .openmeeg import Logger, WARNING, ERROR, INFO, DEBUG
+from .openmeeg import Logger, ERROR, WARNING, INFORMATION, DEBUG
 
-_warn_map = dict(error=ERROR, warning=WARNING, info=INFO, debug=DEBUG)
+
+_warn_map = dict(
+    error=ERROR,
+    warning=WARNING,
+    info=INFORMATION,
+    debug=DEBUG,
+)
 
 
 def set_log_level(level):
@@ -31,7 +37,7 @@ def get_log_level():
     return rev_map[Logger.logger().get_info_level()]
 
 
-@contextmanager()
+@contextmanager
 def use_log_level(level):
     """Context manager for logging level.
 

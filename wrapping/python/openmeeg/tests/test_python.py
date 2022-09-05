@@ -179,8 +179,6 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh, integrator)
-    ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
     h2em = om.Head2EEGMat(geom, patches)
 

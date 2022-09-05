@@ -20,6 +20,7 @@ namespace OpenMEEG {
         Logger() { }
 
         void set_info_level(const InfoLevel level) { verbosity = level; }
+        InfoLevel get_info_level() { return verbosity; }
 
         bool is_verbose(const InfoLevel level) { return verbosity<=level; }
 
