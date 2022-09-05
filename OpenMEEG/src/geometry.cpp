@@ -387,6 +387,7 @@ namespace OpenMEEG {
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
+            mesh.check_consistency("check_geometry_is_nested()");
             if (m_oriented==0) {
                 nested = false;
                 return;
@@ -428,6 +429,7 @@ namespace OpenMEEG {
             if (almost_equal(domain.conductivity(),0.0)) {
                 for (auto& boundary : domain.boundaries()) {
                     for (auto& oriented_mesh : boundary.interface().oriented_meshes()) {
+                        oriented_mesh.mesh().check_consistency("mark_current_barriers() start");
                         const bool fully_immersed = (oriented_mesh.mesh().current_barrier()==true);
                         oriented_mesh.mesh().current_barrier() = true;
                         if (fully_immersed) {
@@ -442,6 +444,7 @@ namespace OpenMEEG {
                             for (const auto& vertex : oriented_mesh.mesh().vertices())
                                 invalid_vertices_.insert(*vertex);
                         }
+                        oriented_mesh.mesh().check_consistency("mark_current_barriers() complete");
                     }
                 }
             }
