@@ -198,7 +198,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     if op.exists(source_mesh_file):
         mesh = om.Mesh(source_mesh_file)
         n_dipoles_surf = mesh.vertices().size()
-        ssm = om.SurfSourceMat(geom, mesh, integrator, False)
+        ssm = om.SurfSourceMat(geom, mesh, integrator)
         gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
         assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
         assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
@@ -240,8 +240,8 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
         # Leadfield MEG in one line :
         gain_meg_surf_one_line = om.GainMEG(
-            om.HeadMat(geom, integrator, False).inverse(),
-            om.SurfSourceMat(geom, mesh, integrator, False),
+            om.HeadMat(geom, integrator).inverse(),
+            om.SurfSourceMat(geom, mesh, integrator),
             om.Head2MEGMat(geom, sensors),
             om.SurfSource2MEGMat(mesh, sensors),
         )
