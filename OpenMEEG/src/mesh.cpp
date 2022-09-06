@@ -13,6 +13,7 @@
 #include <mesh.h>
 #include <MeshIO.h>
 #include <geometry.h>
+#include <logger.h>
 
 namespace OpenMEEG {
 
