@@ -210,6 +210,8 @@ namespace OpenMEEG {
 
         void save(const std::string& filename) const ;
 
+        void clear();
+
     #if !defined(SWIGPYTHON) && !defined(_MSC_VER)
     private:
     #endif
@@ -223,8 +225,6 @@ namespace OpenMEEG {
         /// Map edges to an integer
 
         typedef std::map<std::pair<const Vertex*,const Vertex*>,int> EdgeMap;
-
-        void clear();
 
         /// Add the mesh \param m to the current mesh. Assumes that geometry vertices are properly
         /// reserved (i.e. the vector is not resized while adding the mesh.
