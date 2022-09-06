@@ -85,8 +85,7 @@ namespace OpenMEEG {
 
             ThreadException e;
             ProgressBar pb(triangles1.size());
-            // TODO: disable OPENMP for now
-            // #pragma omp parallel for
+            #pragma omp parallel for
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
             #elif defined OPENMP_ITERATOR
@@ -224,7 +223,6 @@ namespace OpenMEEG {
         void S(const double coeff,T& matrix) const {
             base::message("S",mesh,mesh);
             ProgressBar pb(mesh.triangles().size());
-            mesh.check_consistency("S optimized computation start");
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
             // When meshes are equal, optimized computation for a symmetric matrix.
@@ -236,8 +234,7 @@ namespace OpenMEEG {
                 const analyticS analyS(triangle1);
                 const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
 
-                // TODO: disable OPENMP for now
-                // #pragma omp parallel for
+                #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
                 for (Triangles::const_iterator tit2=tit1; tit2!=triangles.end(); ++tit2) {
                     const Triangle& triangle2 = *tit2;
@@ -251,7 +248,6 @@ namespace OpenMEEG {
                 }
                 e.Rethrow();
             }
-            mesh.check_consistency("S optimized computation done");
         }
 
         template <typename T>
@@ -290,7 +286,6 @@ namespace OpenMEEG {
         void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh,mesh);
-            mesh.check_consistency("N optimized computation start");
 
             ThreadException e;
             ProgressBar pb(mesh.vertices().size());
@@ -298,8 +293,7 @@ namespace OpenMEEG {
             // When meshes are equal, optimized computation for a symmetric matrix.
 
             for (auto vit1=mesh.vertices().begin(); vit1!=mesh.vertices().end(); ++vit1) {
-                // TODO: disable OPENMP for now
-                // #pragma omp parallel for
+                #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
                 for (auto vit2=vit1; vit2<mesh.vertices().end(); ++vit2) {
                 #else
@@ -313,7 +307,6 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
-            mesh.check_consistency("N optimized computation completion");
         }
 
         const Mesh&  mesh;
@@ -413,8 +406,6 @@ namespace OpenMEEG {
             base::message("S",mesh1,mesh2);
             ThreadException e;
             ProgressBar pb(mesh1.triangles().size());
-            mesh1.check_consistency("S computation start");
-            mesh2.check_consistency("S computation start");
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
 
@@ -428,8 +419,7 @@ namespace OpenMEEG {
                 const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
 
                 const Triangles& m2_triangles = mesh2.triangles();
-                // TODO: disable OPENMP for now
-                // #pragma omp parallel for
+                #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
                 for (const auto& triangle2 : m2_triangles) {
                 #elif defined OPENMP_ITERATOR
@@ -446,8 +436,6 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
-            mesh1.check_consistency("S computation done");
-            mesh2.check_consistency("S computation done");
         }
 
         template <typename T>
@@ -481,15 +469,12 @@ namespace OpenMEEG {
         void N(const double coeff,const T1& S,T2& matrix) const {
 
             base::message("N",mesh1,mesh2);
-            mesh1.check_consistency("N computation start");
-            mesh2.check_consistency("N computation start");
 
             ThreadException e;
             ProgressBar pb(mesh1.vertices().size());
             const VerticesRefs& m2_vertices = mesh2.vertices();
             for (const auto& vertex1 : mesh1.vertices()) {
-                // TODO: disable OPENMP for now
-                // #pragma omp parallel for
+                #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_RANGEFOR
                 for (const auto& vertex2 : m2_vertices) {
                 #elif defined OPENMP_ITERATOR
@@ -506,8 +491,6 @@ namespace OpenMEEG {
                 e.Rethrow();
                 ++pb;
             }
-            mesh1.check_consistency("N computation done");
-            mesh2.check_consistency("N computation done");
         }
 
         const Mesh&  mesh1;

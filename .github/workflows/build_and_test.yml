@@ -472,7 +472,7 @@ jobs:
             ./build_tools/install_dependency_walker.sh
             # Ideally this would not be necessary but it makes things work
             cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
-            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
+            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
           else
             export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi
