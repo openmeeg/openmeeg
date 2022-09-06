@@ -40,10 +40,7 @@
 #define NO_IMPORT_ARRAY
 #endif
 #include "stdio.h"
-// OpenMEEG modification: 3.7 (our min) requires 1.14
-// https://pypi.org/project/oldest-supported-numpy
-#define NPY_NO_DEPRECATED_API NPY_1_14_API_VERSION
-
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 %}
 
@@ -527,7 +524,7 @@
     return success;
   }
 
-  /* Require the given PyArrayObject to be Fortran ordered.  If the
+  /* Require the given PyArrayObject to to be Fortran ordered.  If the
    * the PyArrayObject is already Fortran ordered, do nothing.  Else,
    * set the Fortran ordering flag and recompute the strides.
    */

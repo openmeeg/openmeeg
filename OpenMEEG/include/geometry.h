@@ -56,6 +56,10 @@ namespace OpenMEEG {
 
         Geometry() {}
 
+        Geometry(int nMeshes) {
+            meshes().reserve(nMeshes);
+        }
+
         Geometry(const std::string& geomFileName,const bool OLD_ORDERING=false) {
             load(geomFileName,OLD_ORDERING);
         }

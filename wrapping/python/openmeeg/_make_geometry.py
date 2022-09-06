@@ -68,7 +68,7 @@ def make_geometry(meshes, interfaces, domains):
     # First add mesh points
 
     indmaps = dict()
-    geom = Geometry()
+    geom = Geometry(len(meshes))
     for name, mesh in meshes.items():
         indmaps[name] = geom.add_vertices(mesh[0])
 
