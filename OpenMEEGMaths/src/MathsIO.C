@@ -8,7 +8,7 @@ namespace OpenMEEG {
 
             //  Read a few bytes to figure out the file format and put them back into the stream.
 
-            static const unsigned maxtagsize = 31; // Reserve space for adding a null char at the end.
+            static const unsigned maxtagsize = 32; // Reserve space for adding a null char at the end.
 
             static std::string
             ReadTag(std::istream& is) {
@@ -16,12 +16,12 @@ namespace OpenMEEG {
                 static char buffer[maxtagsize+1];
 
                 try {
-                    const std::streamsize n = is.readsome(buffer,maxtagsize);
+                    is.read(buffer,maxtagsize);
 
-                    for(int i=n-1;i>=0;--i)
+                    for(int i=maxtagsize-1;i>=0;--i)
                         is.putback(buffer[i]);
 
-                    buffer[n] = '\0'; // Add an end of string.
+                    buffer[maxtagsize] = '\0'; // Add an end of string.
 
                 } catch(...) {
                     throw BadHeader();
