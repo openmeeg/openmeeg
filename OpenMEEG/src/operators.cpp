@@ -36,7 +36,7 @@ namespace OpenMEEG {
     }
 
     void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
-        //ThreadException e;
+        ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
@@ -47,11 +47,12 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            //e.Run([&](){
+            e.Run([&](){
                 const analyticDipPotDer anaDPD(dipole,triangle);
                 const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
+                // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
                 #ifndef __APPLE__
                 #pragma omp critical
                 #endif
@@ -59,9 +60,9 @@ namespace OpenMEEG {
                     for (unsigned j=0; j<3; ++j)
                         rhs(triangle.vertex(j).index()) += v(j)*coeff;
                 }
-            //});
+            });
         }
-        //e.Rethrow();
+        e.Rethrow();
     }
 
     void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
