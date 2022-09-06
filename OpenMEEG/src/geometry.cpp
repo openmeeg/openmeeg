@@ -20,8 +20,6 @@ namespace OpenMEEG {
         // This domain should be unique. Otherwise the decomposition of the geometry
         // into domains is wrong. We assume here that it is correct.
 
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("outermost_domain() loop start");
         for (auto& domain : domains()) {
             bool outer = true;
             for (auto& boundary : domain.boundaries())
@@ -29,11 +27,8 @@ namespace OpenMEEG {
                     outer = false;
                     break;
                 }
-            if (outer) {
-                for (const auto& mesh : meshes())
-                    mesh.check_consistency("outermost_domain() loop complete");
+            if (outer)
                 return domain;
-            }
         }
 
         warning("Geometry::outermost_domain: Error outermost domain is not defined.");
@@ -303,19 +298,19 @@ namespace OpenMEEG {
         for (Meshes::const_iterator mit1=meshes().begin();mit1!=meshes().end();++mit1) {
             const Mesh& mesh1 = *mit1;
             if (!mesh1.has_correct_orientation())
-                warning(std::string("A mesh does not seem to be properly oriented"));
+                log_stream(WARNING) << "A mesh does not seem to be properly oriented");
 
             if (mesh1.has_self_intersection()) {
-                warning(std::string("Mesh is self intersecting !"));
+                log_stream(WARNING) << "Mesh is self intersecting !";
                 mesh1.info();
                 OK = false;
-                std::cout << "Self intersection for mesh \"" << mesh1.name() << "\"" << std:: endl;
+                log_stream(WARNING) << "Self intersection for mesh \"" << mesh1.name() << "\"" << std:: endl;
             }
             if (is_nested()) {
                 for (Meshes::const_iterator mit2=mit1+1;mit2!=meshes().end();++mit2) {
                     const Mesh& mesh2 = *mit2;
                     if (mesh1.intersection(mesh2)) {
-                        warning(std::string("2 meshes are intersecting !"));
+                        log_stream(WARNING) << "2 meshes are intersecting !";
                         mesh1.info();
                         mesh2.info();
                         OK = false;
@@ -348,7 +343,7 @@ namespace OpenMEEG {
     bool Geometry::check_inner(const Matrix& mat) const {
 
         if (!is_nested()) {
-            std::cerr << "Dipoles are only allowed when geometry is nested." << std::endl;
+            log_stream(WARNING) << "Dipoles are only allowed when geometry is nested." << std::endl;
             return false;
         };
 
@@ -358,7 +353,7 @@ namespace OpenMEEG {
             if (!interface.contains(Vect3(mat(i,0),mat(i,1),mat(i,2))))
                 ++n_outside;
         if (n_outside!=0) {
-            std::cerr << n_outside << " points are outside of the inner compartment." << std::endl;
+            log_stream(WARNING) << n_outside << " points are outside of the inner compartment." << std::endl;
             return false;
         }
         return true;
@@ -371,8 +366,6 @@ namespace OpenMEEG {
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
         nested = true;
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("check_geometry_is_nested() domains loop start");
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
@@ -384,13 +377,10 @@ namespace OpenMEEG {
                 return;
             }
         }
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("check_geometry_is_nested() domains loop complete");
 
         // ... if 2 interfaces are composed by a same mesh oriented into two different directions.
 
         for (const auto& mesh : meshes()) {
-            mesh.check_consistency("check_geometry_is_nested() meshh loop start");
             unsigned m_oriented = 0;
             for (const auto& domain : domains())
                 for (const auto& boundary : domain.boundaries())
@@ -399,7 +389,6 @@ namespace OpenMEEG {
                             m_oriented += oriented_mesh.orientation();
             std::ostringstream oss;
             oss << "check_geometry_is_nested() complete, nested=" << nested << ", m_oriented=" << m_oriented;
-            mesh.check_consistency(oss.str());
             if (m_oriented==0) {
                 nested = false;
                 return;
@@ -414,12 +403,9 @@ namespace OpenMEEG {
             if (!mesh1.isolated())
                 for (const auto& mesh2 : meshes()) {
                     const int orientation = relative_orientation(mesh1,mesh2);
-                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
+                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0)
                         // Communicating meshes are used for the definition of a common domain
                         meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
-                        mesh1.check_consistency("geom.make_mesh_pairs() mesh1");
-                        mesh2.check_consistency("geom.make_mesh_pairs() mesh2");
-                    }
 
                     //  Lopp only over oriented pairs of meshes.
 
@@ -437,8 +423,6 @@ namespace OpenMEEG {
         // TODO: Instead of marking meshes and vertices, remove them from the model ?
         // TODO: isolated is not the proper name. immersed, redundant, unnecessary ?
 
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() loops start");
         for (auto& domain : domains()) {
             if (almost_equal(domain.conductivity(),0.0)) {
                 for (auto& boundary : domain.boundaries()) {
@@ -448,7 +432,8 @@ namespace OpenMEEG {
                         if (fully_immersed) {
                             oriented_mesh.mesh().isolated()  = true;
                             oriented_mesh.mesh().outermost() = false;
-                            std::cout << "Mesh \"" << oriented_mesh.mesh().name()
+                            log_stream(INFORMATION)
+                                      << "Mesh \"" << oriented_mesh.mesh().name()
                                       << "\" will be excluded from computation because it touches non-conductive domains on both sides."
                                       << std::endl;
 
@@ -461,8 +446,6 @@ namespace OpenMEEG {
                 }
             }
         }
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 1: invalid vertices loop complete");
 
         //  Redefine outermost interface.
         //  The inside of a 0-cond domain is considered as a new outermost
@@ -475,8 +458,6 @@ namespace OpenMEEG {
                         for (auto& oriented_mesh : boundary.interface().oriented_meshes())
                             if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
                                 oriented_mesh.mesh().outermost() = true;
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 2: redifine outermost loop complete");
 
         //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
 
@@ -489,14 +470,9 @@ namespace OpenMEEG {
                     if (vfind!=mesh.vertices().end())
                         shared_vertices.insert(**vfind); //a shared vertex is found
                 }
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 3: shared loop complete");
 
         for (const auto& vertex : shared_vertices)
             invalid_vertices_.erase(vertex);
-
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 4: erasure loop complete");
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.
@@ -527,25 +503,22 @@ namespace OpenMEEG {
             if (conn.size()>1 && !conn.front()->isolated())
                 independant_parts.push_back(conn);
         }
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 5: independent parts loop 1 complete");
 
         //  Report isolated geometries
 
         if (independant_parts.size()>1) {
-            std::cout << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl
+            log_stream(INFORMATION)
+                      << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl
                       << "The computation will continue. But note that electric potentials from different parts are not comparable."
                       << std::endl;
 
             unsigned p =0;
             for (const auto& part : independant_parts) {
-                std::cout << "Part " << ++p << " is formed by meshes: { ";
+                log_stream(INFORMATION) << "Part " << ++p << " is formed by meshes: { ";
                 for (const auto& meshptr : part)
-                    std::cout << "\"" << meshptr->name() << "\" ";
-                std::cout << "}." << std::endl;
+                    log_stream(INFORMATION) << "\"" << meshptr->name() << "\" ";
+                log_stream(INFORMATION) << "}." << std::endl;
             }
         }
-        for (const auto& mesh : meshes())
-            mesh.check_consistency("mark_current_barriers() 6: independent parts loop 2 complete");
     }
 }

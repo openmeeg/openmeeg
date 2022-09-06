@@ -83,7 +83,7 @@ namespace OpenMEEG {
             for (const auto& mp : geo.communicating_mesh_pairs()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
-                log_stream(INFORMATION) << "    Assembling " << mesh1.name() << " x " << mesh2.name();
+                log_stream(INFORMATION) << "Assembling " << mesh1.name() << " x " << mesh2.name();
 
                 if (disableBlock(mesh1,mesh2)) {
                     log_stream(INFORMATION) << " (skipped)" << std::endl;
@@ -105,13 +105,12 @@ namespace OpenMEEG {
                     HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 }
-                log_stream(INFORMATION) << " done" << std::endl;
             }
 
             // Deflate all current barriers as one
-            log_stream(INFORMATION) << "    Deflating current barriers";
+            log_stream(INFORMATION) << "Deflating current barriers" << std::endl;
             deflate(symmatrix,geo);
-            log_stream(INFORMATION) << " done" << std::endl;
+            log_stream(INFORMATION) << "done" << std::endl;
             return symmatrix;
         }
     }
@@ -139,7 +138,6 @@ namespace OpenMEEG {
 
         log_stream(INFORMATION) << "Computing HeadMatrix." << std::endl;
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
-        cortex.check_consistency("HeadMatrix->cortex");
         log_stream(INFORMATION) << "    Found cortex mesh " << cortex.name() << std::endl;
         const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
 
@@ -155,7 +153,6 @@ namespace OpenMEEG {
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
-                mesh.check_consistency("HeadMatrix->geo.meshes()");
                 log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));

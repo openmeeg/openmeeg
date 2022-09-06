@@ -389,7 +389,7 @@ namespace OpenMEEG {
 
     void Mesh::check_consistency(const std::string& when) const {
         // check that all vertices lead to triangles whose edges are defined
-        std::cerr << "Vertices range: " << &(*vertices().begin()) << " -- " << &(*vertices().end()) << std::endl;
+        log_stream(DEBUG) << "Vertices range: " << &(*vertices().begin()) << " -- " << &(*vertices().end()) << std::endl;
         for (const auto& V1 : vertices()) {
             for (const auto& tp1 : triangles(*V1)) try {
                 tp1->edge(*V1);
@@ -401,6 +401,6 @@ namespace OpenMEEG {
                 throw OpenMEEG::UnknownVertex(oss.str());
             }
         }
-        std::cout << "Mesh " << name() << " (" << this << ") consistent during " << when << std::endl;
+        log_stream(INFORMATION) << "Mesh " << name() << " (" << this << ") consistent during " << when << std::endl;
     }
 }

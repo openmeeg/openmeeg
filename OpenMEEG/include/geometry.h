@@ -165,12 +165,8 @@ namespace OpenMEEG {
 
         void set_outermost_domain(Domain& domain) {
             outer_domain = &domain;
-            for (const auto& mesh : meshes())
-                mesh.check_consistency("set_outermost_domain() loop start");
             for (auto& boundary : domain.boundaries())
                 boundary.interface().set_to_outermost();
-            for (const auto& mesh : meshes())
-                mesh.check_consistency("set_outermost_domain() loop complete");
         }
 
         bool    is_outermost(const Domain& domain) const { return outer_domain==&domain; }
@@ -234,23 +230,19 @@ namespace OpenMEEG {
             // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
             // An outermost domain is defined as the only domain which has no inside. It is supposed to be
             // unique.
-            for (const auto& mesh : meshes())
-                mesh.check_consistency("finalize() start");
 
             if (has_conductivities())
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
-            for (const auto& mesh : meshes())
-                mesh.check_consistency("finalize() domains().size() start");
             if (domains().size()!=0) {
-                for (const auto& mesh : meshes())
-                    mesh.check_consistency("finalize() domains().size() complete");
                 set_outermost_domain(outermost_domain());
                 check_geometry_is_nested();
             }
 
             generate_indices(OLD_ORDERING);
             make_mesh_pairs();
+            for (const auto& mesh : meshes())
+                mesh.check_consistency("geometry finalize step");
         }
 
         /// Handle multiple isolated domains
