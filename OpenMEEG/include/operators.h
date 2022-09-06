@@ -131,8 +131,6 @@ namespace OpenMEEG {
         static double N(const double factor,const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
 
             double result = 0.0;
-            Vect3 CB1;
-            Vect3 CB2;
             for (const auto& tp1 : m1.triangles(V1)) {
                 const Edge& edge1 = tp1->edge(V1);
                 const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
