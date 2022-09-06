@@ -79,7 +79,7 @@ def make_geometry(meshes, interfaces, domains):
         om_mesh.add_triangles(mesh[1], indmaps[name])
         om_mesh.update(True)
 
-    del meshes,indmaps
+    del meshes, indmaps
 
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
