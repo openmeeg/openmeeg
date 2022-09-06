@@ -9,6 +9,7 @@
 #include <MeshIO.h>
 #include <GeometryIO.h>
 #include <PropertiesSpecialized.h>
+#include <logger.h>
 
 namespace OpenMEEG {
 
@@ -298,7 +299,7 @@ namespace OpenMEEG {
         for (Meshes::const_iterator mit1=meshes().begin();mit1!=meshes().end();++mit1) {
             const Mesh& mesh1 = *mit1;
             if (!mesh1.has_correct_orientation())
-                log_stream(WARNING) << "A mesh does not seem to be properly oriented");
+                log_stream(WARNING) << "A mesh does not seem to be properly oriented";
 
             if (mesh1.has_self_intersection()) {
                 log_stream(WARNING) << "Mesh is self intersecting !";
