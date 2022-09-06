@@ -176,6 +176,10 @@ jobs:
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
+        # OpenMP doesn't work well on macOS
+        if [[ "${{matrix.os}}" == 'macos'* ]]; then
+          OPENMP_OPT="-DUSE_OPENMP=OFF"
+        fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
           echo '::set-output name=vtk_version::${{matrix.vtk}}'
           VTK_OPT="-DUSE_VTK=ON"
@@ -195,6 +199,8 @@ jobs:
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
         echo "Using VTK_OPT=$VTK_OPT"
         echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
+        echo "Using OPENMP_OPT=$OPENMP_OPT"
+        echo "OPENMP_OPT=$OPENMP_OPT" >> $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 

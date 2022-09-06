@@ -94,7 +94,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
-    OPENMP_OPT="-DUSE_OPENMP=OFF"
+    export OPENMP_OPT="-DUSE_OPENMP=OFF"
     PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
@@ -116,7 +116,7 @@ export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do

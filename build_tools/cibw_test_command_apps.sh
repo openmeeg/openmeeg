@@ -14,6 +14,10 @@ echo "Installers:"
 ls -al $ROOT/installers
 echo
 
+pushd $ROOT/build
+ctest -C release || ctest -C release --rerun-failed --output-on-failure
+popd
+
 if [[ "${RUNNER_OS}" == "Linux" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
     cd OpenMEEG-*
