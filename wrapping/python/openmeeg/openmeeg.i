@@ -585,7 +585,16 @@ namespace OpenMEEG {
             PyObject* name = PyList_GetItem(item,0);
             if (name==nullptr || !PyUnicode_Check(name))
                 throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
-            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
+            geometry->add_mesh(PyUnicode_AsUTF8(name));
+        }
+
+        // Add triangles, separately because of comment in geoemtry.h:
+        //   It is dangerous to store the returned mesh because the vector can be reallocated.
+        //   Use mesh(name) after all meshes have been added....
+        for (unsigned i=0; i<N; ++i) {
+            PyObject* item = PyList_GetItem(pylist,i);
+            PyObject* name = PyList_GetItem(item,0);
+            Mesh& mesh = geometry->mesh(PyUnicode_AsUTF8(name));
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
