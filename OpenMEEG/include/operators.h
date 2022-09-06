@@ -134,27 +134,11 @@ namespace OpenMEEG {
             Vect3 CB1;
             Vect3 CB2;
             for (const auto& tp1 : m1.triangles(V1)) {
-                try {
-                    const Edge& edge1 = tp1->edge(V1);
-                    CB1 = edge1.vertex(0)-edge1.vertex(1);
-                } catch (const OpenMEEG::UnknownVertex&) {
-                    std::ostringstream oss;
-                    oss << "Outer loop mesh " << m1.name() << " requested vertex address:" << std::endl << "  " << &V1 << " (" << V1 << ")" << std::endl << "but valid triangle vertex addresses are:" << std::endl;
-                    for (unsigned i=0;i<3;++i)
-                        oss << "  " << &(tp1->vertex(i)) << std::endl;
-                    throw OpenMEEG::UnknownVertex(oss.str());
-                }
+                const Edge& edge1 = tp1->edge(V1);
+                const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
                 for (const auto& tp2 : m2.triangles(V2)) {
-                    try {
-                        const Edge& edge2 = tp2->edge(V2);
-                        CB2 = edge2.vertex(0)-edge2.vertex(1);
-                    } catch (const OpenMEEG::UnknownVertex&) {
-                        std::ostringstream oss;
-                        oss << "Inner loop mesh " << m2.name() << " requested vertex address:" << std::endl << "  " << &V2 << " (" << V2 << ")" << std::endl << "but valid triangle vertex addresses are:" << std::endl;
-                        for (unsigned i=0;i<3;++i)
-                            oss << "  " << &(tp2->vertex(i)) << std::endl;
-                        throw OpenMEEG::UnknownVertex(oss.str());
-                    }
+                    const Edge& edge2 = tp2->edge(V2);
+                    const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
                     result -= factor*dotprod(CB1,CB2)*matrix(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
                 }
             }
