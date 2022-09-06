@@ -7,16 +7,15 @@ if [[ "$1" == "" ]]; then
 fi
 ROOT=$1
 
-set -e
+pushd $ROOT/build
+ctest -C release || ctest -C release --rerun-failed --output-on-failure
+popd
+
 ls -al $ROOT
 echo
 echo "Installers:"
 ls -al $ROOT/installers
 echo
-
-pushd $ROOT/build
-ctest -C release || ctest -C release --rerun-failed --output-on-failure
-popd
 
 if [[ "${RUNNER_OS}" == "Linux" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
