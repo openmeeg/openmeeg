@@ -311,7 +311,7 @@ namespace OpenMEEG {
             oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
             throw Error(SWIG_ValueError,oss.str().c_str());
         }
-        const PyArray_Descr *descr = PyArray_DESCR(array);
+        const PyArray_Descr* descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
@@ -352,7 +352,7 @@ namespace OpenMEEG {
         }
         // ensure all vertices are found in the mesh
         // the vertex_index that fails later should be called by
-        // triangle->edges(), so let's use that here
+        // triangle->edges(), so let us use that here
         std::cout << " : check";
         for (const auto& t2 : mesh->triangles()) {
             for (const auto& e : t2.edges()) {
@@ -574,11 +574,12 @@ namespace OpenMEEG {
             PyObject* item = PyList_GetItem(pylist,i);
             if (item==nullptr || !PyList_Check(item) || PyList_Size(item)!=3)
                 throw Error(SWIG_TypeError, "Geometry constructor argument must be a list of lists, each of length 3");
-            PyObject* vertices  = PyList_GetItem(item,1);
+            PyObject* vertices = PyList_GetItem(item,1);
             indmap[i] = geom_add_vertices(geometry,vertices);
         }
 
         //  Create meshes and add triangles.
+
         for (unsigned i=0; i<N; ++i) {
             PyObject* item = PyList_GetItem(pylist,i);
             PyObject* name = PyList_GetItem(item,0);
