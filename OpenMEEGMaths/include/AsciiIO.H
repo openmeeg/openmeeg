@@ -72,7 +72,7 @@ namespace OpenMEEG {
                 const LinOpInfo& inforead = info(is);
 
                 if (linop.storageType()!=inforead.storageType())
-                    throw BadStorageType(name());
+                    throw BadStorageType("AsciiIO reading of " + name());
 
                 if (linop.dimension()!=inforead.dimension())
                     throw BadVector(inforead.ncol());

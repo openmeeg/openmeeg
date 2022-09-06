@@ -71,11 +71,14 @@ namespace OpenMEEG {
             void read(std::ifstream& is,LinOp& linop) const {
                 const LinOpInfo& inforead = info(is);
 
-                if (linop.storageType()!=inforead.storageType())
-                    throw BadStorageType(name());
+                if (linop.storageType()!=inforead.storageType()) {
+                    std::ostringstream oss;
+                    oss << "TrivialBinIO linop.StorageType (" << linop.storageType() << ") != inforead.storageType (" << inforead.storageType() << ") for file " << name();
+                    throw BadStorageType(oss.str());
+                }
 
                 if (linop.dimension()!=inforead.dimension())
-                    throw BadStorageType(name());
+                    throw BadStorageType("TrivialBinIO dimension during read of " + name());
 
                 linop.nlin() = inforead.nlin();
                 linop.ncol() = inforead.ncol();

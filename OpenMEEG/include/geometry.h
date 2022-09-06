@@ -57,6 +57,8 @@ namespace OpenMEEG {
         Geometry() {}
 
         Geometry(int nMeshes) {
+            if (nMeshes <= 0)
+                throw OpenMEEG::GenericError("Geometry::Geometry nMeshes must be positive");
             meshes().reserve(nMeshes);
         }
 
