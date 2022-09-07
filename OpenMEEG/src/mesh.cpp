@@ -388,6 +388,7 @@ namespace OpenMEEG {
         return true;
     }
 
+    #ifdef DEBUG
     void Mesh::check_consistency(const std::string& when) const {
         // check that all vertices lead to triangles whose edges are defined
         log_stream(DEBUG) << "Vertices range: " << &(*vertices().begin()) << " -- " << &(*vertices().end()) << std::endl;
@@ -404,4 +405,5 @@ namespace OpenMEEG {
         }
         log_stream(INFORMATION) << "Mesh " << name() << " (" << this << ") consistent during " << when << std::endl;
     }
+    #endif
 }

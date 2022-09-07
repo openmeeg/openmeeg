@@ -126,10 +126,13 @@ namespace OpenMEEG {
         bool has_self_intersection() const;        ///< \brief Check whether the mesh self-intersects.
         bool intersection(const Mesh&) const;      ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const;      ///< \brief Check local orientation of mesh triangles.
-        void check_consistency(const std::string&) const;            ///< \brief Check mesh triangle/vertex consistency.
         void generate_indices();                   ///< \brief Generate indices (if allocate).
         void update(const bool topology_changed);  ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&);       ///< Merge two meshes.
+
+        #ifdef DEBUG
+        void check_consistency(const std::string&) const; ///< \brief Check mesh triangle/vertex consistency.
+        #endif
 
         /// \brief Get the ranges of the specific mesh in the global matrix.
         /// \return vector of Range \sa
