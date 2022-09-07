@@ -1,11 +1,11 @@
 import os
 import numpy as np
-import openmeeg as om
+import openmeeg._openmeeg_cxx as _omc
 
 
 def check_mesh(name, vertices, triangles, expected_result):
     try:
-        mesh = om.Mesh(vertices, triangles)
+        mesh = _omc.Mesh(vertices, triangles)
         mesh.info()
     except Exception:
         if expected_result:
@@ -46,7 +46,7 @@ def test_mesh_full(data_path):
     # test X -> should be OK
 
     data_file = os.path.join(data_path, "Head1", "Head1.tri")
-    mesh_X = om.Mesh()
+    mesh_X = _omc.Mesh()
     mesh_X.load(data_file)
     mesh_X.info()
 
@@ -55,7 +55,7 @@ def test_mesh_full(data_path):
     T_X = mesh_X.triangles()
     assert V_X is not None and T_X is not None
     # V_X.torray() should be possible
-    # mesh_Y = om.Mesh(V_X, T_X)  # XXX fails for now
+    # mesh_Y = _omc.Mesh(V_X, T_X)  # XXX fails for now
     # mesh_Y.info()
 
     # TODO

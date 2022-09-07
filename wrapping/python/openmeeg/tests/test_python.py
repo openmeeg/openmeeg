@@ -197,7 +197,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     )
 
     if op.exists(source_mesh_file):
-        mesh = om.Mesh(source_mesh_file)
+        mesh = _omc.Mesh(source_mesh_file)
         n_dipoles_surf = mesh.vertices().size()
         ssm = om.SurfSourceMat(geom, mesh, integrator)
         gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
@@ -256,7 +256,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     # Compute forward data =
 
     src_fname = op.join(data_path, subject, subject + ".srcdip")
-    sources = om.Matrix(src_fname)
+    sources = _omc.Matrix(src_fname)
     n_times = sources.ncol()
 
     noise_level = 0.0
