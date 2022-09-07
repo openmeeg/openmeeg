@@ -76,6 +76,8 @@ if __name__ == "__main__":
             "-O",
             "-module",
             "_openmeeg_cxx",
+            "-interface",
+            "_openmeeg",
             "-modern",
         ]  # TODO: , '-Werror']
         library_dirs = []
