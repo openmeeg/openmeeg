@@ -83,6 +83,7 @@ namespace OpenMEEG {
             //    - coefficient to be applied to each matrix element (depending on conductivities, ...)
             //    - storage Matrix for the result.
 
+            ThreadException e;
             ProgressBar pb(triangles1.size());
             #pragma omp parallel for
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -94,16 +95,19 @@ namespace OpenMEEG {
             for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
             #endif
-                for (const auto& triangle2 : triangles2) {
-                    const analyticD3 analyD(triangle2);
-                    const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
-                    const Vect3& total = integrator.integrate(Dfunc,triangle1);
+                e.Run([&](){
+                    for (const auto& triangle2 : triangles2) {
+                        const analyticD3 analyD(triangle2);
+                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
+                        const Vect3& total = integrator.integrate(Dfunc,triangle1);
 
-                    for (unsigned i=0; i<3; ++i)
-                        mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
-                }
-                ++pb;
+                        for (unsigned i=0; i<3; ++i)
+                            mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
+                    }
+                    ++pb;
+                });
             }
+            e.Rethrow();
         }
 
         // Operator N for two vertices of the same mesh.
@@ -131,10 +135,8 @@ namespace OpenMEEG {
                 const Edge& edge1 = tp1->edge(V1);
                 const Vect3& CB1 = edge1.vertex(0)-edge1.vertex(1);
                 for (const auto& tp2 : m2.triangles(V2)) {
-
                     const Edge& edge2 = tp2->edge(V2);
                     const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
-
                     result -= factor*dotprod(CB1,CB2)*matrix(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
                 }
             }
@@ -207,6 +209,7 @@ namespace OpenMEEG {
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
             // When meshes are equal, optimized computation for a symmetric matrix.
 
+            ThreadException e;
             const Triangles& triangles = mesh.triangles();
             for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1,++pb) {
                 const Triangle& triangle1 = *tit1;
@@ -221,8 +224,11 @@ namespace OpenMEEG {
                 for (int i2=tit1-triangles.begin(); i2<static_cast<int>(triangles.size()); ++i2) {
                     const Triangle& triangle2 = *(triangles.begin()+i2);
                 #endif
-                    matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                    e.Run([&](){
+                        matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                    });
                 }
+                e.Rethrow();
             }
         }
 
@@ -263,6 +269,7 @@ namespace OpenMEEG {
 
             base::message("N",mesh,mesh);
 
+            ThreadException e;
             ProgressBar pb(mesh.vertices().size());
 
             // When meshes are equal, optimized computation for a symmetric matrix.
@@ -275,8 +282,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<=vit1-mesh.vertices().begin();++i2) {
                     const auto vit2 = mesh.vertices().begin()+i2;
                 #endif
-                    matrix((*vit1)->index(),(*vit2)->index()) += base::N(**vit1,**vit2,mesh,S)*coeff;
+                    e.Run([&](){
+                        matrix((*vit1)->index(),(*vit2)->index()) += base::N(**vit1,**vit2,mesh,S)*coeff;
+                    });
                 }
+                e.Rethrow();
                 ++pb;
             }
         }
@@ -376,6 +386,7 @@ namespace OpenMEEG {
         template <typename T>
         void S(const double coeff,T& matrix) const {
             base::message("S",mesh1,mesh2);
+            ThreadException e;
             ProgressBar pb(mesh1.triangles().size());
 
             // Operator S is given by Sij=\Int G*PSI(I,i)*Psi(J,j) with PSI(l,t) a P0 test function on layer l and triangle t.
@@ -400,8 +411,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<static_cast<int>(m2_triangles.size());++i2) {
                     const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                 #endif
-                    matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                    e.Run([&](){
+                        matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                    });
                 }
+                e.Rethrow();
                 ++pb;
             }
         }
@@ -438,6 +452,7 @@ namespace OpenMEEG {
 
             base::message("N",mesh1,mesh2);
 
+            ThreadException e;
             ProgressBar pb(mesh1.vertices().size());
             const VerticesRefs& m2_vertices = mesh2.vertices();
             for (const auto& vertex1 : mesh1.vertices()) {
@@ -451,8 +466,11 @@ namespace OpenMEEG {
                 for (int i2=0; i2<static_cast<int>(m2_vertices.size()); ++i2) {
                     const Vertex* vertex2 = *(m2_vertices.begin()+i2);
                 #endif
-                    matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
+                    e.Run([&](){
+                        matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
+                    });
                 }
+                e.Rethrow();
                 ++pb;
             }
         }

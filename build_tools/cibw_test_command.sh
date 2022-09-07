@@ -11,4 +11,5 @@ TEST_PATH=$(python -c 'from pathlib import Path; import openmeeg; print(Path(ope
 echo "OPENMEEG_DATA_PATH=\"$OPENMEEG_DATA_PATH\""
 echo
 set -xe
-pytest -ra -svv "$TEST_PATH"
+python -m threadpoolctl -i numpy openmeeg
+pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"

@@ -35,7 +35,7 @@ if (OpenMP_FOUND)
     target_compile_definitions(OpenMEEG PUBLIC ${OPENMP_DEFINITIONS})
     target_link_libraries(OpenMEEG PUBLIC OpenMP::OpenMP_CXX)
 else()
-    message("OpenMP library not found. Use a compiler with OpenMP support for optimized running time." )
+    message(STATUS "OpenMP library not found. Use a compiler with OpenMP support for optimized running time." )
 endif()
 
 # Progress bar

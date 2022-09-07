@@ -1,6 +1,6 @@
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
-set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBlas" "mkl" "mkl-findblas")
+set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas")
 
 if (BLA_IMPLEMENTATION STREQUAL "mkl-findblas")
 
@@ -58,7 +58,7 @@ elseif (BLA_IMPLEMENTATION STREQUAL "mkl")
 
     find_package(MKL REQUIRED)
 
-    # This is a hack to help FindBLAS fiding MKL without needing source the mkl script
+    # This is a hack to help FindBLAS finding MKL without needing source the mkl script
     # setting global variables.
 
     set(ENV{MKLROOT} ${MKL_ROOT})

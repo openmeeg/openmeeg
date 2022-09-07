@@ -13,6 +13,7 @@ namespace OpenMEEG {
     // to an entire mesh, and storing coordinates of the output in a Matrix.
 
     void operatorFerguson(const Vect3& x,const Mesh& m,Matrix& mat,const unsigned& offsetI,const double coeff) {
+        ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& vertexp : m.vertices()) {
@@ -23,15 +24,19 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.vertices().size()); ++i) {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
-            const unsigned vindex = vertexp->index();
-            Vect3 v = Details::operatorFerguson(x,*vertexp,m);
-            mat(offsetI+0,vindex) += v.x()*coeff;
-            mat(offsetI+1,vindex) += v.y()*coeff;
-            mat(offsetI+2,vindex) += v.z()*coeff;
+            e.Run([&](){
+                const unsigned vindex = vertexp->index();
+                Vect3 v = Details::operatorFerguson(x,*vertexp,m);
+                mat(offsetI+0,vindex) += v.x()*coeff;
+                mat(offsetI+1,vindex) += v.y()*coeff;
+                mat(offsetI+2,vindex) += v.z()*coeff;
+            });
         }
+        e.Rethrow();
     }
 
     void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+        ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
@@ -42,20 +47,27 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            const analyticDipPotDer anaDPD(dipole,triangle);
-            const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
+            e.Run([&](){
+                const analyticDipPotDer anaDPD(dipole,triangle);
+                const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
 
-            const Vect3& v = integrator.integrate(dipder,triangle);
-            #pragma omp critical
-            {
-                for (unsigned j=0; j<3; ++j)
-                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
-            }
+                const Vect3& v = integrator.integrate(dipder,triangle);
+                // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
+                #ifndef __APPLE__
+                #pragma omp critical
+                #endif
+                {
+                    for (unsigned j=0; j<3; ++j)
+                        rhs(triangle.vertex(j).index()) += v(j)*coeff;
+                }
+            });
         }
+        e.Rethrow();
     }
 
     void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
         const auto& dippot = [&dipole](const Vect3& r) { return dipole.potential(r); };
+        ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
@@ -66,8 +78,11 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            const double d = integrator.integrate(dippot,triangle);
-            rhs(triangle.index()) += d*coeff;
+            e.Run([&](){
+                const double d = integrator.integrate(dippot,triangle);
+                rhs(triangle.index()) += d*coeff;
+            });
         }
+        e.Rethrow();
     }
 }

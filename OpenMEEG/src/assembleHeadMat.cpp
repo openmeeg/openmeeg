@@ -27,6 +27,7 @@ namespace OpenMEEG {
         template <typename T>
         void deflate(T& M,const Geometry& geo) {
             //  deflate all current barriers as one
+            ThreadException e;
             for (const auto& part : geo.isolated_parts()) {
                 unsigned nb_vertices = 0;
                 unsigned i_first = 0;
@@ -48,8 +49,11 @@ namespace OpenMEEG {
                             for (int i2=vit1-vertices.begin();i2<static_cast<int>(vertices.size());++i2) {
                                 const auto vit2 = vertices.begin()+i2;
                             #endif
-                                M((*vit1)->index(),(*vit2)->index()) += coef;
+                                e.Run([&](){
+                                    M((*vit1)->index(),(*vit2)->index()) += coef;
+                                });
                             }
+                            e.Rethrow();
                         }
                     }
             }
@@ -69,6 +73,7 @@ namespace OpenMEEG {
         template <typename TYPE,typename Selector>
         TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
 
+            log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
             TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
 
@@ -78,10 +83,12 @@ namespace OpenMEEG {
             for (const auto& mp : geo.communicating_mesh_pairs()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
+                log_stream(INFORMATION) << "Assembling " << mesh1.name() << " x " << mesh2.name();
 
-                if (disableBlock(mesh1,mesh2))
+                if (disableBlock(mesh1,mesh2)) {
+                    log_stream(INFORMATION) << " (skipped)" << std::endl;
                     continue;
-
+                }
                 const double factor     =  mp.relative_orientation()*K;
                 const double SCondCoeff =  factor*geo.sigma_inv(mesh1,mesh2);
                 const double NCondCoeff =  factor*geo.sigma(mesh1,mesh2);
@@ -90,18 +97,20 @@ namespace OpenMEEG {
                 const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
 
                 if (&mesh1==&mesh2) {
+                    log_stream(INFORMATION) << " (self) setting blocks" << std::endl;
                     HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 } else {
+                    log_stream(INFORMATION) << " setting blocks" << std::endl;
                     HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
                     operators.set_blocks(coeffs,symmatrix);
                 }
             }
 
             // Deflate all current barriers as one
-
+            log_stream(INFORMATION) << "Deflating current barriers" << std::endl;
             deflate(symmatrix,geo);
-
+            log_stream(INFORMATION) << "done" << std::endl;
             return symmatrix;
         }
     }
@@ -127,24 +136,32 @@ namespace OpenMEEG {
 
     Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0) {
 
+        log_stream(INFORMATION) << "Computing HeadMatrix." << std::endl;
         const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
+        log_stream(INFORMATION) << "    Found cortex mesh " << cortex.name() << std::endl;
         const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
 
         // Copy symmatrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
+        log_stream(INFORMATION) << "    Copying symmatrix into the returned matrix";
         const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
+        log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
         matrix.set(0.0);
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
+                log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));
-                if (!mesh.current_barrier())
+                if (!mesh.current_barrier()) {
+                    log_stream(INFORMATION) << " : triangles";
                     for (const auto& triangle : mesh.triangles())
                         matrix.setlin(iNl++,symmatrix.getlin(triangle.index()));
+                }
+                log_stream(INFORMATION) << " done." << std::endl;
             }
 
         return matrix;
@@ -316,8 +333,8 @@ namespace OpenMEEG {
             const Vect3 point(points(i,0),points(i,1),points(i,2));
             const Domain& domain = geo.domain(point);
             if (domain.conductivity()==0.0) {
-                std::cerr << " Surf2Vol: Point [ " << points.getlin(i) << "]"
-                          << " is inside a non-conductive domain. Point is dropped." << std::endl;
+                log_stream(INFORMATION) << " Surf2Vol: Point [ " << points.getlin(i) << "]"
+                                        << " is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
                 m_points[&domain].push_back(Vertex(point,index++));
             }

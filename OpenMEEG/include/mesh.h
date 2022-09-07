@@ -130,6 +130,10 @@ namespace OpenMEEG {
         void update(const bool topology_changed);  ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&);       ///< Merge two meshes.
 
+        #ifdef DEBUG
+        void check_consistency(const std::string&) const; ///< \brief Check mesh triangle/vertex consistency.
+        #endif
+
         /// \brief Get the ranges of the specific mesh in the global matrix.
         /// \return vector of Range \sa
 
@@ -151,7 +155,7 @@ namespace OpenMEEG {
         //  Triangles always have a contiguous range as they are never shared between meshes.
 
         Range triangles_range() const { return Range(triangles().front().index(),triangles().back().index()); }
-        
+
         /// \brief Get the triangles adjacent to vertex \param V .
 
         TrianglesRefs triangles(const Vertex& V) const { return vertex_triangles.at(&V); }

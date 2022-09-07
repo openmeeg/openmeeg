@@ -124,7 +124,14 @@ namespace OpenMEEG {
             for (unsigned i=0;i<3;++i)
                 if (&vertex(i)==&V)
                     return i;
-            throw UnknownVertex();
+            std::ostringstream oss;
+            oss << "The vertex with address " << static_cast<const void*>(&V) << " with coordinates " << V
+                << " does not belong to the triangle ";
+            if (ind!=static_cast<unsigned>(-1))
+                oss << ind;
+            else
+                oss << static_cast<const void*>(this);
+            throw UnknownVertex(oss.str());
         }
 
         static constexpr unsigned indices[3][2] = {{1,2},{2,0},{0,1}};

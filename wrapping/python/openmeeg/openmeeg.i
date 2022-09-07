@@ -75,11 +75,6 @@
     #include <forward.h>
     #include <iostream>
 
-    // 3.7 (our min) requires 1.14
-    // https://pypi.org/project/oldest-supported-numpy
-    #define NPY_NO_DEPRECATED_API NPY_1_14_API_VERSION
-    #include <numpy/arrayobject.h>
-
     using namespace OpenMEEG;
 %}
 
@@ -110,12 +105,16 @@
 // Legacy
 // /////////////////////////////////////////////////////////////////
 
+%{
 #define SWIG_FILE_WITH_INIT
+%}
 %include "numpy.i"
+%{
 #undef SWIG_FILE_WITH_INIT
+%}
 
 %init %{
-import_array();
+    import_array();
 %}
 
 // /////////////////////////////////////////////////////////////////
@@ -193,25 +192,27 @@ namespace OpenMEEG {
 
 %inline %{
 
+    typedef std::shared_ptr<double[]> SharedData;
+
     // Creator of Vector from PyArrayObject or Vector
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
-            PyArrayObject *vect = (PyArrayObject *) PyArray_FromObject(pyobj, NPY_DOUBLE, 1, 1);
-            const size_t nelem = PyArray_DIM(vect, 0);
-            OpenMEEG::Vector *v = new Vector(nelem);
-            v->reference_data(static_cast<double *>(PyArray_GETPTR1(vect, 0)));
+            PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+            const size_t nelem = PyArray_DIM(vect,0);
+            OpenMEEG::Vector* v = new Vector(nelem);
+            v->reference_data(static_cast<double*>(PyArray_GETPTR1(vect,0)));
             return v;
         }
 
         //  If the object is an OpenMEEG vector converted to python, copy the vector.
         //  TODO: do we need this ???
 
-        void *ptr = 0 ;
+        void* ptr = 0 ;
         if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Vector,SWIG_POINTER_EXCEPTION)))
             throw Error(SWIG_TypeError, "Input object is neither a PyArray nor a Vector.");
 
-        return new Vector(*(reinterpret_cast<OpenMEEG::Vector *>(ptr)), DEEP_COPY);
+        return new Vector(*(reinterpret_cast<OpenMEEG::Vector*>(ptr)),DEEP_COPY);
     }
 
     // Creator of Matrix from PyArrayObject or Matrix
@@ -293,13 +294,11 @@ namespace OpenMEEG {
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,2));
             indmap.insert({ i, geom->add_vertex(Vertex(x,y,z)) });
         }
-
         return indmap;
     }
 
     void
     mesh_add_triangles(Mesh* mesh,PyObject* pyobj,const IndexMap& indmap) {
-
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
@@ -309,16 +308,15 @@ namespace OpenMEEG {
             oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
             throw Error(SWIG_ValueError,oss.str().c_str());
         }
-        const PyArray_Descr *descr = PyArray_DESCR(array);
+        const PyArray_Descr* descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
             !PyArray_EquivTypenums(type_num,NPY_INT64) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
-            std::vector<char> buf(1000); // note +1 for null terminator
-            std::snprintf(&buf[0],buf.size(),"Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '%c%d'",
-                          descr->kind,descr->elsize);
-            throw Error(SWIG_TypeError, &buf[0]);
+            std::ostringstream oss;
+            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << descr->elsize << "'";
+            throw Error(SWIG_TypeError, oss.str().c_str());
         }
 
         const size_t ndims = PyArray_NDIM(array);
@@ -452,20 +450,36 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Matrix {
+
     Matrix(PyObject* pyobj) { return new_OpenMEEG_Matrix(pyobj); }
 
+    static void Free(PyObject* capsule) {
+        SharedData* shared_data = reinterpret_cast<SharedData*>(PyCapsule_GetPointer(capsule,PyCapsule_GetName(capsule)));
+        delete shared_data;
+    }
+
     PyObject* array() {
+
         const npy_intp ndims = 2;
         npy_intp* dims = new npy_intp[ndims];
         dims[0] = ($self)->nlin();
         dims[1] = ($self)->ncol();
 
-        // make a copy of the data
-        double* data = new double[dims[0]*dims[1]];
-        double* start = (*($self)).data();
-        std::copy(start,start+dims[0]*dims[1],data);
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                                                            static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
+        SharedData* shared_data = new SharedData(($self)->get_shared_data_ptr());
+        void* data = static_cast<void*>(shared_data->get());
+        PyObject* obj = PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
+                                    data,0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL);
+
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(obj);
+        if (array==nullptr)
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
+
+        PyObject* capsule = PyCapsule_New(shared_data,"wrapped matrix",static_cast<PyCapsule_Destructor>(&OpenMEEG_Matrix_Free));
+        if (PyArray_SetBaseObject(array,capsule)==-1) {
+            Py_DECREF(array);
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
+        }
+
         return PyArray_Return(array);
     }
 
@@ -514,9 +528,9 @@ namespace OpenMEEG {
 
     Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=nullptr) {
         Mesh* mesh = new Mesh(geom);
+        mesh->name() = name;
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
-        mesh->name() = name;
         mesh->update(true);
         return mesh;
     }
@@ -527,20 +541,23 @@ namespace OpenMEEG {
 %extend OpenMEEG::Geometry {
 
     Geometry(PyObject* pylist) {
+
         if (pylist==nullptr || !PyList_Check(pylist))
             throw Error(SWIG_TypeError, "Argument to Geometry constructor must be a list");
 
         //  Add vertices of all meshes.
 
-        OpenMEEG::Geometry* geometry = new OpenMEEG::Geometry();
         const unsigned N = PyList_Size(pylist);
+        if (N==0)
+            throw Error(SWIG_ValueError, "Argument to Geometry constructor must be a non-empty list");
+        OpenMEEG::Geometry* geometry = new OpenMEEG::Geometry(N);
 
         std::vector<OpenMEEG::IndexMap> indmap(N);
         for (unsigned i=0; i<N; ++i) {
             PyObject* item = PyList_GetItem(pylist,i);
             if (item==nullptr || !PyList_Check(item) || PyList_Size(item)!=3)
                 throw Error(SWIG_TypeError, "Geometry constructor argument must be a list of lists, each of length 3");
-            PyObject* vertices  = PyList_GetItem(item,1);
+            PyObject* vertices = PyList_GetItem(item,1);
             indmap[i] = geom_add_vertices(geometry,vertices);
         }
 
@@ -551,11 +568,18 @@ namespace OpenMEEG {
             PyObject* name = PyList_GetItem(item,0);
             if (name==nullptr || !PyUnicode_Check(name))
                 throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
-            Mesh& mesh = geometry->add_mesh();
+            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
+            #ifdef DEBUG
+            std::ostringstream oss;
+            oss << "SWIG Geometry update of meshes(" << i << ")=\"" << mesh.name() << "\"";
+            for (const auto& mesh : geometry->meshes())
+                mesh.check_consistency(oss.str());
+            #endif
         }
+
         return geometry;
     }
 }

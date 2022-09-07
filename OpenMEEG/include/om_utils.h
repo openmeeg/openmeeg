@@ -25,12 +25,4 @@ namespace OpenMEEG {
                   <<  "| Elapsed Time: " << elapsed_seconds.count() << " s." << std::endl
                   <<  "-------------------------------------------" << std::endl;
     }
-
-    inline void
-    warning(const std::string& message) {
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
-                  << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
-                  << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
-                  << message << std::endl;
-    }
 }

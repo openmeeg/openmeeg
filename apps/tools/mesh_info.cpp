@@ -6,6 +6,7 @@
 // - replace this header by the LICENSE.txt content.
 
 #include "mesh.h"
+#include "logger.h"
 #include "commandline.h"
 
 using namespace OpenMEEG;
@@ -29,12 +30,12 @@ main(int argc,char* argv[]) {
     Mesh m(input_filename);
 
     if (m.has_self_intersection())
-        warning(std::string("Mesh is self intersecting !"));
+        log_stream(WARNING) << "Mesh is self intersecting !" << std::endl;
 
     // for closed mesh
 
     if (!m.has_correct_orientation()) {
-        warning(std::string("Mesh is not well-oriented (valid for closed mesh) !"));
+        log_stream(WARNING) << "Mesh is not well-oriented (valid for closed mesh) !" << std::endl;
         return 1;
     }
 

@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <mutex>
 #include <exception>
 
 // TODO We should rename this file Exceptions.H probably, but this collides
@@ -250,9 +251,13 @@ namespace OpenMEEG {
     };
 
     struct UnknownVertex: public Exception {
-        UnknownVertex(): Exception("Unknown vertex in triangle") { }
+        UnknownVertex(const std::string& msg): Exception(message(msg)) { }
 
         ExceptionCode code() const noexcept { return UNKNOWN_VERTEX; }
+
+    private:
+
+        static std::string message(const std::string& msg) { return std::string("Unknown vertex in triangle: " + msg); }
     };
 
     struct OverlappingSourceMesh: public Exception {
@@ -318,5 +323,33 @@ namespace OpenMEEG {
         GenericError(const std::string& str): Exception(str) { }
 
         ExceptionCode code() const noexcept { return BAD_GENERIC; }
+    };
+
+    // OpenMP
+    // https://stackoverflow.com/questions/11828539/elegant-exceptionhandling-in-openmp
+    class ThreadException {
+        std::exception_ptr Ptr;
+        std::mutex         Lock;
+    public:
+        ThreadException(): Ptr(nullptr) {}
+        void Rethrow(){
+            if(this->Ptr) std::rethrow_exception(this->Ptr);
+        }
+        void CaptureException() {
+            std::unique_lock<std::mutex> guard(this->Lock);
+            this->Ptr = std::current_exception();
+        }
+        template <typename Function, typename... Parameters>
+        void Run(Function f, Parameters... params)
+        {
+            try
+            {
+                f(params...);
+            }
+            catch (...)
+            {
+                CaptureException();
+            }
+        }
     };
 }

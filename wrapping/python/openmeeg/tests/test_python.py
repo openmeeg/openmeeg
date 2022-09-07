@@ -19,6 +19,7 @@
 ###########################################
 import os
 import os.path as op
+import pytest
 import numpy as np
 import shutil
 
@@ -26,9 +27,99 @@ from numpy.testing import assert_allclose
 import openmeeg as om
 
 
-def test_python(data_path, tmp_path):
+def read_geom(geom_file):
+    """readGeom : provides paths to meshes present in .geom file"""
+    f = open(geom_file, "r")
+    lines = f.readlines()
+    mesh_files = []
+    for line in lines:
+        words = line.split()
+        if len(words) > 1:
+            if words[0] == "Interfaces":
+                nb_mesh = int(words[1])
+                print("Nb mesh files : %d" % nb_mesh)
+                continue
+
+        if len(words) == 1:
+            mesh_file = words[0]
+            if mesh_file.endswith(".tri"):
+                mesh_files.append(mesh_file)
+            if not os.path.exists(mesh_file):
+                print("Could not find mesh : " + mesh_file)
+            continue
+
+        if (len(words) > 1) and words[0].startswith("Interface"):
+            mesh_file = words[-1][1:-1]
+            if mesh_file.endswith(".tri"):
+                mesh_files.append(mesh_file)
+            if not os.path.exists(mesh_file):
+                print("Could not find mesh : " + mesh_file)
+            continue
+
+    for k, fname in enumerate(mesh_files):
+        if not os.path.isabs(fname):
+            mesh_files[k] = os.path.join(os.path.dirname(geom_file), fname)
+
+    print("Found : %s" % mesh_files)
+    return mesh_files
+
+
+def read_tri(fname):
+    """Read .tri file
+
+    Parameters
+    ----------
+    fname : str
+        The file to read.
+
+    Returns
+    -------
+    points : ndarray, shape (n_points, 3)
+        The vertices
+    normals : ndarray, shape (n_points, 3)
+        The normals at the vertices
+    faces : ndarray, shape (n_faces, 3)
+        The faces
+    """
+    assert fname.endswith(".tri")
+    fid = open(fname, "r")
+    # read the number of vertices
+    npoints = int(fid.readline().split()[1])
+
+    points = []
+    faces = []
+    normals = []
+
+    # fills the vertices arrays
+    for _ in range(npoints):
+        vals = fid.readline().split()
+        points.append(vals[:3])
+        normals.append(vals[3:])
+
+    # Read the number of triangles
+    n_faces = int(fid.readline().split()[1])
+    # create the list of triangles
+    for _ in range(n_faces):
+        vals = fid.readline().split()
+        faces.append(vals[:3])
+
+    # Convert to numpy arrays
+    points = np.array(points, np.float64)
+    normals = np.array(normals, np.float64)
+    faces = np.array(faces, np.int64)
+    return points, normals, faces
+
+
+@pytest.mark.parametrize(
+    "subject",
+    [
+        "Head1",
+        pytest.param("mne_sample_ico3", marks=pytest.mark.slow),
+    ],
+)
+@pytest.mark.parametrize("load_from_numpy", [True, False])
+def test_python(subject, data_path, load_from_numpy, tmp_path):
     # Load data
-    subject = "Head1"
     cond_file = op.join(data_path, subject, subject + ".cond")
     geom_file = op.join(data_path, subject, subject + ".geom")
     source_mesh_file = op.join(data_path, subject, subject + ".tri")
@@ -36,22 +127,39 @@ def test_python(data_path, tmp_path):
     squidsFile = op.join(data_path, subject, subject + ".squids")
     patches_file = op.join(data_path, subject, subject + ".patches")
 
-    geom = om.Geometry(geom_file, cond_file)
+    if load_from_numpy:
+        mesh_files = read_geom(geom_file)
+        meshes = []
+        for fname in mesh_files:  # we assume the order is form inner to outer
+            points, _, tris = read_tri(fname)
+            meshes.append((points, tris))
+        geom = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
+        dipoles = np.loadtxt(dipole_file)
+        dipoles = om.Matrix(np.asfortranarray(dipoles))
+        usecols = range(1, 4)
+        if subject.startswith("mne_"):
+            usecols = range(3)
+        patches = np.loadtxt(patches_file, usecols=usecols)
+        patches = om.Matrix(np.asfortranarray(patches))
+        patches = om.Sensors(patches, geom)
+    else:
+        geom = om.Geometry(geom_file, cond_file)
+        dipoles = om.Matrix()
+        dipoles.load(dipole_file)
+        patches = om.Sensors()
+        patches.load(patches_file)
+
     assert geom.is_nested()
 
-    mesh = om.Mesh(source_mesh_file)
-    n_dipoles_surf = mesh.vertices().size()
-
-    dipoles = om.Matrix()
-    dipoles.load(dipole_file)
     n_dipoles = dipoles.nlin()
 
-    sensors = om.Sensors()
-    sensors.load(squidsFile)
-    n_meg_sensors = sensors.getNumberOfSensors()
+    has_meg = False
+    if op.exists(squidsFile):
+        has_meg = True
+        sensors = om.Sensors()
+        sensors.load(squidsFile)
+        n_meg_sensors = sensors.getNumberOfSensors()
 
-    patches = om.Sensors()
-    patches.load(patches_file)
     n_eeg_sensors = patches.getNumberOfSensors()
 
     # Compute forward problem (Build Gain Matrices)
@@ -60,68 +168,88 @@ def test_python(data_path, tmp_path):
     # dipole_in_cortex = True
 
     integrator = om.Integrator(3, 0, 0.005)
-    hm = om.HeadMat(geom, integrator)
+    print()
+    print("*" * 80)
+    print("HeadMat instantiation:")
+    with om.use_log_level("debug"):
+        hm = om.HeadMat(geom, integrator)
     hminv = hm.inverse()  # invert hm with a copy
-    hminv_inplace = om.HeadMat(geom, integrator)
+    with om.use_log_level("debug"):
+        hminv_inplace = om.HeadMat(geom, integrator)
     hminv_inplace.invert()  # invert hm inplace (no copy)
     assert_allclose(om.Matrix(hminv).array(), om.Matrix(hminv_inplace).array())
 
-    ssm = om.SurfSourceMat(geom, mesh, integrator)
-    ss2mm = om.SurfSource2MEGMat(mesh, sensors)
     dsm = om.DipSourceMat(geom, dipoles, "Brain")
-    ds2mm = om.DipSource2MEGMat(dipoles, sensors)
-    # XXX test DipSourceMat with dipoles as array and make sure it breaks
-    # if it's transposed
-    h2mm = om.Head2MEGMat(geom, sensors)
     h2em = om.Head2EEGMat(geom, patches)
-    gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
-    gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
-    gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
-    gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2mm, ds2mm)
+
     gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
     gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
-    gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(
-        geom, dipoles, hm, h2em, h2mm, ds2mm
-    )
-
     n_hm_unknowns = geom.nb_parameters() - geom.nb_current_barrier_triangles()
-    assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
+
     assert hm.nlin() == hm.ncol() == n_hm_unknowns
     assert hminv.nlin() == hminv.ncol() == n_hm_unknowns
-    assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
     assert (dsm.nlin(), dsm.ncol()) == (n_hm_unknowns, n_dipoles)
-    assert (ss2mm.nlin(), ss2mm.ncol()) == (n_meg_sensors, n_dipoles_surf)
-    assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
-    assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
-    assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
     assert (gain_eeg_dip.nlin(), gain_eeg_dip.ncol()) == (n_eeg_sensors, n_dipoles)
-    assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
-        n_eeg_sensors,
-        n_dipoles_surf,
-    )
-    assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
-    assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
-        n_meg_sensors,
-        n_dipoles_surf,
-    )
-    assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (
-        n_meg_sensors,
-        n_dipoles,
-    )
     assert (gain_adjoint_eeg_dip.nlin(), gain_adjoint_eeg_dip.ncol()) == (
         n_eeg_sensors,
         n_dipoles,
     )
 
-    # Leadfield MEG in one line :
-    gain_meg_surf_one_line = om.GainMEG(
-        om.HeadMat(geom, integrator).inverse(),
-        om.SurfSourceMat(geom, mesh, integrator),
-        om.Head2MEGMat(geom, sensors),
-        om.SurfSource2MEGMat(mesh, sensors),
-    )
+    if op.exists(source_mesh_file):
+        mesh = om.Mesh(source_mesh_file)
+        n_dipoles_surf = mesh.vertices().size()
+        ssm = om.SurfSourceMat(geom, mesh, integrator)
+        gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
+        assert (ssm.nlin(), ssm.ncol()) == (n_hm_unknowns, n_dipoles_surf)
+        assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
+            n_eeg_sensors,
+            n_dipoles_surf,
+        )
+        assert (gain_eeg_surf.nlin(), gain_eeg_surf.ncol()) == (
+            n_eeg_sensors,
+            n_dipoles_surf,
+        )
 
-    assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
+    if has_meg:
+        ss2mm = om.SurfSource2MEGMat(mesh, sensors)
+        ds2mm = om.DipSource2MEGMat(dipoles, sensors)
+        # XXX test DipSourceMat with dipoles as array and make sure it breaks
+        # if it's transposed
+        h2mm = om.Head2MEGMat(geom, sensors)
+        gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
+        gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
+        gain_adjoint_meg_dip = om.GainMEGadjoint(geom, dipoles, hm, h2mm, ds2mm)
+        gain_adjoint_eeg_meg_dip = om.GainEEGMEGadjoint(
+            geom, dipoles, hm, h2em, h2mm, ds2mm
+        )
+
+        assert gain_adjoint_eeg_meg_dip.nlin() == (n_meg_sensors + n_eeg_sensors)
+        assert (ss2mm.nlin(), ss2mm.ncol()) == (n_meg_sensors, n_dipoles_surf)
+        assert (ds2mm.nlin(), ds2mm.ncol()) == (n_meg_sensors, n_dipoles)
+        assert (h2mm.nlin(), h2mm.ncol()) == (n_meg_sensors, n_hm_unknowns)
+        assert (h2em.nlin(), h2em.ncol()) == (n_eeg_sensors, n_hm_unknowns)
+        assert (gain_meg_dip.nlin(), gain_meg_dip.ncol()) == (n_meg_sensors, n_dipoles)
+        assert (gain_meg_surf.nlin(), gain_meg_surf.ncol()) == (
+            n_meg_sensors,
+            n_dipoles_surf,
+        )
+        assert (gain_adjoint_meg_dip.nlin(), gain_adjoint_meg_dip.ncol()) == (
+            n_meg_sensors,
+            n_dipoles,
+        )
+
+        # Leadfield MEG in one line :
+        gain_meg_surf_one_line = om.GainMEG(
+            om.HeadMat(geom, integrator).inverse(),
+            om.SurfSourceMat(geom, mesh, integrator),
+            om.Head2MEGMat(geom, sensors),
+            om.SurfSource2MEGMat(mesh, sensors),
+        )
+
+        assert_allclose(gain_meg_surf_one_line.array(), gain_meg_surf.array())
+
+    if subject != "Head1":
+        return  # only test the rest for Head1
 
     ###########################################################################
     # Compute forward data =

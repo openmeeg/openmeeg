@@ -1,6 +1,6 @@
 # Properties Description 1.0 (Conductivities)
 
 Air         0.0
-Scalp       1
-Brain       1
-Skull       0.0125
+Scalp       0.3
+Brain       0.3
+Skull       0.006

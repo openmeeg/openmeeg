@@ -1,6 +1,13 @@
 import os
+import numpy as np
 import pytest
 from pathlib import Path
+
+
+def pytest_configure(config):
+    """Configure pytest options."""
+    config.addinivalue_line("usefixtures", "run_some_parallel")
+    config.addinivalue_line("markers", "slow: marks tests as slow")
 
 
 @pytest.fixture(scope="session")
@@ -13,3 +20,11 @@ def data_path():
     data_path = data_path.replace("/", os.path.sep)
     assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: ${data_path}"
     return Path(data_path)
+
+
+@pytest.fixture(scope="session")
+def run_some_parallel():
+    """Run some stuff in parallel."""
+    # This is to try to get some NumPy parallelism in the tests.
+    a = np.ones((1000, 1000))
+    _ = a @ a

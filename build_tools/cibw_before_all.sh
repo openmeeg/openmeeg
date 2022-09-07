@@ -74,7 +74,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     fi
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
-    OPENMP_OPT="-DUSE_OPENMP=OFF"
+    export OPENMP_OPT="-DUSE_OPENMP=OFF"
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -82,8 +82,6 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    # OpenMP seems to cause problems on Windows, too, at least when used in conjunction with NumPy built with OpenMP-enabled OpenBLAS, etc.
-    OPENMP_OPT="-DUSE_OPENMP=OFF"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -92,7 +90,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
-./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${OPENMP_OPT} ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_OSX_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --target install --target package --config release
 
 # Put DLLs where they can be found

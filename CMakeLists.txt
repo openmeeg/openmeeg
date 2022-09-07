@@ -14,6 +14,15 @@ list(APPEND CMAKE_MODULE_PATH
 
 # OpenMEEG Configuration and needed things
 
+if (NOT WIN32)
+    option(USE_MEMORY_CHECKER "Use memory checker" OFF)
+    if (USE_MEMORY_CHECKER)
+        set(CMAKE_CXX_FLAGS -fsanitize=address ${CMAKE_CXX_FLAGS})
+    else()
+        list(REMOVE_ITEM CMAKE_CXX_FLAGS "-fsanitize=address")
+    endif()
+endif()
+
 include(GenerateExportHeader)
 include(CompilerOptions)
 include(options)

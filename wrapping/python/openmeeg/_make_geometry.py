@@ -6,10 +6,11 @@ from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, M
 
 def _mesh_vertices_and_triangles(mesh):
     mesh_vertices = mesh.geometry().vertices()
-    vertices = np.array([vertex.array() for vertex in mesh_vertices])
+    vertices = np.array([vertex.array() for vertex in mesh_vertices], np.float64)
     mesh_triangles = mesh.triangles()
     triangles = np.array(
-        [mesh.triangle(triangle).array() for triangle in mesh_triangles]
+        [mesh.triangle(triangle).array() for triangle in mesh_triangles],
+        dtype=np.int64,
     )
     return vertices, triangles
 
@@ -51,7 +52,8 @@ def make_geometry(meshes, interfaces, domains):
             f"domains). Got {type(domains)}"
         )
 
-    # First add mesh points
+    # Normalize mesh inputs to numpy arrays
+
     for name, mesh in meshes.items():
         if isinstance(mesh, Mesh):
             meshes[name] = _mesh_vertices_and_triangles(mesh)
@@ -63,8 +65,10 @@ def make_geometry(meshes, interfaces, domains):
                 f"vertices and triangles). Got {type(mesh)}"
             )
 
+    # First add mesh points
+
     indmaps = dict()
-    geom = Geometry()
+    geom = Geometry(len(meshes))
     for name, mesh in meshes.items():
         indmaps[name] = geom.add_vertices(mesh[0])
 
@@ -74,6 +78,8 @@ def make_geometry(meshes, interfaces, domains):
         om_mesh = geom.add_mesh(name)
         om_mesh.add_triangles(mesh[1], indmaps[name])
         om_mesh.update(True)
+
+    del meshes, indmaps
 
     for dname, domain in domains.items():
         domain_interfaces, conductivity = domain
@@ -152,8 +158,8 @@ def make_nested_geometry(meshes, conductivity):
     if len(meshes) == 3:
         # Convert meshes to dictionary of meshes for make_geometry
         meshes = {
-            "Skull": meshes[1],
             "Cortex": meshes[0],
+            "Skull": meshes[1],
             "Head": meshes[2],
         }
         brain_conductivity, skull_conductivity, scalp_conductivity = conductivity

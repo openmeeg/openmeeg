@@ -14,6 +14,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  PYTHONUNBUFFERED: '1'
 
 defaults:
   run:
@@ -33,6 +34,7 @@ jobs:
         # - The oldest supported version of numpy (numpyold)
         # - MSVC on Windows (if relevant)
         # - No VTK support
+        # - No slow python tests
         #
         # Deviations from this are noted by additions to the `include`
         # params. Defaults are set up properly in the `env-vars` step,
@@ -52,15 +54,18 @@ jobs:
           python: cmake
           python-version: '3.10'
           numpy: numpyold
+          slow: false
         - os: windows-2019
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
           windows_compiler: msvc
+          slow: false
         - os: macos-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
+          slow: false
         # Latest OpenBLAS release
         - os: ubuntu-22.04
           blas: OpenBLAS-latest
@@ -74,6 +79,7 @@ jobs:
           python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
+          slow: true
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
         # conda-forge both use MSVC, things work there, and it's the official
@@ -150,6 +156,9 @@ jobs:
         else
           echo '::set-output name=windows_compiler::msvc'
         fi
+        if [[ "${{matrix.slow}}" == "true" ]]; then
+          SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
+        fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
@@ -167,6 +176,10 @@ jobs:
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
+        # OpenMP doesn't work well on macOS
+        if [[ "${{matrix.os}}" == 'macos'* ]]; then
+          OPENMP_OPT="-DUSE_OPENMP=OFF"
+        fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
           echo '::set-output name=vtk_version::${{matrix.vtk}}'
           VTK_OPT="-DUSE_VTK=ON"
@@ -177,13 +190,17 @@ jobs:
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
+          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
         fi
         echo "Using WERROR_OPT=$WERROR_OPT"
+        echo "SLOW_OPT=$SLOW_OPT" >> $GITHUB_ENV
         echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
         echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
         echo "Using VTK_OPT=$VTK_OPT"
         echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
+        echo "Using OPENMP_OPT=$OPENMP_OPT"
+        echo "OPENMP_OPT=$OPENMP_OPT" >> $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
@@ -234,7 +251,7 @@ jobs:
             NUMPY_PIP="oldest-supported-numpy"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest threadpoolctl $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
@@ -461,7 +478,7 @@ jobs:
             ./build_tools/install_dependency_walker.sh
             # Ideally this would not be necessary but it makes things work
             cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
-            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg.pyd
+            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
           else
             export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi

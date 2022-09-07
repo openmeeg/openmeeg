@@ -13,7 +13,7 @@ requires = [
 skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp39* pp*-win_*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
-test-requires = "pytest"
+test-requires = ["pytest", "threadpoolctl"]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]

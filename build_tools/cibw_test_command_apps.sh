@@ -7,7 +7,12 @@ if [[ "$1" == "" ]]; then
 fi
 ROOT=$1
 
-set -e
+# For now we don't do this because the dependencies are not bundled
+# at this stage
+# pushd $ROOT/build
+# ctest -C release || ctest -C release --rerun-failed --output-on-failure
+# popd
+
 ls -al $ROOT
 echo
 echo "Installers:"
