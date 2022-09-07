@@ -32,11 +32,11 @@ endif()
 # install_system_libs(HDF5::HDF5)
 # install_system_libs(MATIO::MATIO)
 
-if(NOT "${EXTRA_INSTALL_LIBRARIES}" STREQUAL "")
+if (NOT "${EXTRA_INSTALL_LIBRARIES}" STREQUAL "")
     # https://stackoverflow.com/questions/12995166/how-can-i-install-gcc-runtime-libraries-with-cmake
     # list(APPEND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${EXTRA_INSTALL_LIBRARIES})
     set(THIS_DESTINATION lib)
-    if(WIN32)
+    if (WIN32)
         set(THIS_DESTINATION bin)
     endif()
     foreach(LIB ${EXTRA_INSTALL_LIBRARIES})
