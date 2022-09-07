@@ -308,7 +308,7 @@ namespace OpenMEEG {
             oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
             throw Error(SWIG_ValueError,oss.str().c_str());
         }
-        const PyArray_Descr *descr = PyArray_DESCR(array);
+        const PyArray_Descr* descr = PyArray_DESCR(array);
         const int type_num = descr->type_num;
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
@@ -528,9 +528,9 @@ namespace OpenMEEG {
 
     Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=nullptr) {
         Mesh* mesh = new Mesh(geom);
+        mesh->name() = name;
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
-        mesh->name() = name;
         mesh->update(true);
         return mesh;
     }
@@ -541,14 +541,14 @@ namespace OpenMEEG {
 %extend OpenMEEG::Geometry {
 
     Geometry(PyObject* pylist) {
-        std::cout << "Create Geometry from list of lists" << std::endl;
+
         if (pylist==nullptr || !PyList_Check(pylist))
             throw Error(SWIG_TypeError, "Argument to Geometry constructor must be a list");
 
         //  Add vertices of all meshes.
 
         const unsigned N = PyList_Size(pylist);
-        if (N == 0)
+        if (N==0)
             throw Error(SWIG_ValueError, "Argument to Geometry constructor must be a non-empty list");
         OpenMEEG::Geometry* geometry = new OpenMEEG::Geometry(N);
 
@@ -557,11 +557,12 @@ namespace OpenMEEG {
             PyObject* item = PyList_GetItem(pylist,i);
             if (item==nullptr || !PyList_Check(item) || PyList_Size(item)!=3)
                 throw Error(SWIG_TypeError, "Geometry constructor argument must be a list of lists, each of length 3");
-            PyObject* vertices  = PyList_GetItem(item,1);
+            PyObject* vertices = PyList_GetItem(item,1);
             indmap[i] = geom_add_vertices(geometry,vertices);
         }
 
         //  Create meshes and add triangles.
+
         for (unsigned i=0; i<N; ++i) {
             PyObject* item = PyList_GetItem(pylist,i);
             PyObject* name = PyList_GetItem(item,0);
@@ -571,10 +572,12 @@ namespace OpenMEEG {
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
+            #ifdef DEBUG
             std::ostringstream oss;
             oss << "SWIG Geometry update of meshes(" << i << ")=\"" << mesh.name() << "\"";
             for (const auto& mesh : geometry->meshes())
                 mesh.check_consistency(oss.str());
+            #endif
         }
 
         return geometry;
