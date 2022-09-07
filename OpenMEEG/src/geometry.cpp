@@ -32,7 +32,7 @@ namespace OpenMEEG {
                 return domain;
         }
 
-        warning("Geometry::outermost_domain: Error outermost domain is not defined.");
+        log_stream(WARNING) << "Geometry::outermost_domain: Error outermost domain is not defined.";
         throw OpenMEEG::BadDomain("outermost");
     }
 
@@ -40,7 +40,7 @@ namespace OpenMEEG {
     Geometry::innermost_interface() const {
 
         if (!is_nested()) {
-            warning("Geometry::innermost_interface: Error innermost interface is only defined for nested geometries.");
+            log_stream(WARNING) << "Geometry::innermost_interface: Error innermost interface is only defined for nested geometries.";
             throw OpenMEEG::BadInterface("innermost");
         }
 
@@ -57,7 +57,7 @@ namespace OpenMEEG {
 
         // Should never append as this function should only be called for nested geometries.
 
-        warning("Geometry::innerermost_interface: Error innermost interface is not defined.");
+        log_stream(WARNING) << "Geometry::innerermost_interface: Error innermost interface is not defined.";
         throw OpenMEEG::BadInterface("innermost");
     }
 
@@ -69,22 +69,22 @@ namespace OpenMEEG {
 
         // Should never append
 
-        warning("Geometry::outermost_interface: Error outermost interface were not set.");
+        log_stream(WARNING) << "Geometry::outermost_interface: Error outermost interface were not set.";
         throw OpenMEEG::BadInterface("outermost");
     }
 
     Mesh& Geometry::mesh(const std::string& id) {
-        std::ostringstream oss;
 
         for (auto& mesh: meshes())
             if (mesh.name()==id)
                 return mesh;
-            else
-                oss << mesh.name() << " ";
 
         // Should never happen
 
-        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id + " from candidates: " + oss.str());
+        std::ostringstream oss;
+        for (auto& mesh: meshes())
+            oss << mesh.name() << ' ';
+        log_stream(WARNING) << "Geometry::mesh: Error mesh id/name not found: " << id << " from candidates: " + oss.str();
         throw OpenMEEG::BadInterface(id);
     }
 
@@ -95,7 +95,7 @@ namespace OpenMEEG {
 
         // Should never happen
 
-        warning(std::string("Geometry::mesh: Error mesh id/name not found: ") + id);
+        log_stream(WARNING) << "Geometry::mesh: Error mesh id/name not found: " << id;
         throw OpenMEEG::BadInterface(id);
     }
 
@@ -135,7 +135,7 @@ namespace OpenMEEG {
                     return boundary.interface();
 
         // Should never append
-        warning(std::string("Geometry::interface: Interface id/name \"")+id+std::string("\" not found."));
+        log_stream(WARNING) << "Geometry::interface: Interface id/name \"" << id << "\" not found.";
         throw OpenMEEG::BadInterface(id);
     }
 
@@ -156,7 +156,7 @@ namespace OpenMEEG {
 
         // Should never happen
 
-        warning(std::string("Geometry::domain: Domain id/name \"") + name + std::string("\" not found."));
+        log_stream(WARNING) << "Geometry::domain: Domain id/name \"" << name << "\" not found.";
         throw OpenMEEG::BadDomain(name);
     }
 
@@ -325,13 +325,13 @@ namespace OpenMEEG {
     bool Geometry::check(const Mesh& m) const {
         bool OK = true;
         if (m.has_self_intersection()) {
-            warning(std::string("Mesh is self intersecting !"));
+            log_stream(WARNING) << "Mesh is self intersecting !";
             m.info();
             OK = false;
         }
         for (const auto& mesh : meshes())
             if (mesh.intersection(m)) {
-                warning(std::string("Mesh is intersecting with one of the mesh in geom file !"));
+                log_stream(WARNING) << "Mesh is intersecting with one of the mesh in geom file !";
                 mesh.info();
                 OK = false;
             }
@@ -388,8 +388,7 @@ namespace OpenMEEG {
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
                             m_oriented += oriented_mesh.orientation();
-            std::ostringstream oss;
-            oss << "check_geometry_is_nested() complete, nested=" << nested << ", m_oriented=" << m_oriented;
+            log_stream(DEBUG) << "check_geometry_is_nested() complete, nested=" << nested << ", m_oriented=" << m_oriented << std::endl;
             if (m_oriented==0) {
                 nested = false;
                 return;
@@ -404,9 +403,10 @@ namespace OpenMEEG {
             if (!mesh1.isolated())
                 for (const auto& mesh2 : meshes()) {
                     const int orientation = relative_orientation(mesh1,mesh2);
-                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0)
+                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
                         // Communicating meshes are used for the definition of a common domain
                         meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
+                    }
 
                     //  Lopp only over oriented pairs of meshes.
 
@@ -433,10 +433,9 @@ namespace OpenMEEG {
                         if (fully_immersed) {
                             oriented_mesh.mesh().isolated()  = true;
                             oriented_mesh.mesh().outermost() = false;
-                            log_stream(INFORMATION)
-                                      << "Mesh \"" << oriented_mesh.mesh().name()
-                                      << "\" will be excluded from computation because it touches non-conductive domains on both sides."
-                                      << std::endl;
+                            log_stream(INFORMATION) << "Mesh \"" << oriented_mesh.mesh().name() << "\""
+                                                    << " will be excluded from computation because it touches non-conductive domains on both sides."
+                                                    << std::endl;
 
                             //  Add all of its vertices to invalid_vertices
 
@@ -508,10 +507,9 @@ namespace OpenMEEG {
         //  Report isolated geometries
 
         if (independant_parts.size()>1) {
-            log_stream(INFORMATION)
-                      << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl
-                      << "The computation will continue. But note that electric potentials from different parts are not comparable."
-                      << std::endl;
+            log_stream(INFORMATION) << "The geometry is cut into several unrelated parts by non-conductive domains." << std::endl
+                                    << "The computation will continue. But note that electric potentials from different parts are not comparable."
+                                    << std::endl;
 
             unsigned p =0;
             for (const auto& part : independant_parts) {
