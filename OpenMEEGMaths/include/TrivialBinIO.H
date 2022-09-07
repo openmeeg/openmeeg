@@ -73,7 +73,9 @@ namespace OpenMEEG {
 
                 if (linop.storageType()!=inforead.storageType()) {
                     std::ostringstream oss;
-                    oss << "TrivialBinIO linop.storageType (" << linop.storageType() << ") != inforead.storageType (" << inforead.storageType() << ") for file " << name();
+                    oss << "TrivialBinIO linop.storageType (" << linop.storageType()
+                        << ") != inforead.storageType (" << inforead.storageType()
+                        << ") for file " << name();
                     throw BadStorageType(oss.str());
                 }
 
