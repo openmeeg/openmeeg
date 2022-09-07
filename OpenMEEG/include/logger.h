@@ -12,7 +12,7 @@
 
 namespace OpenMEEG {
 
-    typedef enum { PROGRESS, INFORMATION, WARNING, ERROR, DEBUG } InfoLevel;
+    typedef enum { DEBUG, PROGRESS, INFORMATION, WARNING, ERROR } InfoLevel;
 
     class Logger {
     public:
@@ -20,7 +20,8 @@ namespace OpenMEEG {
         Logger() { }
 
         void set_info_level(const InfoLevel level) { verbosity = level; }
-        InfoLevel get_info_level() { return verbosity; }
+
+        InfoLevel get_info_level() const { return verbosity; }
 
         bool is_verbose(const InfoLevel level) { return verbosity<=level; }
 
@@ -37,6 +38,10 @@ namespace OpenMEEG {
     inline std::ostream&
     log_stream(const InfoLevel level) {
         static NullStream<char> nullstream;
+        if (level==WARNING && Logger::logger().is_verbose(level))
+            std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+                      << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
+                      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         return (Logger::logger().is_verbose(level)) ? std::cout : nullstream;
     }
 }
