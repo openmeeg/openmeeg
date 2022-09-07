@@ -127,7 +127,7 @@ namespace OpenMEEG {
             std::ostringstream oss;
             oss << "The vertex with address " << static_cast<const void*>(&V) << " with coordinates " << V
                 << " does not belong to the triangle ";
-            if (ind!=-1U)
+            if (ind!=static_cast<unisgned>(-1))
                 oss << ind;
             else
                 oss << static_cast<const void*>(this);
