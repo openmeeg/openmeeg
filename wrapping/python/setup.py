@@ -76,25 +76,23 @@ if __name__ == "__main__":
             "-O",
             "-module",
             "_openmeeg_cxx",
+            "-modern",
         ]  # TODO: , '-Werror']
         library_dirs = []
         openmeeg_include = os.getenv("OPENMEEG_INCLUDE")
         if openmeeg_include is not None:
-            openmeeg_include = Path(openmeeg_include).resolve()
-            assert openmeeg_include.is_dir(), openmeeg_include
+            openmeeg_include = Path(openmeeg_include).resolve(strict=True)
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f"-I{openmeeg_include}")
         msvc = os.getenv("SWIG_FLAGS", "") == "msvc"
         openblas_include = os.getenv("OPENBLAS_INCLUDE")
         if openblas_include is not None:
-            openblas_include = Path(openblas_include).resolve()
-            assert openblas_include.is_dir(), openblas_include
+            openblas_include = Path(openblas_include).resolve(strict=True)
             include_dirs.append(str(openblas_include))
             swig_opts.append(f"-I{openblas_include}")
         openmeeg_lib = os.getenv("OPENMEEG_LIB")
         if openmeeg_lib is not None:
-            openmeeg_lib = Path(openmeeg_lib).resolve()
-            assert openmeeg_lib.is_dir(), openmeeg_lib
+            openmeeg_lib = Path(openmeeg_lib).resolve(strict=True)
             library_dirs.append(str(openmeeg_lib))
         extra_compile_opts, extra_link_opts = [], []
         if msvc:
@@ -120,10 +118,11 @@ if __name__ == "__main__":
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
         swig_openmeeg = Extension(
-            "openmeeg.__openmeeg",
+            "openmeeg._openmeeg",
             sources=["openmeeg/_openmeeg.i"],
             libraries=["OpenMEEG"],
             swig_opts=swig_opts,
+            define_macros=[("SWIG_PYTHON_SILENT_MEMLEAK", None)],
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,

@@ -28,7 +28,7 @@ include_directories(${Python3_INCLUDE_DIRS}
 )
 
 cmake_policy(SET CMP0078 NEW)
-set(SWIG_TARGET_NAME "openmeeg") # Keep private
+set(SWIG_TARGET_NAME "openmeeg")
 cmake_policy(SET CMP0086 NEW) # Use NEW policy and explicitly use SWIG_MODULE_NAME
 
 find_package(SWIG REQUIRED)
@@ -43,8 +43,7 @@ endif()
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
-set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK)
-set_property(SOURCE openmeeg/_openmeeg.i PROPERTY SWIG_MODULE_NAME _openmeeg_cxx)
+set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_cxx)
 # This puts _openmeeg.py in openmeeg/
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/_openmeeg.i)
 # This puts __openmeeg.so in openmeeg/
