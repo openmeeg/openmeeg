@@ -21,7 +21,7 @@ def test_sensors(data_path):
     # Test creating Sensors from a geometry
     subject = "Head1"
     dirpath = op.join(data_path, subject)
-    geom = om.Geometry(
+    geom = om.read_geometry(
         op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
     )
     om.Sensors(geom)

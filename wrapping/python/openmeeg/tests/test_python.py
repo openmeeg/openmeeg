@@ -25,6 +25,7 @@ import shutil
 
 from numpy.testing import assert_allclose
 import openmeeg as om
+import openmeeg._openmeeg_cxx as _omc
 
 
 def read_geom(geom_file):
@@ -143,7 +144,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
         patches = om.Matrix(np.asfortranarray(patches))
         patches = om.Sensors(patches, geom)
     else:
-        geom = om.Geometry(geom_file, cond_file)
+        geom = om.read_geometry(geom_file, cond_file)
         dipoles = om.Matrix()
         dipoles.load(dipole_file)
         patches = om.Sensors()
@@ -273,16 +274,16 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
     # Example of basic manipulations
     # TODO: the same with numpy
-    v1 = om.Vertex(1.0, 0.0, 0.0, 0)
-    v2 = om.Vertex(0.0, 1.0, 0.0, 1)
-    om.Vertex(0.0, 0.0, 1.0, 2)
+    v1 = _omc.Vertex(1.0, 0.0, 0.0, 0)
+    v2 = _omc.Vertex(0.0, 1.0, 0.0, 1)
+    _omc.Vertex(0.0, 0.0, 1.0, 2)
     # TODO: v4 = om.Vertex( [double] , int )
 
     # print(v1.norm()
     assert v1.norm() == np.linalg.norm(v1.array())
     assert (v1 + v2).norm() == np.linalg.norm(v1.array() + v2.array())
 
-    normal = om.Vect3(1.0, 0.0, 0.0)
+    normal = _omc.Vect3(1.0, 0.0, 0.0)
     assert normal.norm() == 1.0
 
     hm_fname = str(tmp_path / f"{subject}.hm")
@@ -316,14 +317,14 @@ def test_pointer_clearing(data_path, tmp_path):
     tmp_cond_path = tmp_path / "Head1.cond"
     assert tmp_geom_path.is_file()
     assert tmp_cond_path.is_file()
-    geom = om.Geometry(str(tmp_geom_path), str(tmp_cond_path))
+    geom = om.read_geometry(str(tmp_geom_path), str(tmp_cond_path))
     assert geom.is_nested()
     os.remove(tmp_geom_path)
     os.remove(tmp_cond_path)
 
     tmp_mesh_path = tmp_path / "Head1.tri"
     assert tmp_mesh_path.is_file()
-    mesh = om.Mesh(str(tmp_mesh_path))
+    mesh = _omc.Mesh(str(tmp_mesh_path))
     assert mesh.vertices().size() == 42
     os.remove(tmp_mesh_path)
 

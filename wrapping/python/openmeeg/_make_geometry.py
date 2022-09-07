@@ -1,7 +1,9 @@
 # Build a geometry with given interfaces and domains.
+from pathlib import Path
 import numpy as np
 
-from .openmeeg import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
+
+from ._openmeeg_cxx import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
 
 
 def _mesh_vertices_and_triangles(mesh):
@@ -214,3 +216,23 @@ def make_nested_geometry(meshes, conductivity):
 
     geom = make_geometry(meshes, interfaces, domains)
     return geom
+
+
+def read_geometry(geom_file, cond_file):
+    """Read a geometry from a file.
+
+    Parameters
+    ----------
+    geom_file : path-like
+        The name of the geometry file.
+    cond_file : path-like
+        The name of the conductivity file.
+
+    Returns
+    -------
+    geometry : isinstance of om.Geometry
+        The geometry that can be used in OpenMEEG.
+    """
+    geom_file = str(Path(geom_file).resolve())
+    cond_file = str(Path(cond_file).resolve())
+    return Geometry(geom_file, cond_file)

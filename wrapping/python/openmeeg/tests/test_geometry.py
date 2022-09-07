@@ -3,16 +3,17 @@ import numpy as np
 import pytest
 
 import openmeeg as om
+from openmeeg._openmeeg_cxx import Geometry, Mesh
 
 
-def test_geometry():
+def test_geometry_private():
     vertices = np.array(
         [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]]
     )
     triangles = np.array([[1, 2, 3], [2, 3, 0]])
 
-    g = om.Geometry()
-    mesh = om.Mesh(vertices, triangles, "test", g)
+    g = Geometry()
+    mesh = Mesh(vertices, triangles, "test", g)
 
     assert mesh.geometry().check(mesh)
 
@@ -26,13 +27,13 @@ def test_geometry():
         g.add_vertices(np.array([[0.0]]))
     # TODO should be IOError and have a better error message
     with pytest.raises(IOError, match="Unknown foo suffix"):
-        om.Geometry("a.foo")
+        Geometry("a.foo")
     with pytest.raises(TypeError, match="Argument.*must be a list"):
-        om.Geometry(())
+        Geometry(())
     with pytest.raises(TypeError, match="must be a list of lists"):
-        om.Geometry([()])
+        Geometry([()])
     with pytest.raises(TypeError, match="first entry a non-empty"):
-        om.Geometry([[0, np.zeros((1, 3)), 0]])
+        Geometry([[0, np.zeros((1, 3)), 0]])
 
 
 def _assert_geometry(g1, g2, n_domains):
@@ -61,22 +62,22 @@ def test_make_geometry_head(data_path):
 
     # Make sure we handle bad paths gracefully
     with pytest.raises(IOError, match="Cannot open file"):
-        om.Mesh(op.join(dirpath, "fake.1.tri"))
+        Mesh(op.join(dirpath, "fake.1.tri"))
 
     meshes = list()
     for key in ("cortex", "skull", "scalp"):
-        meshes.append(om.Mesh(op.join(dirpath, f"{key}.{subject_id}.tri")))
+        meshes.append(Mesh(op.join(dirpath, f"{key}.{subject_id}.tri")))
 
     # Make a geometry from a 3 layers model
     g1 = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
-    g2 = om.Geometry(
+    g2 = om.read_geometry(
         op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
     )
     _assert_geometry(g1, g2, n_domains=4)
 
     # Make a geometry from a 1 layer model
     g1 = om.make_nested_geometry(meshes[:1], conductivity=(1,))
-    g2 = om.Geometry(
+    g2 = om.read_geometry(
         op.join(dirpath, subject + "_1_layer.geom"),
         op.join(dirpath, subject + "_1_layer.cond"),
     )
