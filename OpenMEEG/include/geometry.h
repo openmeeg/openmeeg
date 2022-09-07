@@ -54,12 +54,10 @@ namespace OpenMEEG {
 
         /// Constructors
 
-        Geometry() {}
+        Geometry() { }
 
-        Geometry(int nMeshes) {
-            if (nMeshes <= 0)
-                throw OpenMEEG::GenericError("Geometry::Geometry nMeshes must be positive");
-            meshes().reserve(nMeshes);
+        Geometry(const unsigned n) {
+            meshes().reserve(n);
         }
 
         Geometry(const std::string& geomFileName,const bool OLD_ORDERING=false) {
@@ -83,6 +81,7 @@ namespace OpenMEEG {
                     return false;
             return true;
         }
+
         bool selfCheck()                    const; ///< \brief the geometry meshes intersect each other
         bool check(const Mesh& m)           const; ///< \brief check if m intersect geometry meshes
         bool check_inner(const Matrix& m)   const; ///< \brief check if dipoles are outside of geometry meshes
@@ -243,8 +242,10 @@ namespace OpenMEEG {
 
             generate_indices(OLD_ORDERING);
             make_mesh_pairs();
+            #ifdef DEBUG
             for (const auto& mesh : meshes())
                 mesh.check_consistency("geometry finalize step");
+            #endif
         }
 
         /// Handle multiple isolated domains
@@ -275,15 +276,15 @@ namespace OpenMEEG {
 
         /// Members
 
-        Vertices     geom_vertices;
-        Meshes       geom_meshes;
-        Domains      geom_domains;
+        Vertices      geom_vertices;
+        Meshes        geom_meshes;
+        Domains       geom_domains;
 
         const Domain* outer_domain   = 0;
         bool          nested         = false;
         size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
 
-        void  generate_indices(const bool);
+        void generate_indices(const bool);
 
         DomainsReference common_domains(const Mesh& m1,const Mesh& m2) const {
             const DomainsReference& doms1 = domains(m1);
