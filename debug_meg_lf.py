@@ -1,7 +1,10 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
+from mne.fixes import bincount
 import openmeeg as om
+
 
 def _col_corrs(a, b):
     """Compute correlation between paired columns, being careful about 0."""
@@ -29,7 +32,7 @@ def _rdm(a, b):
 
 ###############################################################################
 # Load data
-def get_meg_leadfield(model, head_model):
+def get_meg_leadfield_om(model, head_model):
     geom_file = f'data/{model}/{head_model}.geom'
     cond_file = f'data/{model}/{head_model}.cond'
     dipoles_file = f'data/{model}/{model}.dip'
@@ -53,24 +56,59 @@ def get_meg_leadfield(model, head_model):
     return meg_leadfield.array()
 
 
+def _apply_weights(lf, ws, bins):
+    B = np.array([bincount(bins, ws * x, bins[-1] + 1)
+                  for x in lf.T], float)
+    return B
+
+
+def get_meg_leadfield_mne():
+    import mne
+    from mne.datasets import sample
+    data_path = sample.data_path()
+
+    # the raw file containing the channel location + types
+    sample_dir = data_path / 'MEG' / 'sample'
+    raw_fname = sample_dir / 'sample_audvis_raw.fif'
+    # The paths to Freesurfer reconstructions
+    subjects_dir = data_path / 'subjects'
+    subject = 'sample'
+    trans = sample_dir / 'sample_audvis_raw-trans.fif'
+    src = mne.setup_source_space(subject, spacing='ico3', add_dist='patch',
+                                 subjects_dir=subjects_dir)
+    conductivity = (0.3,)  # for single layer
+    model = mne.make_bem_model(subject='sample', ico=3,
+                               conductivity=conductivity,
+                               subjects_dir=subjects_dir)
+    bem = mne.make_bem_solution(model)
+    fwd = mne.make_forward_solution(raw_fname, trans=trans, src=src, bem=bem,
+                                    meg=True, eeg=False, mindist=5.0,
+                                    verbose=True)
+    return fwd['sol']['data'].T
+
+
 if __name__ == '__main__':
-    # leadfield = get_meg_leadfield("mne_sample_ico3", "mne_sample_ico3")
-    leadfield = get_meg_leadfield("mne_sample_ico3", "mne_sample_ico3_1layer")
-
+    leadfield_mne = get_meg_leadfield_mne()
+    leadfield_om = get_meg_leadfield_om("mne_sample_ico3", "mne_sample_ico3_1layer")
     leadfield_ft = loadmat("data/mne_sample_ico3/meg_forward_nolte.mat")['lf_singleshell']
-
     leadfield_ft[np.isnan(leadfield_ft)] = 0
-    
-    corrs = _col_corrs(leadfield, leadfield_ft)
 
-    corrs = corrs[~np.isnan(corrs)]
+    weights = pd.read_csv("data/mne_sample_ico3/weights.csv")
+    ws, bins = weights['ws'].values, weights['bins'].values
 
-    plt.hist(corrs, bins=100)
+    leadfield_om = _apply_weights(leadfield_om, ws, bins)
+    leadfield_ft = _apply_weights(leadfield_ft, ws, bins)
 
-    print(np.min(corrs), np.max(corrs), np.mean(corrs), np.median(corrs))
+    corrs_om = _col_corrs(leadfield_om, leadfield_mne)
+    corrs_om = corrs_om[~np.isnan(corrs_om)]
 
-    # leadfield_3l = get_meg_leadfield("Head1", "Head1")
-    # leadfield_1l = get_meg_leadfield("Head1", "Head1_1_layer")
+    corrs_ft = _col_corrs(leadfield_ft, leadfield_mne)
+    corrs_ft = corrs_ft[~np.isnan(corrs_om)]
 
-    # corrs = [np.corrcoef(x, y)[0, 1] for x, y in zip(leadfield_3l.T, leadfield_1l.T)]
-    # print(np.array(corrs))
+    plt.hist(corrs_om, bins=100, label="openmeeg vs mne")
+    plt.hist(corrs_ft, bins=100, label="fieldtrip vs mne")
+    plt.legend()
+    plt.show()
+
+    print(np.min(corrs_om), np.max(corrs_om), np.mean(corrs_om), np.median(corrs_om))
+    print(np.min(corrs_ft), np.max(corrs_ft), np.mean(corrs_ft), np.median(corrs_ft))
