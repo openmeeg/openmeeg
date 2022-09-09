@@ -165,6 +165,7 @@ if __name__ == "__main__":
         python_requires=">=3.7",
         install_requires=["numpy"],
         packages=["openmeeg", "openmeeg.tests"],
+        scripts=["bin/om_viz"],
         cmdclass=cmdclass,
         ext_modules=ext_modules,
     )
