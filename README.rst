@@ -71,44 +71,128 @@ Additional repositories recommended on RHEL 7::
 Build OpenMEEG from source
 --------------------------
 
-Unix (Linux & Mac OS X)
-^^^^^^^^^^^^^^^^^^^^^^^
-
-On Debian/Ubuntu you will need to install the dependencies with::
-
-    $ sudo apt-get install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev
-
-*optionally*::
-
-    $ sudo apt-get install python3-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
-
-On Fedora and Centos::
-
-    $ sudo yum install gcc make cmake openblas-devel hdf5-devel matio-devel
-
-*optionally*::
-
-    $ sudo yum install python3-numpy swig vtk-devel doxygen cgal-devel
-
-To install OpenMEEG from source in a terminal::
+On any operating system, you should get the latest OpenMEEG source the usual way::
 
     $ git clone https://github.com/openmeeg/openmeeg.git
+    $ cd openmeeg
+
+Then you need to get dependencies installed and configured for your operating system.
+
+Building on Linux
+^^^^^^^^^^^^^^^^^
+
+On Debian/Ubuntu you will need to install the dependencies with (Fedora flavors can use a similar command)::
+
+    $ sudo apt install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libopenmp-dev
+
+*optionally*::
+
+    $ sudo apt install python3-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
 
 then::
 
-    $ cd openmeeg
-    $ cmake -D build -DCMAKE_BUILD_TYPE=Release -DUSE_PROGRESSBAR=ON -DBLA_VENDOR=OpenBLAS .
-    $ cmake --build build --config=Release
+    $ ./build_tools/cmake_configure.sh
+    $ cmake --build build --config release
 
-**Note for Python users**:
+The ``cmake_configure.sh`` script should automatically set the build to configure
+Python using SWIG.
 
-- To use Python bindings you will need a recent version of CMake >= 3.16.2
-- and a recent version of Swig >= 4.0
+Building on macOS
+^^^^^^^^^^^^^^^^^
+For local debugging, it's easiest to use ``brew`` to install dependencies::
 
+    $ brew install hdf5 libmatio libomp swig openblas
+
+Then follow brew's suggestion to add to your paths (probably in ``.bash_profile`` or some similar place) with something like the following::
+
+    $ export PATH="$HOMEBREW_PREFIX/opt/llvm/bin:$PATH
+    $ export LDFLAGS="-L$HOMEBREW_PREFIX/opt/llvm/lib -L$HOMEBREW_PREFIX/opt/openblas/lib"
+    $ export CPPFLAGS="-I$HOMEBREW_PREFIX/opt/llvm/include -I$HOMEBREW_PREFIX/opt/openblas/include"
+
+Then you should be able to build as usual::
+
+    $ ./build_tools/cmake_configure.sh
+    $ cmake --build build --config release
+
+Building on Windows
+^^^^^^^^^^^^^^^^^^^
+One configuration that makes Windows development easier is getting a usable
+Bash shell under Windows properly configured to compile using Visual Studio.
+The steps are roughly:
+
+1. Install some variant of `Visual Studio <https://visualstudio.microsoft.com/downloads/>`__ (e.g., `2019 <https://visualstudio.microsoft.com/vs/older-downloads/>`__), the community variants are free and should work.
+2. Install the `Git for Windows SDK <https://github.com/git-for-windows/build-extra/releases>`_.
+3. Launch a ``x64 Native Tools Command Prompt for VS 2019`` (i.e., a variant of ``cmd``),
+   which can be done from the Start menu.
+4. Run ``C:\git-sdk-64\usr\bin\bash -l`` from within that prompt.
+
+.. note:: If you do not have access to Windows but need to debug it, consider
+          using the `Windows VM dev images <https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/>`__.
+
+For dependencies on Windows, we make use of ``vcpkg``. The default generator
+is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
+
+    $ export CMAKE_GENERATOR="Visual Studio 16 2019"
+
+Then you can use our convenience script for setting up ``vcpkg``. From the ``openmeeg``
+root, run::
+
+    $ source ./build_tools/setup_vcpkg_compilation.sh
+
+Then you need MKL or OpenBLAS. The easiest way to get this is to use our
+OpenBLAS download script (which will download to ``$PWD/openblas/64``) and set
+an envs var to tell ``cmake`` how to interface with it and how to find the DLL
+in the compiled library::
+
+    $ ./build_tools/download_openblas.sh
+    $ export CMAKE_PREFIX_PATH=$(cygpath -m $PWD/openblas/64)
+    $ export CMAKE_CXX_FLAGS="-I$(cygpath -m $PWD/openblas/64/include)"
+    $ export PATH=$PATH:$PWD/openblas/64/lib
+
+Then you also need the path to the compiled libraries for tests to work::
+
+    $ export PATH=$PATH:$PWD/build/OpenMEEG/Release:$PWD/build/OpenMEEGMaths/Release
+
+.. note:: Consider adding ``export`` statements to your ``~.bashrc`` to
+          facilitate future debugging, but be sure to translate the ``$PWD``
+          to the actual Unix-formatted path on your system, e.g.::
+
+              export CMAKE_GENERATOR="Visual Studio 16 2019"
+              export CMAKE_PREFIX_PATH=C:/Users/whoever/python/openmeeg/openblas/64
+              export CMAKE_CXX_FLAGS="-IC:/Users/whoever/python/openmeeg/openblas/64/include"
+              export PATH=$PATH:/c/Users/whoever/python/openmeeg/openblas/64/lib:/c/Users/whoever/python/openmeeg/build/OpenMEEG/Release:/c/Users/whoever/python/openmeeg/build/OpenMEEGMaths/Release
+
+Then you can build as usual::
+
+    $ ./build_tools/cmake_configure.sh
+    $ cmake --build build --config release
+
+The configure step will take a few minutes because this is the stage during
+which ``vcpkg`` builds dependencies (and HDF5 in particular takes some time).
+But once it has completed, any subsequent ``./build_tools/cmake_configure.sh``
+calls should be much faster because the completed dependency builds are stored
+in the ``vcpkg`` directory for future use.
+
+If you ever have problems with DLL linkage, consider using::
+
+    $ ./build_tools/install_dependency_walker.sh
+    $ ./Dependencies/DependenciesGui.exe
+
+to examine issues with ``OpenMEEGMaths.dll`` for example.
+
+Testing
+^^^^^^^
+Once you have a complete build in ``build``, you can test with::
+
+    $ cd build
+    $ ctest -C release || ctest -C release --rerun-failed --output-on-failure
+
+Optional build variables
+^^^^^^^^^^^^^^^^^^^^^^^^
 You will need to define more CMake variables if you want the support for:
 
 `-DENABLE_PYTHON=ON`` (Python >= 3.7 is required)
-    Enable Python wrapping.
+    Enable Python wrapping (automatically enabled by cmake_configure.sh)
 `-DUSE_VTK=ON`
     VTK file format support.
 `-DUSE_CGAL=ON`
@@ -120,13 +204,9 @@ You will need to define more CMake variables if you want the support for:
 `-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache`
     To speed up builds. `ccache` must be installed.
 
-You can run the full test suite with::
-
-    $ pushd build
-    $ ctest -C Release || ctest -C Release --rerun-failed --output-on-failure
-    $ popd
-
-If no test is failing you can install with (and optionally with ``--install-prefix=...`` to install somewhere other than the default)::
+Installation
+^^^^^^^^^^^^
+In usual cmake fashion, you can install with (and optionally with ``--install-prefix=...`` to install somewhere other than the default)::
 
     $ cmake --build build --target install
 
@@ -151,14 +231,6 @@ was used) is in your library search path, e.g., by settincg ``LD_LIBRARY_PATH``
 or editing ``/etc/ld.so.conf`` and using ``sudo ldconfig``.
 
 You can now give a try to OpenMEEG on the `sample dataset <https://github.com/openmeeg/openmeeg_sample_data/archive/master.zip>`_.
-
-Windows
-^^^^^^^
-
-You will need to install MSVC 15 (2017) or later and `CMake <http://www.cmake.org>`_,
-which can be installed via ``pip``.
-Then download the source from github, and follow the steps that we use to
-build OpenMEEG on GitHub Actions: `.github/workflows/build_and_test.yml <https://github.com/openmeeg/openmeeg/blob/main/.github/workflows/build_and_test.yml>`_
 
 Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
