@@ -483,7 +483,7 @@ jobs:
             export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi
           echo "PYTHONPATH=$PYTHONPATH"
-          python -c "import openmeeg._openmeeg_cxx as _omc; print(_omc.sqr(4)); assert _omc.sqr(4) == 16"
+          python -c "from openmeeg.openmeeg import _Vect3 as Vect3; V = Vect3(1,2,4); print(V); assert V(0) == 1"
         fi
 
     - name: Create, delocate, check, install, and test wheel

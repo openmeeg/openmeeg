@@ -51,6 +51,7 @@
 #endif
 
 %rename("_%s", %$isclass) "";
+%rename("_Matrix_Free") Matrix_Free;
 
 %rename("Logger") Logger;
 
