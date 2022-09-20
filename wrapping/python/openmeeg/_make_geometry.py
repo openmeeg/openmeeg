@@ -2,8 +2,14 @@
 from pathlib import Path
 import numpy as np
 
-
-from ._openmeeg_cxx import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
+from .openmeeg import (
+    _Geometry,
+    _Domain,
+    _SimpleDomain,
+    _Interface,
+    _OrientedMesh,
+    _Mesh,
+)
 
 
 def _mesh_vertices_and_triangles(mesh):
@@ -32,7 +38,7 @@ def make_geometry(meshes, interfaces, domains):
 
     Returns
     -------
-    geometry : isinstance of om.Geometry
+    geometry : isinstance of om._Geometry
         The geometry that can be used in OpenMEEG.
     """
 
@@ -57,7 +63,7 @@ def make_geometry(meshes, interfaces, domains):
     # Normalize mesh inputs to numpy arrays
 
     for name, mesh in meshes.items():
-        if isinstance(mesh, Mesh):
+        if isinstance(mesh, _Mesh):
             meshes[name] = _mesh_vertices_and_triangles(mesh)
         elif isinstance(mesh, (list, tuple)):
             pass
@@ -70,7 +76,7 @@ def make_geometry(meshes, interfaces, domains):
     # First add mesh points
 
     indmaps = dict()
-    geom = Geometry(len(meshes))
+    geom = _Geometry(len(meshes))
     for name, mesh in meshes.items():
         indmaps[name] = geom.add_vertices(mesh[0])
 
@@ -92,7 +98,7 @@ def make_geometry(meshes, interfaces, domains):
                 "non-empty list of interfaces"
             )
 
-        om_domain = Domain(dname)
+        om_domain = _Domain(dname)
         om_domain.set_conductivity(conductivity)
 
         for iname, side in domain_interfaces:
@@ -106,17 +112,17 @@ def make_geometry(meshes, interfaces, domains):
                     f"Interface definition {iname} first argument should be a "
                     "non-empty list of (mesh,orientation)"
                 )
-            if side != SimpleDomain.Inside and side != SimpleDomain.Outside:
+            if side != _SimpleDomain.Inside and side != _SimpleDomain.Outside:
                 raise Exception(
                     f"Domain {dname}: interface {iname} has a wrong side "
                     "direction (In/Out)"
                 )
 
-            om_interface = Interface(iname)
+            om_interface = _Interface(iname)
             for mesh_name, orientation in oriented_meshes:
                 if (
-                    orientation != OrientedMesh.Normal
-                    and orientation != OrientedMesh.Opposite
+                    orientation != _OrientedMesh.Normal
+                    and orientation != _OrientedMesh.Opposite
                 ):
                     raise Exception(
                         f"Wrong description for interface ({iname}), second "
@@ -124,10 +130,10 @@ def make_geometry(meshes, interfaces, domains):
                     )
 
                 mesh = geom.mesh(mesh_name)
-                oriented_mesh = OrientedMesh(mesh, orientation)
+                oriented_mesh = _OrientedMesh(mesh, orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
 
-            om_domain.boundaries().push_back(SimpleDomain(om_interface, side))
+            om_domain.boundaries().push_back(_SimpleDomain(om_interface, side))
         geom.domains().push_back(om_domain)
 
     geom.finalize()
@@ -148,7 +154,7 @@ def make_nested_geometry(meshes, conductivity):
 
     Returns
     -------
-    geometry : isinstance of om.Geometry
+    geometry : isinstance of om._Geometry
         The geometry that can be used in OpenMEEG.
     """
 
@@ -168,32 +174,32 @@ def make_nested_geometry(meshes, conductivity):
 
         # It should be possible to have multiple oriented meshes per interface.
         # e.g.
-        # interface1 = [(m1,om.OrientedMesh.Normal),
-        #               (m2,om.OrientedMesh.Opposite),
-        #               (m3,om.OrientedMesh.Normal)]
+        # interface1 = [(m1,om._OrientedMesh.Normal),
+        #               (m2,om._OrientedMesh.Opposite),
+        #               (m3,om._OrientedMesh.Normal)]
         # It should also be possible to have a name added at the beginning of the
         # tuple.
 
         interfaces = {
-            "Cortex": [("Cortex", OrientedMesh.Normal)],
-            "Skull": [("Skull", OrientedMesh.Normal)],
-            "Head": [("Head", OrientedMesh.Normal)],
+            "Cortex": [("Cortex", _OrientedMesh.Normal)],
+            "Skull": [("Skull", _OrientedMesh.Normal)],
+            "Head": [("Head", _OrientedMesh.Normal)],
         }
 
         domains = {
             "Scalp": (
                 [
-                    ("Skull", SimpleDomain.Outside),
-                    ("Head", SimpleDomain.Inside),
+                    ("Skull", _SimpleDomain.Outside),
+                    ("Head", _SimpleDomain.Inside),
                 ],
                 scalp_conductivity,
             ),
-            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
-            "Air": ([("Head", SimpleDomain.Outside)], 0.0),
+            "Brain": ([("Cortex", _SimpleDomain.Inside)], brain_conductivity),
+            "Air": ([("Head", _SimpleDomain.Outside)], 0.0),
             "Skull": (
                 [
-                    ("Cortex", SimpleDomain.Outside),
-                    ("Skull", SimpleDomain.Inside),
+                    ("Cortex", _SimpleDomain.Outside),
+                    ("Skull", _SimpleDomain.Inside),
                 ],
                 skull_conductivity,
             ),
@@ -206,12 +212,12 @@ def make_nested_geometry(meshes, conductivity):
         (brain_conductivity,) = conductivity
 
         interfaces = {
-            "Cortex": [("Cortex", OrientedMesh.Normal)],
+            "Cortex": [("Cortex", _OrientedMesh.Normal)],
         }
 
         domains = {
-            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
-            "Air": ([("Cortex", SimpleDomain.Outside)], 0.0),
+            "Brain": ([("Cortex", _SimpleDomain.Inside)], brain_conductivity),
+            "Air": ([("Cortex", _SimpleDomain.Outside)], 0.0),
         }
 
     geom = make_geometry(meshes, interfaces, domains)
@@ -230,9 +236,9 @@ def read_geometry(geom_file, cond_file):
 
     Returns
     -------
-    geometry : isinstance of om.Geometry
+    geometry : isinstance of om._Geometry
         The geometry that can be used in OpenMEEG.
     """
     geom_file = str(Path(geom_file).resolve())
     cond_file = str(Path(cond_file).resolve())
-    return Geometry(geom_file, cond_file)
+    return _Geometry(geom_file, cond_file)

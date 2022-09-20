@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 
-from ._openmeeg_cxx import Logger, ERROR, WARNING, INFORMATION, DEBUG
-
+from .openmeeg import Logger, ERROR, WARNING, INFORMATION, DEBUG
 
 _warn_map = dict(
     error=ERROR,
@@ -9,7 +8,6 @@ _warn_map = dict(
     info=INFORMATION,
     debug=DEBUG,
 )
-
 
 def set_log_level(level):
     """Set the logging level.

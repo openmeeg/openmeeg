@@ -26,5 +26,5 @@ python -m pip install "$NUMPY_PIP" --only-binary="numpy"
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
 python -m pip uninstall -yq numpy
-cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/_openmeeg_cxx.py wrapping/python/openmeeg/
+cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/openmeeg.py wrapping/python/openmeeg/
 rm -Rf build
