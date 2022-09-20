@@ -7,10 +7,8 @@ from ._openmeeg_cxx import (
     Matrix,
     SymMatrix,
     SparseMatrix,
-
     HeadMat,
     Sensors,
-
     CorticalMat,
     CorticalMat2,
     DipSource2InternalPotMat,
@@ -31,7 +29,6 @@ from ._openmeeg_cxx import (
     SurfSourceMat,
     SurfSource2MEGMat,
     Surf2VolMat,
-
     Integrator,
 )
 
