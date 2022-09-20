@@ -2,9 +2,8 @@ import sys
 import argparse
 #import openmeeg as om
 
-def parser(argv):
-    print(argv)
-    parser = argparse.ArgumentParser(prog=argv[0],description='Compute various leadfields (gain matrices).')
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser(prog=argv[0],description='Compute various head matrices).')
     parser.add_argument('--old-ordering', type=bool, default=False, help='Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)')
     subparsers = parser.add_subparsers(dest='subparser_name', help='sub-command help')
 
