@@ -167,7 +167,7 @@ if (BUILD_TESTING)
     endif()
 
     if (ENABLE_PYTHON_APPS)
-        set(APP ${CMAKE_CURRENT_SOURCE_DIR}/openmeeg)
+        set(APP ${CMAKE_CURRENT_SOURCE_DIR}/apps/openmeeg)
         set(ASSEMBLE "${APP} assemble")
         set(INVERSER "${APP} minverser")
         set(GAIN     "${APP} gain")
