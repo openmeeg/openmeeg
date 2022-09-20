@@ -1,6 +1,6 @@
 *.egg-info
-openmeeg/openmeeg.py
-openmeeg/openmeeg_wrap.cpp
+openmeeg/_openmeeg_cxx.py
+openmeeg/_openmeeg*_wrap.c*
 openmeeg/_*.pyd
 openmeeg/_*.so
 openmeeg/_*.dylib

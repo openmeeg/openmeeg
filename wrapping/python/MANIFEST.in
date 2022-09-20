@@ -1,4 +1,3 @@
 include *.py
-exclude *.cxx
 exclude setup.cfg
 include openmeeg/_openmeeg.*

@@ -38,6 +38,8 @@
     }
 }
 
+#define SWIG_PYTHON_SILENT_MEMLEAK
+
 #ifdef SWIGWIN
 %include <windows.i>
 #endif
