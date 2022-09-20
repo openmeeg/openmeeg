@@ -25,7 +25,9 @@ import shutil
 
 from numpy.testing import assert_allclose
 import openmeeg as om
-import openmeeg._openmeeg_cxx as _omc
+from openmeeg.openmeeg import _Mesh as Mesh
+from openmeeg.openmeeg import _Vertex as Vertex
+from openmeeg.openmeeg import _Vect3 as Vect3
 
 
 def read_geom(geom_file):
@@ -197,7 +199,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     )
 
     if op.exists(source_mesh_file):
-        mesh = _omc.Mesh(source_mesh_file)
+        mesh = Mesh(source_mesh_file)
         n_dipoles_surf = mesh.vertices().size()
         ssm = om.SurfSourceMat(geom, mesh, integrator)
         gain_eeg_surf = om.GainEEG(hminv, ssm, h2em)
@@ -256,7 +258,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     # Compute forward data =
 
     src_fname = op.join(data_path, subject, subject + ".srcdip")
-    sources = _omc.Matrix(src_fname)
+    sources = om.Matrix(src_fname)
     n_times = sources.ncol()
 
     noise_level = 0.0
@@ -274,16 +276,16 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
     # Example of basic manipulations
     # TODO: the same with numpy
-    v1 = _omc.Vertex(1.0, 0.0, 0.0, 0)
-    v2 = _omc.Vertex(0.0, 1.0, 0.0, 1)
-    _omc.Vertex(0.0, 0.0, 1.0, 2)
+    v1 = Vertex(1.0, 0.0, 0.0, 0)
+    v2 = Vertex(0.0, 1.0, 0.0, 1)
+    Vertex(0.0, 0.0, 1.0, 2)
     # TODO: v4 = om.Vertex( [double] , int )
 
     # print(v1.norm()
     assert v1.norm() == np.linalg.norm(v1.array())
     assert (v1 + v2).norm() == np.linalg.norm(v1.array() + v2.array())
 
-    normal = _omc.Vect3(1.0, 0.0, 0.0)
+    normal = Vect3(1.0, 0.0, 0.0)
     assert normal.norm() == 1.0
 
     hm_fname = str(tmp_path / f"{subject}.hm")
@@ -324,7 +326,7 @@ def test_pointer_clearing(data_path, tmp_path):
 
     tmp_mesh_path = tmp_path / "Head1.tri"
     assert tmp_mesh_path.is_file()
-    mesh = _omc.Mesh(str(tmp_mesh_path))
+    mesh = Mesh(str(tmp_mesh_path))
     assert mesh.vertices().size() == 42
     os.remove(tmp_mesh_path)
 

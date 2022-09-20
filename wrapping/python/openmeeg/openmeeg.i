@@ -50,6 +50,31 @@
 #pragma warning(disable:4701)  /* potentially uninitialized local variable 'v' used */
 #endif
 
+%rename("_%s", %$isclass) "";
+
+%rename("Logger") Logger;
+
+%rename("Matrix") Matrix;
+%rename("SymMatrix") SymMatrix;
+
+%rename("Forward") Forward;
+%rename("GainEEG") GainEEG;
+%rename("GainMEG") GainMEG;
+%rename("GainEEGadjoint") GainEEGadjoint;
+%rename("GainMEGadjoint") GainMEGadjoint;
+%rename("GainEEGMEGadjoint") GainEEGMEGadjoint;
+%rename("GainInternalPot") GainInternalPot;
+%rename("GainEITInternalPot") GainEITInternalPot;
+%rename("Integrator") Integrator;
+%rename("Sensors") Sensors;
+
+%ignore crossprod;
+%ignore det;
+%ignore dotprod;
+%ignore log_stream;
+%ignore sizet_to_int;
+%ignore sqr;
+
 %include <std_string.i>
 %include <std_vector.i>
 
@@ -128,17 +153,17 @@
 
 namespace std {
     // std::vector<Mesh> cannot be handled similarly because swig assumes a copy constructor.
-    %template(vector_int) vector<int>;
-    %template(vector_unsigned) vector<unsigned int>;
-    %template(vector_double) vector<double>;
-    %template(vector_vertex) vector<OpenMEEG::Vertex>;
-    %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
-    %template(vector_triangle) vector<OpenMEEG::Triangle>;
-    %template(vector_string) vector<std::string>;
-    %template(vector_interface) vector<OpenMEEG::Interface>;
-    %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
-    %template(vector_domain) vector<OpenMEEG::Domain>;
-    %template(vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
+    %template(_vector_int) vector<int>;
+    %template(_vector_unsigned) vector<unsigned int>;
+    %template(_vector_double) vector<double>;
+    %template(_vector_vertex) vector<OpenMEEG::Vertex>;
+    %template(_vector_pvertex) vector<OpenMEEG::Vertex *>;
+    %template(_vector_triangle) vector<OpenMEEG::Triangle>;
+    %template(_vector_string) vector<std::string>;
+    %template(_vector_interface) vector<OpenMEEG::Interface>;
+    %template(_vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
+    %template(_vector_domain) vector<OpenMEEG::Domain>;
+    %template(_vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
 }
 
 namespace OpenMEEG {
@@ -198,7 +223,7 @@ namespace OpenMEEG {
 
     // Creator of Vector from PyArrayObject or Vector
 
-    OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
+    OpenMEEG::Vector* _new_OpenMEEG_Vector(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
             PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
             const size_t nelem = PyArray_DIM(vect,0);
@@ -219,7 +244,7 @@ namespace OpenMEEG {
 
     // Creator of Matrix from PyArrayObject or Matrix
 
-    OpenMEEG::Matrix* new_OpenMEEG_Matrix(PyObject* pyobj) {
+    OpenMEEG::Matrix* _new_OpenMEEG_Matrix(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
             const int nbdims = PyArray_NDIM(reinterpret_cast<PyArrayObject*>(pyobj));
             if (nbdims!=2)
@@ -247,7 +272,7 @@ namespace OpenMEEG {
         return new Matrix(*(reinterpret_cast<OpenMEEG::Matrix*>(ptr)));
     }
 
-    OpenMEEG::SymMatrix* new_OpenMEEG_SymMatrix(PyObject* pyobj) {
+    OpenMEEG::SymMatrix* _new_OpenMEEG_SymMatrix(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
             const int nbdims = PyArray_NDIM(reinterpret_cast<PyArrayObject*>(pyobj));
             if (nbdims!=1)
@@ -276,7 +301,7 @@ namespace OpenMEEG {
     }
 
     IndexMap
-    geom_add_vertices(Geometry* geom,PyObject* pyobj) {
+    _geom_add_vertices(Geometry* geom,PyObject* pyobj) {
 
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Vertices matrix should be an array.");
@@ -300,7 +325,7 @@ namespace OpenMEEG {
     }
 
     void
-    mesh_add_triangles(Mesh* mesh,PyObject* pyobj,const IndexMap& indmap) {
+    _mesh_add_triangles(Mesh* mesh,PyObject* pyobj,const IndexMap& indmap) {
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
@@ -358,7 +383,7 @@ namespace OpenMEEG {
 
     // Python -> C++
     %typemap(in) Vector& {
-        $1 = new_OpenMEEG_Vector($input);
+        $1 = _new_OpenMEEG_Vector($input);
     }
 
     %typemap(freearg) Vector& {
@@ -366,7 +391,7 @@ namespace OpenMEEG {
     }
 
     %typemap(in) Matrix& {
-        $1 = new_OpenMEEG_Matrix($input);
+        $1 = _new_OpenMEEG_Matrix($input);
     }
 
     %typemap(freearg) Matrix& {
@@ -395,7 +420,7 @@ namespace OpenMEEG {
 
     IndexMap
     add_vertices(PyObject* pyobj) {
-        return geom_add_vertices($self,pyobj);
+        return _geom_add_vertices($self,pyobj);
     }
 }
 
@@ -431,7 +456,7 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::Vector {
-    Vector(PyObject* pyobj) { return new_OpenMEEG_Vector(pyobj); }
+    Vector(PyObject* pyobj) { return _new_OpenMEEG_Vector(pyobj); }
 
     PyObject* array() {
         const npy_intp ndims = 1;
@@ -453,7 +478,7 @@ namespace OpenMEEG {
 
 %extend OpenMEEG::Matrix {
 
-    Matrix(PyObject* pyobj) { return new_OpenMEEG_Matrix(pyobj); }
+    Matrix(PyObject* pyobj) { return _new_OpenMEEG_Matrix(pyobj); }
 
     static void Free(PyObject* capsule) {
         SharedData* shared_data = reinterpret_cast<SharedData*>(PyCapsule_GetPointer(capsule,PyCapsule_GetName(capsule)));
@@ -495,7 +520,7 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::SymMatrix {
-    SymMatrix(PyObject* pyobj) { return new_OpenMEEG_SymMatrix(pyobj); }
+    SymMatrix(PyObject* pyobj) { return _new_OpenMEEG_SymMatrix(pyobj); }
 
     PyObject* array_flat() {
         const npy_intp ndims = 1;
@@ -525,14 +550,14 @@ namespace OpenMEEG {
 %extend OpenMEEG::Mesh {
 
     void add_triangles(PyObject* pyobj,const IndexMap& indmap) {
-        mesh_add_triangles($self,pyobj,indmap);
+        _mesh_add_triangles($self,pyobj,indmap);
     }
 
     Mesh(PyObject* vertices,PyObject* triangles,const std::string name="",Geometry* geom=nullptr) {
         Mesh* mesh = new Mesh(geom);
         mesh->name() = name;
-        const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
-        mesh_add_triangles(mesh,triangles,indmap);
+        const OpenMEEG::IndexMap& indmap = _geom_add_vertices(&(mesh->geometry()),vertices);
+        _mesh_add_triangles(mesh,triangles,indmap);
         mesh->update(true);
         return mesh;
     }
@@ -560,7 +585,7 @@ namespace OpenMEEG {
             if (item==nullptr || !PyList_Check(item) || PyList_Size(item)!=3)
                 throw Error(SWIG_TypeError, "Geometry constructor argument must be a list of lists, each of length 3");
             PyObject* vertices = PyList_GetItem(item,1);
-            indmap[i] = geom_add_vertices(geometry,vertices);
+            indmap[i] = _geom_add_vertices(geometry,vertices);
         }
 
         //  Create meshes and add triangles.
@@ -572,7 +597,7 @@ namespace OpenMEEG {
                 throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
             Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
             PyObject* triangles = PyList_GetItem(item,2);
-            mesh_add_triangles(&mesh,triangles,indmap[i]);
+            _mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);
             #ifdef DEBUG
             std::ostringstream oss;
