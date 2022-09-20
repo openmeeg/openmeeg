@@ -11,7 +11,6 @@
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
-
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 if (BUILD_TESTING)
     find_package(Pytest)
@@ -28,7 +27,6 @@ include_directories(${Python3_INCLUDE_DIRS}
 )
 
 cmake_policy(SET CMP0078 NEW)
-set(SWIG_TARGET_NAME "openmeeg")
 cmake_policy(SET CMP0086 NEW) # Use NEW policy and explicitly use SWIG_MODULE_NAME
 
 find_package(SWIG REQUIRED)
@@ -37,17 +35,24 @@ find_package(SWIG REQUIRED)
 
 if (SWIG_USE_FILE STREQUAL "")
     message(FATAL_ERROR "unexpected: the variable SWIG_USE_FILE is the empty string. Did you run FindSWIG.cmake?")
-else()
-    include(${SWIG_USE_FILE})
 endif()
+
+include(${SWIG_USE_FILE})
+
+set(SWIG_TARGET_NAME "openmeeg")
 
 list(APPEND CMAKE_SWIG_FLAGS -v -O)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
-set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_cxx)
+set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES
+    CPLUSPLUS ON
+    GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK
+    SWIG_MODULE_NAME _openmeeg_cxx
+)
 # This puts _openmeeg.py in openmeeg/
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/_openmeeg.i)
 # This puts __openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
+
 if (MSVC)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
@@ -56,8 +61,8 @@ endif()
 if (PYTHON_FORCE_EXT_SUFFIX)
     # For PyPy, see
     # https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
-    if(NOT Python3_EXT_SUFFIX)
-        if(UNIX)
+    if (NOT Python3_EXT_SUFFIX)
+        if (UNIX)
             set(Python3_EXT_SUFFIX ".${Python3_SOABI}.so")
         else()
             set(Python3_EXT_SUFFIX ".${Python3_SOABI}.pyd")
@@ -70,11 +75,10 @@ else()
     message(STATUS "Python default suffix ${Python3_EXT_SUFFIX}")
 endif()
 
-if (APPLE)
-    swig_link_libraries(${SWIG_TARGET_NAME} OpenMEEG::OpenMEEG)
-else()
-    swig_link_libraries(${SWIG_TARGET_NAME} ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
+if (NOT APPLE)
+    set(SWIG_PYTHON_LIBS ${Python3_LIBRARIES})
 endif()
+swig_link_libraries(${SWIG_TARGET_NAME} ${SWIG_PYTHON_LIBS} OpenMEEG::OpenMEEG)
 
 set(PYTHON_SITE_ARCH ${Python3_SITEARCH})
 if (PYTHON_INSTALL_RELATIVE)
@@ -103,6 +107,7 @@ add_custom_command(
 )
 
 # Installation just copies the directory
+
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
@@ -110,23 +115,14 @@ install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
+
 if (PYTHON_COPY_RUNTIME_DLLS)
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
-        COMMAND_EXPAND_LISTS
-        COMMENT "Python: Copying runtime DLLs for ${SWIG_TARGET_NAME}"
-        VERBATIM
-    )
-    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEG> ${CMAKE_BINARY_DIR}
-        COMMAND_EXPAND_LISTS
-        COMMENT "Python: Copying runtime DLLs for OpenMEEG"
-        VERBATIM
-    )
-    add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:OpenMEEGMaths> ${CMAKE_BINARY_DIR}
         COMMAND_EXPAND_LISTS
-        COMMENT "Python: Copying runtime DLLs for OpenMEEGMaths"
+        COMMENT "Python: Copying runtime DLLs for ${SWIG_TARGET_NAME}, OpenMEEG and OpenMEEGMaths"
         VERBATIM
     )
 endif()
