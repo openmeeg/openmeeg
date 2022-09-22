@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import openmeeg as om
-import openmeeg._openmeeg_cxx as _omc
+import openmeeg._openmeeg_wrapper as _omc
 
 
 def test_vector():

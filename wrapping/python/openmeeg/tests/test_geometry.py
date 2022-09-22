@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 import openmeeg as om
-from openmeeg._openmeeg_cxx import Geometry, Mesh
+from openmeeg._openmeeg_wrapper import Geometry, Mesh
 
 
 def test_geometry_private():
