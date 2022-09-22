@@ -3,7 +3,14 @@ from pathlib import Path
 import numpy as np
 
 
-from ._openmeeg_wrapper import Geometry, Domain, SimpleDomain, Interface, OrientedMesh, Mesh
+from ._openmeeg_wrapper import (
+    Geometry,
+    Domain,
+    SimpleDomain,
+    Interface,
+    OrientedMesh,
+    Mesh,
+)
 
 
 def _mesh_vertices_and_triangles(mesh):
