@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import openmeeg._openmeeg_cxx as _omc
+import openmeeg._openmeeg_wrapper as _omc
 
 
 def check_mesh(name, vertices, triangles, expected_result):

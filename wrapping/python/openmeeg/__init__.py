@@ -2,7 +2,7 @@ from . import _distributor_init
 
 # Here we import as few things as possible to keep our API as limited as
 # possible
-from ._openmeeg_cxx import (
+from ._openmeeg_wrapper import (
     HeadMat,
     Sensors,
     Integrator,

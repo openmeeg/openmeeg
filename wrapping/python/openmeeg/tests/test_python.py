@@ -25,7 +25,7 @@ import shutil
 
 from numpy.testing import assert_allclose
 import openmeeg as om
-import openmeeg._openmeeg_cxx as _omc
+import openmeeg._openmeeg_wrapper as _omc
 
 
 def read_geom(geom_file):

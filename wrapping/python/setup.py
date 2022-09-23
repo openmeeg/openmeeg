@@ -75,7 +75,7 @@ if __name__ == "__main__":
             "-v",
             "-O",
             "-module",
-            "_openmeeg_cxx",
+            "_openmeeg_wrapper",
             "-interface",
             "_openmeeg",
             "-modern",
