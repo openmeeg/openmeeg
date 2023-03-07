@@ -36,7 +36,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt -y update
-        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev python3-numpy
+        sudo apt -yq install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libopenmp-dev gfortran
+        gcc --version
     - name: Configure
       run: |
         ./build_tools/cmake_configure.sh
