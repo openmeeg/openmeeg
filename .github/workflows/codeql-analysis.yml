@@ -36,14 +36,14 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt -y update
-        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libopenmpi-dev libhdf5-openmpi-dev
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov libopenblas-dev libvtk9-dev
         gcc --version
     - name: Install NumPy
       run: |
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DHDF5_PREFER_PARALLEL=OFF --trace-expand
+        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_COVERAGE=ON --trace-expand
     - name: Build
       run: |
         cmake --build build --config Release
