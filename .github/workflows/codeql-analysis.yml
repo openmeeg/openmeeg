@@ -36,7 +36,6 @@ jobs:
         key: ${{ github.workflow }}-${{ github.job }}-0
     - name: Install dependencies
       run: |
-        sudo apt -y update
         sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
         gcc --version
     - name: Install NumPy
