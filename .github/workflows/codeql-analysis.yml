@@ -30,7 +30,7 @@ jobs:
     # uses: github/codeql-action/init@v2
     #  with:
     #    languages: cpp, python
-    - run: apt update
+    - run: sudo apt update -q
     - uses: hendrikmuhs/ccache-action@v1.2
       with:
         key: ${{ github.workflow }}-${{ github.job }}-0
