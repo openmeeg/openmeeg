@@ -21,7 +21,6 @@ def check_mesh(name, vertices, triangles, expected_result):
 
 
 def test_mesh_full(data_path):
-
     vertices = np.array(
         [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]]
     )
