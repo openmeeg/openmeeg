@@ -43,7 +43,7 @@ jobs:
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_COVERAGE=ON --trace-expand
+        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_COVERAGE=ON -DENABLE_WERROR=ON --trace-expand
     - name: Build
       run: |
         cmake --build build --config Release
