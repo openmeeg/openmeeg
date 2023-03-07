@@ -36,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt -y update
-        sudo apt -yq install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libhdf5-openmpi-dev gfortran python3-pip
+        sudo apt -yq install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev gfortran python3-pip
         gcc --version
     - name: Install NumPy
       run: |
