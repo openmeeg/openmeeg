@@ -360,7 +360,9 @@ jobs:
         if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
+        set -x
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
+        set +x
         # Set GCC version
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
@@ -388,7 +390,7 @@ jobs:
         EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
         which cmake
         cmake --version
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON --trace-expand
 
     - name: Build
       run: |
