@@ -36,14 +36,14 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt -y update
-        sudo apt -yq install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev gfortran python3-pip
+        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
         gcc --version
     - name: Install NumPy
       run: |
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DHDF5_ENABLE_PARALLEL=OFF --trace-expand
+        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DHDF5_PREFER_PARALLEL=OFF --trace-expand
     - name: Build
       run: |
         cmake --build build --config Release
