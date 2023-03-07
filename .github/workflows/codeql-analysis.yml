@@ -27,9 +27,9 @@ jobs:
     timeout-minutes: 30
     steps:
     - uses: actions/checkout@v3
-    # uses: github/codeql-action/init@v2
-    #  with:
-    #    languages: cpp, python
+    - uses: github/codeql-action/init@v2
+      with:
+        languages: cpp, python
     - run: sudo apt update -q
     - uses: hendrikmuhs/ccache-action@v1.2
       with:
@@ -47,4 +47,4 @@ jobs:
     - name: Build
       run: |
         cmake --build build --config Release
-    # uses: github/codeql-action/analyze@v2
+    - uses: github/codeql-action/analyze@v2
