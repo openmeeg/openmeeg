@@ -24,6 +24,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    timeout-minutes: 30
     steps:
     - uses: actions/checkout@v3
     - uses: github/codeql-action/init@v2
@@ -32,10 +33,14 @@ jobs:
     - uses: hendrikmuhs/ccache-action@v1.2
       with:
         key: ${{ github.workflow }}-${{ github.job }}
-    - name: Build
+    - name: Install dependencies
       run: |
         sudo apt -y update
         sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev python3-numpy
+    - name: Configure
+      run: |
         ./build_tools/cmake_configure.sh
+    - name: Build
+      run: |
         cmake --build build --config Release
     - uses: github/codeql-action/analyze@v2
