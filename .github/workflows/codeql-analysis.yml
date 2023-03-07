@@ -39,6 +39,7 @@ jobs:
         sudo apt -yq install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libomp-dev gfortran python3-pip
         gcc --version
     - name: Install NumPy
+      run: |
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
