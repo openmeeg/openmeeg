@@ -36,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt -y update
-        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
+        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev libopenmpi-dev libhdf5-openmpi-dev
         gcc --version
     - name: Install NumPy
       run: |
