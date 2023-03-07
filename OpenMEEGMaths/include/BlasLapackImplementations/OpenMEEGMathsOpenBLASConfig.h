@@ -5,7 +5,7 @@
 // https://github.com/Reference-LAPACK/lapack/issues/683
 // https://stackoverflow.com/questions/47520244/using-openblas-lapacke-in-visual-studio
 #if defined(_MSC_VER)
-    # https://developercommunity.visualstudio.com/t/_Fcomplex-and-_Dcomplex-removed-in-Windo/10108779#T-ND10301376
+    // https://developercommunity.visualstudio.com/t/_Fcomplex-and-_Dcomplex-removed-in-Windo/10108779#T-ND10301376
     #define _CRT_USE_C_COMPLEX_H
     #include "complex.h"
     #define LAPACK_COMPLEX_CUSTOM
