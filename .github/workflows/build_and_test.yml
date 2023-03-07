@@ -392,7 +392,7 @@ jobs:
         EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
         which cmake
         cmake --version
-        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON --trace-expand
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
 
     - name: Build
       run: |
