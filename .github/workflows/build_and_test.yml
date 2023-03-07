@@ -204,6 +204,9 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
 
+    - run: sudo apt update -q
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
@@ -349,7 +352,6 @@ jobs:
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
-        sudo apt update -q
         APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
           APT_EXTRA="$APT_EXTRA libopenblas-dev"
@@ -360,7 +362,9 @@ jobs:
         if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
+        set -x
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
+        set +x
         # Set GCC version
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12

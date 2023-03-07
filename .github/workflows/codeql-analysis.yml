@@ -24,18 +24,25 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    timeout-minutes: 30
     steps:
     - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update -q
+        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev
+        gcc --version
+    - name: Install NumPy
+      run: |
+        pip install --upgrade --user numpy==1.23.0
+    - name: Configure
+      run: |
+        export DISABLE_CCACHE=1
+        source ./build_tools/cmake_configure.sh -DENABLE_WERROR=ON  # --trace-expand
     - uses: github/codeql-action/init@v2
       with:
         languages: cpp, python
-    - uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        key: ${{ github.workflow }}-${{ github.job }}
     - name: Build
       run: |
-        sudo apt -y update
-        sudo apt -yq install liblapacke-dev libhdf5-dev libmatio-dev libopenblas-dev python3-numpy
-        ./build_tools/cmake_configure.sh
         cmake --build build --config Release
     - uses: github/codeql-action/analyze@v2
