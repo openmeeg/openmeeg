@@ -43,7 +43,7 @@ jobs:
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
-        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON --trace --trace-expand --log-level=VERBOSE
+        source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DHDF5_ENABLE_PARALLEL=OFF --trace-expand
     - name: Build
       run: |
         cmake --build build --config Release
