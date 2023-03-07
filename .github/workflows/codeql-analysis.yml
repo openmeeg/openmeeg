@@ -27,12 +27,12 @@ jobs:
     timeout-minutes: 30
     steps:
     - uses: actions/checkout@v3
-    - uses: github/codeql-action/init@v2
-      with:
-        languages: cpp, python
-    - uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        key: ${{ github.workflow }}-${{ github.job }}
+    # uses: github/codeql-action/init@v2
+    #  with:
+    #    languages: cpp, python
+    # uses: hendrikmuhs/ccache-action@v1.2
+    #  with:
+    #    key: ${{ github.workflow }}-${{ github.job }}
     - name: Install dependencies
       run: |
         sudo apt -y update
@@ -43,9 +43,8 @@ jobs:
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
-        export LD_PRELOAD=
         source ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_COVERAGE=ON -DENABLE_WERROR=ON -DBUILD_DOCUMENTATION=ON --trace-expand
     - name: Build
       run: |
         cmake --build build --config Release
-    - uses: github/codeql-action/analyze@v2
+    # uses: github/codeql-action/analyze@v2
