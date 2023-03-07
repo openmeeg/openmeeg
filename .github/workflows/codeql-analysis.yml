@@ -37,6 +37,7 @@ jobs:
         pip install --upgrade --user numpy==1.23.0
     - name: Configure
       run: |
+        export DISABLE_CCACHE=1
         source ./build_tools/cmake_configure.sh -DENABLE_WERROR=ON  # --trace-expand
     - uses: github/codeql-action/init@v2
       with:
