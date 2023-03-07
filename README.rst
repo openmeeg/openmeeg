@@ -83,7 +83,7 @@ Building on Linux
 
 On Debian/Ubuntu you will need to install the dependencies with (Fedora flavors can use a similar command)::
 
-    $ sudo apt install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libomp-dev
+    $ sudo apt install gcc g++ make cmake libopenblas-dev liblapacke-dev libmatio-dev libhdf5-dev libhdf5-openmpi-dev
 
 *optionally*::
 
