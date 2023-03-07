@@ -40,7 +40,7 @@ jobs:
         gcc --version
     - name: Configure
       run: |
-        ./build_tools/cmake_configure.sh
+        ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON
     - name: Build
       run: |
         cmake --build build --config Release
