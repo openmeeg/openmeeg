@@ -28,6 +28,8 @@
 namespace OpenMEEG {
 
     void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double);
+    void operatorMonopolePotDer(const Monopole&,const Mesh&,Vector&,const double,const Integrator&);
+    void operatorMonopolePot(const Monopole&,const Mesh&,Vector&,const double,const Integrator&);
     void operatorDipolePotDer(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
     void operatorDipolePot(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
 

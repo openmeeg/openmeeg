@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <triangle.h>
+#include <monopole.h>
 #include <dipole.h>
 
 namespace OpenMEEG {
@@ -160,6 +161,59 @@ namespace OpenMEEG {
         const Vect3     U1;
         const Vect3     U2;
         const Vect3     U3;
+    };
+
+    class OPENMEEG_EXPORT analyticMonopPotDer {
+    public:
+
+        analyticMonopPotDer(const Monopole& monop,const Triangle& T): monopole(monop) {
+
+            const Vect3& p0 = T.vertex(0);
+            const Vect3& p1 = T.vertex(1);
+            const Vect3& p2 = T.vertex(2);
+
+            const Vect3& p1p0 = p0-p1;
+            const Vect3& p2p1 = p1-p2;
+            const Vect3& p0p2 = p2-p0;
+            const Vect3& p1p0n = p1p0/p1p0.norm();
+            const Vect3& p2p1n = p2p1/p2p1.norm();
+            const Vect3& p0p2n = p0p2/p0p2.norm();
+
+            const Vect3& p1H0 = dotprod(p1p0,p2p1n)*p2p1n;
+            H0 = p1H0+p1;
+            H0p0DivNorm2 = p0-H0;
+            H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
+            const Vect3& p2H1 = dotprod(p2p1,p0p2n)*p0p2n;
+            H1 = p2H1+p2;
+            H1p1DivNorm2 = p1-H1;
+            H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
+            const Vect3& p0H2 = dotprod(p0p2,p1p0n)*p1p0n;
+            H2 = p0H2+p0;
+            H2p2DivNorm2 = p2-H2;
+            H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
+
+            n = -crossprod(p1p0,p0p2);
+            n.normalize();
+        }
+
+        Vect3 f(const Vect3& r) const {
+            Vect3 P1part(dotprod(H0p0DivNorm2,r-H0),dotprod(H1p1DivNorm2,r-H1),dotprod(H2p2DivNorm2,r-H2));
+
+            // B = n.grad_x(A) with grad_x(A)= q.r/||^3
+
+            const Vect3& x         = r-monopole.position();
+            const double inv_xnrm2 = 1.0/x.norm2();
+			const double EMpart = dotprod(n,monopole.charge()*x)*(inv_xnrm2*sqrt(inv_xnrm2));
+
+            return EMpart*P1part;
+        }
+
+    private:
+
+        const Monopole& monopole;
+
+        Vect3 H0, H1, H2;
+        Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
     };
 
     class OPENMEEG_EXPORT analyticDipPotDer {
