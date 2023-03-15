@@ -31,7 +31,7 @@ namespace OpenMEEG {
         }
 
         const Vect3& position() const { return r0; }
-        const double charge()   const { return q;  }
+              double charge()   const { return q;  }
 
     private:
 
