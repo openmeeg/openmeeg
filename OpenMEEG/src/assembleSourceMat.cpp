@@ -61,7 +61,7 @@ namespace OpenMEEG {
     }
 
     Matrix
-    MonopSourceMat(const Geometry& geo,const Matrix& monopoles,const Integrator& integrator,const std::string& domain_name) {
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const Integrator& integrator,const std::string& domain_name) {
 
         const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         const size_t n_monopoles = monopoles.nlin();
@@ -83,7 +83,7 @@ namespace OpenMEEG {
                 for (const auto& boundary : domain.boundaries()) {
                     const double factorD = (boundary.inside()) ? K : -K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        //  Treat the mesh.
+                        //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
                         operatorMonopolePotDer(monopole,mesh,rhs_col,coeffD,integrator);
@@ -101,8 +101,8 @@ namespace OpenMEEG {
     }
 
     Matrix
-    MonopSourceMat(const Geometry& geo,const Matrix& monopoles,const std::string& domain_name) {
-        return MonopSourceMat(geo,monopoles,Integrator(3,10,0.001),domain_name);
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const std::string& domain_name) {
+        return MonopoleSourceMat(geo,monopoles,Integrator(3,10,0.001),domain_name);
     }
 
     Matrix
@@ -128,7 +128,7 @@ namespace OpenMEEG {
                 for (const auto& boundary : domain.boundaries()) {
                     const double factorD = (boundary.inside()) ? K : -K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        //  Treat the mesh.
+                        //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
                         operatorDipolePotDer(dipole,mesh,rhs_col,coeffD,integrator);

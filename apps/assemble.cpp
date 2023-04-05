@@ -23,6 +23,14 @@ using namespace OpenMEEG;
 
 void help(const char* cmd_name);
 
+static inline bool
+check_option_is_in_list(const char* option,const std::vector<std::string>& optlist) {
+    for (const std::string& opt : optlist)
+        if (opt==option)
+            return true;
+    return false;
+}
+
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
@@ -143,7 +151,7 @@ int main(int argc, char** argv)
     }
 
     const auto& MSMparms = { geomfileopt, condfileopt, monopolefileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-MonopSourceMat", "-MSM", "-msm", "-MonopSourceMatNoAdapt", "-MSMNA", "-msmna"},MSMparms)) {
+    if (char** opt_parms = cmd.option({"-MonopoleSourceMat", "-MSM", "-msm", "-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"},MSMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -164,17 +172,10 @@ int main(int argc, char** argv)
 
         // Choosing between adaptive integration or not for the RHS
 
-        const auto& check_no_adapt = [](const char* option,const std::vector<std::string>& optlist) {
-            for (const std::string& opt : optlist)
-                if (opt==option)
-                    return true;
-            return false;
-        };
-
         const char* optname = opt_parms[0];
-        const unsigned integration_levels = check_no_adapt(optname,{"-MonopSourceMatNoAdapt", "-MSMNA", "-msmna"}) ? 0 : 10;
+        const unsigned integration_levels = check_option_is_in_list(optname,{"-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"}) ? 0 : 10;
 
-        const Matrix& msm = MonopSourceMat(geo,monopoles,Integrator(3,integration_levels,0.001),domain_name);
+        const Matrix& msm = MonopoleSourceMat(geo,monopoles,Integrator(3,integration_levels,0.001),domain_name);
         msm.save(opt_parms[4]);
     }
 
@@ -200,15 +201,8 @@ int main(int argc, char** argv)
 
         // Choosing between adaptive integration or not for the RHS
 
-        const auto& check_no_adapt = [](const char* option,const std::vector<std::string>& optlist) {
-            for (const std::string& opt : optlist)
-                if (opt==option)
-                    return true;
-            return false;
-        };
-
         const char* optname = opt_parms[0];
-        const unsigned integration_levels = check_no_adapt(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
+        const unsigned integration_levels = check_option_is_in_list(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
 
         const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001),domain_name);
         dsm.save(opt_parms[4]);
@@ -406,7 +400,7 @@ void help(const char* cmd_name) {
               << "               mesh of sources (.tri .vtk .mesh .bnd)" << std::endl
               << "               output matrix" << std::endl << std::endl;
 
-    std::cout << "   -MonopSourceMat, -MSM, -msm:    " << std::endl
+    std::cout << "   -MonopoleSourceMat, -MSM, -msm:    " << std::endl
               << "      Compute Monopolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << std::endl
               << "            Arguments:" << std::endl
               << "               geometry file (.geom)" << std::endl

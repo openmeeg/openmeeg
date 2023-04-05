@@ -48,7 +48,7 @@ namespace OpenMEEG {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
             e.Run([&](){
-                const analyticMonopPotDer anaDPD(monopole,triangle);
+                const analyticMonopolePotDer anaDPD(monopole,triangle);
                 const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(monopder,triangle);

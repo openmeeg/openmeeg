@@ -8,7 +8,7 @@ from ._openmeeg_wrapper import (
     Integrator,
     Head2EEGMat,
     Head2MEGMat,
-    MonopSourceMat,
+    MonopoleSourceMat,
     DipSourceMat,
     DipSource2MEGMat,
     GainEEG,

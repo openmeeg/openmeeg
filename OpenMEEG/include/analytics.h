@@ -163,10 +163,10 @@ namespace OpenMEEG {
         const Vect3     U3;
     };
 
-    class OPENMEEG_EXPORT analyticMonopPotDer {
+    class OPENMEEG_EXPORT analyticMonopolePotDer {
     public:
 
-        analyticMonopPotDer(const Monopole& monop,const Triangle& T): monopole(monop) {
+        analyticMonopolePotDer(const Monopole& monop,const Triangle& T): monopole(monop) {
 
             const Vect3& p0 = T.vertex(0);
             const Vect3& p1 = T.vertex(1);
