@@ -137,9 +137,9 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(H2ECOGM-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} "1" ${ECOGMMAT} DEPENDS CLEAN-TESTS)
     endif()
 
-    ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
+    # TEST DIPOLE FORWARD RESULTS (Regression test)
 
-    # om_assemble -MSM geometry.geom conductivity.cond dipoles.dip msm.bin
+    # om_assemble -MSM geometry.geom conductivity.cond monooples.monop msm.bin
 
     OPENMEEG_TEST(MSM-${SUBJECT} ${ASSEMBLE} -MSM ${GEOM} ${COND} ${MONOPPOS} ${MSMMAT} DEPENDS CLEAN-TESTS)
 
