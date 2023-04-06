@@ -210,7 +210,7 @@ namespace OpenMEEG {
             c12 = prod_r20_r21*invdet;
         }
 
-        Vect3 P1term(const Vect3& r) const {
+        Vect3 operator()(const Vect3& r) const {
 
             const Vect3& u = r-r2;
             const double b1 = dotprod(r20,u);
@@ -226,11 +226,11 @@ namespace OpenMEEG {
         Vect3  r20,r21,r2;
     };
 
-    class OPENMEEG_EXPORT analyticMonopolePotDer: private BarycentricCoordinates {
+    class OPENMEEG_EXPORT analyticMonopolePotDer {
     public:
 
         analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
-            BarycentricCoordinates(T),triangle(T),monopole(monop)
+            barycentric_coords(T),triangle(T),monopole(monop)
         { }
 
         Vect3 f(const Vect3& r) const {
@@ -241,21 +241,24 @@ namespace OpenMEEG {
             const double xnrm2  = x.norm2();
             const Vect3& n      = triangle.normal();
 			const double EMpart = monopole.charge()*dotprod(n,x)/(xnrm2*sqrt(xnrm2));
+            const Vect3& P1term = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
 
-            return EMpart*P1term(r);
+            return EMpart*P1term;
         }
 
     private:
+
+        const BarycentricCoordinates barycentric_coords;
 
         const Triangle& triangle;
         const Monopole& monopole;
     };
 
-    class OPENMEEG_EXPORT analyticDipPotDer: private BarycentricCoordinates {
+    class OPENMEEG_EXPORT analyticDipPotDer {
     public:
 
         analyticDipPotDer(const Dipole& dip,const Triangle& T):
-            BarycentricCoordinates(T),triangle(T),dipole(dip)
+            barycentric_coords(T),triangle(T),dipole(dip)
         { }
 
         Vect3 f(const Vect3& r) const {
@@ -266,11 +269,14 @@ namespace OpenMEEG {
             const double inv_xnrm2 = 1.0/x.norm2();
             const Vect3& n         = triangle.normal();
             const double EMpart    = dotprod(n,dipole.moment()-(3*dotprod(dipole.moment(),x)*inv_xnrm2)*x)*(inv_xnrm2*sqrt(inv_xnrm2));
+            const Vect3& P1term    = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
 
-            return -EMpart*P1term(r); // RK: why - sign ?
+            return -EMpart*P1term; // RK: why - sign ?
         }
 
     private:
+
+        const BarycentricCoordinates barycentric_coords;
 
         const Triangle& triangle;
         const Dipole&   dipole;
