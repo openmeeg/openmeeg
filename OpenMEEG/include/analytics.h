@@ -235,7 +235,7 @@ namespace OpenMEEG {
 
         Vect3 f(const Vect3& r) const {
 
-            // B = n.grad_x(A) with grad_x(A)= q x/|x|^3, with x = r-r0
+            // B = n.grad_x(A) with grad_x(A)= -q x/|x|^3, with x = r-r0
 
             const Vect3& x      = r-monopole.position();
             const double xnrm2  = x.norm2();
@@ -243,7 +243,7 @@ namespace OpenMEEG {
 			const double EMpart = monopole.charge()*dotprod(n,x)/(xnrm2*sqrt(xnrm2));
             const Vect3& P1term = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
 
-            return EMpart*P1term;
+            return EMpart*P1term; // RK: why not - sign ?
         }
 
     private:

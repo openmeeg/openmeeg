@@ -23,7 +23,7 @@ namespace OpenMEEG {
 
         double potential(const Vect3& r) const {
 
-            // V = q.(r-r0)/||r-r0||^2
+            // V = q/||r-r0||
 
             const Vect3& x    = r-r0;
             const double nrm2 = x.norm2();
@@ -31,7 +31,7 @@ namespace OpenMEEG {
         }
 
         const Vect3& position() const { return r0; }
-              double charge()   const { return q;  }
+        double charge()         const { return q;  }
 
     private:
 
