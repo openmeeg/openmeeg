@@ -13,3 +13,4 @@ echo
 set -xe
 python -m threadpoolctl -i numpy openmeeg
 pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"
+om_viz -h  # test that om_viz is actually installed
