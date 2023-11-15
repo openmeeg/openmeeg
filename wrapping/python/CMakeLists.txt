@@ -85,12 +85,13 @@ string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
 message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
+message(STATUS "Python: Copying ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
-    COMMENT "Python: Copying ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg"
     VERBATIM
 )
+message(STATUS "Python: Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -98,22 +99,25 @@ add_custom_command(
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
     ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Python: Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}"
     VERBATIM
 )
+file(STRINGS "${CMAKE_CURRENT_BINARY_DIR}/openmeeg/_version.py" PYTHON_OPENMEEG_VERSION)
+message(STATUS "Python: Extracted from _version.py: ${PYTHON_OPENMEEG_VERSION}")
+string(REGEX REPLACE "^__version__ = \"([0-9deva-f.]+)\"$" "\\1" PYTHON_OPENMEEG_VERSION "${PYTHON_OPENMEEG_VERSION}")
+message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info
-    COMMENT "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-*.dist_info"
     VERBATIM
 )
+message(STATUS "Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-*.dist-info
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)
