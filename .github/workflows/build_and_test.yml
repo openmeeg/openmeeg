@@ -325,11 +325,14 @@ jobs:
     - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
+        echo "Installing dependencies with brew"
         brew update > /dev/null
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
-        brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        echo "Installing dependencies with brew"
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BLAS_DIR=/usr/local/opt/openblas
           OPENBLAS_INCLUDE=$BLAS_DIR/include
