@@ -101,6 +101,13 @@ add_custom_command(
     COMMENT "Python: Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}"
     VERBATIM
 )
+add_custom_command(
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/wrapping/python
+    COMMAND ${Python3_EXECUTABLE} setup.py dist_info
+    COMMENT "Python: Generating dist_info"
+    VERBATIM
+)
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
