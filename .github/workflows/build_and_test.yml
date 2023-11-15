@@ -488,6 +488,8 @@ jobs:
           fi
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg._openmeeg_wrapper as _omc; print(_omc.sqr(4)); assert _omc.sqr(4) == 16"
+          echo "pip show openmeeg:"
+          pip show openmeeg
         fi
 
     - name: Create, delocate, check, install, and test wheel
