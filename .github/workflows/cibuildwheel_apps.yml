@@ -64,6 +64,7 @@ jobs:
           CIBW_BUILD: "cp310-*"
           CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"
           CIBW_BEFORE_BUILD_WINDOWS: ""
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
