@@ -103,7 +103,7 @@ add_custom_command(
 )
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/wrapping/python
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info
     COMMENT "Python: Generating dist_info"
     VERBATIM
@@ -113,7 +113,9 @@ add_custom_command(
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
+install(DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg-*.dist-info
+        DESTINATION ${PYTHON_SITE_ARCH}
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
