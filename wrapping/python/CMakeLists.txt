@@ -105,7 +105,7 @@ add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info
-    COMMENT "Python: Generating dist_info"
+    COMMENT "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-*.dist_info"
     VERBATIM
 )
 
@@ -113,7 +113,7 @@ add_custom_command(
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/openmeeg-*.dist-info
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-*.dist-info
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)
