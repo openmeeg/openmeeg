@@ -2,8 +2,8 @@
 # Minimum requirements for the build system to execute.
 # TODO: We should look at SciPy and set mins for these like they do
 requires = [
-    "setuptools==59.2.0",
-    "wheel==0.37.0",
+    "setuptools>=68.0.0",
+    "wheel>=0.37.0",
     "oldest-supported-numpy; platform_python_implementation!='PyPy'",
     "numpy==1.23.0; platform_python_implementation=='PyPy'",
 ]
