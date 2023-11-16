@@ -108,7 +108,7 @@ def make_geometry(meshes, interfaces, domains):
                     f"Domain {dname} contains and unknown interface {iname}."
                 )
             oriented_meshes = interfaces[iname]
-            if type(oriented_meshes) != list or len(oriented_meshes) == 0:
+            if not isinstance(oriented_meshes, list) or len(oriented_meshes) == 0:
                 raise Exception(
                     f"Interface definition {iname} first argument should be a "
                     "non-empty list of (mesh,orientation)"
