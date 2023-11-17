@@ -113,7 +113,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # all subsequent steps should use steps.env-vars.outputs.* instead
     # of matrix.* entries
