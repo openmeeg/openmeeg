@@ -53,7 +53,7 @@ jobs:
             build/vcpkg_installed
           key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
       # "libOpenMEEGMaths.so.1: ELF load command address/offset not properly aligned"
-      - uses: pypa/cibuildwheel@v2.11.3  # 2.11.0 okay, 2.11.4 bad
+      - uses: pypa/cibuildwheel@v2.11.2  # 2.11.0 okay, 2.11.3 bad
         with:
           package-dir: ./wrapping/python
           output-dir: installers
