@@ -52,7 +52,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
-      - uses: pypa/cibuildwheel@v2.8.0  # 2.16.2 has a bug with "ELF load command address/offset not properly aligned"
+      - uses: pypa/cibuildwheel@v2.16.2  # 2.16.2 has a bug with "ELF load command address/offset not properly aligned"
         with:
           package-dir: ./wrapping/python
           output-dir: installers
