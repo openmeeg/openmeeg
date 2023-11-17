@@ -42,7 +42,7 @@ jobs:
         - os: windows-2019
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4  # to make before-all work properly
         with:
           python-version: '3.10'
