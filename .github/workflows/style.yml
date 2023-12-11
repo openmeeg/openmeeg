@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
       - run: pip install flake8
       - uses: rbialon/flake8-annotations@v1
       - run: flake8
