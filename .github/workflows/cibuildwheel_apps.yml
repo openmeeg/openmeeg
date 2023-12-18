@@ -72,7 +72,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: |
             ./installers/OpenMEEG-*.tar.gz
