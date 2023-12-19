@@ -37,7 +37,7 @@ if [ ! -d vcpkg ]; then
     echo "Getting vcpkg..."
     git clone https://github.com/Microsoft/vcpkg.git --depth=1
     cd vcpkg
-    git fetch origin 2022.05.10:use --depth=1
+    git fetch origin 2023.12.12:use --depth=1
     git checkout use
     ./bootstrap-vcpkg.sh
     cd ..
