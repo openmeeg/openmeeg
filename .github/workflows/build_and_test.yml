@@ -119,35 +119,35 @@ jobs:
     - name: Environment variables
       id: env-vars
       run: |
-        echo 'os=${{matrix.os}}' >> $GITHUB_OUTPUT
+        echo "os=${{matrix.os}}" >> $GITHUB_OUTPUT
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
-          echo 'numpy_version=dev' >> $GITHUB_OUTPUT
+          echo "numpy_version=dev" >> $GITHUB_OUTPUT
         else
-          echo 'numpy_version=oldest' >> $GITHUB_OUTPUT
+          echo "numpy_version=oldest" >> $GITHUB_OUTPUT
         fi
         PYTHON_VERSION="${{ matrix.python-version }}"
         if [[ "$PYTHON_VERSION" == "" ]]; then
           PYTHON_VERSION="3.10"
         fi
-        echo 'python_version=$PYTHON_VERSION' >> $GITHUB_OUTPUT
+        echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
-          echo 'blas_linking=static' >> $GITHUB_OUTPUT
+          echo "blas_linking=static" >> $GITHUB_OUTPUT
         else
-          echo 'blas_linking=dynamic' >> $GITHUB_OUTPUT
+          echo "blas_linking=dynamic" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
-          echo 'python=no-python' >> $GITHUB_OUTPUT
-          echo 'python_type=no-python' >> $GITHUB_OUTPUT
+          echo "python=no-python" >> $GITHUB_OUTPUT
+          echo "python_type=no-python" >> $GITHUB_OUTPUT
         else
-          echo 'python=python' >> $GITHUB_OUTPUT
+          echo "python=python" >> $GITHUB_OUTPUT
           if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
-            echo 'python_type=cmake' >> $GITHUB_OUTPUT
+            echo "python_type=cmake" >> $GITHUB_OUTPUT
           elif [[ "${{matrix.python}}" == "setuptools" ]]; then
-            echo 'python_type=setuptools' >> $GITHUB_OUTPUT
+            echo "python_type=setuptools" >> $GITHUB_OUTPUT
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           else
             echo "Unknown matrix.python=\"${{matrix.python}}\""
@@ -155,9 +155,9 @@ jobs:
           fi
         fi
         if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
-          echo 'windows_compiler=mingw64' >> $GITHUB_OUTPUT
+          echo "windows_compiler=mingw64" >> $GITHUB_OUTPUT
         else
-          echo 'windows_compiler=msvc' >> $GITHUB_OUTPUT
+          echo "windows_compiler=msvc" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.slow}}" == "true" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
@@ -165,13 +165,13 @@ jobs:
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
-          echo 'blas=${{matrix.blas}}' >> $GITHUB_OUTPUT
+          echo "blas=${{matrix.blas}}" >> $GITHUB_OUTPUT
         else
-          echo 'blas=OpenBLAS' >> $GITHUB_OUTPUT
+          echo "blas=OpenBLAS" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.blas}}" == *'-latest' ]]; then
           echo "Setting blas_version=latest"
-          echo 'blas_version=latest' >> $GITHUB_OUTPUT
+          echo "blas_version=latest" >> $GITHUB_OUTPUT
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
@@ -184,7 +184,7 @@ jobs:
           OPENMP_OPT="-DUSE_OPENMP=OFF"
         fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
-          echo 'vtk_version=${{matrix.vtk}}' >> $GITHUB_OUTPUT
+          echo "vtk_version=${{matrix.vtk}}" >> $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON"
         else
           VTK_OPT="-DUSE_VTK=OFF"
@@ -527,10 +527,10 @@ jobs:
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
-          echo 'path=wrapping/python/dist/*.whl' >> $GITHUB_OUTPUT
+          echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         else
           cd build/wrapping/python  # in build subdirectory
-          echo 'path=build/wrapping/python/dist/*.whl' >> $GITHUB_OUTPUT
+          echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         fi
         pwd
         python setup.py bdist_wheel sdist
