@@ -1,5 +1,7 @@
 import os
+
 import numpy as np
+
 import openmeeg._openmeeg_wrapper as _omc
 
 
