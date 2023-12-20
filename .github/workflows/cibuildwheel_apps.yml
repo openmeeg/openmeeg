@@ -91,10 +91,10 @@ jobs:
           set -e
           echo "Using ref_type=${{ github.ref_type }}"
           if [[ "${{ github.ref_type }}" != "tag" ]]; then
-            echo '::set-output name=name::dev'  # default empty uses tag
-            echo '::set-output name=body::body.md'  # default empty
+            echo 'name=dev' >> $GITHUB_OUTPUT  # default empty uses tag
+            echo 'body=body.md' >> $GITHUB_OUTPUT  # default empty
           else
-            echo '::set-output name=generate::true'  # default false
+            echo 'generate=true' >> $GITHUB_OUTPUT  # default false
           fi
           echo "# Development release" >> body.md
           echo "" >> body.md
