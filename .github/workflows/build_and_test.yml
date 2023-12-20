@@ -127,7 +127,11 @@ jobs:
         else
           echo '::set-output name=numpy_version::oldest'
         fi
-        echo '::set-output name=python_version::${{matrix.python-version}}'
+        PYTHON_VERSION="${{ matrix.python-version }}"
+        if [[ "$PYTHON_VERSION" == "" ]]; then
+          PYTHON_VERSION="3.10"
+        fi
+        echo '::set-output name=python_version::$PYTHON_VERSION'
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
@@ -215,14 +219,13 @@ jobs:
 
     # Use conda for all Python except PyPy
     - name: Python via conda
-      uses: mamba-org/setup-micromamba@v1
+      uses: conda-incubator/setup-miniconda@v3
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
-        environment-name: "test"
-        create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }}
-          conda
-          zip
+        activate-environment: "test"
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
+        channels: conda-forge
+        channel-priority: strict
     - name: Python via setup-python
       uses: actions/setup-python@v4
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
