@@ -571,7 +571,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       uses: actions/upload-artifact@v4
       with:
-        name: wrapping-${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}_${{ steps.env-vars.outputs.vtk_version }}
+        name: wrapping-${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}
         path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
