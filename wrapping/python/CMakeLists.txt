@@ -92,13 +92,12 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PYTHON_OPENMEEG_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
     VERBATIM
 )
-message(STATUS "Python: Copying MANIFEST.in, setup.py, setup.cfg, pyproject.toml, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}/")
+message(STATUS "Python: Copying MANIFEST.in, setup.py, pyproject.toml, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}/")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
-    ${CMAKE_SOURCE_DIR}/wrapping/python/setup.cfg
     ${CMAKE_SOURCE_DIR}/wrapping/python/pyproject.toml
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
     ${CMAKE_CURRENT_BINARY_DIR}
