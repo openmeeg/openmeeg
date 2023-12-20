@@ -219,7 +219,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         activate-environment: "test"
-        python-version: '${{ steps.env-vars.outputs.python_version }}'
+        python-version: ${{ steps.env-vars.outputs.python_version }}
         channels: conda-forge
         channel-priority: strict
     - name: Python via setup-python
