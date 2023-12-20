@@ -215,13 +215,12 @@ jobs:
 
     # Use conda for all Python except PyPy
     - name: Python via conda
-      uses: conda-incubator/setup-miniconda@v3
+      uses: mamba-org/setup-micromamba@v1
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
-        activate-environment: "test"
-        python-version: "${{ steps.env-vars.outputs.python_version }}"
-        channels: conda-forge
-        channel-priority: strict
+        environment-name: "test"
+        create-args: >-
+          python=${{ steps.env-vars.outputs.python_version }}
     - name: Python via setup-python
       uses: actions/setup-python@v4
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
