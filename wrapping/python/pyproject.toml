@@ -33,3 +33,20 @@ environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../instal
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
 repair-wheel-command = "bash %GITHUB_WORKSPACE%/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}"
 environment = { OPENMEEG_USE_SWIG="0" }
+
+[tool.ruff]
+select = ["E", "F", "W", "D", "I"]
+exclude = ["__init__.py", "setup.py"]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D413", # Missing blank line after last section
+]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.per-file-ignores]
+"*/tests/*.py" = [
+    "D103", # Missing docstring in public function
+]

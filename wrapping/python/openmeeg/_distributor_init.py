@@ -1,12 +1,12 @@
 """Adapted from SciPy."""
 
 import os
-import sys
 import platform
+import sys
 
 if os.name == "nt":
-    from ctypes import WinDLL
     import glob
+    from ctypes import WinDLL
 
     libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
     try:

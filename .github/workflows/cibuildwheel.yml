@@ -64,22 +64,24 @@ jobs:
           output-dir: wheelhouse
         env:
           CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-${{ matrix.os }}-${{ matrix.archs_macos }}
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:
     name: Upload to TestPyPI
     needs: [build_wheels]
     runs-on: ubuntu-latest
-    # upload to Test PyPI for every commit on main branch
-    if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: artifact
           path: dist
+          merge-multiple: true
+      - run: ls -alt dist/
+      # upload to Test PyPI for every commit on main branch
       - uses: pypa/gh-action-pypi-publish@release/v1
+        if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
         with:
           user: __token__
           password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
@@ -90,14 +92,14 @@ jobs:
     name: Upload to PyPI
     needs: [build_wheels]
     runs-on: ubuntu-latest
-    # upload to PyPI on every tag (we assume these are releases!)
-    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: artifact
-        path: dist
-    - uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      # upload to PyPI on every tag (we assume these are releases!)
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        if: github.event_name == 'release' && github.event.action == 'published'
+        with:
+          user: __token__
+          password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
