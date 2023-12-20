@@ -69,6 +69,7 @@ jobs:
         # Latest OpenBLAS release
         - os: ubuntu-22.04
           blas: OpenBLAS-latest
+          python-version: '3.12'
         # PyPy build
         - os: ubuntu-20.04
           blas: OpenBLAS

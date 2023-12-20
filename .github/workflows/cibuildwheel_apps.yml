@@ -76,7 +76,7 @@ jobs:
         with:
           path: |
             ./installers/OpenMEEG-*.tar.gz
-          name: OpenMEEG-installers
+          name: OpenMEEG-installers-${{ matrix.os }}-${{ matrix.archs_macos }}
 
   release:
     needs: [apps]
@@ -84,7 +84,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: OpenMEEG-installers
+          merge-multiple: true
       - name: Set vars
         id: vars
         run: |
