@@ -222,7 +222,7 @@ jobs:
         channels: conda-forge
         channel-priority: strict
     - name: Python via setup-python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         python-version: ${{ steps.env-vars.outputs.python_version }}
