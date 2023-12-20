@@ -48,11 +48,10 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04  # wrapping-ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
-          python-version: '3.10'
           numpy: numpyold
           slow: false
         - os: windows-2019
@@ -67,17 +66,16 @@ jobs:
           python: cmake
           slow: false
         # Latest OpenBLAS release
-        - os: ubuntu-22.04  # wrapping-ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping-ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.8
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.8
           blas: OpenBLAS
           python-version: 'pypy-3.8'
         # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
-          python-version: '3.10'
           numpy: numpydev
           vtk: vtk9
           slow: true
@@ -121,35 +119,35 @@ jobs:
     - name: Environment variables
       id: env-vars
       run: |
-        echo '::set-output name=os::${{matrix.os}}'
+        echo 'os=${{matrix.os}}' >> $GITHUB_OUTPUT
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
-          echo '::set-output name=numpy_version::dev'
+          echo 'numpy_version=dev' >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=numpy_version::oldest'
+          echo 'numpy_version=oldest' >> $GITHUB_OUTPUT
         fi
         PYTHON_VERSION="${{ matrix.python-version }}"
         if [[ "$PYTHON_VERSION" == "" ]]; then
           PYTHON_VERSION="3.10"
         fi
-        echo '::set-output name=python_version::$PYTHON_VERSION'
+        echo 'python_version=$PYTHON_VERSION' >> $GITHUB_OUTPUT
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
-          echo '::set-output name=blas_linking::static'
+          echo 'blas_linking=static' >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=blas_linking::dynamic'
+          echo 'blas_linking=dynamic' >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
-          echo '::set-output name=python::no-python'
-          echo '::set-output name=python_type::no-python'
+          echo 'python=no-python' >> $GITHUB_OUTPUT
+          echo 'python_type=no-python' >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=python::python'
+          echo 'python=python' >> $GITHUB_OUTPUT
           if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
-            echo '::set-output name=python_type::cmake'
+            echo 'python_type=cmake' >> $GITHUB_OUTPUT
           elif [[ "${{matrix.python}}" == "setuptools" ]]; then
-            echo '::set-output name=python_type::setuptools'
+            echo 'python_type=setuptools' >> $GITHUB_OUTPUT
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           else
             echo "Unknown matrix.python=\"${{matrix.python}}\""
@@ -157,9 +155,9 @@ jobs:
           fi
         fi
         if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
-          echo '::set-output name=windows_compiler::mingw64'
+          echo 'windows_compiler=mingw64' >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=windows_compiler::msvc'
+          echo 'windows_compiler=msvc' >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.slow}}" == "true" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
@@ -167,13 +165,13 @@ jobs:
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
-          echo '::set-output name=blas::${{matrix.blas}}'
+          echo 'blas=${{matrix.blas}}' >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=blas::OpenBLAS'
+          echo 'blas=OpenBLAS' >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.blas}}" == *'-latest' ]]; then
           echo "Setting blas_version=latest"
-          echo '::set-output name=blas_version::latest'
+          echo 'blas_version=latest' >> $GITHUB_OUTPUT
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
@@ -186,7 +184,7 @@ jobs:
           OPENMP_OPT="-DUSE_OPENMP=OFF"
         fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
-          echo '::set-output name=vtk_version::${{matrix.vtk}}'
+          echo 'vtk_version=${{matrix.vtk}}' >> $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON"
         else
           VTK_OPT="-DUSE_VTK=OFF"
@@ -529,10 +527,10 @@ jobs:
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
-          echo '::set-output name=path::wrapping/python/dist/*.whl'
+          echo 'path=wrapping/python/dist/*.whl' >> $GITHUB_OUTPUT
         else
           cd build/wrapping/python  # in build subdirectory
-          echo '::set-output name=path::build/wrapping/python/dist/*.whl'
+          echo 'path=build/wrapping/python/dist/*.whl' >> $GITHUB_OUTPUT
         fi
         pwd
         python setup.py bdist_wheel sdist
@@ -571,7 +569,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       uses: actions/upload-artifact@v4
       with:
-        name: wrapping-${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}
         path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
