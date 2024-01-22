@@ -106,7 +106,7 @@ jobs:
         # Setuptools
         - os: ubuntu-20.04
           python: setuptools
-        - os: macos-11
+        - os: macos-latest
           python: setuptools
 
     runs-on: ${{ matrix.os }}
