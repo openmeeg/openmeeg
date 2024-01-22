@@ -292,7 +292,7 @@ jobs:
 
     - name: Windows 1 - cache vcpkg
       if: startswith(steps.env-vars.outputs.os,'windows')
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           vcpkg
