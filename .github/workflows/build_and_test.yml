@@ -24,6 +24,7 @@ jobs:
 
   build:
     continue-on-error: true
+    timeout-minutes: 60
     strategy:
       matrix:
         # By default, all builds use:
@@ -292,7 +293,7 @@ jobs:
 
     - name: Windows 1 - cache vcpkg
       if: startswith(steps.env-vars.outputs.os,'windows')
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           vcpkg

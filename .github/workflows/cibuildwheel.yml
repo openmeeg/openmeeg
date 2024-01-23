@@ -31,6 +31,7 @@ jobs:
   build_wheels:
     continue-on-error: true
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       matrix:
         include:
@@ -52,7 +53,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.archs_macos }}
       - name: Cache vcpkg
         if: matrix.os != 'ubuntu-20.04'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             vcpkg
