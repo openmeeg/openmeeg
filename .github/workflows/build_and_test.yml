@@ -24,6 +24,7 @@ jobs:
 
   build:
     continue-on-error: true
+    timeout-minutes: 60
     strategy:
       matrix:
         # By default, all builds use:
