@@ -71,9 +71,9 @@ jobs:
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.10
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9
           blas: OpenBLAS
-          python-version: 'pypy-3.10'
+          python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
