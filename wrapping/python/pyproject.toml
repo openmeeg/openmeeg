@@ -9,10 +9,10 @@ requires = [
 ]
 
 [tool.cibuildwheel]
-# TODO: only 3.8 until NumPy supplies wheels for 3.9 (not on PyPi as of 2022/08/27)
-skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp39* pp*-win_*"
+skip = "cp36-* cp37-* cp38-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp38* pp*-win_*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
+# pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
 test-requires = ["pytest!=8.0.0", "threadpoolctl"]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
