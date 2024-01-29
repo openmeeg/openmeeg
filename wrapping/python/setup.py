@@ -169,7 +169,7 @@ if __name__ == "__main__":
             "Tracker": "https://github.com/openmeeg/openmeeg/issues",
         },
         platforms="any",
-        python_requires=">=3.7",
+        python_requires=">=3.9",
         install_requires=["numpy"],
         packages=["openmeeg", "openmeeg.tests"],
         cmdclass=cmdclass,

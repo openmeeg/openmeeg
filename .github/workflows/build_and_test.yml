@@ -71,9 +71,9 @@ jobs:
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.8
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9
           blas: OpenBLAS
-          python-version: 'pypy-3.8'
+          python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
@@ -253,12 +253,12 @@ jobs:
           echo "Installing oldest supported NumPy"
           IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
           if [[ "$IS_PYPY" == "1" ]]; then
-            NUMPY_PIP="numpy==1.23.0"
+            NUMPY_PIP="numpy==1.26.3"
           else
             NUMPY_PIP="oldest-supported-numpy"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine "pytest!=8.0.0" threadpoolctl $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')

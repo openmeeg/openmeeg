@@ -5,15 +5,16 @@ requires = [
     "setuptools>=68.0.0",
     "wheel>=0.37.0",
     "oldest-supported-numpy; platform_python_implementation!='PyPy'",
-    "numpy==1.23.0; platform_python_implementation=='PyPy'",
+    "numpy==1.26.3; platform_python_implementation=='PyPy'",
 ]
 
 [tool.cibuildwheel]
-# TODO: only 3.8 until NumPy supplies wheels for 3.9 (not on PyPi as of 2022/08/27)
-skip = "cp36-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp39* pp*-win_*"
+# 3.9 is the only wheel NumPy ships for PyPy as of 2023/01/29
+skip = "cp36-* cp37-* cp38-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp38* pp310* pp*-win_*"
 build-verbosity = "3"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
-test-requires = ["pytest", "threadpoolctl"]
+# pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
+test-requires = ["pytest!=8.0.0", "threadpoolctl"]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]

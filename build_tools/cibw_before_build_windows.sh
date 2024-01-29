@@ -18,7 +18,7 @@ which python
 python --version
 IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
 if [[ "$IS_PYPY" == "1" ]]; then
-    NUMPY_PIP="numpy==1.23.0"
+    NUMPY_PIP="numpy==1.26.3"
 else
     NUMPY_PIP="oldest-supported-numpy"
 fi

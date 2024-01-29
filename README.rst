@@ -191,7 +191,7 @@ Optional build variables
 ^^^^^^^^^^^^^^^^^^^^^^^^
 You will need to define more CMake variables if you want the support for:
 
-`-DENABLE_PYTHON=ON`` (Python >= 3.7 is required)
+`-DENABLE_PYTHON=ON`` (Python >= 3.9 is required)
     Enable Python wrapping (automatically enabled by cmake_configure.sh)
 `-DUSE_VTK=ON`
     VTK file format support.
