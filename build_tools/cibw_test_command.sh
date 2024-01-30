@@ -15,4 +15,6 @@ python -m threadpoolctl -i numpy openmeeg
 echo ""
 pytest --fixtures $TEST_PATH
 echo ""
+pwd
+echo ""
 pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"
