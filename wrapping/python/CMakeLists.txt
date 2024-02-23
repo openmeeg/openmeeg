@@ -52,10 +52,9 @@ set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY op
 if (MSVC)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
-    set_property(TARGET ${SWIG_TARGET_NAME} PROPERTY SWIG_COMPILE_OPTIONS
-        /wd4100 # _openmeegPYTHON_wrap.cxx(6989): warning C4100: 'self': unreferenced formal parameter
-        /wd4127 # _openmeegPYTHON_wrap.cxx(3816): warning C4127: conditional expression is constant
-    )
+    # _openmeegPYTHON_wrap.cxx(6989): warning C4100: 'self': unreferenced formal parameter
+    # _openmeegPYTHON_wrap.cxx(3816): warning C4127: conditional expression is constant
+    set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4100 /wd4127")
 endif()
 
 if (PYTHON_FORCE_EXT_SUFFIX)
