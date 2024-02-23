@@ -46,11 +46,15 @@ set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTR
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/_openmeeg.i)
+
 # This puts __openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
 if (MSVC)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
+    # _openmeegPYTHON_wrap.cxx(6989): warning C4100: 'self': unreferenced formal parameter
+    # _openmeegPYTHON_wrap.cxx(3816): warning C4127: conditional expression is constant
+    set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4100 /wd4127")
 endif()
 
 if (PYTHON_FORCE_EXT_SUFFIX)
