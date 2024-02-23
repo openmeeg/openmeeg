@@ -7,7 +7,6 @@ import pytest
 
 def pytest_configure(config):
     """Configure pytest options."""
-    config.addinivalue_line("usefixtures", "run_some_parallel")
     config.addinivalue_line("markers", "slow: marks tests as slow")
 
 
@@ -23,7 +22,7 @@ def data_path():
     return Path(data_path)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def run_some_parallel():
     """Run some stuff in parallel."""
     # This is to try to get some NumPy parallelism in the tests.
