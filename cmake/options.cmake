@@ -47,6 +47,7 @@ if (ENABLE_WERROR)
     if (MSVC)
         # warning level 4 and all warnings as errors
         add_compile_options(/W4)
+        add_compile_options(/WNC4100)
         set(WERROR_COMPILE_OPTION /WX)
     else()
         # lots of warnings and all warnings as errors
