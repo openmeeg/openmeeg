@@ -67,6 +67,7 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: "OPENMEEG_MACOS_WHEEL_PURE=false"
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"
+          CIBW_BUILD_FRONTEND: "pip"
           CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"
           CIBW_BEFORE_BUILD_WINDOWS: ""
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
