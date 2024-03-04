@@ -258,7 +258,7 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine "pytest!=8.0.0" threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine "pytest!=8.0.0,!=8.0.1,!=8.0.2" threadpoolctl $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
