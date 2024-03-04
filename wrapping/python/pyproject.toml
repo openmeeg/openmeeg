@@ -4,15 +4,16 @@
 requires = [
     "setuptools>=68.0.0",
     "wheel>=0.37.0",
-    "oldest-supported-numpy; platform_python_implementation!='PyPy'",
-    "numpy==1.26.3; platform_python_implementation=='PyPy'",
+    "numpy<3",
 ]
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy as of 2023/01/29
 skip = "cp36-* cp37-* cp38-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp38* pp310* pp*-win_*"
 build-verbosity = "3"
+build-frontend = { name = "pip", args = ["--no-build-isolation"] }
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
+before-build = "bash {project}/build_tools/cibw_before_build.sh {project}"
 # pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
 test-requires = ["pytest!=8.0.0,!=8.0.1", "threadpoolctl"]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
