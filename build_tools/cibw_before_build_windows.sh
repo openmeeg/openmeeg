@@ -20,6 +20,5 @@ python -m pip install --upgrade --pre --only-binary="numpy" --extra-index-url="h
 python -m pip install "setuptools>=68.0.0" "wheel>=0.37.0"
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
-python -m pip uninstall -yq numpy
 cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/_openmeeg_wrapper.py wrapping/python/openmeeg/
 rm -Rf build
