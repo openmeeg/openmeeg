@@ -248,14 +248,14 @@ jobs:
         fi
         if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
           echo "Installing NumPy main"
-        	pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
+        	pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0b1,<3"
         else
           echo "Installing oldest supported NumPy"
           IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
           if [[ "$IS_PYPY" == "1" ]]; then
             pip install --upgrade numpy
           else
-            pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
+            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0b1,<3"
           fi
         fi
         pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine "pytest!=8.0.0,!=8.0.1,!=8.0.2" threadpoolctl $EXTRA_PIP
