@@ -53,6 +53,9 @@
 %#define NPY_ARRAY_FARRAY  NPY_FARRAY
 %#define NPY_FORTRANORDER  NPY_FORTRAN
 %#endif
+%#if NPY_ABI_VERSION < 0x02000000
+%  #define PyDataType_ELSIZE(descr) ((descr)->elsize)
+%#endif
 }
 
 /**********************************************************************/
