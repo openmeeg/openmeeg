@@ -123,8 +123,10 @@ jobs:
         echo "os=${{matrix.os}}" >> $GITHUB_OUTPUT
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
           echo "numpy_version=dev" >> $GITHUB_OUTPUT
-        else
+        elif [[ "${{matrix.numpy}}" == *'old' ]]; then
           echo "numpy_version=oldest" >> $GITHUB_OUTPUT
+        else
+          echo "numpy_version=latest" >> $GITHUB_OUTPUT
         fi
         PYTHON_VERSION="${{ matrix.python-version }}"
         if [[ "$PYTHON_VERSION" == "" ]]; then
@@ -248,9 +250,11 @@ jobs:
         fi
         if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
           echo "Installing NumPy main"
-        	pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0b1,<3"
+          pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
+        elif [[ ${{steps.env-vars.outputs.numpy_version}} == 'oldest' ]]; then
+          pip install --upgrade --only-binary ":all:" "numpy<2"
         else
-          echo "Installing oldest supported NumPy"
+          echo "Installing NumPy 2.0"
           IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
           if [[ "$IS_PYPY" == "1" ]]; then
             pip install --upgrade numpy
