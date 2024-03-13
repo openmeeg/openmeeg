@@ -317,7 +317,7 @@ namespace OpenMEEG {
             !PyArray_EquivTypenums(type_num,NPY_INT64) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
             std::ostringstream oss;
-            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << PyArray_ELSIZE(array) << "'";
+            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << PyDataType_ELSIZE(descr) << "'";
             throw Error(SWIG_TypeError, oss.str().c_str());
         }
 
