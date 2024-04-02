@@ -49,7 +49,7 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -67,18 +67,17 @@ jobs:
           python: cmake
           slow: false
         # Latest OpenBLAS release
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9_latest
           blas: OpenBLAS
           python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
           numpy: numpydev
-          vtk: vtk9
           slow: true
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
@@ -97,9 +96,11 @@ jobs:
         - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
-        # One without Python
+        # One without Python but with VTK (once we fix it!)
         - os: ubuntu-22.04
           python: no-python
+          # vtk: vtk9  # TODO: Uncomment and update merge reqs
+          slow: true
         # Windows static
         - os: windows-2019
           blas: OpenBLAS
@@ -248,10 +249,10 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
+        if [[ "${{steps.env-vars.outputs.numpy_version}}" == 'dev' ]]; then
           echo "Installing NumPy main"
           pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
-        elif [[ ${{steps.env-vars.outputs.numpy_version}} == 'oldest' ]]; then
+        elif [[ "${{steps.env-vars.outputs.numpy_version}}" == 'oldest' ]]; then
           pip install --upgrade --only-binary ":all:" "numpy<2"
         else
           echo "Installing NumPy 2.0"
@@ -259,7 +260,7 @@ jobs:
           if [[ "$IS_PYPY" == "1" ]]; then
             pip install --upgrade numpy
           else
-            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0b1,<3"
+            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
         pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine "pytest!=8.0.0,!=8.0.1,!=8.0.2" threadpoolctl $EXTRA_PIP
@@ -574,7 +575,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       uses: actions/upload-artifact@v4
       with:
-        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
         path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
