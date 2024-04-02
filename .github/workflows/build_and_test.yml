@@ -74,7 +74,7 @@ jobs:
         - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9_latest
           blas: OpenBLAS
           python-version: 'pypy-3.9'
-        # One with latest numpy, plus VTK (old Ubuntu because new VTK raises errors)
+        # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
           numpy: numpydev
