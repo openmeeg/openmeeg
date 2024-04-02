@@ -75,7 +75,7 @@ jobs:
           blas: OpenBLAS
           python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK (old Ubuntu because new VTK raises errors)
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           blas: OpenBLAS
           numpy: numpydev
           slow: true
