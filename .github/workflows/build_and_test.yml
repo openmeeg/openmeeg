@@ -49,7 +49,7 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -67,11 +67,11 @@ jobs:
           python: cmake
           slow: false
         # Latest OpenBLAS release
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9_latest
           blas: OpenBLAS
           python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK (old Ubuntu because new VTK raises errors)
@@ -575,7 +575,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       uses: actions/upload-artifact@v4
       with:
-        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
         path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
