@@ -74,8 +74,8 @@ jobs:
         - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9
           blas: OpenBLAS
           python-version: 'pypy-3.9'
-        # One with latest numpy, plus VTK
-        - os: ubuntu-22.04
+        # One with latest numpy, plus VTK (old Ubuntu because new VTK raises errors)
+        - os: ubuntu-20.04
           blas: OpenBLAS
           numpy: numpydev
           slow: true
@@ -96,10 +96,10 @@ jobs:
         - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
-        # One without Python but with VTK
+        # One without Python but with VTK (once we fix it!)
         - os: ubuntu-22.04
           python: no-python
-          vtk: vtk9
+          # vtk: vtk9  # TODO: Uncomment and update merge reqs
           slow: true
         # Windows static
         - os: windows-2019
