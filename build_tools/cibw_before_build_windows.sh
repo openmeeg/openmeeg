@@ -16,8 +16,7 @@ rm -Rf build
 cp -a build_nopython build
 which python
 python --version
-python -m pip install --upgrade --pre --only-binary="numpy" "numpy>=2.0.0b1,<3"
-python -m pip install "setuptools>=68.0.0" "wheel>=0.37.0"
+python -m pip install --upgrade --only-binary="numpy" "numpy>=2.0.0rc1,<3" "setuptools>=68.0.0" "wheel>=0.37.0"
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
 cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/_openmeeg_wrapper.py wrapping/python/openmeeg/
