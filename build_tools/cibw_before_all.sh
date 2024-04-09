@@ -34,8 +34,8 @@ echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 # win-amd64
 
 if [[ "$PLATFORM" == "linux-x86_64" ]]; then
-    dnf -y install epel-release
-    dnf -y install hdf5-devel matio-devel
+    rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
+    dnf -y install epel-release hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
