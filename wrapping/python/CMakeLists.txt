@@ -46,11 +46,15 @@ set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTR
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/_openmeeg.i)
+
 # This puts __openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
 if (MSVC)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG openmeeg/)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE openmeeg/)
+    # _openmeegPYTHON_wrap.cxx(6989): warning C4100: 'self': unreferenced formal parameter
+    # _openmeegPYTHON_wrap.cxx(3816): warning C4127: conditional expression is constant
+    set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4100 /wd4127")
 endif()
 
 if (PYTHON_FORCE_EXT_SUFFIX)
@@ -85,28 +89,43 @@ string(REGEX REPLACE "\n$" "" PYTHON_SITE_ARCH "${PYTHON_SITE_ARCH}")
 message(STATUS "Python installation directory ${PYTHON_SITE_ARCH}")
 
 # Copy our .py files over, dealing with Windows wildcard issues
+set(PYTHON_OPENMEEG_SOURCE_DIR "${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg")
+message(STATUS "Python: Copying ${PYTHON_OPENMEEG_SOURCE_DIR} to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
-    COMMENT "Python: Copying ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg to ${CMAKE_CURRENT_BINARY_DIR}/openmeeg"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PYTHON_OPENMEEG_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/openmeeg
     VERBATIM
 )
+message(STATUS "Python: Copying MANIFEST.in, setup.py, pyproject.toml, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}/")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
+    ${CMAKE_SOURCE_DIR}/wrapping/python/pyproject.toml
     ${CMAKE_SOURCE_DIR}/wrapping/python/README.rst
     ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Python: Copying MANIFEST.in, setup.py, and README.rst to ${CMAKE_CURRENT_BINARY_DIR}"
     VERBATIM
 )
+file(STRINGS "${PYTHON_OPENMEEG_SOURCE_DIR}/_version.py" PYTHON_OPENMEEG_VERSION)
+message(STATUS "Python: Extracted from openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
+string(REGEX REPLACE "^__version__ = \"([0-9deva-f.]+)\"$" "\\1" PYTHON_OPENMEEG_VERSION "${PYTHON_OPENMEEG_VERSION}")
+message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
+add_custom_command(
+    TARGET ${SWIG_TARGET_NAME} PRE_BUILD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${Python3_EXECUTABLE} setup.py dist_info
+    VERBATIM
+)
+message(STATUS "Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
+        DESTINATION ${PYTHON_SITE_ARCH}
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()

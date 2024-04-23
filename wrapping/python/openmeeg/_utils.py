@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 
-from ._openmeeg_wrapper import Logger, ERROR, WARNING, INFORMATION, DEBUG
-
+from ._openmeeg_wrapper import DEBUG, ERROR, INFORMATION, WARNING, Logger
 
 _warn_map = dict(
     error=ERROR,

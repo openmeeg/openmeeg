@@ -19,17 +19,18 @@
 ###########################################
 import os
 import os.path as op
-import pytest
-import numpy as np
 import shutil
 
+import numpy as np
+import pytest
 from numpy.testing import assert_allclose
+
 import openmeeg as om
 import openmeeg._openmeeg_wrapper as _omc
 
 
 def read_geom(geom_file):
-    """readGeom : provides paths to meshes present in .geom file"""
+    """ReadGeom : provides paths to meshes present in .geom file."""
     f = open(geom_file, "r")
     lines = f.readlines()
     mesh_files = []
@@ -66,7 +67,7 @@ def read_geom(geom_file):
 
 
 def read_tri(fname):
-    """Read .tri file
+    """Read .tri file.
 
     Parameters
     ----------

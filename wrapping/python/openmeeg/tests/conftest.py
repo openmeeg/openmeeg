@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
+
 import numpy as np
 import pytest
-from pathlib import Path
 
 
 def pytest_configure(config):

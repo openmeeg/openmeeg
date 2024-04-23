@@ -1,15 +1,15 @@
 # Build a geometry with given interfaces and domains.
 from pathlib import Path
+
 import numpy as np
 
-
 from ._openmeeg_wrapper import (
-    Geometry,
     Domain,
-    SimpleDomain,
+    Geometry,
     Interface,
-    OrientedMesh,
     Mesh,
+    OrientedMesh,
+    SimpleDomain,
 )
 
 
@@ -25,7 +25,7 @@ def _mesh_vertices_and_triangles(mesh):
 
 
 def make_geometry(meshes, interfaces, domains):
-    """Make a geometry from dictionary of domains and a list of interfaces
+    """Make a geometry from dictionary of domains and a list of interfaces.
 
     Parameters
     ----------
@@ -42,7 +42,6 @@ def make_geometry(meshes, interfaces, domains):
     geometry : isinstance of om.Geometry
         The geometry that can be used in OpenMEEG.
     """
-
     if not isinstance(meshes, dict) or len(meshes) == 0:
         raise ValueError(
             "Wrong argument (should be a non empty dictionary of named "
@@ -108,7 +107,7 @@ def make_geometry(meshes, interfaces, domains):
                     f"Domain {dname} contains and unknown interface {iname}."
                 )
             oriented_meshes = interfaces[iname]
-            if type(oriented_meshes) != list or len(oriented_meshes) == 0:
+            if not isinstance(oriented_meshes, list) or len(oriented_meshes) == 0:
                 raise Exception(
                     f"Interface definition {iname} first argument should be a "
                     "non-empty list of (mesh,orientation)"
@@ -158,7 +157,6 @@ def make_nested_geometry(meshes, conductivity):
     geometry : isinstance of om.Geometry
         The geometry that can be used in OpenMEEG.
     """
-
     if not isinstance(meshes, list) or len(meshes) not in [1, 3]:
         raise ValueError(
             "Wrong argument (should be a list of 1 or 3 meshes). " f"Got {type(meshes)}"

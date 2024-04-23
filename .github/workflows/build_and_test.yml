@@ -24,6 +24,7 @@ jobs:
 
   build:
     continue-on-error: true
+    timeout-minutes: 60
     strategy:
       matrix:
         # By default, all builds use:
@@ -48,11 +49,10 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
-          python-version: '3.10'
           numpy: numpyold
           slow: false
         - os: windows-2019
@@ -67,18 +67,17 @@ jobs:
           python: cmake
           slow: false
         # Latest OpenBLAS release
-        - os: ubuntu-22.04
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
+          python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-3.9_latest
           blas: OpenBLAS
-          python-version: 'pypy-3.8'
+          python-version: 'pypy-3.9'
         # One with latest numpy, plus VTK
         - os: ubuntu-22.04
           blas: OpenBLAS
-          python-version: '3.10'
           numpy: numpydev
-          vtk: vtk9
           slow: true
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
@@ -97,9 +96,11 @@ jobs:
         - os: macos-latest
           blas: mkl-findblas
           blas_linking: static
-        # One without Python
+        # One without Python but with VTK (once we fix it!)
         - os: ubuntu-22.04
           python: no-python
+          # vtk: vtk9  # TODO: Uncomment and update merge reqs
+          slow: true
         # Windows static
         - os: windows-2019
           blas: OpenBLAS
@@ -107,44 +108,50 @@ jobs:
         # Setuptools
         - os: ubuntu-20.04
           python: setuptools
-        - os: macos-11
+        - os: macos-latest
           python: setuptools
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # all subsequent steps should use steps.env-vars.outputs.* instead
     # of matrix.* entries
     - name: Environment variables
       id: env-vars
       run: |
-        echo '::set-output name=os::${{matrix.os}}'
+        echo "os=${{matrix.os}}" >> $GITHUB_OUTPUT
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
-          echo '::set-output name=numpy_version::dev'
+          echo "numpy_version=dev" >> $GITHUB_OUTPUT
+        elif [[ "${{matrix.numpy}}" == *'old' ]]; then
+          echo "numpy_version=oldest" >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=numpy_version::oldest'
+          echo "numpy_version=latest" >> $GITHUB_OUTPUT
         fi
-        echo '::set-output name=python_version::${{matrix.python-version}}'
+        PYTHON_VERSION="${{ matrix.python-version }}"
+        if [[ "$PYTHON_VERSION" == "" ]]; then
+          PYTHON_VERSION="3.10"
+        fi
+        echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
           echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
-          echo '::set-output name=blas_linking::static'
+          echo "blas_linking=static" >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=blas_linking::dynamic'
+          echo "blas_linking=dynamic" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
           echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
-          echo '::set-output name=python::no-python'
-          echo '::set-output name=python_type::no-python'
+          echo "python=no-python" >> $GITHUB_OUTPUT
+          echo "python_type=no-python" >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=python::python'
+          echo "python=python" >> $GITHUB_OUTPUT
           if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
-            echo '::set-output name=python_type::cmake'
+            echo "python_type=cmake" >> $GITHUB_OUTPUT
           elif [[ "${{matrix.python}}" == "setuptools" ]]; then
-            echo '::set-output name=python_type::setuptools'
+            echo "python_type=setuptools" >> $GITHUB_OUTPUT
             echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
           else
             echo "Unknown matrix.python=\"${{matrix.python}}\""
@@ -152,9 +159,9 @@ jobs:
           fi
         fi
         if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
-          echo '::set-output name=windows_compiler::mingw64'
+          echo "windows_compiler=mingw64" >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=windows_compiler::msvc'
+          echo "windows_compiler=msvc" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.slow}}" == "true" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
@@ -162,13 +169,13 @@ jobs:
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
-          echo '::set-output name=blas::${{matrix.blas}}'
+          echo "blas=${{matrix.blas}}" >> $GITHUB_OUTPUT
         else
-          echo '::set-output name=blas::OpenBLAS'
+          echo "blas=OpenBLAS" >> $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.blas}}" == *'-latest' ]]; then
           echo "Setting blas_version=latest"
-          echo '::set-output name=blas_version::latest'
+          echo "blas_version=latest" >> $GITHUB_OUTPUT
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
@@ -181,7 +188,7 @@ jobs:
           OPENMP_OPT="-DUSE_OPENMP=OFF"
         fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
-          echo '::set-output name=vtk_version::${{matrix.vtk}}'
+          echo "vtk_version=${{matrix.vtk}}" >> $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON"
         else
           VTK_OPT="-DUSE_VTK=OFF"
@@ -214,18 +221,18 @@ jobs:
 
     # Use conda for all Python except PyPy
     - name: Python via conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         activate-environment: "test"
-        python-version: "3.10"
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
         channels: conda-forge
         channel-priority: strict
     - name: Python via setup-python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
-        python-version: ${{ steps.env-vars.outputs.python_version }}
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
 
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
@@ -242,19 +249,21 @@ jobs:
         else
           EXTRA_PIP=auditwheel
         fi
-        if [[ ${{steps.env-vars.outputs.numpy_version}} == 'dev' ]]; then
+        if [[ "${{steps.env-vars.outputs.numpy_version}}" == 'dev' ]]; then
           echo "Installing NumPy main"
-        	pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scipy-wheels-nightly/simple" numpy
+          pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
+        elif [[ "${{steps.env-vars.outputs.numpy_version}}" == 'oldest' ]]; then
+          pip install --upgrade --only-binary ":all:" "numpy<2"
         else
-          echo "Installing oldest supported NumPy"
+          echo "Installing NumPy 2.0"
           IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
           if [[ "$IS_PYPY" == "1" ]]; then
-            NUMPY_PIP="numpy==1.23.0"
+            pip install --upgrade numpy
           else
-            NUMPY_PIP="oldest-supported-numpy"
+            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q $NUMPY_PIP setuptools wheel twine pytest threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine "pytest!=8.0.0,!=8.0.1,!=8.0.2" threadpoolctl $EXTRA_PIP
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
@@ -289,7 +298,7 @@ jobs:
 
     - name: Windows 1 - cache vcpkg
       if: startswith(steps.env-vars.outputs.os,'windows')
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           vcpkg
@@ -325,11 +334,14 @@ jobs:
     - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
+        echo "Installing dependencies with brew"
         brew update > /dev/null
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
-        brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        echo "Installing dependencies with brew"
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BLAS_DIR=/usr/local/opt/openblas
           OPENBLAS_INCLUDE=$BLAS_DIR/include
@@ -488,6 +500,8 @@ jobs:
           fi
           echo "PYTHONPATH=$PYTHONPATH"
           python -c "import openmeeg._openmeeg_wrapper as _omc; print(_omc.sqr(4)); assert _omc.sqr(4) == 16"
+          echo "pip show openmeeg:"
+          pip show openmeeg
         fi
 
     - name: Create, delocate, check, install, and test wheel
@@ -519,10 +533,10 @@ jobs:
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
-          echo '::set-output name=path::wrapping/python/dist/*.whl'
+          echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         else
           cd build/wrapping/python  # in build subdirectory
-          echo '::set-output name=path::build/wrapping/python/dist/*.whl'
+          echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         fi
         pwd
         python setup.py bdist_wheel sdist
@@ -559,9 +573,9 @@ jobs:
 
     - name: Upload wrapped Python lib
       if: startswith(steps.env-vars.outputs.python, 'python')
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: wrapping-${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
         path: ${{ steps.wheel.outputs.path }}
 
     - name: Test
@@ -578,7 +592,7 @@ jobs:
         lcov --list coverage.info
 
     - name: Upload coverage to CodeCov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       with:
         files: coverage.info
