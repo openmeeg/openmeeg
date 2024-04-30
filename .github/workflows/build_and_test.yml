@@ -243,7 +243,7 @@ jobs:
         pip --version
         pip install --upgrade -q pip
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          EXTRA_PIP="delvewheel 'pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.2.0'"
+          EXTRA_PIP="delvewheel pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.2.0"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
           EXTRA_PIP="delocate pytest"
         else
@@ -348,7 +348,7 @@ jobs:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio@1.5.26 libomp swig $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-          BLAS_DIR=/opt/homebrew/opt/openblas
+          BLAS_DIR=$HOMEBREW_PREFIX/opt/openblas
           OPENBLAS_INCLUDE=$BLAS_DIR/include
           OPENBLAS_LIB=$BLAS_DIR/lib
           echo "Checking for $OPENBLAS_INCLUDE"
