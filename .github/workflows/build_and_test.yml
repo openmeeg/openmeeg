@@ -348,7 +348,11 @@ jobs:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio@1.5.26 libomp swig $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-          BLAS_DIR=$HOMEBREW_PREFIX/opt/openblas
+          if [[ "$(arch)" == "arm64" ]]; then
+            BLAS_DIR=/opt/homebrew/opt/openblas
+          else
+            BLAS_DIR=/usr/local/opt/openblas
+          fi
           OPENBLAS_INCLUDE=$BLAS_DIR/include
           OPENBLAS_LIB=$BLAS_DIR/lib
           echo "Checking for $OPENBLAS_INCLUDE"
