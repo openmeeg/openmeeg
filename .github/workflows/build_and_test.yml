@@ -243,11 +243,11 @@ jobs:
         pip --version
         pip install --upgrade -q pip
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          EXTRA_PIP=delvewheel
+          EXTRA_PIP="delvewheel \"pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.2.0\""
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
-          EXTRA_PIP=delocate
+          EXTRA_PIP="delocate pytest"
         else
-          EXTRA_PIP=auditwheel
+          EXTRA_PIP="auditwheel pytest"
         fi
         if [[ "${{steps.env-vars.outputs.numpy_version}}" == 'dev' ]]; then
           echo "Installing NumPy main"
@@ -263,7 +263,8 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine "pytest!=8.0.0,!=8.0.1,!=8.0.2" threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine threadpoolctl $EXTRA_PIP
+
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
