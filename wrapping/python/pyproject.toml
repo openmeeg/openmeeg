@@ -14,7 +14,11 @@ skip = "cp36-* cp37-* cp38-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-w
 build-verbosity = 3
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 # pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
-test-requires = ["pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.1.1", "threadpoolctl"]
+test-requires = [
+    "pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.1.1,!=8.1.2,!=8.2.0;platform_system=='Windows'",
+    "pytest;platform_system!='Windows'",
+    "threadpoolctl",
+]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]
