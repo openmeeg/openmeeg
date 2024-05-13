@@ -32,7 +32,7 @@ environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../inst
 archs = "x86_64 arm64"
 test-skip = "*_arm64"
 repair-wheel-command = "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}"
-environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", MACOSX_DEPLOYMENT_TARGET="10.15" }
 
 [tool.cibuildwheel.windows]
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
