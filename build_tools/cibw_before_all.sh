@@ -76,6 +76,8 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     CMAKE_OSX_ARCH_OPT="-DCMAKE_OSX_ARCHITECTURES=${CIBW_ARCHS_MACOS}"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
+    # need SWIG for Python bindings
+    brew install swig
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 16 2019"

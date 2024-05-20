@@ -36,9 +36,9 @@ jobs:
       matrix:
         include:
         - os: ubuntu-20.04
-        - os: macos-11
+        - os: macos-13
           archs_macos: "x86_64"
-        - os: macos-11
+        - os: macos-13
           archs_macos: "arm64"
         - os: windows-2019
 
@@ -59,7 +59,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
-      - uses: pypa/cibuildwheel@v2.18.0
+      - uses: pypa/cibuildwheel@v2.18.1
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
