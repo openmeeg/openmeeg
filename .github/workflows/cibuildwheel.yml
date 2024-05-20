@@ -36,9 +36,9 @@ jobs:
       matrix:
         include:
         - os: ubuntu-20.04
-        - os: macos-11
+        - os: macos-13
           archs_macos: "x86_64"
-        - os: macos-11
+        - os: macos-13
           archs_macos: "arm64"
         - os: windows-2019
 
