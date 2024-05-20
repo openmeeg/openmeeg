@@ -1,0 +1,196 @@
+#!/usr/bin/env python
+
+"""
+Simple viewer for OpenMEEG files (.geom, .tri, .txt, .dip, .squids etc.)
+
+Usage
+-----
+
+om_viz model.geom mesh1.tri mesh2.tri dipoles.txt
+
+basically om_viz displays all the files on the command line
+guessing the format with the extensions (.tri, .geom, .dip, .squids or .txt)
+
+@author: - A. Gramfort, alexandre.gramfort@inria.fr
+"""
+
+import sys
+import numpy as np
+import os
+
+
+def read_geom(geom_file):
+    """readGeom : provides paths to meshes present in .geom file"""
+    f = open(geom_file, "r")
+    lines = f.readlines()
+    mesh_files = []
+    for line in lines:
+        words = line.split()
+        if len(words) > 1:
+            if words[0] == "Interfaces":
+                nb_mesh = int(words[1])
+                print("Nb mesh files : %d" % nb_mesh)
+                continue
+
+        if len(words) == 1:
+            mesh_file = words[0]
+            if mesh_file.endswith(".tri"):
+                mesh_files.append(mesh_file)
+            if not os.path.exists(mesh_file):
+                print("Could not find mesh : " + mesh_file)
+            continue
+
+        if (len(words) > 1) and words[0].startswith("Interface"):
+            mesh_file = words[-1][1:-1]
+            if mesh_file.endswith(".tri"):
+                mesh_files.append(mesh_file)
+            if not os.path.exists(mesh_file):
+                print("Could not find mesh : " + mesh_file)
+            continue
+
+    for k, fname in enumerate(mesh_files):
+        if not os.path.isabs(fname):
+            mesh_files[k] = os.path.join(os.path.dirname(geom_file), fname)
+
+    print("Found : %s" % mesh_files)
+    return mesh_files
+
+
+def read_tri(fname):
+    """Read .tri file
+
+    Parameters
+    ----------
+    fname : str
+        The file to read.
+
+    Returns
+    -------
+    points : ndarray, shape (n_points, 3)
+        The vertices
+    normals : ndarray, shape (n_points, 3)
+        The normals at the vertices
+    faces : ndarray, shape (n_faces, 3)
+        The faces
+    """
+    assert fname.endswith(".tri")
+    fid = open(fname, "r")
+    # read the number of vertices
+    npoints = int(fid.readline().split()[1])
+
+    points = []
+    faces = []
+    normals = []
+
+    # fills the vertices arrays
+    for _ in range(npoints):
+        vals = list(map(float, fid.readline().split()))
+        points.append(vals[:3])
+        normals.append(vals[3:])
+
+    # Read the number of triangles
+    n_faces = int(fid.readline().split()[1])
+    # create the list of triangles
+    for _ in range(n_faces):
+        vals = list(map(int, fid.readline().split()))
+        faces.append(vals[:3])
+
+    # Convert to numpy arrays
+    points = np.asarray(points)
+    normals = np.asarray(normals)
+    faces = np.asarray(faces)
+    return points, normals, faces
+
+
+class Mesh(object):
+    """Class to open .tri files and get pyvista/vtk objects
+
+    Parameters
+    ----------
+    fname : str
+        The file to read.
+
+    Attributes
+    ----------
+    points : ndarray, shape (n_points, 3)
+        The vertices
+    normals : ndarray, shape (n_points, 3)
+        The normals at the vertices
+    faces : ndarray, shape (n_faces, 3)
+        The faces
+
+    Example
+    -------
+    >>> head = Mesh("MyHeadFile.tri")
+    >>> f = head.to_poly_data()
+    """
+
+    def __init__(self, fname):
+        self.points, self.normals, self.faces = read_tri(fname)
+
+    def to_poly_data(self):
+        """Return as pyvista.PolyData"""
+        import pyvista as pv
+
+        faces = np.c_[3 * np.ones(len(self.faces), dtype=np.int64), self.faces].ravel()
+        return pv.PolyData(self.points, faces)
+
+
+def run():
+    if "--help" in sys.argv or len(sys.argv) == 1:
+        print(
+            "Usage:\n"
+            "Pass any geom txt or tri file to the command line. "
+            "For example.\n\n"
+            "om_viz model.geom mesh1.tri mesh2.tri dipoles.txt sensors.squids"
+        )
+        return
+
+    import pyvista as pv
+
+    off_screen = os.environ.get("OM_VIZ_OFFSCREEN", "False") == "True"
+    plotter = pv.Plotter(off_screen=off_screen)
+
+    colors = []
+    colors.append((0.95, 0.83, 0.83))  # light pink
+    colors.append((0.91, 0.89, 0.67))
+    colors.append((0.67, 0.89, 0.91))  # light blue
+    colors.append((0.68, 0.68, 0.68))  # grey
+
+    colors = colors * 3
+    cnt = 0
+    opacity = 0.4
+    for _, fname in enumerate(sys.argv[1:]):
+        print(fname)
+        if fname.endswith(".tri"):
+            mesh = Mesh(fname).to_poly_data()
+            plotter.add_mesh(mesh, color=colors[cnt], opacity=opacity)
+            cnt += 1
+
+        if fname.endswith(".geom"):
+            for fn in read_geom(fname):
+                mesh = Mesh(fn).to_poly_data()
+                plotter.add_mesh(mesh, color=colors[cnt], opacity=opacity)
+                cnt += 1
+
+        if fname.endswith(".txt") or fname.endswith(".dip"):
+            pts = np.loadtxt(fname)
+            point_cloud = pv.PolyData(pts[:, :3])
+            plotter.add_mesh(point_cloud, opacity=0.5, color=(1, 0, 0))
+            if pts.shape[1] == 6:
+                point_cloud["vectors"] = pts[:, 3:]
+                arrows = point_cloud.glyph(orient="vectors", scale=True, factor=0.01)
+                plotter.add_mesh(arrows, color=(1, 0, 1))
+
+        if fname.endswith(".squids"):
+            pts = np.loadtxt(fname)[:, 1:]  # drop label column
+            point_cloud = pv.PolyData(pts[:, :3])
+            plotter.add_mesh(point_cloud, opacity=0.5, color=(1, 0, 0))
+            point_cloud["vectors"] = pts[:, 3:]
+            arrows = point_cloud.glyph(orient="vectors", scale=True, factor=0.01)
+            plotter.add_mesh(arrows, color=(1, 0, 1))
+    plotter.show()
+
+
+if __name__ == "__main__":
+    run()
