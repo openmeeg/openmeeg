@@ -1,3 +1,7 @@
+[project]
+name = "openmeeg"
+requires-python = ">=3.9"
+
 [build-system]
 # Minimum requirements for the build system to execute.
 # TODO: We should look at SciPy and set mins for these like they do
@@ -9,8 +13,9 @@ requires = [
 ]
 
 [tool.cibuildwheel]
-# 3.9 is the only wheel NumPy ships for PyPy as of 2023/01/29
-skip = "cp36-* cp37-* cp38-* *-manylinux_i686 *_ppc64le *_s390x *-musllinux* *-win32 pp37* pp38* pp310* pp*-win_*"
+# 3.9 is the only wheel NumPy ships for PyPy as of 2024/05/20
+skip = ["pp310*", "pp*-win_*"]
+archs = "native"
 build-verbosity = 3
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 # pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
@@ -23,14 +28,11 @@ test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux_2_28"
 repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
 environment-pass = ["RUNNER_OS"]
 environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
 [tool.cibuildwheel.macos]
-archs = "x86_64 arm64"
-test-skip = "*_arm64"
 repair-wheel-command = "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}"
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", MACOSX_DEPLOYMENT_TARGET="10.15" }
 
