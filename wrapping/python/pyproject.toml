@@ -56,6 +56,7 @@ include-package-data = true  # the default but let's be explicit
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
+root = "../../"
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy as of 2024/05/20
