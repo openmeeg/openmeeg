@@ -63,7 +63,7 @@ root = "../../"
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy as of 2024/05/20
-skip = ["pp310*", "pp*-win_*"]
+skip = ["pp310*", "pp*-win_*", "*-musllinux*"]
 archs = "native"
 build-verbosity = 3
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
