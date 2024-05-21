@@ -1,16 +1,61 @@
 [project]
 name = "openmeeg"
+description = "Forward problems solver in the field of EEG and MEG."
+dynamic = ["version"]
+maintainers = [{ name="Alexandre Gramfort", email = "alexandre.gramfort@inria.fr" }]
+license= { text = "CECILL-B" }
+readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.9"
+keywords = [
+    "neuroscience",
+    "neuroimaging",
+    "MEG",
+    "EEG",
+    "ECoG",
+    "sEEG",
+    "iEEG",
+    "brain",
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.urls]
+Homepage = "http://openmeeg.github.io"
+Download = "http://github.com/openmeeg/openmeeg"
+"Bug Tracker" = "https://github.com/openmeeg/openmeeg/issues"
+Documentation = "https://openmeeg.github.io"
+"Source code" = "https://github.com/openmeeg/openmeeg"
 
 [build-system]
-# Minimum requirements for the build system to execute.
-# TODO: We should look at SciPy and set mins for these like they do
 requires = [
     # Changes here need to be reflected in cibw_before_build_windows.sh
     "setuptools>=68.0.0",
+    "setuptools_scm>=6.2",
     "wheel>=0.37.0",
     "numpy>=2.0.0rc1,<3",
 ]
+
+[tool.setuptools]
+packages = ["openmeeg", "openmeeg/tests"]
+zip-safe = false
+include-package-data = true  # the default but let's be explicit
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy as of 2024/05/20
