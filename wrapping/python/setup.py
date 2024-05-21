@@ -2,7 +2,6 @@
 
 # Copyright (C) 2011-2020 Alexandre Gramfort
 # <alexandre.gramfort@inria.fr>
-# This assumes/requires that SWIG has already been run so the .so exists!
 
 from pathlib import Path
 import os
@@ -11,8 +10,6 @@ import sys
 
 from setuptools import setup, Extension  # noqa
 from setuptools.command import build_py
-
-root = Path(__file__).parent
 
 # Adapted from MIT-licensed
 # https://github.com/Yelp/dumb-init/blob/48db0c0d0ecb4598d1a6400710445b85d67616bf/setup.py#L11-L27  # noqa

@@ -368,7 +368,11 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
         # Set our version min
-        echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+        if [[ $(uname -m) == 'arm64' ]]; then
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+        else
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+        fi
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')

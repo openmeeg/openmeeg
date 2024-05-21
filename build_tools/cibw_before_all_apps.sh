@@ -12,10 +12,10 @@ cd $1
 ROOT=$(pwd)
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 
-# Let's have NumPy help us out, but we need to tell it to build for the correct
-# macOS platform
-if [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
-    export _PYTHON_HOST_PLATFORM="macosx-11.0-arm64"
+# Let's have NumPy help us out
+if [[ "$RUNNER_OS" == "macOS" ]] && [[ $(uname -m) == 'arm64' ]]; then
+    echo "Making /usr/local/lib for macOS arm64"
+    sudo mkdir -p /usr/local/lib
 fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
@@ -54,18 +54,17 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     export LINKER_OPT="-L$OPENBLAS_LIB"
     export LINKER_OPT="$LINKER_OPT -lgfortran"
-    echo "Building for CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
-    if [[ "$CIBW_ARCHS_MACOS" == "x86_64" ]]; then
+    if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.15"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
-    elif [[ "$CIBW_ARCHS_MACOS" == "arm64" ]]; then
+    elif [[ "$PLATFORM" == "arm64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-11.0"
-        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-10.9/lib -lz"
-        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11"
+        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-11.0/lib -lz"
+        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"
         PACKAGE_ARCH_SUFFIX="_M1"
     else
-        echo "Unknown CIBW_ARCHS_MACOS=\"$CIBW_ARCHS_MACOS\""
+        echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
     fi
     source ./build_tools/setup_vcpkg_compilation.sh
