@@ -50,9 +50,12 @@ requires = [
 ]
 
 [tool.setuptools]
-packages = ["openmeeg", "openmeeg/tests"]
 zip-safe = false
 include-package-data = true  # the default but let's be explicit
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["openmeeg*"]
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
