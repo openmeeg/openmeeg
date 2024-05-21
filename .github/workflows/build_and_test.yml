@@ -263,7 +263,7 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl $EXTRA_PIP
 
 
     - name: MKL setup - mkl via conda
