@@ -116,13 +116,13 @@ add_custom_command(
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info
     VERBATIM
 )
-message(STATUS "Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
+message(STATUS "Python: Expecting to install ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
+install(DIRECTORY  ${CMAKE_SOURCE_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)

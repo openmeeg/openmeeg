@@ -15,7 +15,7 @@ echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\""
 # Let's have NumPy help us out
 if [[ "$RUNNER_OS" == "macOS" ]] && [[ $(uname -m) == 'arm64' ]]; then
     echo "Making /usr/local/lib for macOS arm64"
-    sudo mkdir -p /usr/local/lib
+    mkdir -p /usr/local/lib
 fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
