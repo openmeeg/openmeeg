@@ -550,6 +550,7 @@ jobs:
           cd wrapping/python  # in root
           echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         else
+          cp -a .git build/  # make setuptools_scm happy
           cd build/wrapping/python  # in build subdirectory
           echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         fi
