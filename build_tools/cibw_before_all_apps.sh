@@ -56,7 +56,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
         MIN_VER="10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
-        LIBGFORTRAN="$(find /usr/local/gfortran/lib -name libgfortran.3.dylib)"
+        LIBGFORTRAN="/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
         MIN_VER="11.0"
         PACKAGE_ARCH_SUFFIX="_M1"
@@ -67,6 +67,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     fi
     export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-${MIN_VER}"
     export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_VER}"
+    source ./build_tools/setup_vcpkg_compilation.sh
     GFORTRAN_LIB=$(dirname $LIBGFORTRAN)
     GFORTRAN_NAME=$(basename $LIBGFORTRAN)
     sudo chmod -R a+w $GFORTRAN_LIB
@@ -81,9 +82,8 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         # TODO: Fix this!
         LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT"
     fi
-    source ./build_tools/setup_vcpkg_compilation.sh
     # Set LINKER_OPT after vckpg_compilation.sh because it also sets LINKER_OPT
-    export LINKER_OPT="$LINKER_OPT -L$OPENBLAS_LIB -lgfortran -L$GFORTRAN_PATH"
+    export LINKER_OPT="$LINKER_OPT -L$OPENBLAS_LIB -lgfortran -L$GFORTRAN_LIB"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
@@ -111,7 +111,7 @@ export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
-        install_name_tool -change "${GFORTRAN_PATH}/${GFORTRAN_NAME}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
+        install_name_tool -change "${LIBGFORTRAN}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
     done
 fi
 cmake --build build --target package --target install --config release
