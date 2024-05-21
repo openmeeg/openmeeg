@@ -107,9 +107,8 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
-file(STRINGS "${PYTHON_OPENMEEG_SOURCE_DIR}/_version.py" PYTHON_OPENMEEG_VERSION)
+execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -r ${OpenMEEG_SOURCE_DIR} -c ${OpenMEEG_SOURCE_DIR}/wrapping/python/pyproject.toml OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION)
 message(STATUS "Python: Extracted from openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
-string(REGEX REPLACE "^__version__ = \"([0-9deva-f.]+)\"$" "\\1" PYTHON_OPENMEEG_VERSION "${PYTHON_OPENMEEG_VERSION}")
 message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
