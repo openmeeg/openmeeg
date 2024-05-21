@@ -59,7 +59,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.15"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
-    elif [[ "$PLATFORM" == "arm64" ]]; then
+    elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-11.0"
         export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-11.0/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"
