@@ -54,10 +54,12 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
+        VC_NAME="x64"
         MIN_VER="10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
         LIBGFORTRAN="/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
+        VC_NAME="arm64"
         MIN_VER="11.0"
         PACKAGE_ARCH_SUFFIX="_M1"
         LIBGFORTRAN="$(find /opt/gfortran-darwin-arm64/lib -name libgfortran.dylib)"
@@ -65,7 +67,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
     fi
-    export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-${MIN_VER}"
+    export VCPKG_DEFAULT_TRIPLET="${VC_NAME}-osx-release-${MIN_VER}"
     export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_VER}"
     source ./build_tools/setup_vcpkg_compilation.sh
     GFORTRAN_LIB=$(dirname $LIBGFORTRAN)
