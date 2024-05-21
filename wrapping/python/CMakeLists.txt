@@ -113,16 +113,16 @@ message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/wrapping/python
-    COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python
+    COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
 message(STATUS "Python: Expecting to install ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
-install(DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-install(DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
+install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 if (APPLE)
@@ -160,7 +160,7 @@ if (BUILD_TESTING)
     endif()
     set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geometry.py test_python.py test_mesh.py)
     foreach (test ${PYTHON_TEST_FILES})
-        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} -m pytest --tb=short -ra ${TEST_PYTHON_ARGS} -vv ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
+        add_test(openmeeg_python_${test} ${Python3_EXECUTABLE} -m pytest --tb=short -ra ${TEST_PYTHON_ARGS} -vv ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/${test})
         if (USE_MKL AND BUILD_SHARED_LIBS AND NOT MKL_USE_sdl)
             # due to this bug in the MKL
             message(WARNING "Due to a bug in the MKL when used from python: see https://software.intel.com/en-us/forums/intel-distribution-for-python/topic/628976 "
@@ -168,13 +168,13 @@ if (BUILD_TESTING)
                 "${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so\"")
             set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT LD_PRELOAD=${MKL_ROOT_DIR}/lib/intel64/libmkl_core.so:${MKL_ROOT_DIR}/lib/intel64/libmkl_sequential.so)
         endif()
-        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/wrapping/python")
+        set_tests_properties(openmeeg_python_${test} PROPERTIES ENVIRONMENT "PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python")
         set_property(TEST openmeeg_python_${test} APPEND PROPERTY ENVIRONMENT "OPENMEEG_DATA_PATH=${OpenMEEG_SOURCE_DIR}/data")
     endforeach()
 
     if (BUILD_REFERENCE_DOC)
-        add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg/tests/test_doc.py)
-        set_tests_properties(openmeeg_python_doc PROPERTIES ENVIRONMENT PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/wrapping/python)
+        add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/test_doc.py)
+        set_tests_properties(openmeeg_python_doc PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endif()
 
 endif()
