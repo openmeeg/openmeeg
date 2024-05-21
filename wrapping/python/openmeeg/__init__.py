@@ -27,7 +27,7 @@ from ._make_geometry import make_geometry, make_nested_geometry, read_geometry
 from ._utils import get_log_level, set_log_level, use_log_level
 
 try:
-    __version__ = _version("mne")
+    __version__ = _version("openmeeg")
 except Exception:
     __version__ = "0.0.0"
 del _version

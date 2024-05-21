@@ -116,7 +116,7 @@ add_custom_command(
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
-message(STATUS "Python: Expecting to install ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
+message(STATUS "Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
