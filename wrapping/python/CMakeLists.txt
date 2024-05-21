@@ -107,12 +107,12 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
-execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c ${OpenMEEG_SOURCE_DIR}/wrapping/python/pyproject.toml OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION)
+execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c ${CMAKE_SOURCE_DIR}/wrapping/python/pyproject.toml OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION)
 message(STATUS "Python: Extracted from openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
 message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info
     VERBATIM
 )
