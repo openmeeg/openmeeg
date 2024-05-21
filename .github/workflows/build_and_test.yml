@@ -115,6 +115,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     # all subsequent steps should use steps.env-vars.outputs.* instead
     # of matrix.* entries
