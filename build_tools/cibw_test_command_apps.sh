@@ -29,10 +29,11 @@ if [[ "${RUNNER_OS}" == "Linux" ]]; then
 elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     tar xzfv $ROOT/installers/OpenMEEG-*-*.tar.gz
     cd OpenMEEG-*
-    sudo rm /usr/local/gfortran/lib/*.dylib
+    sudo rm -Rf /usr/local/gfortran  # Intel
+    sudo rm -Rf /opt/gfortran-darwin-arm64
     otool -L ./lib/libOpenMEEG.dylib
     otool -L ./lib/libOpenMEEGMaths.dylib
-    otool -L ./lib/libgfortran.*.dylib
+    otool -L ./lib/libgfortran*.dylib
     ./bin/om_minverser --help
 elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)

@@ -75,12 +75,12 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     install_name_tool -id "@rpath/${GFORTRAN_NAME}" $LIBGFORTRAN
     LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$LIBGFORTRAN"
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
-        install_name_tool -change "${GFORTRAN_LIB}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${GFORTRAN_LIB}/$GFORTRAN_NAME
-        install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${GFORTRAN_LIB}/${GFORTRAN_NAME}
-        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libquadmath.0.dylib;$GFORTRAN_LIB/libgcc_s.1.dylib"
+        install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${LIBGFORTRAN}
+        install_name_tool -change "${GFORTRAN_LIB}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${LIBGFORTRAN}
+        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.1.dylib;$GFORTRAN_LIB/libquadmath.0.dylib"
     else
-        # TODO: Fix this!
-        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT"
+        install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.2.dylib" "@rpath/libgcc_s.2.dylib" ${LIBGFORTRAN}
+        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.2.dylib"
     fi
     # Set LINKER_OPT after vckpg_compilation.sh because it also sets LINKER_OPT
     export LINKER_OPT="$LINKER_OPT -L$OPENBLAS_LIB -lgfortran -L$GFORTRAN_LIB"
@@ -109,7 +109,7 @@ pip install cmake
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --config release
-if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
+if [[ "${PLATFORM}" == 'macosx-'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
         install_name_tool -change "${LIBGFORTRAN}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
     done
