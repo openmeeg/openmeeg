@@ -115,6 +115,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     # all subsequent steps should use steps.env-vars.outputs.* instead
     # of matrix.* entries
@@ -263,7 +265,7 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools wheel twine threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl $EXTRA_PIP
 
 
     - name: MKL setup - mkl via conda
@@ -368,7 +370,11 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
         fi
         # Set our version min
-        echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+        if [[ $(uname -m) == 'arm64' ]]; then
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+        else
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+        fi
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
@@ -544,6 +550,7 @@ jobs:
           cd wrapping/python  # in root
           echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         else
+          cp -a .git build/  # make setuptools_scm happy
           cd build/wrapping/python  # in build subdirectory
           echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         fi

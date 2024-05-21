@@ -37,20 +37,20 @@ jobs:
         include:
         - os: ubuntu-20.04
         - os: macos-13
-          archs_macos: "x86_64"
-        - os: macos-13
-          archs_macos: "arm64"
+        - os: macos-14
         - os: windows-2019
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2
         if: matrix.os != 'ubuntu-20.04'
         with:
-          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.archs_macos }}
+          key: ${{ github.job }}-${{ matrix.os }}
       - name: Cache vcpkg
         if: matrix.os != 'ubuntu-20.04'
         uses: actions/cache@v4
@@ -58,16 +58,14 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-0
       - uses: pypa/cibuildwheel@v2.18.1
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
-        env:
-          CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-${{ matrix.archs_macos }}
+          name: wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:
