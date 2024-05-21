@@ -59,9 +59,17 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.15"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
+        # gfortran
+        LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
+        sudo chmod -R a+w /usr/local/gfortran/lib
+        name=/usr/local/gfortran/lib
+        install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/libgfortran.3.dylib
+        install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
+        install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
+        otool -L ${name}/libgfortran.3.dylib
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-11.0"
-        export LINKER_OPT="$LINKER_OPT -L$ROOT/vcpkg_installed/arm64-osx-release-11.0/lib -lz"
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"
         PACKAGE_ARCH_SUFFIX="_M1"
     else
@@ -69,14 +77,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         exit 1
     fi
     source ./build_tools/setup_vcpkg_compilation.sh
-    LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
-    sudo chmod -R a+w /usr/local/gfortran/lib
-    name=/usr/local/gfortran/lib
-    install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/libgfortran.3.dylib
-    install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
-    install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
-    otool -L ${name}/libgfortran.3.dylib
-    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
