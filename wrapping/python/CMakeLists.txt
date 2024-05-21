@@ -112,8 +112,8 @@ message(STATUS "Python: Extracted from openmeeg/_version.py: ${PYTHON_OPENMEEG_V
 message(STATUS "Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/wrapping/python
+    COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python
     VERBATIM
 )
 message(STATUS "Python: Expecting to install ${CMAKE_CURRENT_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
