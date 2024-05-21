@@ -53,7 +53,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export LINKER_OPT="-L$OPENBLAS_LIB"
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.15"
-        source ./build_tools/setup_vcpkg_compilation.sh
         export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
         export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-11.0"
@@ -62,6 +61,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
     fi
+    source ./build_tools/setup_vcpkg_compilation.sh
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     # need SWIG for Python bindings
