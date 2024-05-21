@@ -53,30 +53,37 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export CMAKE_PREFIX_PATH="$BLAS_DIR"
-    export LINKER_OPT="-L$OPENBLAS_LIB"
-    export LINKER_OPT="$LINKER_OPT -lgfortran"
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
-        export VCPKG_DEFAULT_TRIPLET="x64-osx-release-10.15"
-        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"
+        MIN_VER="10.15"
         PACKAGE_ARCH_SUFFIX="_Intel"
-        # gfortran
-        LINKER_OPT="$LINKER_OPT -L/usr/local/gfortran/lib"
-        sudo chmod -R a+w /usr/local/gfortran/lib
-        name=/usr/local/gfortran/lib
-        install_name_tool -change "${name}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${name}/libgfortran.3.dylib
-        install_name_tool -change "${name}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${name}/libgfortran.3.dylib
-        install_name_tool -id "@rpath/libgfortran.3.dylib" ${name}/libgfortran.3.dylib
-        otool -L ${name}/libgfortran.3.dylib
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=/usr/local/gfortran/lib/libgfortran.3.dylib;/usr/local/gfortran/lib/libquadmath.0.dylib;/usr/local/gfortran/lib/libgcc_s.1.dylib"
+        LIBGFORTRAN="$(find /usr/local/gfortran/lib -name libgfortran.3.dylib)"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
-        export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-11.0"
-        export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"
+        MIN_VER="11.0"
         PACKAGE_ARCH_SUFFIX="_M1"
+        LIBGFORTRAN="$(find /opt/gfortran-darwin-arm64/lib -name libgfortran.dylib)"
     else
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
     fi
+    export VCPKG_DEFAULT_TRIPLET="arm64-osx-release-${MIN_VER}"
+    export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_VER}"
+    GFORTRAN_LIB=$(dirname $LIBGFORTRAN)
+    GFORTRAN_NAME=$(basename $LIBGFORTRAN)
+    sudo chmod -R a+w $GFORTRAN_LIB
+    otool -L $LIBGFORTRAN
+    install_name_tool -id "@rpath/${GFORTRAN_NAME}" $LIBGFORTRAN
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$LIBGFORTRAN"
+    if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
+        install_name_tool -change "${GFORTRAN_LIB}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${GFORTRAN_LIB}/$GFORTRAN_NAME
+        install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${GFORTRAN_LIB}/${GFORTRAN_NAME}
+        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libquadmath.0.dylib;$GFORTRAN_LIB/libgcc_s.1.dylib"
+    else
+        # TODO: Fix this!
+        LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT"
+    fi
     source ./build_tools/setup_vcpkg_compilation.sh
+    # Set LINKER_OPT after vckpg_compilation.sh because it also sets LINKER_OPT
+    export LINKER_OPT="$LINKER_OPT -L$OPENBLAS_LIB -lgfortran -L$GFORTRAN_PATH"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
@@ -104,7 +111,7 @@ export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-x86_64'* ]]; then
     for name in OpenMEEG OpenMEEGMaths; do
-        install_name_tool -change "/usr/local/gfortran/lib/libgfortran.3.dylib" "@rpath/libgfortran.3.dylib" ./build/${name}/lib${name}.1.1.0.dylib
+        install_name_tool -change "${GFORTRAN_PATH}/${GFORTRAN_NAME}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
     done
 fi
 cmake --build build --target package --target install --config release
@@ -118,7 +125,7 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     cp -av build/OpenMEEG-*-*.* /output/
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
-    otool -L $ROOT/install/lib/libgfortran.*.dylib
+    otool -L $ROOT/install/lib/libgfortran*.dylib
 else
     ./build_tools/install_dependency_walker.sh
 fi
