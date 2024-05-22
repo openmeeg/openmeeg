@@ -3,7 +3,7 @@
 # Build and install (locally) OpenMEEG to prepare for SWIG-building the Python
 # bindings separately
 
-set -e
+set -e o pipefail
 if [[ "$1" == "" ]]; then
     echo "Usage: $0 <PROJECT_PATH>"
     exit 1
