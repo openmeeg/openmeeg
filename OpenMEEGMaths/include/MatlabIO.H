@@ -209,8 +209,11 @@ namespace OpenMEEG {
             }
 
         private:
-
+            #if MATIO_VERSION>=1527
             static void matiologfunc(const int log_level,const char* message) {
+            #else
+            static void matiologfunc(const int log_level,char* message) {
+            #endif
 
                 //  Ugly copy of values in matio/io.c, but those are not exported...
 
