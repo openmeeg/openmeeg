@@ -343,11 +343,7 @@ jobs:
           BREW_EXTRA=openblas
         fi
         echo "Installing dependencies with brew"
-        # TODO: Not libmatio 1.5.27 compatible
-        brew tap-new $USER/local-libmatio
-        brew tap homebrew/core --force
-        brew extract --version=1.5.26 libmatio $USER/local-libmatio
-        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio@1.5.26 libomp swig $BREW_EXTRA
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
