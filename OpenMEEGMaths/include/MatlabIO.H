@@ -210,7 +210,7 @@ namespace OpenMEEG {
 
         private:
 
-            static void matiologfunc(const int log_level,char* message) {
+            static void matiologfunc(const int log_level,const char* message) {
 
                 //  Ugly copy of values in matio/io.c, but those are not exported...
 
