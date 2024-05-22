@@ -107,7 +107,9 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
-execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c ${CMAKE_SOURCE_DIR}/wrapping/python/pyproject.toml OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+# You need to be in the CMAKE_SOURCE_DIR for python -m setuptools_scm -c wrapping/python/pyproject.toml
+# to properly detect and use .git_archival.txt
+execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c wrapping/python/pyproject.toml WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 message("Python: Extracted from setuptools_scm openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
 message("Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
