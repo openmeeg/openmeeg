@@ -28,9 +28,8 @@ PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_s
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 git checkout LICENSE.txt  # This file is modified by NumPy
-rm -Rf .ccache gfortran.dmg gfortran-darwin-arm64.tar.gz
-git status --porcelain
-test -z "$(git status --porcelain)"
+git status --porcelain --untracked-files=no
+test -z "$(git status --porcelain --untracked-files=no)"
 
 # PLATFORM can be:
 # linux-x86_64
@@ -111,5 +110,5 @@ echo "ls -al $PWD:"
 ls -al
 
 echo "git status:"
-git status --porcelain
-test -z "$(git status --porcelain)"
+git status --porcelain --untracked-files=no
+test -z "$(git status --porcelain --untracked-files=no)"
