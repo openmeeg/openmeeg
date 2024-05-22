@@ -545,14 +545,16 @@ jobs:
           fi
           cd wrapping/python  # in root
           echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+          git status --porcelain --untracked-files=no
+          test -z "$(git status --porcelain --untracked-files=no)"
         else
-          cp -a .git build/  # make setuptools_scm happy
+          # make setuptools_scm happy -- this will show up as dirty when a wheel
+          # is built from it but that's okay
+          cp -a .git build/
           cd build/wrapping/python  # in build subdirectory
           echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
         fi
         pwd
-        git status --porcelain --untracked-files=no
-        test -z "$(git status --porcelain --untracked-files=no)"
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         ls -alR dist/*.whl
