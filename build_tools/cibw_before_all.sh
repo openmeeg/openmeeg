@@ -3,7 +3,7 @@
 # Build and install (locally) OpenMEEG to prepare for SWIG-building the Python
 # bindings separately
 
-set -e o pipefail
+set -e
 if [[ "$1" == "" ]]; then
     echo "Usage: $0 <PROJECT_PATH>"
     exit 1
@@ -103,11 +103,4 @@ fi
 if [[ "$PLATFORM" == 'win'* ]]; then
     mv build build_nopython
 fi
-echo "ls -al $PWD:"
 ls -al
-
-echo "git status:"
-git status
-
-echo "git clean"
-git clean
