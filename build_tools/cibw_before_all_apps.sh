@@ -28,8 +28,8 @@ PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_s
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 git checkout LICENSE.txt  # This file is modified by NumPy
-git status
-git clean
+git status --porcelain
+test -z "$(git status --porcelain)"
 
 # PLATFORM can be:
 # linux-x86_64
