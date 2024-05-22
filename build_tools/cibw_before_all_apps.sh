@@ -3,7 +3,7 @@
 # Build and install (locally) OpenMEEG to prepare for SWIG-building the Python
 # bindings separately
 
-set -e
+set -eo pipefail
 if [[ "$1" == "" ]]; then
     echo "Usage: $0 <PROJECT_PATH>"
     exit 1
@@ -27,6 +27,10 @@ chmod +x ./tools/wheels/cibw_before_build.sh
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
+git checkout LICENSE.txt  # This file is modified by NumPy
+rm -Rf .ccache gfortran.dmg gfortran-darwin-arm64.tar.gz openblas-v*.zip
+git status --porcelain --untracked-files=no
+test -z "$(git status --porcelain --untracked-files=no)"
 
 # PLATFORM can be:
 # linux-x86_64

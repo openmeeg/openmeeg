@@ -21,3 +21,5 @@ cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
 cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/_openmeeg_wrapper.py wrapping/python/openmeeg/
 rm -Rf build
+git status --porcelain --untracked-files=no
+test -z "$(git status --porcelain --untracked-files=no)"
