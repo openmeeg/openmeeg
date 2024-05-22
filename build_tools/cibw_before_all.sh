@@ -23,17 +23,15 @@ mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
 echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
 chmod +x ./tools/wheels/cibw_before_build.sh
-echo "a"
-git status
 ./tools/wheels/cibw_before_build.sh $1
-echo "b"
-git status
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
-echo "c"
+
+git checkout LICENSE.txt  # This file is modified by NumPy
 git status
 git clean
+
 # PLATFORM can be:
 # linux-x86_64
 # macosx-x86_64
