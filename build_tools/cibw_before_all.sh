@@ -27,6 +27,7 @@ chmod +x ./tools/wheels/cibw_before_build.sh
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
+git clean
 
 # PLATFORM can be:
 # linux-x86_64
@@ -81,9 +82,11 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 pip install cmake
+git clean
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+git clean
 cmake --build build --target install --target package --config release
-
+git clean
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
     ls -al install/lib64/*.so*
