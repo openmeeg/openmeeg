@@ -58,8 +58,8 @@ where = ["."]
 include = ["openmeeg*"]
 
 [tool.setuptools_scm]
-version_scheme = "release-branch-semver"
 root = "../../"
+local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy (and not on ARM64) as of 2024/05/20
