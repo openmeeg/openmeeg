@@ -111,7 +111,5 @@ echo "ls -al $PWD:"
 ls -al
 
 echo "git status:"
-git status
-
-echo "git clean"
-git clean
+git status --porcelain
+test -z "$(git status --porcelain)"
