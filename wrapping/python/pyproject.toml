@@ -77,9 +77,8 @@ test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux_2_28"
 repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
-archs = ["x86_64", "aarch64"]
+archs = ["aarch64"]  # TODO: Put back "x86_64",
 environment-pass = ["RUNNER_OS"]
 environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
