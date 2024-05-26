@@ -63,7 +63,7 @@ local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
 # 3.9 is the only wheel NumPy ships for PyPy (and not on ARM64) as of 2024/05/20
-skip = ["pp310*", "pp*-win_*", "*-musllinux*", "pp*-macosx_arm64"]
+skip = ["pp310*", "pp*-win_*", "pp*-macosx_arm64"]
 archs = "native"
 build-verbosity = 3
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
@@ -79,7 +79,7 @@ test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
-archs = ["auto", "aarch64"]
+archs = ["x86_64", "aarch64"]
 environment-pass = ["RUNNER_OS"]
 environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
 
