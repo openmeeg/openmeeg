@@ -39,8 +39,8 @@ test -z "$(git status --porcelain --untracked-files=no)"
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
-    dnf -y install epel-release
-    dnf -y install hdf5-devel matio-devel
+    yum -y install epel-release
+    yum -y install hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
