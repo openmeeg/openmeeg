@@ -90,6 +90,10 @@ before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project
 repair-wheel-command = "bash %GITHUB_WORKSPACE%/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}"
 environment = { OPENMEEG_USE_SWIG="0" }
 
+[[tool.cibuildwheel.overrides]]
+select = "*_aarch64"
+container-engine = "docker; create_args: --platform linux/arm64/v8"
+
 [tool.ruff]
 select = ["E", "F", "W", "D", "I"]
 exclude = ["__init__.py", "setup.py"]
