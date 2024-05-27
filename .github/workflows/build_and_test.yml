@@ -55,7 +55,7 @@ jobs:
           python: cmake
           numpy: numpyold
           slow: false
-        - os: windows-2019
+        - os: windows-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -85,10 +85,10 @@ jobs:
         # Windows compiler. So we disable it for now at least (YAGNI).
         # There is some stuff below and in cmake_configure.sh we could get rid
         # of if we decide to fully drop it later.
-        # - os: windows-2019
+        # - os: windows-latest
         #   windows_compiler: mingw64
         # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-2019
+        - os: windows-latest
           blas: mkl-findblas
           blas_linking: static
         - os: ubuntu-20.04
@@ -102,7 +102,7 @@ jobs:
           # vtk: vtk9  # TODO: Uncomment and update merge reqs
           slow: true
         # Windows static
-        - os: windows-2019
+        - os: windows-latest
           blas: OpenBLAS
           blas_linking: static
         # Setuptools
@@ -316,7 +316,7 @@ jobs:
           export VCPKG_DEFAULT_TRIPLET="x64-mingw-dynamic"
         else
           export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
-          export CMAKE_GENERATOR="Visual Studio 16 2019"
+          export CMAKE_GENERATOR="Visual Studio 17 2022"
         fi
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
