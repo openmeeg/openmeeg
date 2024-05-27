@@ -38,7 +38,7 @@ test -z "$(git status --porcelain --untracked-files=no)"
 # macosx-arm64
 # win-amd64
 
-if [[ "$PLATFORM" == 'linux-'*]]; then
+if [[ "$PLATFORM" == 'linux-'* ]]; then
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     dnf -y install curl zip unzip tar
     export OPENBLAS_INCLUDE=/usr/local/include
