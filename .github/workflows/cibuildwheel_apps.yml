@@ -29,12 +29,28 @@ jobs:
       fail-fast: false
       matrix:
         # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-latest
+            arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # For aarch64 support
+      # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+        if: runner.os == 'Linux' && matrix.arch == 'aarch64'
       - uses: actions/setup-python@v5  # to make before-all work properly
         with:
           python-version: '3.10'
@@ -70,6 +86,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
+          CIBW_ARCHS: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
           path: |
