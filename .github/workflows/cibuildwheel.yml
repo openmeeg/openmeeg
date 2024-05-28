@@ -45,7 +45,7 @@ jobs:
             arch: x86_64
           - os: macos-14
             arch: arm64
-    timeout-minutes: 60
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +62,7 @@ jobs:
       - uses: hendrikmuhs/ccache-action@v1.2
         if: matrix.os != 'ubuntu-latest'
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
       - name: Cache vcpkg
         if: matrix.os != 'ubuntu-latest'
         uses: actions/cache@v4
@@ -70,7 +70,7 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-0
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.arch }}-0
       - uses: pypa/cibuildwheel@v2.18.1
         with:
           package-dir: ./wrapping/python
@@ -79,7 +79,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:
