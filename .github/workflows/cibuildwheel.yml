@@ -45,7 +45,7 @@ jobs:
             arch: x86_64
           - os: macos-14
             arch: arm64
-    timeout-minutes: 60
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
         with:
