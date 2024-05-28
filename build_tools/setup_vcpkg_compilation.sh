@@ -26,7 +26,7 @@ elif [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     export CMAKE_GENERATOR="$CMAKE_GENERATOR"
     export CMAKE_GENERATOR_PLATFORM="x64"
     export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=$CMAKE_GENERATOR_TOOLSET"
-elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-linux' ]]; then
+elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == *'-linux' ]]; then
     USE_CYGPATH=0
 else
     echo "Unknown VCPKG_DEFAULT_TRIPLET: '${VCPKG_DEFAULT_TRIPLET}'"

@@ -33,6 +33,7 @@ test -z "$(git status --porcelain --untracked-files=no)"
 
 # PLATFORM can be:
 # linux-x86_64
+# linux-aarch64
 # macosx-x86_64
 # macosx-arm64
 # win-amd64

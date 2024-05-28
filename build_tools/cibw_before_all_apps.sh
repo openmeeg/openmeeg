@@ -34,19 +34,27 @@ test -z "$(git status --porcelain --untracked-files=no)"
 
 # PLATFORM can be:
 # linux-x86_64
+# linux-aarch64
 # macosx-x86_64
 # macosx-arm64
 # win-amd64
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
-    yum -y install curl zip unzip tar
+    yum -y install curl zip unzip tar ninja
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
     export DISABLE_CCACHE=1
-    export VCPKG_DEFAULT_TRIPLET="x64-linux"
+    if [[ "$PLATFORM" == "linux-x86_64" ]]; then
+        export VCPKG_DEFAULT_TRIPLET="x64-linux"
+    elif [[ "$PLATFORM" == "linux-aarch64" ]]; then
+        export VCPKG_DEFAULT_TRIPLET="arm64-linux"
+    else
+        echo "Unknown PLATFORM=\"$PLATFORM\""
+        exit 1
+    fi
     source ./build_tools/setup_vcpkg_compilation.sh
     LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
