@@ -14,20 +14,24 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-mingw'* ]]; then
     export LINKER_OPT="-s"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
-        CMAKE_GENERATOR="Visual Studio 15 2017"
+        CMAKE_GENERATOR="Visual Studio 17 2022"
     fi
     if [[ "$CMAKE_GENERATOR_TOOLSET" == "" ]]; then
-        if [[ "$CMAKE_GENERATOR" == "Visual Studio 15 2017" ]]; then
-            CMAKE_GENERATOR_TOOLSET="v141"
-        else
+        if [[ "$CMAKE_GENERATOR" == "Visual Studio 16 2019" ]]; then
             CMAKE_GENERATOR_TOOLSET="v142"
+        else
+            CMAKE_GENERATOR_TOOLSET="v143"
         fi
     fi
     export CMAKE_GENERATOR="$CMAKE_GENERATOR"
     export CMAKE_GENERATOR_PLATFORM="x64"
-    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=v141"
-elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-linux' ]]; then
+    export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=$CMAKE_GENERATOR_TOOLSET"
+elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == *'-linux' ]]; then
     USE_CYGPATH=0
+    if [[ "$VCPKG_DEFAULT_TRIPLET" == 'arm64-linux' ]]; then
+        # Environment variable VCPKG_FORCE_SYSTEM_BINARIES must be set on arm, s390x, ppc64le and riscv platforms.
+        export VCPKG_FORCE_SYSTEM_BINARIES=1
+    fi
 else
     echo "Unknown VCPKG_DEFAULT_TRIPLET: '${VCPKG_DEFAULT_TRIPLET}'"
     exit 1

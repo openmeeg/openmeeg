@@ -130,7 +130,7 @@ The steps are roughly:
           using the `Windows VM dev images <https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/>`__.
 
 For dependencies on Windows, we make use of ``vcpkg``. The default generator
-is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
+is ``"Visual Studio 17 2022"``, if you would like to use 2019 then set::
 
     $ export CMAKE_GENERATOR="Visual Studio 16 2019"
 

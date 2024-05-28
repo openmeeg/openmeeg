@@ -33,14 +33,15 @@ test -z "$(git status --porcelain --untracked-files=no)"
 
 # PLATFORM can be:
 # linux-x86_64
+# linux-aarch64
 # macosx-x86_64
 # macosx-arm64
 # win-amd64
 
-if [[ "$PLATFORM" == "linux-x86_64" ]]; then
+if [[ "$PLATFORM" == 'linux-'* ]]; then
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
-    dnf -y install epel-release
-    dnf -y install hdf5-devel matio-devel
+    yum -y install epel-release
+    yum -y install hdf5-devel matio-devel
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
@@ -71,7 +72,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     brew install swig
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
-    export CMAKE_GENERATOR="Visual Studio 16 2019"
+    export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel
