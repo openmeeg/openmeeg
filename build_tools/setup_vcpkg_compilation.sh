@@ -28,6 +28,10 @@ elif [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=$CMAKE_GENERATOR_TOOLSET"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == *'-linux' ]]; then
     USE_CYGPATH=0
+    if [[ "$VCPKG_DEFAULT_TRIPLET" == 'arm64-linux' ]]; then
+        # Environment variable VCPKG_FORCE_SYSTEM_BINARIES must be set on arm, s390x, ppc64le and riscv platforms.
+        export VCPKG_FORCE_SYSTEM_BINARIES=1
+    fi
 else
     echo "Unknown VCPKG_DEFAULT_TRIPLET: '${VCPKG_DEFAULT_TRIPLET}'"
     exit 1
