@@ -41,6 +41,7 @@ test -z "$(git status --porcelain --untracked-files=no)"
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
+    yum -y install epel-release
     yum -y install curl zip unzip tar ninja-build
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
