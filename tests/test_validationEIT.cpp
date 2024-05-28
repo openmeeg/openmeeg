@@ -30,7 +30,6 @@ getHelp(const char* argv[]) {
               << "               HeadMatInv"                << std::endl
               << "               output q.grad(Vj)         " << std::endl
               << "               output Vf(ri) - Vf(re)      " << std::endl;
-    exit(0);
 }
 
 Vector
