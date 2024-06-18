@@ -70,7 +70,7 @@ jobs:
       # cibuildwheel@2.11.2 okay, @2.11.3 bad b/c of quay.io/pypa/manylinux_2_28_x86_64:2022-11-27-b2d7fda
       # "libOpenMEEGMaths.so.1: ELF load command address/offset not properly aligned"
       # so use the last known good image below
-      - uses: pypa/cibuildwheel@v2.19.0
+      - uses: pypa/cibuildwheel@v2.19.1
         with:
           package-dir: ./wrapping/python
           output-dir: installers
