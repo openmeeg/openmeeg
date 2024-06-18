@@ -577,10 +577,10 @@ jobs:
         echo "Contents after:"
         ls -alR check/*
         twine check dist/*
+        pip install dist/*.whl --force-reinstall
         if [[ "${{ steps.env-vars.outputs.numpy_version }}" == "oldest" ]]; then
           pip install --only-binary "numpy" "numpy<2"
         fi
-        pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
         ${GITHUB_WORKSPACE}/build_tools/cibw_test_command.sh ${GITHUB_WORKSPACE}
