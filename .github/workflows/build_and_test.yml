@@ -577,6 +577,9 @@ jobs:
         echo "Contents after:"
         ls -alR check/*
         twine check dist/*
+        if [[ "${{ steps.env-vars.outputs.numpy_version }}" == "oldest" ]]; then
+          pip install --only-binary "numpy" "numpy<2"
+        fi
         pip install dist/*.whl --force-reinstall
         cd ~
         python -c "import openmeeg; print(openmeeg.__version__)"
