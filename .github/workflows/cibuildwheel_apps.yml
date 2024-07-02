@@ -75,8 +75,7 @@ jobs:
           package-dir: ./wrapping/python
           output-dir: installers
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_28_x86_64:2022-10-25-fbea779"
-          CIBW_ENVIRONMENT_LINUX: "RUNNER_OS=Linux"
+          CIBW_ENVIRONMENT_LINUX: ""
           CIBW_ENVIRONMENT_MACOS: "OPENMEEG_MACOS_WHEEL_PURE=false"
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"
