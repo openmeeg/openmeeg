@@ -75,8 +75,6 @@ test-requires = [
     "threadpoolctl",
 ]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
-manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
-manylinux-aarch64-image = "quay.io/pypa/manylinux2014_aarch64:latest"
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
