@@ -1,7 +1,7 @@
 # This CI run builds wheels using the cibuildwheel infrastructure
 # to build the C++ binaries (with no Python wrappers).
 
-name: installers
+name: cibuildwheel-apps
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -67,9 +67,6 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-0
-      # cibuildwheel@2.11.2 okay, @2.11.3 bad b/c of quay.io/pypa/manylinux_2_28_x86_64:2022-11-27-b2d7fda
-      # "libOpenMEEGMaths.so.1: ELF load command address/offset not properly aligned"
-      # so use the last known good image below
       - uses: pypa/cibuildwheel@v2.19.2
         with:
           package-dir: ./wrapping/python
