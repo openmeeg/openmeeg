@@ -96,7 +96,12 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     else
         install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.2.dylib" "@rpath/libgcc_s.2.dylib" ${LIBGFORTRAN}
         LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.2.dylib"
+        # Doesn't seem like this should be necessary but it is for the arm64 build
+        codesign --force -s - $GFORTRAN_LIB/libgcc_s.2.dylib
     fi
+    # Need to fix the now-broken signature via ad-hoc signing (at least on arm)
+    # https://github.com/matthew-brett/delocate/blob/de38e09acd86b27c795c3d342d132031c45b1aff/delocate/tools.py#L660
+    codesign --force -s - $LIBGFORTRAN
     # Set LINKER_OPT after vckpg_compilation.sh because it also sets LINKER_OPT
     export LINKER_OPT="$LINKER_OPT -L$OPENBLAS_LIB -lgfortran -L$GFORTRAN_LIB"
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
