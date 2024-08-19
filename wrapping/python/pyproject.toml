@@ -62,10 +62,8 @@ root = "../../"
 local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
-# 3.9 is the only wheel NumPy ships for PyPy (and not on ARM64) as of 2024/05/20
-skip = ["pp310*", "pp*-win_*", "*-musllinux*", "pp*-macosx_arm64", "pp*-manylinux_aarch64", "cp313-*"]
+skip = ["*-musllinux*", "pp*-manylinux_aarch64"]
 archs = "native"
-build-verbosity = 3
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2.0.0rc1,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
 test-requires = [
