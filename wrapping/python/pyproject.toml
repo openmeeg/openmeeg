@@ -5,7 +5,7 @@ dynamic = ["version"]
 maintainers = [{ name="Alexandre Gramfort", email = "alexandre.gramfort@inria.fr" }]
 license= { text = "CECILL-B" }
 readme = { file = "README.rst", content-type = "text/x-rst" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "neuroscience",
     "neuroimaging",
