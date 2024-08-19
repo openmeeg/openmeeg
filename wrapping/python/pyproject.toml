@@ -62,7 +62,8 @@ root = "../../"
 local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
-skip = ["*-musllinux*", "pp*-manylinux_aarch64"]
+# pp310 should in principle work but in practice it doesn't
+skip = ["pp*", "*-musllinux*", "pp*-manylinux_aarch64"]
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2.0.0rc1,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
