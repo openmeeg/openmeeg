@@ -284,9 +284,13 @@ jobs:
         # cmake --build build --config Release
         # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
         #
-        # 2024.2.0 problematic on Windows, see
+        # >=2024.2.0 problematic on Windows, see
         # https://github.com/openmeeg/openmeeg/actions/runs/9844278326/job/27177300969?pr=675
-        conda install -c conda-forge -q "mkl-devel!=2024.2.0"
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          conda install -c conda-forge -q "mkl-devel<2024.2.0"
+        else
+          conda install -c conda-forge -q mkl-devel
+        fi
         echo "$CONDA_PREFIX/lib/*mkl*:"
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
