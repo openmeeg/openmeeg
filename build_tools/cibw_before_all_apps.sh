@@ -112,7 +112,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
     source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
-    pip install delvewheel
+    pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     OPENBLAS_DLL=$(ls $OPENBLAS_LIB/libopenblas*.dll)
     echo "OPENBLAS_DLL=\"${OPENBLAS_DLL}\""
