@@ -245,7 +245,7 @@ jobs:
         pip --version
         python -m pip install --upgrade -q pip
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          EXTRA_PIP="delvewheel pytest<8.0.0"
+          EXTRA_PIP="delvewheel \"pefile!=2024.8.26\" pytest<8.0.0"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
           EXTRA_PIP="delocate pytest"
         else
