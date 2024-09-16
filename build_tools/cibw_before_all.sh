@@ -28,6 +28,7 @@ PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_s
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
 git checkout LICENSE.txt  # This file is modified by NumPy
+git config --global --add safe.directory "$ROOT"
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)"
 
