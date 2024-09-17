@@ -27,6 +27,7 @@ chmod +x ./tools/wheels/cibw_before_build.sh
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
+git config --global --add safe.directory "$ROOT"
 git checkout LICENSE.txt  # This file is modified by NumPy
 rm -Rf .ccache gfortran.dmg gfortran-darwin-arm64.tar.gz openblas-v*.zip
 git status --porcelain --untracked-files=no
