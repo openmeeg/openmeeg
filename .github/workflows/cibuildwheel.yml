@@ -71,7 +71,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.arch }}-0
-      - uses: pypa/cibuildwheel@v2.20.0
+      - uses: pypa/cibuildwheel@v2.21.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
