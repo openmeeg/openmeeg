@@ -29,9 +29,9 @@ env:
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
   build_wheels:
-    continue-on-error: true
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         # macos-13 is an intel runner, macos-14 is apple silicon
         include:

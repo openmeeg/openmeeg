@@ -22,7 +22,6 @@ env:
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
   apps:
-    continue-on-error: false
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:

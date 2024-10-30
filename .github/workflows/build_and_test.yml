@@ -23,9 +23,9 @@ defaults:
 jobs:
 
   build:
-    continue-on-error: true
     timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         # By default, all builds use:
         # - OpenBLAS
