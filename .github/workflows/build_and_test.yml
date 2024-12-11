@@ -344,12 +344,14 @@ jobs:
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
         echo "Installing dependencies with brew"
-        brew update > /dev/null
+        echo "::group::brew update"
+        brew update
+        echo "::endgroup::"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
         echo "Installing dependencies with brew"
-        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
@@ -621,3 +623,4 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       with:
         files: coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}

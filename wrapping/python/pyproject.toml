@@ -91,7 +91,7 @@ environment = { OPENMEEG_USE_SWIG="0" }
 [[tool.cibuildwheel.overrides]]
 select = "*-win_*"
 test-requires = [
-    "pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.1.1,!=8.1.2,!=8.2.0,!=8.2.1,!=8.2.2,!=8.3.0,!=8.3.1,!=8.3.2,!=8.3.3",
+    "pytest<8.0.0",
     "threadpoolctl",
 ]
 
