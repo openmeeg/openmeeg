@@ -203,6 +203,7 @@ namespace OpenMEEG {
     // Creator of Vector from PyArrayObject or Vector
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
+
         if (pyobj && PyArray_Check(pyobj)) {
             PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
             const size_t nelem = PyArray_DIM(vect,0);
@@ -353,36 +354,6 @@ namespace OpenMEEG {
         }
     }
 %}
-
-// /////////////////////////////////////////////////////////////////
-// Typemaps
-// /////////////////////////////////////////////////////////////////
-
-namespace OpenMEEG {
-
-    // Python -> C++
-    %typemap(in) Vector& {
-        $1 = new_OpenMEEG_Vector($input);
-    }
-
-    %typemap(freearg) Vector& {
-        if ($1) delete $1;
-    }
-
-    %typemap(in) Matrix& {
-        $1 = new_OpenMEEG_Matrix($input);
-    }
-
-    %typemap(freearg) Matrix& {
-        if ($1) delete $1;
-    }
-
-    // C++ -> Python
-
-    %typemap(out) unsigned& {
-        $result = PyInt_FromLong(*($1));
-    }
-}
 
 // /////////////////////////////////////////////////////////////////
 // extensions

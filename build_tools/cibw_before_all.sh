@@ -23,7 +23,7 @@ mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
 echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
 chmod +x ./tools/wheels/cibw_before_build.sh
-bash ./tools/wheels/cibw_before_build.sh $1
+./tools/wheels/cibw_before_build.sh $1
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
@@ -40,7 +40,6 @@ test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELA
 # win-amd64
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
-    ls -al /usr/local/lib
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
     yum -y install hdf5-devel matio-devel
