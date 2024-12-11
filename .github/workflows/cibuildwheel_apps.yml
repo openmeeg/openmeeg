@@ -72,7 +72,7 @@ jobs:
           output-dir: installers
         env:
           CIBW_ENVIRONMENT_LINUX: ""
-          CIBW_ENVIRONMENT_MACOS: "OPENMEEG_MACOS_WHEEL_PURE=false"
+          CIBW_ENVIRONMENT_MACOS: ""
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"
           CIBW_BUILD_FRONTEND: "pip"

@@ -351,7 +351,7 @@ jobs:
           BREW_EXTRA=openblas
         fi
         echo "Installing dependencies with brew"
-        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then

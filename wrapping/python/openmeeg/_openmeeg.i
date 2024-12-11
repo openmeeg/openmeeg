@@ -1,5 +1,9 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
+%begin %{
+#define Py_LIMITED_API 0x03100000
+%}
+
 %feature("autodoc", "1");
 
 %inline %{
