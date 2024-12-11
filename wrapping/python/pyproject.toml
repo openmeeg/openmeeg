@@ -80,8 +80,8 @@ repair-wheel-command = [
     "auditwheel repair -w {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment-pass = ["RUNNER_OS"]
-environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+environment-pass = ["CHECK_PORCELAIN"]  # for local debugging, set CHECK_PORCELAIN=false
 
 [tool.cibuildwheel.macos]
 repair-wheel-command = [

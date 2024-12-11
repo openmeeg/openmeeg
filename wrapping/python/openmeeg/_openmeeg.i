@@ -574,7 +574,7 @@ namespace OpenMEEG {
             PyObject* name = PyList_GetItem(item,0);
             if (name==nullptr || !PyUnicode_Check(name))
                 throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
-            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
+            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8AndSize(name, nullptr));  // Since 3.10
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);

@@ -44,13 +44,14 @@ if __name__ == "__main__":
         swig_opts = [
             "-c++",
             "-v",
-            "-O",
             "-module",
             "_openmeeg_wrapper",
             "-interface",
             "_openmeeg",
             "-modern",
-        ]  # TODO: , '-Werror']
+           # TODO:
+           # "-Werror",
+        ]
         library_dirs = []
         openmeeg_include = os.getenv("OPENMEEG_INCLUDE")
         if openmeeg_include is not None:
@@ -102,9 +103,8 @@ if __name__ == "__main__":
             py_limited_api=True,
         )
         ext_modules.append(swig_openmeeg)
-        cmdclass = dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3)
 
     setup(
-        cmdclass=cmdclass,
+        cmdclass=dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3),
         ext_modules=ext_modules,
     )
