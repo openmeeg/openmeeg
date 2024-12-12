@@ -160,36 +160,6 @@ namespace OpenMEEG {
     %typedef std::vector<OrientedMesh>       OrientedMeshes;
 }
 
-// /////////////////////////////////////////////////////////////////
-// Typemaps (these make it so we cannot use abi3 mode)
-// /////////////////////////////////////////////////////////////////
-
-namespace OpenMEEG {
-
-    // Python -> C++
-    %typemap(in) Vector& {
-        $1 = new_OpenMEEG_Vector($input);
-    }
-
-    %typemap(freearg) Vector& {
-        if ($1) delete $1;
-    }
-
-    %typemap(in) Matrix& {
-        $1 = new_OpenMEEG_Matrix($input);
-    }
-
-    %typemap(freearg) Matrix& {
-        if ($1) delete $1;
-    }
-
-    // C++ -> Python
-
-    %typemap(out) unsigned& {
-        $result = PyInt_FromLong(*($1));
-    }
-}
-
 namespace OpenMEEG {
 
     %naturalvar Logger;
@@ -386,6 +356,36 @@ namespace OpenMEEG {
         }
     }
 %}
+
+// /////////////////////////////////////////////////////////////////
+// Typemaps (these make it so we cannot use abi3 mode)
+// /////////////////////////////////////////////////////////////////
+
+namespace OpenMEEG {
+
+    // Python -> C++
+    %typemap(in) Vector& {
+        $1 = new_OpenMEEG_Vector($input);
+    }
+
+    %typemap(freearg) Vector& {
+        if ($1) delete $1;
+    }
+
+    %typemap(in) Matrix& {
+        $1 = new_OpenMEEG_Matrix($input);
+    }
+
+    %typemap(freearg) Matrix& {
+        if ($1) delete $1;
+    }
+
+    // C++ -> Python
+
+    %typemap(out) unsigned& {
+        $result = PyInt_FromLong(*($1));
+    }
+}
 
 // /////////////////////////////////////////////////////////////////
 // extensions
