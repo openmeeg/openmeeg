@@ -32,6 +32,7 @@ class bdist_wheel_abi3(bdist_wheel):
         super().finalize_options()
         self.root_is_pure = False
 
+
 # Subclass the build command so that build_ext is called before build_py
 class BuildExtFirst(build_py.build_py):
     def run(self):
@@ -107,16 +108,16 @@ if __name__ == "__main__":
         #     /c /nologo /O2 /W3 /GL /DNDEBUG /MD
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
+        define_macros = [("SWIG_PYTHON_SILENT_MEMLEAK", None)]
         abi3_kwargs = dict()
         if abi3:
-            abi3_kwargs["py_limited_api"] = True
-            abi3_kwargs["define_macros"] = [("Py_LIMITED_API", "0x030A0000")]  # 3.10
+            define_macros += [("Py_LIMITED_API", "0x030A0000")]  # 3.10
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
             sources=["openmeeg/_openmeeg.i"],
             libraries=["OpenMEEG"],
             swig_opts=swig_opts,
-            define_macros=[("SWIG_PYTHON_SILENT_MEMLEAK", None)],
+            define_macros=define_macros,
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
