@@ -19,6 +19,10 @@ if [[ "$KIND" != "wheel" ]] && [[ "$KIND" != "app" ]]; then
 fi
 cd $1
 ROOT=$(pwd)
+if [[ -n "$RUNNER_OS" ]]; then
+    echo "RUNNER_OS is empty, it must be present in the environment"
+    exit 1
+fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
 # Let's have NumPy help us out
