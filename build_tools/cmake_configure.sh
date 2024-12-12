@@ -44,4 +44,4 @@ cmake -B build \
       -DTEST_HEAD3=ON \
       "$@"  # any additional args to this script
 set +x
-echo "::endgroup"
+echo "::endgroup::"

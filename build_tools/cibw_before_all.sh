@@ -85,11 +85,11 @@ export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
-echo "::endgroup"
+echo "::endgroup::"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 echo "::group::cmake --build"
 cmake --build build --target install --target package --config release
-echo "::endgroup"
+echo "::endgroup::"
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
