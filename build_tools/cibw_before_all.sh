@@ -19,7 +19,7 @@ if [[ "$KIND" != "wheel" ]] && [[ "$KIND" != "app" ]]; then
 fi
 cd $1
 ROOT=$(pwd)
-if [[ -n "$RUNNER_OS" ]]; then
+if [ -z "$RUNNER_OS" ]; then
     echo "RUNNER_OS is empty, it must be present in the environment"
     exit 1
 fi
