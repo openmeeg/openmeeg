@@ -1,8 +1,8 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-// To use abi3 mode, we need to use the following directive
+// To use abi3 mode, we need to use the following directive (3.10 in hex)
 %begin %{
-#define Py_LIMITED_API 0x03100000
+#define Py_LIMITED_API 0x030A0000
 %}
 
 // TODO: Should use modern macros https://numpy.org/doc/stable/reference/swig.interface-file.html#macros

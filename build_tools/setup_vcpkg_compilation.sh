@@ -4,6 +4,8 @@
 DIR=$(dirname "${BASH_SOURCE[0]}")
 cd $DIR/..
 
+echo "::group::setup_vcpkg_compilation"
+
 if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows"
 fi
@@ -78,3 +80,5 @@ if [[ "$USE_CYGPATH" == "1" ]]; then
 fi
 echo "Checking for CMAKE_TOOLCHAIN_FILE=\"$CMAKE_TOOLCHAIN_CHECK\""
 test -f "$CMAKE_TOOLCHAIN_CHECK"
+
+echo "::endgroup::"

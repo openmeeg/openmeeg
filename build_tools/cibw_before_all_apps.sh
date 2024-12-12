@@ -41,9 +41,11 @@ test -z "$(git status --porcelain --untracked-files=no)"
 # win-amd64
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
+    echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
     yum -y install curl zip unzip tar ninja-build
+    echo "::endgroup::"
     export OPENBLAS_INCLUDE=/usr/local/include
     export OPENBLAS_LIB=/usr/local/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
@@ -126,7 +128,9 @@ fi
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
+echo "::group::pip"
 pip install cmake
+echo "::endgroup::"
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --config release
@@ -135,7 +139,9 @@ if [[ "${PLATFORM}" == 'macosx-'* ]]; then
         install_name_tool -change "${LIBGFORTRAN}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
     done
 fi
+echo "::group::cmake --build"
 cmake --build build --target package --target install --config release
+echo "::endgroup::"
 mkdir -p installers
 cp -av build/OpenMEEG-*-*.* installers/
 
