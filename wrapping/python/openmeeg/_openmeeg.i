@@ -4,6 +4,8 @@
 #define Py_LIMITED_API 0x03100000
 %}
 
+// TODO: Should use modern macros https://numpy.org/doc/stable/reference/swig.interface-file.html#macros
+
 %feature("autodoc", "1");
 
 %inline %{
@@ -194,6 +196,9 @@ namespace OpenMEEG {
 
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
+
+    %naturalvar Strings;
+    class Strings;
 }
 
 %inline %{
