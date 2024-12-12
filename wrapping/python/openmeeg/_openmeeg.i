@@ -1,8 +1,9 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-%begin %{
-#define Py_LIMITED_API 0x03100000
-%}
+// To use abi3 mode, we need to use the following directive (but typemaps do not work with it):
+//%begin %{
+//#define Py_LIMITED_API 0x03100000
+//%}
 
 // TODO: Should use modern macros https://numpy.org/doc/stable/reference/swig.interface-file.html#macros
 
@@ -159,6 +160,36 @@ namespace OpenMEEG {
     %typedef std::vector<OrientedMesh>       OrientedMeshes;
 }
 
+// /////////////////////////////////////////////////////////////////
+// Typemaps (these make it so we cannot use abi3 mode)
+// /////////////////////////////////////////////////////////////////
+
+namespace OpenMEEG {
+
+    // Python -> C++
+    %typemap(in) Vector& {
+        $1 = new_OpenMEEG_Vector($input);
+    }
+
+    %typemap(freearg) Vector& {
+        if ($1) delete $1;
+    }
+
+    %typemap(in) Matrix& {
+        $1 = new_OpenMEEG_Matrix($input);
+    }
+
+    %typemap(freearg) Matrix& {
+        if ($1) delete $1;
+    }
+
+    // C++ -> Python
+
+    %typemap(out) unsigned& {
+        $result = PyInt_FromLong(*($1));
+    }
+}
+
 namespace OpenMEEG {
 
     %naturalvar Logger;
@@ -196,9 +227,6 @@ namespace OpenMEEG {
 
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
-
-    %naturalvar Strings;
-    class Strings;
 }
 
 %inline %{
@@ -208,7 +236,6 @@ namespace OpenMEEG {
     // Creator of Vector from PyArrayObject or Vector
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
-
         if (pyobj && PyArray_Check(pyobj)) {
             PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
             const size_t nelem = PyArray_DIM(vect,0);

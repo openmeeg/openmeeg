@@ -13,7 +13,6 @@ def test_sensors(data_path):
     weights = np.array([0.5, 0.5])
     radii = np.array([1, 1])
     # Smoke test for this constructor
-    return
     print(om._openmeeg_wrapper.Strings(labels))
     s1 = om.Sensors(labels, positions, orientations, weights, radii)
     print("s1 =", s1)
