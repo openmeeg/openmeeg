@@ -31,7 +31,7 @@ cmake_policy(SET CMP0078 NEW)
 set(SWIG_TARGET_NAME "openmeeg")
 cmake_policy(SET CMP0086 NEW) # Use NEW policy and explicitly use SWIG_MODULE_NAME
 
-find_package(SWIG 4.2... REQUIRED)
+find_package(SWIG 4.2...9999 REQUIRED)
 
 # load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
 

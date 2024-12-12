@@ -47,6 +47,7 @@ requires = [
     "setuptools_scm>=6.2",
     "wheel>=0.37.0",
     "numpy>=2.0.0rc1,<3",
+    "swig>=4.2",
 ]
 
 [tool.setuptools]
