@@ -31,7 +31,7 @@ git config --global --add safe.directory "$ROOT"
 git checkout LICENSE.txt  # This file is modified by NumPy
 rm -Rf .ccache gfortran.dmg gfortran-darwin-arm64.tar.gz openblas-v*.zip
 git status --porcelain --untracked-files=no
-test -z "$(git status --porcelain --untracked-files=no)"
+test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
 # PLATFORM can be:
 # linux-x86_64
@@ -132,6 +132,7 @@ echo "::group::pip"
 pip install cmake
 echo "::endgroup::"
 export BLA_STATIC_OPT="-DBLA_STATIC=ON"
+export CMAKE_WARN_DEPRECATED=FALSE  # really annoying warnings from vcpkg make logs unreadable
 ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
 cmake --build build --config release
 if [[ "${PLATFORM}" == 'macosx-'* ]]; then

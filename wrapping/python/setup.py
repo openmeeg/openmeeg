@@ -13,19 +13,24 @@ from setuptools.command import build_py
 from wheel.bdist_wheel import bdist_wheel
 
 
+abi3 = (platform.python_implementation() == "CPython")
+
+
 # Adapted from Apache-2.0 licensed code at:
 # https://github.com/joerick/python-abi3-package-sample/blob/main/setup.py
 
 class bdist_wheel_abi3(bdist_wheel):
     def get_tag(self):
         python, abi, plat = super().get_tag()
-
-        if python.startswith("cp"):
-            # on CPython, our wheels are abi3 and compatible back to 3.6
-            return "cp310", "abi3", plat
-
+        if abi3:
+            python, abi = "cp310", "abi3"
         return python, abi, plat
 
+    # In cases where we don't SWIG, we still want to mark the wheel as impure
+    # (to make things nicer for app building)
+    def finalize_options(self):
+        super().finalize_options()
+        self.root_is_pure = False
 
 # Subclass the build command so that build_ext is called before build_py
 class BuildExtFirst(build_py.build_py):
@@ -102,6 +107,10 @@ if __name__ == "__main__":
         #     /c /nologo /O2 /W3 /GL /DNDEBUG /MD
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
+        abi3_kwargs = dict()
+        if abi3:
+            abi3_kwargs["py_limited_api"] = True
+            abi3_kwargs["define_macros"] = [("Py_LIMITED_API", "0x030A0000")]  # 3.10
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
             sources=["openmeeg/_openmeeg.i"],
@@ -111,7 +120,7 @@ if __name__ == "__main__":
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
-            py_limited_api=True,
+            py_limited_api=abi3,
         )
         ext_modules.append(swig_openmeeg)
 
