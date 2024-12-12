@@ -76,7 +76,7 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"  # same as default, but just in case we add PyPy in the future
           CIBW_BUILD_FRONTEND: "pip"
-          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"
+          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all.sh {project} app"
           CIBW_BEFORE_BUILD_WINDOWS: ""
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""

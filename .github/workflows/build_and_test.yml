@@ -61,7 +61,7 @@ jobs:
           python: cmake
           windows_compiler: msvc
           slow: false
-        - os: macos-13
+        - os: macos-15
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -93,9 +93,6 @@ jobs:
           blas_linking: static
         - os: ubuntu-20.04
           blas: mkl-findblas
-        - os: macos-13
-          blas: mkl-findblas  # only available on Intel
-          blas_linking: static
         # One without Python but with VTK (once we fix it!)
         - os: ubuntu-22.04
           python: no-python
