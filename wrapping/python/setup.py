@@ -13,15 +13,18 @@ from setuptools.command import build_py
 from wheel.bdist_wheel import bdist_wheel
 
 
-# If we ever want abi3 wheels we can adapt Apache-2.0 licensed code at:
+# Adapted from Apache-2.0 licensed code at:
 # https://github.com/joerick/python-abi3-package-sample/blob/main/setup.py
 
-class bdist_wheel_impure(bdist_wheel):
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
 
-    def finalize_options(self):
-        super().finalize_options()
-        # Mark us as not a pure python package
-        self.root_is_pure = False
+        if python.startswith("cp"):
+            # on CPython, our wheels are abi3 and compatible back to 3.6
+            return "cp36", "abi3", plat
+
+        return python, abi, plat
 
 
 # Subclass the build command so that build_ext is called before build_py
@@ -35,7 +38,7 @@ if __name__ == "__main__":
     import numpy as np
 
     # SWIG
-    cmdclass = dict(build_py=BuildExtFirst)
+    cmdclass = dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3)
     ext_modules = []
     if os.getenv("OPENMEEG_USE_SWIG", "0").lower() in ("1", "true"):
         include_dirs = [np.get_include()]
@@ -47,8 +50,18 @@ if __name__ == "__main__":
             "-interface",
             "_openmeeg",
             "-modern",
-           # TODO:
-           # "-Werror",
+            # -O is problematic for abi3 because it enables "-fastproxy" which leads to
+            # linking errors. However, "-fastdispatch" is needed to create our
+            # typemaps, which seems like a bug (?) but doesn't create any ABI3 compat
+            # issues.
+            "-fastdispatch",
+            # Someday we could look at other options like:
+            # "-extranative",  # Return extra native wrappers for C++ std containers wherever possible
+            # "-castmode",  # Enable the casting mode, which allows implicit cast between types in Python
+            # "-flatstaticmethod",  # Generate additional flattened Python methods for C++ static methods
+            # "-olddefs",  # Keep the old method definitions when using -fastproxy
+            # TODO someday we should add:
+            # "-Werror",
         ]
         library_dirs = []
         openmeeg_include = os.getenv("OPENMEEG_INCLUDE")
@@ -98,14 +111,10 @@ if __name__ == "__main__":
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
-            # py_limited_api=True,  # for abi3 mode
+            py_limited_api=abi3,
         )
         ext_modules.append(swig_openmeeg)
-    else:  # built with -DENABLE_PYTHON=ON
-        if sys.platform != "darwin" or os.getenv(
-            "OPENMEEG_MACOS_WHEEL_PURE", "true"
-        ).lower() in ("false", "0"):
-            cmdclass["bdist_wheel"] = bdist_wheel_impure
+
     setup(
         cmdclass=cmdclass,
         ext_modules=ext_modules,

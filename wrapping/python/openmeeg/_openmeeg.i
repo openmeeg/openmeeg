@@ -1,9 +1,9 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-// To use abi3 mode, we need to use the following directive (but typemaps do not work with it):
-//%begin %{
-//#define Py_LIMITED_API 0x03100000
-//%}
+// To use abi3 mode, we need to use the following directive
+%begin %{
+#define Py_LIMITED_API 0x03100000
+%}
 
 // TODO: Should use modern macros https://numpy.org/doc/stable/reference/swig.interface-file.html#macros
 
@@ -358,7 +358,7 @@ namespace OpenMEEG {
 %}
 
 // /////////////////////////////////////////////////////////////////
-// Typemaps (these make it so we cannot use abi3 mode)
+// Typemaps
 // /////////////////////////////////////////////////////////////////
 
 namespace OpenMEEG {
