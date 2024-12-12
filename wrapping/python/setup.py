@@ -13,18 +13,15 @@ from setuptools.command import build_py
 from wheel.bdist_wheel import bdist_wheel
 
 
-# Adapted from Apache-2.0 licensed code at:
+# If we ever want abi3 wheels we can adapt Apache-2.0 licensed code at:
 # https://github.com/joerick/python-abi3-package-sample/blob/main/setup.py
 
-class bdist_wheel_abi3(bdist_wheel):
-    def get_tag(self):
-        python, abi, plat = super().get_tag()
+class bdist_wheel_impure(bdist_wheel):
 
-        if python.startswith("cp"):
-            # on CPython, our wheels are abi3 and compatible back to 3.10
-            return "cp310", "abi3", plat
-
-        return python, abi, plat
+    def finalize_options(self):
+        super().finalize_options()
+        # Mark us as not a pure python package
+        self.root_is_pure = False
 
 
 # Subclass the build command so that build_ext is called before build_py
@@ -38,6 +35,7 @@ if __name__ == "__main__":
     import numpy as np
 
     # SWIG
+    cmdclass = dict(build_py=BuildExtFirst)
     ext_modules = []
     if os.getenv("OPENMEEG_USE_SWIG", "0").lower() in ("1", "true"):
         include_dirs = [np.get_include()]
@@ -100,11 +98,15 @@ if __name__ == "__main__":
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
-            py_limited_api=True,
+            # py_limited_api=True,  # for abi3 mode
         )
         ext_modules.append(swig_openmeeg)
-
+    else:  # built with -DENABLE_PYTHON=ON
+        if sys.platform != "darwin" or os.getenv(
+            "OPENMEEG_MACOS_WHEEL_PURE", "true"
+        ).lower() in ("false", "0"):
+            cmdclass["bdist_wheel"] = bdist_wheel_impure
     setup(
-        cmdclass=dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3),
+        cmdclass=cmdclass,
         ext_modules=ext_modules,
     )
