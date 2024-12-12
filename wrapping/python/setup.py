@@ -111,7 +111,7 @@ if __name__ == "__main__":
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
-            py_limited_api=abi3,
+            py_limited_api=True,
         )
         ext_modules.append(swig_openmeeg)
 
