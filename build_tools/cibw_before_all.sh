@@ -10,7 +10,7 @@ if [[ "$1" == "" ]]; then
 fi
 KIND=$2
 if [[ "$KIND" == "" ]]; then
-    $KIND=wheel
+    KIND=wheel
 fi
 if [[ "$KIND" != "wheel" ]] && [[ "$KIND" != "app" ]]; then
     echo "Usage $0 <PROJECT_PATH> <KIND>"
