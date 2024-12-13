@@ -18,7 +18,7 @@ env:
 
 defaults:
   run:
-    shell: bash -el {0}
+    shell: bash -o pipefail -el {0}
 
 jobs:
 
@@ -61,6 +61,11 @@ jobs:
           python: cmake
           windows_compiler: msvc
           slow: false
+        - os: macos-15
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          slow: false
         - os: macos-13
           blas: OpenBLAS
           blas_linking: dynamic
@@ -93,9 +98,6 @@ jobs:
           blas_linking: static
         - os: ubuntu-20.04
           blas: mkl-findblas
-        - os: macos-13
-          blas: mkl-findblas  # only available on Intel
-          blas_linking: static
         # One without Python but with VTK (once we fix it!)
         - os: ubuntu-22.04
           python: no-python
@@ -265,7 +267,7 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl $EXTRA_PIP
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl "swig>=4.2" $EXTRA_PIP
 
 
     - name: MKL setup - mkl via conda
@@ -344,12 +346,14 @@ jobs:
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
         echo "Installing dependencies with brew"
-        brew update > /dev/null
+        echo "::group::brew update"
+        brew update
+        echo "::endgroup::"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
         echo "Installing dependencies with brew"
-        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig $BREW_EXTRA
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
@@ -564,26 +568,40 @@ jobs:
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         ls -alR dist/*.whl
-        unzip dist/*.whl -d check
+        FNAME=$(ls dist/*.whl)
+        echo "Processing $FNAME"
+        test -n "$FNAME"
+        test -f "$FNAME"
+        unzip "$FNAME" -d check
         echo "Contents before:"
         ls -alR check/*
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show "$FNAME"
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
-          delocate-wheel -v dist/*.whl
-          delocate-listdeps --all dist/*.whl
+          length=${#FNAME}
+          ORIG_FNAME="${FNAME::length-4}.orig"
+          cp -a "$FNAME" "$ORIG_FNAME"
+          # TODO: This is broken for our abi3 wheel
+          # delocate-wheel -v "$FNAME"
+          # This can change thename of the wheel so we need to re-find it
+          FNAME=$(ls dist/*.whl)
+          test -f "$FNAME"
+          mv "$ORIG_FNAME" "${ORIG_FNAME}.whl"
+          delocate-listdeps --all "$FNAME"
         # This build uses a toolchain that is too new, so skip this on Linux
         # else
-        #   auditwheel show dist/*.whl
-        #   auditwheel repair dist/*.whl
+        #   auditwheel show "$FNAME"
+        #   auditwheel repair "$FNAME"
+        #   FNAME=$(ls dist/*.whl)
+        #   test -f "$FNAME"
         fi
         rm -Rf check
-        unzip dist/*.whl -d check
+        unzip "$FNAME" -d check
         echo "Contents after:"
         ls -alR check/*
         twine check dist/*
-        pip install dist/*.whl --force-reinstall
+        pip install "$FNAME" --force-reinstall
         if [[ "${{ steps.env-vars.outputs.numpy_version }}" == "oldest" ]]; then
           pip install --only-binary "numpy" "numpy<2"
         fi
@@ -597,7 +615,7 @@ jobs:
         fi
 
     - name: Upload wrapped Python lib
-      if: startswith(steps.env-vars.outputs.python, 'python')
+      if: startswith(steps.env-vars.outputs.python, 'python') && (success() || failure())
       uses: actions/upload-artifact@v4
       with:
         name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
@@ -621,3 +639,4 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       with:
         files: coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}

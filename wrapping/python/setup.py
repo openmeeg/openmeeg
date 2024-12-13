@@ -10,20 +10,27 @@ import sys
 
 from setuptools import setup, Extension  # noqa
 from setuptools.command import build_py
+from wheel.bdist_wheel import bdist_wheel
 
-# Adapted from MIT-licensed
-# https://github.com/Yelp/dumb-init/blob/48db0c0d0ecb4598d1a6400710445b85d67616bf/setup.py#L11-L27  # noqa
-try:
-    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
-    class bdist_wheel(_bdist_wheel):
-        def finalize_options(self):
-            _bdist_wheel.finalize_options(self)
-            # Mark us as not a pure python package
-            self.root_is_pure = False
+abi3 = (platform.python_implementation() == "CPython")
 
-except ImportError:
-    bdist_wheel = None  # noqa
+
+# Adapted from Apache-2.0 licensed code at:
+# https://github.com/joerick/python-abi3-package-sample/blob/main/setup.py
+
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
+        if abi3:
+            python, abi = "cp310", "abi3"
+        return python, abi, plat
+
+    # In cases where we don't SWIG, we still want to mark the wheel as impure
+    # (to make things nicer for app building)
+    def finalize_options(self):
+        super().finalize_options()
+        self.root_is_pure = False
 
 
 # Subclass the build command so that build_ext is called before build_py
@@ -37,20 +44,31 @@ if __name__ == "__main__":
     import numpy as np
 
     # SWIG
-    cmdclass = dict(build_py=BuildExtFirst)
+    cmdclass = dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3)
     ext_modules = []
     if os.getenv("OPENMEEG_USE_SWIG", "0").lower() in ("1", "true"):
         include_dirs = [np.get_include()]
         swig_opts = [
             "-c++",
             "-v",
-            "-O",
             "-module",
             "_openmeeg_wrapper",
             "-interface",
             "_openmeeg",
             "-modern",
-        ]  # TODO: , '-Werror']
+            # -O is problematic for abi3 because it enables "-fastproxy" which leads to
+            # linking errors. However, "-fastdispatch" is needed to create our
+            # typemaps, which seems like a bug (?) but doesn't create any ABI3 compat
+            # issues.
+            "-fastdispatch",
+            # Someday we could look at other options like:
+            # "-extranative",  # Return extra native wrappers for C++ std containers wherever possible
+            # "-castmode",  # Enable the casting mode, which allows implicit cast between types in Python
+            # "-flatstaticmethod",  # Generate additional flattened Python methods for C++ static methods
+            # "-olddefs",  # Keep the old method definitions when using -fastproxy
+            # TODO someday we should add:
+            # "-Werror",
+        ]
         library_dirs = []
         openmeeg_include = os.getenv("OPENMEEG_INCLUDE")
         if openmeeg_include is not None:
@@ -90,22 +108,22 @@ if __name__ == "__main__":
         #     /c /nologo /O2 /W3 /GL /DNDEBUG /MD
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
+        define_macros = [("SWIG_PYTHON_SILENT_MEMLEAK", None)]
+        abi3_kwargs = dict()
+        if abi3:
+            define_macros += [("Py_LIMITED_API", "0x030A0000")]  # 3.10
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
             sources=["openmeeg/_openmeeg.i"],
             libraries=["OpenMEEG"],
             swig_opts=swig_opts,
-            define_macros=[("SWIG_PYTHON_SILENT_MEMLEAK", None)],
+            define_macros=define_macros,
             extra_compile_args=extra_compile_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
+            py_limited_api=abi3,
         )
         ext_modules.append(swig_openmeeg)
-    else:  # built with -DENABLE_PYTHON=ON
-        if sys.platform != "darwin" or os.getenv(
-            "OPENMEEG_MACOS_WHEEL_PURE", "true"
-        ).lower() in ("false", "0"):
-            cmdclass["bdist_wheel"] = bdist_wheel
 
     setup(
         cmdclass=cmdclass,

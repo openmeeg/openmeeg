@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.14)
-project (OpenMEEG VERSION 2.5.12 LANGUAGES C CXX)
+project (OpenMEEG VERSION 2.5.13 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)  # use c++17
 

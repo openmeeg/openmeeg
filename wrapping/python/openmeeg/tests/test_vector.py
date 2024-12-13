@@ -20,7 +20,9 @@ def test_vector():
     print("W2 of", W2.__class__)
     print("W2 =", W2, "\n")
 
-    V2 = _omc.Vector(W2, _omc.DEEP_COPY)
+    V1p5 = _omc.Vector(_omc.Vector(W2), _omc.DEEP_COPY)
+    V1p5.info()
+    V2 = _omc.Vector(W2, _omc.DEEP_COPY)  # typemap
     print("V2 of", V2.__class__)
     V2.info()
 

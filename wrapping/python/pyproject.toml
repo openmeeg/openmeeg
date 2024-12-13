@@ -47,6 +47,7 @@ requires = [
     "setuptools_scm>=6.2",
     "wheel>=0.37.0",
     "numpy>=2.0.0rc1,<3",
+    "swig>=4.2",
 ]
 
 [tool.setuptools]
@@ -64,9 +65,10 @@ local_scheme = "no-local-version"  # to allow TestPyPI uploads
 [tool.cibuildwheel]
 # pp310 should in principle work but in practice it doesn't
 skip = ["pp*", "*-musllinux*", "pp*-manylinux_aarch64"]
+build = ["cp310-*"]  # abi3
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
-before-build = "pip install --only-binary=numpy \"numpy>=2.0.0rc1,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
+before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
 test-requires = [
     "pytest",
     "threadpoolctl",
@@ -74,24 +76,36 @@ test-requires = [
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]
-repair-wheel-command = "auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}"
-environment-pass = ["RUNNER_OS"]
-environment = { OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+repair-wheel-command = [
+    "auditwheel show {wheel}",
+    "auditwheel repair -w {dest_dir} {wheel}",
+    "pipx run abi3audit --strict --report {wheel}",
+]
+environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+# for local debugging, set CHECK_PORCELAIN=false. We also pass RUNNER_OS to make app
+# building easier (we can just clear the env there).
+environment-pass = ["RUNNER_OS", "CHECK_PORCELAIN"]
 
 [tool.cibuildwheel.macos]
-repair-wheel-command = "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}"
+repair-wheel-command = [
+    "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}",
+    "pipx run abi3audit --strict --report {wheel}",
+]
 environment = { OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include", MACOSX_DEPLOYMENT_TARGET="10.15" }
 
 [tool.cibuildwheel.windows]
 before-build = "bash {project}/build_tools/cibw_before_build_windows.sh {project}"
-repair-wheel-command = "bash %GITHUB_WORKSPACE%/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}"
+repair-wheel-command = [
+    "bash %GITHUB_WORKSPACE%/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}",
+    "pipx run abi3audit --strict --report {wheel}",
+]
 environment = { OPENMEEG_USE_SWIG="0" }
 
 # pytest 8.0: https://github.com/pytest-dev/pytest/issues/11884
 [[tool.cibuildwheel.overrides]]
 select = "*-win_*"
 test-requires = [
-    "pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.1.1,!=8.1.2,!=8.2.0,!=8.2.1,!=8.2.2,!=8.3.0,!=8.3.1,!=8.3.2,!=8.3.3",
+    "pytest!=8.0.0,!=8.0.1,!=8.0.2,!=8.1.1,!=8.1.2,!=8.2.0,!=8.2.1,!=8.2.2,!=8.3.0,!=8.3.1,!=8.3.2,!=8.3.3,!=8.3.4",
     "threadpoolctl",
 ]
 

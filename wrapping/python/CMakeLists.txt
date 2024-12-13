@@ -31,7 +31,7 @@ cmake_policy(SET CMP0078 NEW)
 set(SWIG_TARGET_NAME "openmeeg")
 cmake_policy(SET CMP0086 NEW) # Use NEW policy and explicitly use SWIG_MODULE_NAME
 
-find_package(SWIG REQUIRED)
+find_package(SWIG 4.2 REQUIRED COMPONENTS python)  # 4.2 or later
 
 # load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
 
@@ -41,7 +41,7 @@ else()
     include(${SWIG_USE_FILE})
 endif()
 
-list(APPEND CMAKE_SWIG_FLAGS -v -O)
+list(APPEND CMAKE_SWIG_FLAGS -v -fastdispatch)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/

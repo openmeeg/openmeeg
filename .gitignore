@@ -18,3 +18,5 @@ coverage.info
 .vscode/
 Testing/
 .ccache/
+installers/
+wheelhouse/

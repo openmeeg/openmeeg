@@ -16,6 +16,7 @@ if [[ "${DISABLE_CCACHE}" != "1" ]]; then
     C_COMPILER_LAUNCHER_OPT="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
 fi
 
+echo "::group:cmake configure"
 set -x
 cmake -B build \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
@@ -43,3 +44,4 @@ cmake -B build \
       -DTEST_HEAD3=ON \
       "$@"  # any additional args to this script
 set +x
+echo "::endgroup::"

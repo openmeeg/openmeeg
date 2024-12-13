@@ -34,7 +34,7 @@ jobs:
         gcc --version
     - name: Install NumPy
       run: |
-        pip install --upgrade --user --pre "numpy>=2.0.0b1,<3" setuptools setuptools_scm
+        pip install --upgrade --user --pre "numpy>=2.0.0b1,<3" setuptools setuptools_scm "swig>=4.2"
     - name: Configure
       run: |
         export DISABLE_CCACHE=1
