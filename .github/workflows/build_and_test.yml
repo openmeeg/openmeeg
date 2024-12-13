@@ -580,13 +580,20 @@ jobs:
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
           length=${#FNAME}
-          cp -a "$FNAME" "${FNAME::length-4}.orig.whl"
+          ORIG_FNAME="${FNAME::length-4}.orig"
+          cp -a "$FNAME" "$ORIG_FNAME"
           delocate-wheel -v "$FNAME"
+          # This can change thename of the wheel so we need to re-find it
+          FNAME=$(ls dist/*.whl)
+          test -f "$FNAME"
+          mv "$ORIG_FNAME" "${ORIG_FNAME}.whl"
           delocate-listdeps --all "$FNAME"
         # This build uses a toolchain that is too new, so skip this on Linux
         # else
         #   auditwheel show "$FNAME"
         #   auditwheel repair "$FNAME"
+        #   FNAME=$(ls dist/*.whl)
+        #   test -f "$FNAME"
         fi
         rm -Rf check
         unzip "$FNAME" -d check
