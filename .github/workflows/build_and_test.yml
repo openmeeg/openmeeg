@@ -66,6 +66,11 @@ jobs:
           blas_linking: dynamic
           python: cmake
           slow: false
+        - os: macos-13
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          slow: false
         # Latest OpenBLAS release
         - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
@@ -570,6 +575,11 @@ jobs:
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist dist/*.whl
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
+          FNAME=$(ls dist/*.whl)
+          echo "Processing $FNAME"
+          test -n "$FNAME"
+          test -f "$FNAME"
+          cp -a $FNAME ${FNAME::-4}.orig.whl
           delocate-wheel -v dist/*.whl
           delocate-listdeps --all dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
@@ -596,7 +606,7 @@ jobs:
         fi
 
     - name: Upload wrapped Python lib
-      if: startswith(steps.env-vars.outputs.python, 'python')
+      if: startswith(steps.env-vars.outputs.python, 'python') && (success() || failure())
       uses: actions/upload-artifact@v4
       with:
         name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}

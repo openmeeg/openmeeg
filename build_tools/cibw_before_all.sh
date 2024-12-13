@@ -91,9 +91,11 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
         VC_NAME="x64"
         MIN_VER="10.15"
+        LIBGFORTRAN="/usr/local/gfortran/lib/libgfortran.3.dylib"
     elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
         VC_NAME="arm64"
         MIN_VER="11.0"
+        LIBGFORTRAN="$(find /opt/gfortran-darwin-arm64/lib -name libgfortran.dylib)"
     else
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
@@ -112,13 +114,11 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$LIBGFORTRAN"
         if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
             PACKAGE_ARCH_SUFFIX="_Intel"
-            LIBGFORTRAN="/usr/local/gfortran/lib/libgfortran.3.dylib"
             install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${LIBGFORTRAN}
             install_name_tool -change "${GFORTRAN_LIB}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${LIBGFORTRAN}
             LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.1.dylib;$GFORTRAN_LIB/libquadmath.0.dylib"
         else
             PACKAGE_ARCH_SUFFIX="_M1"
-            LIBGFORTRAN="$(find /opt/gfortran-darwin-arm64/lib -name libgfortran.dylib)"
             install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.2.dylib" "@rpath/libgcc_s.2.dylib" ${LIBGFORTRAN}
             LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.2.dylib"
             # Doesn't seem like this should be necessary but it is for the arm64 build
