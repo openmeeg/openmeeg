@@ -582,7 +582,8 @@ jobs:
           length=${#FNAME}
           ORIG_FNAME="${FNAME::length-4}.orig"
           cp -a "$FNAME" "$ORIG_FNAME"
-          delocate-wheel -v "$FNAME"
+          # TODO: This is broken for our abi3 wheel
+          # delocate-wheel -v "$FNAME"
           # This can change thename of the wheel so we need to re-find it
           FNAME=$(ls dist/*.whl)
           test -f "$FNAME"
