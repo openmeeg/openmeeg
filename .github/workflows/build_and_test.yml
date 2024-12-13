@@ -575,6 +575,12 @@ jobs:
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist dist/*.whl
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
+          FNAME=$(ls dist/*.whl)
+          echo "Processing $FNAME"
+          test -n "$FNAME"
+          test -f "$FNAME"
+          length=${#FNAME}
+          cp -a $FNAME ${FNAME::length-4}.orig.whl
           delocate-wheel -v dist/*.whl
           delocate-listdeps --all dist/*.whl
         # This build uses a toolchain that is too new, so skip this on Linux
