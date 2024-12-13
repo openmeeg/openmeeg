@@ -568,32 +568,32 @@ jobs:
         python setup.py bdist_wheel sdist
         echo "Wheels:"
         ls -alR dist/*.whl
-        unzip dist/*.whl -d check
+        FNAME=$(ls dist/*.whl)
+        echo "Processing $FNAME"
+        test -n "$FNAME"
+        test -f "$FNAME"
+        unzip "$FNAME" -d check
         echo "Contents before:"
         ls -alR check/*
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show dist/*.whl
-          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist dist/*.whl
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show "$FNAME"
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
-          FNAME=$(ls dist/*.whl)
-          echo "Processing $FNAME"
-          test -n "$FNAME"
-          test -f "$FNAME"
           length=${#FNAME}
-          cp -a $FNAME ${FNAME::length-4}.orig.whl
-          delocate-wheel -v dist/*.whl
-          delocate-listdeps --all dist/*.whl
+          cp -a "$FNAME" "${FNAME::length-4}.orig.whl"
+          delocate-wheel -v "$FNAME"
+          delocate-listdeps --all "$FNAME"
         # This build uses a toolchain that is too new, so skip this on Linux
         # else
-        #   auditwheel show dist/*.whl
-        #   auditwheel repair dist/*.whl
+        #   auditwheel show "$FNAME"
+        #   auditwheel repair "$FNAME"
         fi
         rm -Rf check
-        unzip dist/*.whl -d check
+        unzip "$FNAME" -d check
         echo "Contents after:"
         ls -alR check/*
         twine check dist/*
-        pip install dist/*.whl --force-reinstall
+        pip install "$FNAME" --force-reinstall
         if [[ "${{ steps.env-vars.outputs.numpy_version }}" == "oldest" ]]; then
           pip install --only-binary "numpy" "numpy<2"
         fi
