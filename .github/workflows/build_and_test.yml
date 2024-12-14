@@ -565,7 +565,6 @@ jobs:
           cp -a .git build/
           cd build/wrapping/python  # in build subdirectory
           echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
-        else
           export OPENMEEG_NO_ABI3=1
         fi
         pwd
