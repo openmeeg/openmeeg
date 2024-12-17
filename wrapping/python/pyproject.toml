@@ -50,13 +50,13 @@ requires = [
     "swig>=4.2",
 ]
 
-[tool.setuptools]
-zip-safe = false
-include-package-data = true  # the default but let's be explicit
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["openmeeg*"]
+
+# Keep generated .cpp file for informational and debugging purposes
+[tool.setuptools.package-data]
+openmeeg = ["*.pyi", "*.cpp"]
 
 [tool.setuptools_scm]
 root = "../../"

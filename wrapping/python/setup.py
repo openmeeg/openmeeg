@@ -111,7 +111,9 @@ if __name__ == "__main__":
         define_macros = [("SWIG_PYTHON_SILENT_MEMLEAK", None)]
         abi3_kwargs = dict()
         if abi3:
-            define_macros += [("Py_LIMITED_API", "0x030A0000")]  # 3.10
+            define_macros += [
+                ("Py_LIMITED_API", "0x030A0000"),  # 3.10
+            ]
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
             sources=["openmeeg/_openmeeg.i"],
