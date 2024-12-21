@@ -363,7 +363,7 @@ namespace OpenMEEG {
         void* ptr = 0 ;
         if ($input && PyArray_Check($input))
             $1 = 1;
-        else if SWIG_IsOK(SWIG_ConvertPtr($1,&ptr,$descriptor,SWIG_POINTER_EXCEPTION))
+        else if SWIG_IsOK(SWIG_ConvertPtr($input,&ptr,$descriptor,SWIG_POINTER_EXCEPTION))
             $1 = 1;
         else
             $1 = 0;
@@ -379,7 +379,7 @@ namespace OpenMEEG {
         void* ptr = 0 ;
         if ($input && PyArray_Check($input))
             $1 = 1;
-        else if SWIG_IsOK(SWIG_ConvertPtr($1,&ptr,$descriptor,SWIG_POINTER_EXCEPTION))
+        else if SWIG_IsOK(SWIG_ConvertPtr($input,&ptr,$descriptor,SWIG_POINTER_EXCEPTION))
             $1 = 1;
         else
             $1 = 0;
