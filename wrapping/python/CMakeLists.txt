@@ -41,7 +41,7 @@ else()
     include(${SWIG_USE_FILE})
 endif()
 
-list(APPEND CMAKE_SWIG_FLAGS -v -fastdispatch)
+list(APPEND CMAKE_SWIG_FLAGS -v)  # -fastdispatch)
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/

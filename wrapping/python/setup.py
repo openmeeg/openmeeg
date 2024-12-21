@@ -56,11 +56,7 @@ if __name__ == "__main__":
             "-interface",
             "_openmeeg",
             "-modern",
-            # -O is problematic for abi3 because it enables "-fastproxy" which leads to
-            # linking errors. However, "-fastdispatch" is needed to create our
-            # typemaps, which seems like a bug (?) but doesn't create any ABI3 compat
-            # issues.
-            "-fastdispatch",
+            #"-fastdispatch",
             # Someday we could look at other options like:
             # "-extranative",  # Return extra native wrappers for C++ std containers wherever possible
             # "-castmode",  # Enable the casting mode, which allows implicit cast between types in Python
