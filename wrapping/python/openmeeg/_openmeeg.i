@@ -359,24 +359,39 @@ namespace OpenMEEG {
 namespace OpenMEEG {
 
     // Python -> C++
+    %typecheck(SWIG_TYPECHECK_POINTER) Vector& {
+        void* ptr = 0 ;
+        if ($input && PyArray_Check($input))
+            $1 = 1;
+        else if (SWIG_IsOK(SWIG_ConvertPtr($input,&ptr,SWIGTYPE_p_OpenMEEG__Vector,SWIG_POINTER_EXCEPTION)))
+            $1 = 1;
+        else
+            $1 = 0;
+    }
     %typemap(in) Vector& {
         $1 = new_OpenMEEG_Vector($input);
     }
-
     %typemap(freearg) Vector& {
         if ($1) delete $1;
     }
 
+    %typecheck(SWIG_TYPECHECK_POINTER) Matrix& {
+        void* ptr = 0 ;
+        if ($input && PyArray_Check($input))
+            $1 = 1;
+        else if (SWIG_IsOK(SWIG_ConvertPtr($input,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_EXCEPTION)))
+            $1 = 1;
+        else
+            $1 = 0;
+    }
     %typemap(in) Matrix& {
         $1 = new_OpenMEEG_Matrix($input);
     }
-
     %typemap(freearg) Matrix& {
         if ($1) delete $1;
     }
 
     // C++ -> Python
-
     %typemap(out) unsigned& {
         $result = PyInt_FromLong(*($1));
     }
