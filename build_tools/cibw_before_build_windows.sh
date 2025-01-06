@@ -16,15 +16,10 @@ rm -Rf build
 cp -a build_nopython build
 which python
 python --version
-IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
-if [[ "$IS_PYPY" == "1" ]]; then
-    NUMPY_PIP="numpy==1.26.3"
-else
-    NUMPY_PIP="oldest-supported-numpy"
-fi
-python -m pip install "$NUMPY_PIP" --only-binary="numpy"
+python -m pip install --upgrade --only-binary="numpy" "numpy>=2.0.0rc2,<3" "setuptools>=68.0.0" "setuptools_scm>=6.2" "wheel>=0.37.0" "swig>=4.2"
 cmake -B build -DENABLE_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" .
 cmake --build build --config Release
-python -m pip uninstall -yq numpy
 cp -av build/wrapping/python/openmeeg/*.pyd build/wrapping/python/openmeeg/_openmeeg_wrapper.py wrapping/python/openmeeg/
 rm -Rf build
+git status --porcelain --untracked-files=no
+test -z "$(git status --porcelain --untracked-files=no)"

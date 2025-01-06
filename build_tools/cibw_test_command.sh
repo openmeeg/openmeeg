@@ -20,3 +20,6 @@ echo ""
 pwd
 echo ""
 pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"
+echo ""
+# Smoke test for https://github.com/swig/swig/issues/3061
+PYTHONFAULTHANDLER=1 PYTHONWARNINGS=error python -uc "import openmeeg"

@@ -29,45 +29,57 @@ env:
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
   build_wheels:
-    continue-on-error: true
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
+        # macos-13 is an intel runner, macos-14 is apple silicon
         include:
-        - os: ubuntu-20.04
-        #- os: macos-11
-        #  archs_macos: "x86_64"
-        #- os: macos-11
-        #  archs_macos: "arm64"
-        - os: windows-2019
-
+          - os: ubuntu-latest
+            arch: x86_64
+        #  - os: ubuntu-latest
+        #    arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+        #  - os: macos-13
+        #    arch: x86_64
+        #  - os: macos-14
+        #    arch: arm64
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # For aarch64 support
+      # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+        if: runner.os == 'Linux' && matrix.arch == 'aarch64'
       - uses: actions/setup-python@v5  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2
-        if: matrix.os != 'ubuntu-20.04'
+        if: matrix.os != 'ubuntu-latest'
         with:
-          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.archs_macos }}
+          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
       - name: Cache vcpkg
-        if: matrix.os != 'ubuntu-20.04'
+        if: matrix.os != 'ubuntu-latest'
         uses: actions/cache@v4
         with:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
-      - uses: pypa/cibuildwheel@v2.16.5
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.arch }}-0
+      - uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
         env:
-          CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
+          CIBW_ARCHS: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-${{ matrix.archs_macos }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
   upload_test_pypi:

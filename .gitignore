@@ -1,6 +1,7 @@
 *~
 *.autosave
 build/*
+build_nopython/*
 build.ninja
 .*.swo
 .*.swp
@@ -16,3 +17,6 @@ install/
 coverage.info
 .vscode/
 Testing/
+.ccache/
+installers/
+wheelhouse/
