@@ -34,9 +34,11 @@ fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
-echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
-chmod +x ./tools/wheels/cibw_before_build.sh
-./tools/wheels/cibw_before_build.sh $1
+if [[ "$RUNNER_OS" != "Windows" ]] || [[ ! -d "openblas" ]]; then
+    echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
+    chmod +x ./tools/wheels/cibw_before_build.sh
+    ./tools/wheels/cibw_before_build.sh $1
+fi
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
