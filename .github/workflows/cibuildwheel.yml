@@ -119,7 +119,7 @@ jobs:
           git checkout
           OPENMEEG_DATA_PATH=$(pwd)/data
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            OPENMEEG_DATA_PATH=$(cygpath - w "$OPENMEEG_DATA_PATH")
+            OPENMEEG_DATA_PATH=$(cygpath -w "$OPENMEEG_DATA_PATH")
           fi
           echo "OPENMEEG_DATA_PATH=$OPENMEEG_DATA_PATH" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
