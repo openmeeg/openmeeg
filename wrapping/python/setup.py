@@ -87,8 +87,7 @@ if __name__ == "__main__":
         extra_compile_opts, extra_link_opts = [], []
         if msvc:
             extra_compile_opts.extend(["/std:c++17"])
-            if openmeeg_lib is not None and openmeeg_lib.parts[-1] == "lib":
-                extra_link_opts.extend([f"/LIBPATH:{openmeeg_lib.parent / 'bin'}"])
+            extra_link_opts.append("OpenMEEGMaths.lib")
         else:
             extra_compile_opts.extend(["-v", "-std=c++17"])
         if sys.platform == "darwin":
