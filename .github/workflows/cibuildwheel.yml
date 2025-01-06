@@ -82,9 +82,39 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
+  test_wheels:
+    needs: build_wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-latest
+            arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
+    steps:
+      - uses: actions/setup-python@v5  # to make before-all work properly
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - run: ls -alt dist/
+      - run: pip install -f file://$(pwd)/dist "openmeeg[test]"
+      - run: pip install \"git+https://github.com/larsoner/pytest.git@fix\" threadpoolctl
+      - run: pytest -m "not slowtest" --pyargs openmeeg
+
   upload_test_pypi:
     name: Upload to TestPyPI
-    needs: [build_wheels]
+    needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
