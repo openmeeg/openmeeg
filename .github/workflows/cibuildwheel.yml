@@ -121,7 +121,6 @@ jobs:
           echo "OPENMEEG_DATA_PATH=$(pwd)/data" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
       - run: pip install -f file://$(pwd)/dist "openmeeg[test]"
-      - run: pip install \"git+https://github.com/larsoner/pytest.git@fix\" threadpoolctl
       - run: pytest -m "not slow" --pyargs openmeeg
 
   upload_test_pypi:
