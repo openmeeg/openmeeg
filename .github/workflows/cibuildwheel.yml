@@ -50,6 +50,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
       - uses: docker/setup-qemu-action@v3
@@ -85,6 +86,7 @@ jobs:
   test_wheels:
     needs: build_wheels
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -100,17 +102,27 @@ jobs:
           - os: macos-14
             arch: arm64
     steps:
-      - uses: actions/setup-python@v5  # to make before-all work properly
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Get data
+        shell: bash
+        run: |
+          set -eo pipefail
+          git clone --no-checkout https://github.com/openmeeg/openmeeg.git omg
+          cd omg
+          git sparse-checkout init --cone
+          git sparse-checkout set data
+          git checkout
+          echo "OPENMEEG_DATA_PATH=$(pwd)/data" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
       - run: pip install -f file://$(pwd)/dist "openmeeg[test]"
       - run: pip install \"git+https://github.com/larsoner/pytest.git@fix\" threadpoolctl
-      - run: pytest -m "not slowtest" --pyargs openmeeg
+      - run: pytest -m "not slow" --pyargs openmeeg
 
   upload_test_pypi:
     name: Upload to TestPyPI

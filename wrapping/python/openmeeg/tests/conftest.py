@@ -18,7 +18,7 @@ def data_path():
     # D:/a/openmeeg/openmeeg/data\Head1\Head1.geom
     # but cmake uses a mixed path for the --path arg
     data_path = data_path.replace("/", os.path.sep)
-    assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: ${data_path}"
+    assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: {data_path}"
     return Path(data_path)
 
 

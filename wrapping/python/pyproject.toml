@@ -69,10 +69,11 @@ build = ["cp310-*"]  # abi3
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
-test-requires = [
-    "pytest",
-    "threadpoolctl",
-]
+before-test = "pip install \"git+https://github.com/larsoner/pytest.git@fix\" threadpoolctl"
+#test-requires = [
+#    "pytest",
+#    "threadpoolctl",
+#]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
 
 [tool.cibuildwheel.linux]
