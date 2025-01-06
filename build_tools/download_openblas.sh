@@ -20,7 +20,7 @@ fi
 echo "Downloading OpenBLAS and setting cmake flags for PLATFORM=\"${PLATFORM}\""
 curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/${BLAS_FILENAME}
 if [[ "${PLATFORM}" == 'win'* ]]; then
-    unzip -f -o -d openblas ${BLAS_FILENAME}
+    unzip ${BLAS_FILENAME} -d openblas
     export OPENBLAS_LIB=${PWD}/openblas/64/lib
     export OPENBLAS_INCLUDE=${PWD}/openblas/64/include
     BLAS_EXT="${BLAS_VER}-gcc_8_1_0"
