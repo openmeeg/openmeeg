@@ -12,10 +12,10 @@
     {
       "name": "hdf5",
       "features": [
-        "zlib"
+        "zlib",
+        "szip"
       ]
     },
-    "szip",
     "vcpkg-cmake",
     "vcpkg-cmake-config",
     "zlib"
