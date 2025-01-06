@@ -117,7 +117,7 @@ jobs:
           git sparse-checkout init --cone
           git sparse-checkout set data
           git checkout
-          OPENMEEG_DATA_PATH/$(pwd)/data
+          OPENMEEG_DATA_PATH=$(pwd)/data
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             OPENMEEG_DATA_PATH=$(cygpath - w "$OPENMEEG_DATA_PATH")
           fi
