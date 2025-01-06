@@ -33,9 +33,6 @@ dependencies = [
     "numpy",
 ]
 
-[project.optional-dependencies]
-test = ["pytest", "threadpoolctl"]
-
 [project.urls]
 Homepage = "http://openmeeg.github.io"
 Download = "http://github.com/openmeeg/openmeeg"
