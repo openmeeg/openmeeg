@@ -73,7 +73,7 @@ test-requires = [
     "threadpoolctl",
 ]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
-environment-pass = ["CHECK_PORCELAIN"]
+environment-pass = ["CHECK_PORCELAIN", "RUNNER_OS"]  # useful to have RUNNER_OS here for app building
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = [
