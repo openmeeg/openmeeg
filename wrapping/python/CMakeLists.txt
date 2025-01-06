@@ -12,6 +12,7 @@
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
 
+cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 if (BUILD_TESTING)
     find_package(Pytest)

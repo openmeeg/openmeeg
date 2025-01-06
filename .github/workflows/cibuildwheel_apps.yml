@@ -65,7 +65,7 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-0
+          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-0
       - uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./wrapping/python
@@ -77,7 +77,6 @@ jobs:
           CIBW_BUILD: "cp310-*"  # same as default, but just in case we add PyPy in the future
           CIBW_BUILD_FRONTEND: "pip"
           CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all.sh {project} app"
-          CIBW_BEFORE_BUILD_WINDOWS: ""
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""

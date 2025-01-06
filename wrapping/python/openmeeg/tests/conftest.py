@@ -7,7 +7,6 @@ import pytest
 
 def pytest_configure(config):
     """Configure pytest options."""
-    config.addinivalue_line("usefixtures", "run_some_parallel")
     config.addinivalue_line("markers", "slow: marks tests as slow")
 
 
@@ -19,11 +18,11 @@ def data_path():
     # D:/a/openmeeg/openmeeg/data\Head1\Head1.geom
     # but cmake uses a mixed path for the --path arg
     data_path = data_path.replace("/", os.path.sep)
-    assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: ${data_path}"
+    assert os.path.isdir(data_path), f"OPENMEEG_DATA_PATH does not exist: {data_path}"
     return Path(data_path)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def run_some_parallel():
     """Run some stuff in parallel."""
     # This is to try to get some NumPy parallelism in the tests.

@@ -100,7 +100,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
     fi
-    export VCPKG_DEFAULT_TRIPLET="${VC_NAME}-osx-release-${MIN_VER}"
+    export VCPKG_DEFAULT_TRIPLET="${VC_NAME}-osx-release-${MIN_VER//./}"  # remove dots
     export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MIN_VER}"
     source ./build_tools/setup_vcpkg_compilation.sh
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
@@ -208,11 +208,6 @@ elif [[ "$PLATFORM" == 'win'* ]]; then
 fi
 
 if [[ "$KIND" == "wheel" ]]; then
-    # TODO: This is only necessary because SWIG does not work outside cmake yet,
-    # and we want this on windows
-    if [[ "$PLATFORM" == 'win'* ]]; then
-        mv build build_nopython
-    fi
     echo "ls -al $PWD:"
     ls -al
 fi

@@ -50,6 +50,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
       - uses: docker/setup-qemu-action@v3
@@ -70,7 +71,7 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.arch }}-0
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-${{ matrix.arch }}-0
       - uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./wrapping/python
@@ -82,9 +83,54 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
 
+  test_wheels:
+    needs: build_wheels
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+          pattern: wheels-${{ matrix.os }}-${{ matrix.arch }}
+      - name: Get data
+        shell: bash
+        run: |
+          set -eo pipefail
+          git clone --no-checkout https://github.com/openmeeg/openmeeg.git omg
+          cd omg
+          git sparse-checkout init --cone
+          git sparse-checkout set data
+          git checkout
+          OPENMEEG_DATA_PATH=$(pwd)/data
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            OPENMEEG_DATA_PATH=$(cygpath -w "$OPENMEEG_DATA_PATH")
+          fi
+          echo "OPENMEEG_DATA_PATH=$OPENMEEG_DATA_PATH" | tee -a $GITHUB_ENV
+      - run: ls -alt dist/
+        shell: bash
+      - run: pip install -v pytest dist/*.whl
+        shell: bash
+      - run: pytest -m "not slow" --pyargs openmeeg
+
   upload_test_pypi:
     name: Upload to TestPyPI
-    needs: [build_wheels]
+    needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -103,7 +149,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_wheels]
+    needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

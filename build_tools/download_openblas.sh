@@ -16,6 +16,7 @@ else
     echo "Unknown/unsupported PLATFORM=\"${PLATFORM}\""
     exit 1
 fi
+
 echo "Downloading OpenBLAS and setting cmake flags for PLATFORM=\"${PLATFORM}\""
 curl -LO https://anaconda.org/multibuild-wheels-staging/openblas-libs/${BLAS_VER}/download/${BLAS_FILENAME}
 if [[ "${PLATFORM}" == 'win'* ]]; then
