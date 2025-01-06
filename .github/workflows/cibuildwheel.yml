@@ -122,6 +122,7 @@ jobs:
       - run: ls -alt dist/
         shell: bash
       - run: pip install -f file://$(pwd)/dist "openmeeg[test]"
+        shell: bash
       - run: pytest -m "not slow" --pyargs openmeeg
 
   upload_test_pypi:
