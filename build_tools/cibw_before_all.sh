@@ -34,11 +34,9 @@ fi
 curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
 mv numpy-1.23.1/tools .
 mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
-if [[ "$RUNNER_OS" != "Windows" ]] || [[ ! -d "openblas" ]]; then
-    echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
-    chmod +x ./tools/wheels/cibw_before_build.sh
-    ./tools/wheels/cibw_before_build.sh $1
-fi
+echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
+chmod +x ./tools/wheels/cibw_before_build.sh
+./tools/wheels/cibw_before_build.sh $1
 PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
 rm -Rf numpy numpy-1.23.1 tools
 echo "Using NumPy PLATFORM=\"${PLATFORM}\""
@@ -137,7 +135,9 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
-    source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
+    if [[ ! -d "openblas" ]]; then
+        source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
+    fi
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     if [[ "$KIND" == "app" ]]; then

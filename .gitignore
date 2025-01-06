@@ -20,3 +20,5 @@ Testing/
 .ccache/
 installers/
 wheelhouse/
+/Dependencies/
+*.zip
