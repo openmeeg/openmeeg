@@ -93,8 +93,6 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
-          - os: ubuntu-latest
-            arch: aarch64
           - os: windows-latest
             arch: AMD64
           - os: macos-13
@@ -109,6 +107,7 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+          pattern: wheels-${{ matrix.os }}-${{ matrix.arch }}
       - name: Get data
         shell: bash
         run: |
@@ -121,8 +120,9 @@ jobs:
           echo "OPENMEEG_DATA_PATH=$(pwd)/data" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
         shell: bash
-      - run: pip install -f file://$(pwd)/dist openmeeg && pip install pytest
+      - run: pip install -f dist/*.whl --no-index openmeeg
         shell: bash
+      - run: pip install pytest
       - run: pytest -m "not slow" --pyargs openmeeg
 
   upload_test_pypi:
@@ -146,7 +146,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_wheels]
+    needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
