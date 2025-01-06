@@ -120,6 +120,7 @@ jobs:
           git checkout
           echo "OPENMEEG_DATA_PATH=$(pwd)/data" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
+        shell: bash
       - run: pip install -f file://$(pwd)/dist "openmeeg[test]"
       - run: pytest -m "not slow" --pyargs openmeeg
 
