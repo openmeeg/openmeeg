@@ -40,10 +40,11 @@ else
 fi
 
 if [ ! -d vcpkg ]; then
-    echo "Getting vcpkg..."
+    VCPKG_VERSION=$(cat build_tools/vcpkg_version.txt)
+    echo "Getting vcpkg $VCPKG_VERSION..."
     git clone https://github.com/Microsoft/vcpkg.git --depth=1
     cd vcpkg
-    git fetch origin 2024.12.16:use --depth=1
+    git fetch origin $VCPKG_VERSION:use --depth=1
     git checkout use
     ./bootstrap-vcpkg.sh
     cd ..
