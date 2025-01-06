@@ -55,7 +55,6 @@ if __name__ == "__main__":
             "_openmeeg_wrapper",
             "-interface",
             "_openmeeg",
-            "-modern",
             # -O is problematic for abi3 because it enables "-fastproxy" which leads to
             # linking errors. However, "-fastdispatch" is needed to create our
             # typemaps, which seems like a bug (?) but doesn't create any ABI3 compat
@@ -88,7 +87,8 @@ if __name__ == "__main__":
         extra_compile_opts, extra_link_opts = [], []
         if msvc:
             extra_compile_opts.extend(["/std:c++17"])
-            extra_link_opts.extend(["/std:c++17"])
+            if openmeeg_lib is not None and openmeeg_lib.parts[-1] == "lib":
+                extra_link_opts.extend([f"/LIBPATH:{openmeeg_lib.parent / 'bin'}"])
         else:
             extra_compile_opts.extend(["-v", "-std=c++17"])
         if sys.platform == "darwin":
@@ -121,6 +121,7 @@ if __name__ == "__main__":
             swig_opts=swig_opts,
             define_macros=define_macros,
             extra_compile_args=extra_compile_opts,
+            extra_link_args=extra_link_opts,
             include_dirs=include_dirs,
             library_dirs=library_dirs,
             py_limited_api=abi3,
