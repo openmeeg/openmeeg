@@ -208,11 +208,6 @@ elif [[ "$PLATFORM" == 'win'* ]]; then
 fi
 
 if [[ "$KIND" == "wheel" ]]; then
-    # TODO: This is only necessary because SWIG does not work outside cmake yet,
-    # and we want this on windows
-    if [[ "$PLATFORM" == 'win'* ]]; then
-        mv build build_nopython
-    fi
     echo "ls -al $PWD:"
     ls -al
 fi
