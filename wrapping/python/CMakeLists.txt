@@ -12,7 +12,7 @@
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
 
-# cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
+cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
 if (BUILD_TESTING)
     find_package(Pytest)
@@ -33,11 +33,6 @@ set(SWIG_TARGET_NAME "openmeeg")
 cmake_policy(SET CMP0086 NEW) # Use NEW policy and explicitly use SWIG_MODULE_NAME
 
 find_package(SWIG 4.2 REQUIRED COMPONENTS python)  # 4.2 or later
-
-OPTION(PYTHON_ABI3 "Use ABI3 mode" OFF)
-if (PYTHON_ABI3)
-    add_compile_definitions(Py_LIMITED_API=0x030A0000)
-endif()
 
 # load SWIG macros. The path to UseSWIG.cmake is provided by SWIG_USE_FILE which is set in FindSWIG
 
