@@ -1,0 +1,133 @@
+# This CI run builds wheels using the cibuildwheel infrastructure
+# to build the C++ binaries (with no Python wrappers).
+
+name: cibuildwheel-apps
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - '*'
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+# https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
+jobs:
+  apps:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos-13 is an intel runner, macos-14 is apple silicon
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          # This is a pain to get working, so skip for now.
+          # - os: ubuntu-latest
+          #   arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # For aarch64 support
+      # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+        if: runner.os == 'Linux' && matrix.arch == 'aarch64'
+      - uses: actions/setup-python@v5  # to make before-all work properly
+        with:
+          python-version: '3.10'
+      - uses: hendrikmuhs/ccache-action@v1.2
+        if: matrix.os != 'ubuntu-20.04'
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+      - name: Cache vcpkg
+        if: matrix.os != 'ubuntu-20.04'
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg
+            build/vcpkg_installed
+          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-0
+      - uses: pypa/cibuildwheel@v2.22.0
+        with:
+          package-dir: ./wrapping/python
+          output-dir: installers
+        env:
+          CIBW_ENVIRONMENT_LINUX: ""
+          CIBW_ENVIRONMENT_MACOS: ""
+          CIBW_ENVIRONMENT_WINDOWS: ""
+          CIBW_BUILD: "cp310-*"  # same as default, but just in case we add PyPy in the future
+          CIBW_BUILD_FRONTEND: "pip"
+          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all.sh {project} app"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
+          CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
+          CIBW_ARCHS: ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          path: |
+            ./installers/OpenMEEG-*.tar.gz
+          name: OpenMEEG-installers-${{ matrix.os }}
+
+  release:
+    needs: [apps]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Set vars
+        id: vars
+        run: |
+          set -e
+          echo "Using ref_type=${{ github.ref_type }}"
+          if [[ "${{ github.ref_type }}" != "tag" ]]; then
+            echo 'name=dev' >> $GITHUB_OUTPUT  # default empty uses tag
+            echo 'body=body.md' >> $GITHUB_OUTPUT  # default empty
+          else
+            echo 'generate=true' >> $GITHUB_OUTPUT  # default false
+          fi
+          echo "# Development release" >> body.md
+          echo "" >> body.md
+          echo "This is an unreleased draft version (only visible to maintainers)." >> body.md
+          echo "" >> body.md
+          echo "- Created: $(date +'%Y-%m-%dT%H:%M:%S%z')" >> body.md
+          echo "- Commit: `${{ github.sha }}`" >> body.md
+          cat body.md
+      - name: Check files
+        run: |
+          set -e
+          ls -alR .
+          for key in body name generate; do
+            echo "Using vars.outputs.${key}=${{ steps.vars.outputs.body }}"
+          done
+      # https://github.com/ncipollo/release-action
+      # https://github.com/softprops/action-gh-release
+      - uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag' || github.event_name != 'pull_request'
+        with:
+          draft: true
+          prerelease: true
+          body_path: ${{ steps.vars.outputs.body }}
+          generate_release_notes: ${{ steps.vars.outputs.generate }}
+          tag_name: ${{ steps.vars.outputs.name }}
+          files: OpenMEEG-*

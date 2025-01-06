@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.14)
 cmake_policy(SET CMP0174 NEW)  # empty values different from not defined
-project (OpenMEEG VERSION 2.5.14 LANGUAGES C CXX)
+project (OpenMEEG VERSION 2.5.15 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)  # use c++17
 

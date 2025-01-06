@@ -1,0 +1,642 @@
+# This CI run does core building+testing of OpenMEEG using various OSes
+# and options.
+
+name: Test
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+  PYTHONUNBUFFERED: '1'
+
+defaults:
+  run:
+    shell: bash -o pipefail -el {0}
+
+jobs:
+
+  build:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # By default, all builds use:
+        # - OpenBLAS
+        # - dynamic BLAS linking
+        # - cmake to build Python bindings
+        # - Python 3.10
+        # - The oldest supported version of numpy (numpyold)
+        # - MSVC on Windows (if relevant)
+        # - No VTK support
+        # - No slow python tests
+        #
+        # Deviations from this are noted by additions to the `include`
+        # params. Defaults are set up properly in the `env-vars` step,
+        # whose `output`s should be used by subsequent steps.
+        #
+        # MKL is tested on all OSes.
+        #
+        # Someday we could use OpenBLAS for Windows once vcpkg sorts things out
+        # (https://github.com/microsoft/vcpkg/issues/25176), but it's unclear
+        # if this will really help anything. NumPy/SciPy's OpenBLAS (which
+        # we use currently) should be well tested already though, so there is
+        # perhaps no need to switch.
+        include:
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          numpy: numpyold
+          slow: false
+        - os: windows-latest
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          windows_compiler: msvc
+          slow: false
+        - os: macos-15
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          slow: false
+        - os: macos-13
+          blas: OpenBLAS
+          blas_linking: dynamic
+          python: cmake
+          slow: false
+        # Latest OpenBLAS release
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
+          blas: OpenBLAS-latest
+          python-version: '3.12'
+        # PyPy build
+        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+          blas: OpenBLAS
+          python-version: 'pypy-3.10'
+        # One with latest numpy, plus VTK
+        - os: ubuntu-22.04
+          blas: OpenBLAS
+          numpy: numpydev
+          slow: true
+        # Windows mingw64 is disabled because of some path problem where cmake
+        # cannot find Python3 (!). We don't really need it because wheels and
+        # conda-forge both use MSVC, things work there, and it's the official
+        # Windows compiler. So we disable it for now at least (YAGNI).
+        # There is some stuff below and in cmake_configure.sh we could get rid
+        # of if we decide to fully drop it later.
+        # - os: windows-latest
+        #   windows_compiler: mingw64
+        # MKL on each OS (static unless it has to be dynamic)
+        - os: windows-latest
+          blas: mkl-findblas
+          blas_linking: static
+        - os: ubuntu-20.04
+          blas: mkl-findblas
+        # One without Python but with VTK (once we fix it!)
+        - os: ubuntu-22.04
+          python: no-python
+          # vtk: vtk9  # TODO: Uncomment and update merge reqs
+          slow: true
+        # Windows static
+        - os: windows-latest
+          blas: OpenBLAS
+          blas_linking: static
+        # Setuptools
+        - os: ubuntu-20.04
+          python: setuptools
+        - os: macos-latest
+          python: setuptools
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # all subsequent steps should use steps.env-vars.outputs.* instead
+    # of matrix.* entries
+    - name: Environment variables
+      id: env-vars
+      run: |
+        echo "os=${{matrix.os}}" >> $GITHUB_OUTPUT
+        if [[ "${{matrix.numpy}}" == *'dev' ]]; then
+          echo "numpy_version=dev" >> $GITHUB_OUTPUT
+        elif [[ "${{matrix.numpy}}" == *'old' ]]; then
+          echo "numpy_version=oldest" >> $GITHUB_OUTPUT
+        else
+          echo "numpy_version=latest" >> $GITHUB_OUTPUT
+        fi
+        PYTHON_VERSION="${{ matrix.python-version }}"
+        if [[ "$PYTHON_VERSION" == "" ]]; then
+          PYTHON_VERSION="3.10"
+        fi
+        echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+        if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
+          echo "Enabling static BLAS"
+          echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
+          echo "blas_linking=static" >> $GITHUB_OUTPUT
+        else
+          echo "blas_linking=dynamic" >> $GITHUB_OUTPUT
+        fi
+        if [[ "${{matrix.python}}" == 'no-python' ]]; then
+          echo "Disabling Python"
+          echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
+          echo "python=no-python" >> $GITHUB_OUTPUT
+          echo "python_type=no-python" >> $GITHUB_OUTPUT
+        else
+          echo "python=python" >> $GITHUB_OUTPUT
+          if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
+            echo "python_type=cmake" >> $GITHUB_OUTPUT
+          elif [[ "${{matrix.python}}" == "setuptools" ]]; then
+            echo "python_type=setuptools" >> $GITHUB_OUTPUT
+            echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
+          else
+            echo "Unknown matrix.python=\"${{matrix.python}}\""
+            exit 1
+          fi
+        fi
+        if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
+          echo "windows_compiler=mingw64" >> $GITHUB_OUTPUT
+        else
+          echo "windows_compiler=msvc" >> $GITHUB_OUTPUT
+        fi
+        if [[ "${{matrix.slow}}" == "true" ]]; then
+          SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
+        fi
+        if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
+          echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
+          echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
+          echo "blas=${{matrix.blas}}" >> $GITHUB_OUTPUT
+        else
+          echo "blas=OpenBLAS" >> $GITHUB_OUTPUT
+        fi
+        if [[ "${{matrix.blas}}" == *'-latest' ]]; then
+          echo "Setting blas_version=latest"
+          echo "blas_version=latest" >> $GITHUB_OUTPUT
+        fi
+        # Build docs on Ubuntu, not elsewhere (for speed)
+        if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
+          DOC_OPT="-DBUILD_DOCUMENTATION=ON"
+        else
+          DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
+        fi
+        # OpenMP doesn't work well on macOS
+        if [[ "${{matrix.os}}" == 'macos'* ]]; then
+          OPENMP_OPT="-DUSE_OPENMP=OFF"
+        fi
+        if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
+          echo "vtk_version=${{matrix.vtk}}" >> $GITHUB_OUTPUT
+          VTK_OPT="-DUSE_VTK=ON"
+        else
+          VTK_OPT="-DUSE_VTK=OFF"
+        fi
+        WERROR_OPT="-DENABLE_WERROR=ON"
+        # On windows, copy the runtime DLLs
+        if [[ "${{matrix.os}}" == 'windows'* ]]; then
+          PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
+          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+        fi
+        echo "Using WERROR_OPT=$WERROR_OPT"
+        echo "SLOW_OPT=$SLOW_OPT" >> $GITHUB_ENV
+        echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
+        echo "Using DOC_OPT=$DOC_OPT"
+        echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
+        echo "Using VTK_OPT=$VTK_OPT"
+        echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
+        echo "Using OPENMP_OPT=$OPENMP_OPT"
+        echo "OPENMP_OPT=$OPENMP_OPT" >> $GITHUB_ENV
+        echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
+        echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
+
+    - run: sudo apt update -q
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
+
+    # Use conda for all Python except PyPy
+    - name: Python via conda
+      uses: conda-incubator/setup-miniconda@v3
+      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
+      with:
+        activate-environment: "test"
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
+        channels: conda-forge
+        channel-priority: strict
+    - name: Python via setup-python
+      uses: actions/setup-python@v5
+      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
+      with:
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
+
+    - name: Python packages
+      if: startswith(steps.env-vars.outputs.python, 'python')
+      run: |
+        which python
+        python --version
+        which pip
+        pip --version
+        python -m pip install --upgrade -q pip
+        if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+          EXTRA_PIP="delvewheel pefile!=2024.8.26 pytest<8.0.0"
+        elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
+          EXTRA_PIP="delocate pytest"
+        else
+          EXTRA_PIP="auditwheel pytest"
+        fi
+        if [[ "${{steps.env-vars.outputs.numpy_version}}" == 'dev' ]]; then
+          echo "Installing NumPy main"
+          pip install --upgrade --pre --only-binary ":all:" --default-timeout=60 -i "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" "numpy>=2.0.0.dev0"
+        elif [[ "${{steps.env-vars.outputs.numpy_version}}" == 'oldest' ]]; then
+          pip install --upgrade --only-binary ":all:" "numpy<2"
+        else
+          echo "Installing NumPy 2.0"
+          IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
+          if [[ "$IS_PYPY" == "1" ]]; then
+            pip install --upgrade numpy
+          else
+            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
+          fi
+        fi
+        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl "swig>=4.2" $EXTRA_PIP
+
+
+    - name: MKL setup - mkl via conda
+      if: startswith(steps.env-vars.outputs.blas,'mkl')
+      run: |
+        # To get a local testing env, you can do for example:
+        # $ conda create -n openmeeg-mkl -c conda-forge --strict-channel-priority mkl-devel swig libmatio hdf5 numpy
+        # $ conda activate openmeeg-mkl
+        #
+        # On Windows, locally this static build almost works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DBLA_STATIC=ON -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/Library/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        #
+        # On Linux, locally this works:
+        # ./build_tools/cmake_configure.sh -DBLA_IMPLEMENTATION=mkl-findblas -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/lib" -DCMAKE_CXX_FLAGS="-I$CONDA_PREFIX/include" -DENABLE_PYTHON=ON
+        # cmake --build build --config Release
+        # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
+        #
+        # >=2024.2.0 problematic on Windows, see
+        # https://github.com/openmeeg/openmeeg/actions/runs/9844278326/job/27177300969?pr=675
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          conda install -c conda-forge -q "mkl-devel<2024.2.0"
+        else
+          conda install -c conda-forge -q mkl-devel
+        fi
+        echo "$CONDA_PREFIX/lib/*mkl*:"
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
+          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+        else
+          ls -alR $CONDA_PREFIX/lib/*mkl*
+          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+          if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu'* ]]; then
+            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
+          fi
+        fi
+
+    - name: Windows 1 - cache vcpkg
+      if: startswith(steps.env-vars.outputs.os,'windows')
+      uses: actions/cache@v4
+      with:
+        path: |
+          vcpkg
+          build/vcpkg_installed
+        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ steps.env-vars.outputs.windows_compiler }}-0
+
+    - name: Windows 2 - hdf5 and libmatio via vcpkg
+      if: startsWith(steps.env-vars.outputs.os,'windows')
+      id: runvcpkg
+      run: |
+        if [[ "${{ steps.env-vars.outputs.windows_compiler }}" == "mingw64" ]]; then
+          export VCPKG_DEFAULT_TRIPLET="x64-mingw-dynamic"
+        else
+          export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
+          export CMAKE_GENERATOR="Visual Studio 17 2022"
+        fi
+        source ./build_tools/setup_vcpkg_compilation.sh
+        # On Windows, we tell cmake to copy all runtime deps to the build dir,
+        # and for tests (and Python) to find them, we need to add it to PATH
+        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
+
+    - name: Windows 3 - OpenBLAS via MacPython download
+      if: startsWith(steps.env-vars.outputs.blas,'OpenBLAS') && startsWith(steps.env-vars.outputs.os,'windows')
+      run: |
+        # OpenBLAS direct download (too slow to build using vcpkg)
+        # and renaming to match what cmake wants to see
+        source ./build_tools/download_openblas.sh windows
+        echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
+        echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
+        echo "LIB=$LIB" >> $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" >> $GITHUB_ENV
+
+    - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
+      if: startswith(steps.env-vars.outputs.os,'macos')
+      run: |
+        echo "Installing dependencies with brew"
+        echo "::group::brew update"
+        brew update
+        echo "::endgroup::"
+        if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
+          BREW_EXTRA=openblas
+        fi
+        echo "Installing dependencies with brew"
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
+        echo "brew install complete"
+        if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
+          if [[ "$(arch)" == "arm64" ]]; then
+            BLAS_DIR=/opt/homebrew/opt/openblas
+          else
+            BLAS_DIR=/usr/local/opt/openblas
+          fi
+          OPENBLAS_INCLUDE=$BLAS_DIR/include
+          OPENBLAS_LIB=$BLAS_DIR/lib
+          echo "Checking for $OPENBLAS_INCLUDE"
+          test -d "$OPENBLAS_INCLUDE"
+          echo "Checking for LAPACK"
+          ls -al $OPENBLAS_INCLUDE
+          test -f "$OPENBLAS_INCLUDE/lapack.h"
+          ls -al $OPENBLAS_LIB
+          test -f "$OPENBLAS_LIB/libopenblas.dylib"
+          echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE" >> $GITHUB_ENV
+          echo "LINKER_OPT=-L$OPENBLAS_LIB" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
+        fi
+        # Set our version min
+        if [[ $(uname -m) == 'arm64' ]]; then
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+        else
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+        fi
+
+    - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+      run: |
+        APT_EXTRA=""
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
+          APT_EXTRA="$APT_EXTRA libopenblas-dev"
+        fi
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
+          APT_EXTRA="$APT_EXTRA g++-12 gcc-12 gfortran-12"
+        fi
+        if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
+          APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
+        fi
+        set -x
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
+        set +x
+        # Set GCC version
+        if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12
+        fi
+        gcc --version
+
+    - name: Linux - OpenBLAS via GitHub
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
+      run: |
+        curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.20.tar.gz
+        tar xzf v0.3.20.tar.gz
+        ls -al
+        cd OpenBLAS-0.3.20
+        ls -alR .
+        make NO_FORTRAN=0 NO_STATIC=0 NO_DYNAMIC=0 NUM_THREADS=24 NO_WARMUP=1
+        sudo make install PREFIX=/usr/local
+
+    - name: Configure
+      run: |
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
+        elif [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu'* ]]; then
+          export EXTRA_COV="-DENABLE_COVERAGE=ON"
+        fi
+        EXT_SUFFIX=$(python -c "import sysconfig;print(sysconfig.get_config_var('EXT_SUFFIX'))")
+        which cmake
+        cmake --version
+        source ./build_tools/cmake_configure.sh --install-prefix=$PWD/install -DCMAKE_VERBOSE_MAKEFILE=ON $EXTRA_UCRT $EXTRA_COV -DPython3_EXT_SUFFIX=$EXT_SUFFIX -DPYTHON_FORCE_EXT_SUFFIX=ON
+
+    - name: Build
+      run: |
+        cmake --build build --config ${{env.BUILD_TYPE}}
+        ls -al build
+        if [ -d build/wrapping/python/openmeeg ]; then
+          ls -alR build/wrapping/python/openmeeg
+        else
+          echo "No Python wrapping found"
+        fi
+
+    - name: Install
+      run: |
+        cmake --build build --target install --config Release
+
+    - name: Prepare for delocate
+      if: startswith(steps.env-vars.outputs.python, 'python')
+      # Let's make it easy for delvewheel to find the stuff it might need
+      run: |
+        cd build
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          echo "All:"
+          find . -type f -iname "*.dll"
+          echo "Data:"
+          find . -type f -name "Head1.geom"
+          echo "Before:"
+          ls -al *.dll || true
+          if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
+            #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
+            if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+              strip $OPENBLAS_LIB/libopenblas_v*.dll
+            fi
+            cp $OPENBLAS_LIB/libopenblas_v*.dll .
+            cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
+            #fi
+          # TODO: if this is static it shouldn't be necessary, but it seems to be...
+          elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
+            ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
+            cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
+            echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" >> $GITHUB_ENV
+          fi
+          if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+            cp /c/Strawberry/c/bin/libquadmath-0.dll .
+            cp /mingw64/bin/libgcc_s_seh-1.dll .
+            cp /mingw64/bin/libwinpthread-1.dll .
+            cp /mingw64/bin/libstdc++-6.dll .
+            strip libstdc++-6.dll
+            cp /c/Strawberry/c/bin/libgomp-1.dll .
+            cp /mingw64/bin/zlib1.dll .
+          fi
+          if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
+            cp ./OpenMEEGMaths/libmatio.dll .
+          elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
+            cp ./OpenMEEGMaths/Release/libmatio.dll .
+            cp ./OpenMEEGMaths/Release/zlib1.dll .
+            cp ./OpenMEEGMaths/Release/hdf5.dll .
+          fi
+          echo "After:"
+          ls -al *.dll || true
+          if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
+            cp -a *.dll wrapping/python/openmeeg
+          else
+            cp -a *.dll ../wrapping/python/openmeeg
+          fi
+        fi
+        cat OpenMEEGConfigure.h
+
+    - name: Check installed binaries and Python wrapper
+      run: |
+        ls -alR ./install/bin ./install/lib
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$PATH"
+          echo "PATH=$PATH"
+        elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
+          export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+        else
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        fi
+        ./install/bin/om_minverser --help
+        if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
+          PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
+          PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
+          if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+            export PYTHONPATH=$PWD/install/lib/site-packages
+            ./build_tools/install_dependency_walker.sh
+            # Ideally this would not be necessary but it makes things work
+            cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
+            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
+          else
+            export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
+          fi
+          echo "PYTHONPATH=$PYTHONPATH"
+          python -c "import openmeeg._openmeeg_wrapper as _omc; print(_omc.sqr(4)); assert _omc.sqr(4) == 16"
+          echo "pip show openmeeg:"
+          pip show openmeeg
+        fi
+
+    - name: Create, delocate, check, install, and test wheel
+      if: startswith(steps.env-vars.outputs.python, 'python')
+      id: wheel
+      run: |
+        if [[ "${{steps.env-vars.outputs.python_type}}" == 'setuptools' ]]; then
+          export OPENMEEG_INCLUDE=$PWD/install/include/OpenMEEG
+          export OPENMEEG_LIB=$PWD/install/lib
+          export OPENMEEG_USE_SWIG=1
+          if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+            export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$(cygpath -u $CONDA_PREFIX)/Library/lib:$PATH"
+            export OPENMEEG_LIB=$(cygpath -w $OPENMEEG_LIB)
+            export OPENMEEG_INCLUDE=$(cygpath -w $OPENMEEG_INCLUDE)
+            if [[ "${{steps.env-vars.outputs.windows_compiler}}" == 'msvc'* ]]; then
+              export CL="/std:c++17"
+            fi
+            export SWIG_FLAGS="msvc"
+            echo "PATH=$PATH"
+            echo "CL=$CL"
+          elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
+            export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:$DYLD_LIBRARY_PATH"
+            export CPATH="$OPENBLAS_INCLUDE:$CPATH"
+            echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+            echo "CPATH=$CPATH"
+          else
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
+            export LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LIBRARY_PATH"
+            echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+          fi
+          cd wrapping/python  # in root
+          echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+          git status --porcelain --untracked-files=no
+          test -z "$(git status --porcelain --untracked-files=no)"
+        else
+          # make setuptools_scm happy -- this will show up as dirty when a wheel
+          # is built from it but that's okay
+          cp -a .git build/
+          cd build/wrapping/python  # in build subdirectory
+          echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+        fi
+        pwd
+        python setup.py bdist_wheel sdist
+        echo "Wheels:"
+        ls -alR dist/*.whl
+        FNAME=$(ls dist/*.whl)
+        echo "Processing $FNAME"
+        test -n "$FNAME"
+        test -f "$FNAME"
+        unzip "$FNAME" -d check
+        echo "Contents before:"
+        ls -alR check/*
+        if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show "$FNAME"
+          PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
+        elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
+          length=${#FNAME}
+          ORIG_FNAME="${FNAME::length-4}.orig"
+          cp -a "$FNAME" "$ORIG_FNAME"
+          # TODO: This is broken for our abi3 wheel
+          # delocate-wheel -v "$FNAME"
+          # This can change thename of the wheel so we need to re-find it
+          FNAME=$(ls dist/*.whl)
+          test -f "$FNAME"
+          mv "$ORIG_FNAME" "${ORIG_FNAME}.whl"
+          delocate-listdeps --all "$FNAME"
+        # This build uses a toolchain that is too new, so skip this on Linux
+        # else
+        #   auditwheel show "$FNAME"
+        #   auditwheel repair "$FNAME"
+        #   FNAME=$(ls dist/*.whl)
+        #   test -f "$FNAME"
+        fi
+        rm -Rf check
+        unzip "$FNAME" -d check
+        echo "Contents after:"
+        ls -alR check/*
+        twine check dist/*
+        pip install "$FNAME" --force-reinstall
+        if [[ "${{ steps.env-vars.outputs.numpy_version }}" == "oldest" ]]; then
+          pip install --only-binary "numpy" "numpy<2"
+        fi
+        cd ~
+        python -c "import openmeeg; print(openmeeg.__version__)"
+        ${GITHUB_WORKSPACE}/build_tools/cibw_test_command.sh ${GITHUB_WORKSPACE}
+        pip uninstall -yq openmeeg
+        # Now make it so our tests can find the libs
+        if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+          echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+        fi
+
+    - name: Upload wrapped Python lib
+      if: startswith(steps.env-vars.outputs.python, 'python') && (success() || failure())
+      uses: actions/upload-artifact@v4
+      with:
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
+        path: ${{ steps.wheel.outputs.path }}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: |
+        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+
+    - name: Prepare coverage
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+      run: |
+        lcov --directory . --capture --output-file coverage.info # capture coverage info
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out system
+        lcov --remove coverage.info '*numpy/*' --output-file coverage.info # filter out NumPy
+        lcov --list coverage.info
+
+    - name: Upload coverage to CodeCov
+      uses: codecov/codecov-action@v5
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+      with:
+        files: coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}

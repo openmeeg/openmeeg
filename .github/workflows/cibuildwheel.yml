@@ -37,14 +37,14 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
-        #  - os: ubuntu-latest
-        #    arch: aarch64
+          - os: ubuntu-latest
+            arch: aarch64
           - os: windows-latest
             arch: AMD64
-        #  - os: macos-13
-        #    arch: x86_64
-        #  - os: macos-14
-        #    arch: arm64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-14
+            arch: arm64
     timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +117,11 @@ jobs:
           git sparse-checkout init --cone
           git sparse-checkout set data
           git checkout
-          echo "OPENMEEG_DATA_PATH=$(pwd)/data" | tee -a $GITHUB_ENV
+          OPENMEEG_DATA_PATH/$(pwd)/data
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            OPENMEEG_DATA_PATH=$(cygpath - w "$OPENMEEG_DATA_PATH")
+          fi
+          echo "OPENMEEG_DATA_PATH=$OPENMEEG_DATA_PATH" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
         shell: bash
       - run: pip install -v pytest dist/*.whl
