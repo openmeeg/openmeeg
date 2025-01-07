@@ -22,6 +22,13 @@ on:
     branches: [ main ]
   release:
     types: [ published ]
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -51,6 +58,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      # https://github.com/marketplace/actions/debugging-with-tmate#detached-mode
+      - uses: mxschmitt/action-tmate@v3
+        # if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+        with:
+          detached: true
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
       - uses: docker/setup-qemu-action@v3
@@ -95,10 +107,10 @@ jobs:
             arch: x86_64
           - os: windows-latest
             arch: AMD64
-          - os: macos-13
-            arch: x86_64
-          - os: macos-14
-            arch: arm64
+          #- os: macos-13
+          #  arch: x86_64
+          #- os: macos-14
+          #  arch: arm64
     steps:
       - uses: actions/setup-python@v5
         with:
