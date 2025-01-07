@@ -15,5 +15,5 @@ PYTHONFAULTHANDLER=1 PYTHONWARNINGS=error python -uc "import openmeeg"
 
 # Rerun the "bad" way
 TEST_PATH=$(python -c 'from pathlib import Path; import openmeeg; print(Path(openmeeg.__file__).parent)')
-sleep 600  # wait 10 minutes so that I can grab the wheel :rolls_eyes:
+sleep 60  # wait a minute so that I can grab the wheel :rolls_eyes:
 pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"
