@@ -49,18 +49,18 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          numpy: numpyold
-          slow: false
-        - os: windows-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          windows_compiler: msvc
-          slow: false
+        #- os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  numpy: numpyold
+        #  slow: false
+        #- os: windows-latest
+        #  blas: OpenBLAS
+        #  blas_linking: dynamic
+        #  python: cmake
+        #  windows_compiler: msvc
+        #  slow: false
         - os: macos-15
           blas: OpenBLAS
           blas_linking: dynamic
@@ -71,47 +71,47 @@ jobs:
           blas_linking: dynamic
           python: cmake
           slow: false
-        # Latest OpenBLAS release
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
-          blas: OpenBLAS-latest
-          python-version: '3.12'
-        # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
-          blas: OpenBLAS
-          python-version: 'pypy-3.10'
-        # One with latest numpy, plus VTK
-        - os: ubuntu-22.04
-          blas: OpenBLAS
-          numpy: numpydev
-          slow: true
-        # Windows mingw64 is disabled because of some path problem where cmake
-        # cannot find Python3 (!). We don't really need it because wheels and
-        # conda-forge both use MSVC, things work there, and it's the official
-        # Windows compiler. So we disable it for now at least (YAGNI).
-        # There is some stuff below and in cmake_configure.sh we could get rid
-        # of if we decide to fully drop it later.
-        # - os: windows-latest
-        #   windows_compiler: mingw64
-        # MKL on each OS (static unless it has to be dynamic)
-        - os: windows-latest
-          blas: mkl-findblas
-          blas_linking: static
-        - os: ubuntu-20.04
-          blas: mkl-findblas
-        # One without Python but with VTK (once we fix it!)
-        - os: ubuntu-22.04
-          python: no-python
-          # vtk: vtk9  # TODO: Uncomment and update merge reqs
-          slow: true
-        # Windows static
-        - os: windows-latest
-          blas: OpenBLAS
-          blas_linking: static
-        # Setuptools
-        - os: ubuntu-20.04
-          python: setuptools
-        - os: macos-latest
-          python: setuptools
+        ## Latest OpenBLAS release
+        #- os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
+        #  blas: OpenBLAS-latest
+        #  python-version: '3.12'
+        ## PyPy build
+        #- os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+        #  blas: OpenBLAS
+        #  python-version: 'pypy-3.10'
+        ## One with latest numpy, plus VTK
+        #- os: ubuntu-22.04
+        #  blas: OpenBLAS
+        #  numpy: numpydev
+        #  slow: true
+        ## Windows mingw64 is disabled because of some path problem where cmake
+        ## cannot find Python3 (!). We don't really need it because wheels and
+        ## conda-forge both use MSVC, things work there, and it's the official
+        ## Windows compiler. So we disable it for now at least (YAGNI).
+        ## There is some stuff below and in cmake_configure.sh we could get rid
+        ## of if we decide to fully drop it later.
+        ## - os: windows-latest
+        ##   windows_compiler: mingw64
+        ## MKL on each OS (static unless it has to be dynamic)
+        #- os: windows-latest
+        #  blas: mkl-findblas
+        #  blas_linking: static
+        #- os: ubuntu-20.04
+        #  blas: mkl-findblas
+        ## One without Python but with VTK (once we fix it!)
+        #- os: ubuntu-22.04
+        #  python: no-python
+        #  # vtk: vtk9  # TODO: Uncomment and update merge reqs
+        #  slow: true
+        ## Windows static
+        #- os: windows-latest
+        #  blas: OpenBLAS
+        #  blas_linking: static
+        ## Setuptools
+        #- os: ubuntu-20.04
+        #  python: setuptools
+        #- os: macos-latest
+        #  python: setuptools
 
     runs-on: ${{ matrix.os }}
 
@@ -267,8 +267,10 @@ jobs:
             pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
           fi
         fi
-        pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl "swig>=4.2" $EXTRA_PIP
-
+        echo "::group::Installing other packages"
+        set -x
+        pip install --upgrade --progress-bar off --only-binary="numpy" setuptools setuptools_scm wheel twine threadpoolctl "swig>=4.2" $EXTRA_PIP
+        echo "::endgroup::"
 
     - name: MKL setup - mkl via conda
       if: startswith(steps.env-vars.outputs.blas,'mkl')
@@ -563,6 +565,7 @@ jobs:
           cp -a .git build/
           cd build/wrapping/python  # in build subdirectory
           echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+          export OPENMEEG_NO_ABI3=1
         fi
         pwd
         python setup.py bdist_wheel sdist
@@ -576,6 +579,7 @@ jobs:
         echo "Contents before:"
         ls -alR check/*
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+          delvewheel --version
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show "$FNAME"
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
         elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
@@ -583,18 +587,20 @@ jobs:
           ORIG_FNAME="${FNAME::length-4}.orig"
           cp -a "$FNAME" "$ORIG_FNAME"
           # TODO: This is broken for our abi3 wheel
-          # delocate-wheel -v "$FNAME"
+          delocate-wheel --version
+          delocate-wheel -v "$FNAME"
           # This can change thename of the wheel so we need to re-find it
           FNAME=$(ls dist/*.whl)
           test -f "$FNAME"
           mv "$ORIG_FNAME" "${ORIG_FNAME}.whl"
           delocate-listdeps --all "$FNAME"
         # This build uses a toolchain that is too new, so skip this on Linux
-        # else
-        #   auditwheel show "$FNAME"
-        #   auditwheel repair "$FNAME"
-        #   FNAME=$(ls dist/*.whl)
-        #   test -f "$FNAME"
+        else
+          auditwheel --version
+          # auditwheel show "$FNAME"
+          # auditwheel repair "$FNAME"
+          # FNAME=$(ls dist/*.whl)
+          # test -f "$FNAME"
         fi
         rm -Rf check
         unzip "$FNAME" -d check
