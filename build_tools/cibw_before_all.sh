@@ -152,7 +152,7 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
-pip install --upgrade "cmake!=3.31.4" "swig>=4.2"
+pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
     ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}

@@ -82,6 +82,7 @@ repair-wheel-command = [
     "pipx run abi3audit --strict --report {wheel}",
 ]
 environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="/usr/local/include" }
+manylinux-aarch64-image = "quay.io/pypa/manylinux2014_aarch64:latest"
 
 [tool.cibuildwheel.macos]
 repair-wheel-command = [
