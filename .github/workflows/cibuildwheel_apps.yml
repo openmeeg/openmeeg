@@ -48,11 +48,11 @@ jobs:
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2
-        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+        if: runner.os != 'Linux'
         with:
           key: ${{ github.job }}-${{ matrix.os }}
       - name: Cache vcpkg
-        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+        if: runner.os != 'Linux'
         uses: actions/cache@v4
         with:
           path: |
