@@ -37,7 +37,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
-          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
             arch: aarch64
           - os: windows-latest
             arch: AMD64
@@ -51,21 +51,15 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      # For aarch64 support
-      # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-        if: runner.os == 'Linux' && matrix.arch == 'aarch64'
       - uses: actions/setup-python@v5  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2
-        if: matrix.os != 'ubuntu-latest'
+        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
         with:
           key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
       - name: Cache vcpkg
-        if: matrix.os != 'ubuntu-latest'
+        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
         uses: actions/cache@v4
         with:
           path: |
