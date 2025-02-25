@@ -14,6 +14,7 @@ from wheel.bdist_wheel import bdist_wheel
 
 
 abi3 = (platform.python_implementation() == "CPython")
+abi3 = abi3 and not os.getenv("OPENMEEG_NO_ABI3", "0").lower() in ("1", "true")
 
 
 # Adapted from Apache-2.0 licensed code at:
