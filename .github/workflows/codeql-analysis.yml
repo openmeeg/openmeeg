@@ -19,7 +19,7 @@ defaults:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
@@ -37,7 +37,7 @@ jobs:
         gcc --version
     - name: Install NumPy
       run: |
-        pip install --upgrade --user --pre "numpy>=2.0.0b1,<3" setuptools setuptools_scm "swig>=4.2"
+        pip install --upgrade --user "setuptools>=68.0.0" "setuptools_scm>=6.2" "wheel>=0.37.0" "numpy>=2.0.0b1,<3" "swig>=4.2"
     - name: Configure
       run: |
         export DISABLE_CCACHE=1
