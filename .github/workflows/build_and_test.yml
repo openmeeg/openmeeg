@@ -84,6 +84,7 @@ jobs:
           blas: OpenBLAS
           numpy: numpydev
           slow: true
+          python-version: '3.13'
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
         # conda-forge both use MSVC, things work there, and it's the official
