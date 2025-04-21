@@ -49,7 +49,7 @@ jobs:
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
         include:
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -72,15 +72,15 @@ jobs:
           python: cmake
           slow: false
         # Latest OpenBLAS release
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
+        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-20.04  # wrapping_ubuntu-20.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
           python-version: 'pypy-3.10'
         # One with latest numpy, plus VTK
-        - os: ubuntu-22.04
+        - os: ubuntu-24.04
           blas: OpenBLAS
           numpy: numpydev
           slow: true
@@ -97,10 +97,10 @@ jobs:
         - os: windows-latest
           blas: mkl-findblas
           blas_linking: static
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           blas: mkl-findblas
         # One without Python but with VTK (once we fix it!)
-        - os: ubuntu-22.04
+        - os: ubuntu-24.04
           python: no-python
           # vtk: vtk9  # TODO: Uncomment and update merge reqs
           slow: true
@@ -109,7 +109,7 @@ jobs:
           blas: OpenBLAS
           blas_linking: static
         # Setuptools
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           python: setuptools
         - os: macos-latest
           python: setuptools
@@ -630,9 +630,10 @@ jobs:
     - name: Prepare coverage
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
+        set -x
         lcov --directory . --capture --output-file coverage.info # capture coverage info
-        lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out system
-        lcov --remove coverage.info '*numpy/*' --output-file coverage.info # filter out NumPy
+        lcov --remove coverage.info '/usr/*' --ignore-errors unused --output-file coverage.info # filter out system
+        lcov --remove coverage.info '*numpy/*' --ignore-errors unused --output-file coverage.info # filter out NumPy
         lcov --list coverage.info
 
     - name: Upload coverage to CodeCov
