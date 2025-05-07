@@ -121,6 +121,13 @@ add_custom_command(
 )
 message("Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
+if (ENABLE_PYTHON_APPS)
+    install(FILES ${OpenMEEG_SOURCE_DIR}/wrapping/python/apps/openmeeg
+            DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(FILES  ${OpenMEEG_SOURCE_DIR}/wrapping/python/apps/*.py
+            DESTINATION ${PYTHON_SITE_ARCH})
+endif()
+
 # Installation just copies the directory
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
@@ -180,4 +187,17 @@ if (BUILD_TESTING)
         set_tests_properties(openmeeg_python_doc PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endif()
 
+    if (ENABLE_PYTHON_APPS)
+        set(APP ${CMAKE_CURRENT_SOURCE_DIR}/apps/openmeeg)
+        set(ASSEMBLE ${APP} assemble)
+        set(INVERSER ${APP} minverser)
+        set(GAIN     ${APP} gain)
+        set(FORWARD  ${APP} forward)
+
+        OPENMEEG_TEST(python-assemble-help ${ASSEMBLE} -h)
+        OPENMEEG_TEST(python-inverser-help ${INVERSER} -h)
+        OPENMEEG_TEST(python-gain-help ${GAIN} -h)
+        OPENMEEG_TEST(python-forward-help ${FORWARD} -h)
+
+    endif()
 endif()
