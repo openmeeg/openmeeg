@@ -1,12 +1,7 @@
 # Adapted from FindNumpy.cmake (MIT)
+# Assumes a python interpreter has already been found.
 
-if (Pytest_FIND_REQUIRED)
-    find_package(PythonInterp REQUIRED)
-else()
-    find_package(PythonInterp)
-endif()
-
-if (NOT PYTHONINTERP_FOUND)
+if (NOT Python3::Interpreter)
     set(PYTEST_FOUND FALSE)
     return()
 endif()
