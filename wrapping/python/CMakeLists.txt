@@ -11,9 +11,12 @@
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
 
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+    cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
+endif()
 
-cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+
 if (BUILD_TESTING)
     find_package(Pytest)
 endif()
