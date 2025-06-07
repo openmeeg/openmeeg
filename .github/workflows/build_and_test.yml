@@ -99,7 +99,7 @@ jobs:
           blas_linking: static
         - os: ubuntu-22.04
           blas: mkl-findblas
-        # One without Python but with VTK (once we fix it!)
+        # One without Python but with VTK
         - os: ubuntu-24.04
           python: no-python
           vtk: vtk9
@@ -624,8 +624,6 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      ${{ if startsWith(steps.env-vars.outputs.os,'ubuntu') }}:
-      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu*' ]]; then
           ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
