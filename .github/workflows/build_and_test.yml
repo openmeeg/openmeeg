@@ -168,7 +168,7 @@ jobs:
         else
           echo "windows_compiler=msvc" >> $GITHUB_OUTPUT
         fi
-        if [[ "${{matrix.slow}}" == "true" ]]; then
+        if [[ "${{matrix.slow}}" == "slow" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
         fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
@@ -625,7 +625,7 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
-        if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu*' ]]; then
+        if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
           ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
         fi
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
