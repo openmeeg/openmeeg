@@ -1,6 +1,6 @@
 macro(OpenMEEG_Executable TARGET SOURCE)
     add_executable(${TARGET} ${SOURCE})
-    target_link_libraries(${TARGET} OpenMEEG::OpenMEEGMaths OpenMEEG::OpenMEEG)
+    target_link_libraries(${TARGET} OpenMEEG::OpenMEEG)
     target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endmacro()
 
