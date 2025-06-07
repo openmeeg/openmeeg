@@ -624,8 +624,10 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
+      run: |
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
 
     - name: Prepare coverage
