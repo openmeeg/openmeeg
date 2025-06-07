@@ -194,7 +194,7 @@ jobs:
         fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
           echo "vtk_version=${{matrix.vtk}}" >> $GITHUB_OUTPUT
-          VTK_OPT="-DUSE_VTK=ON"
+          VTK_OPT="-DUSE_VTK=ON -DENABLE_VTK_BUG_WORKAROUND=ON"
         else
           VTK_OPT="-DUSE_VTK=OFF"
         fi
