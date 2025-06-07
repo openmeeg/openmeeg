@@ -83,7 +83,7 @@ jobs:
         - os: ubuntu-24.04
           blas: OpenBLAS
           numpy: numpydev
-          slow: true
+          slow: slow
           python-version: '3.13'
         # Windows mingw64 is disabled because of some path problem where cmake
         # cannot find Python3 (!). We don't really need it because wheels and
@@ -103,7 +103,7 @@ jobs:
         - os: ubuntu-24.04
           python: no-python
           vtk: vtk9
-          slow: true
+          slow: slow
         # Windows static
         - os: windows-latest
           blas: OpenBLAS
