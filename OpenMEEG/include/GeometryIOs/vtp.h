@@ -41,7 +41,7 @@ namespace OpenMEEG::GeometryIOs {
         /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
         void load_meshes(Geometry& geometry) override {
-            vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+            vtkNew<vtkXMLPolyDataReader> reader;
             reader->SetFileName(fname.c_str());
             reader->Update();
 
