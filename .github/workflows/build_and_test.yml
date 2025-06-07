@@ -627,6 +627,7 @@ jobs:
       run: |
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
           ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
+          export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
 
