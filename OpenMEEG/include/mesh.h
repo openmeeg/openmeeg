@@ -191,7 +191,6 @@ namespace OpenMEEG {
         /// \brief Smooth Mesh
         /// \param smoothing_intensity
         /// \param niter
-        /// \return void
 
         void smooth(const double& smoothing_intensity, const unsigned& niter);
 
