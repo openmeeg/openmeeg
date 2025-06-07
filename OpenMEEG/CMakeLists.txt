@@ -43,6 +43,10 @@ if (VTK_FOUND)
         target_include_directories(vtkXMLWorkaround PUBLIC ${VTK_INCLUDE_DIRS})
         target_link_libraries(vtkXMLWorkaround PUBLIC ${VTK_LIBRARIES})
         set(VTK_BUG_WORKAROUND_LIB vtkXMLWorkaround)
+        install(TARGETS vtkXMLWorkaround
+                ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
     endif()
 
     target_compile_definitions(OpenMEEG PUBLIC USE_VTK)
