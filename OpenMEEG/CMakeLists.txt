@@ -26,6 +26,25 @@ endif()
 set_target_properties(OpenMEEG PROPERTIES VERSION 1.1.0 SOVERSION 1 CLEAN_DIRECT_OUTPUT 1)
 
 if (VTK_FOUND)
+    if (VTK_VERSION VERSION_GREATER_EQUAL 9.1.0)
+        option(ENABLE_VTK_BUG_WORKAROUND "Add an interposer library to workaround the vtk/expat XML reading bug.")
+    endif()
+
+    set(VTK_BUG_WORKAROUND_LIB)
+    if (ENABLE_VTK_BUG_WORKAROUND)
+        message("Enabling VTK bug workaround")
+        set(vtkXMLWorkaround_SOURCES)
+        foreach(source vtkXMLDataParser.cxx vtkXMLDataParser.h vtkXMLDataHeaderPrivate.h)
+            set(vtkXMLWorkaround_SOURCES ${vtkXMLWorkaround_SOURCES} ${CMAKE_SOURCE_DIR}/vtkXMLWorkaround/${source})
+        endforeach()
+
+        add_library(vtkXMLWorkaround SHARED ${vtkXMLWorkaround_SOURCES})
+        target_compile_definitions(vtkXMLWorkaround PRIVATE VTK_ABI_NAMESPACE_BEGIN VTK_ABI_NAMESPACE_END)
+        target_include_directories(vtkXMLWorkaround PUBLIC ${VTK_INCLUDE_DIRS})
+        target_link_libraries(vtkXMLWorkaround PUBLIC ${VTK_LIBRARIES})
+        set(VTK_BUG_WORKAROUND_LIB vtkXMLWorkaround)
+    endif()
+
     target_compile_definitions(OpenMEEG PUBLIC USE_VTK)
 endif()
 
@@ -59,6 +78,7 @@ target_include_directories(OpenMEEG
 target_link_libraries(OpenMEEG
       PUBLIC # XXX : this should become PRIVATE ! and transitive
           OpenMEEG::OpenMEEGMaths
+          ${VTK_BUG_WORKAROUND_LIB}
           ${VTK_LIBRARIES}
           ${GIFTI_LIBRARIES}
 )
