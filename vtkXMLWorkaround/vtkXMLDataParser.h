@@ -27,7 +27,7 @@ class vtkDataCompressor;
 class VTKIOXMLPARSER_EXPORT vtkXMLDataParser : public vtkXMLParser
 {
 public:
-  vtkTypeMacro(vtkXMLDataParser, vtkXMLParser);
+  vtkTypeMacro(vtkXMLDataParser, vtkXMLParser)
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataParser* New();
 
