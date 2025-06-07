@@ -625,6 +625,7 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
+        ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
 
     - name: Prepare coverage
