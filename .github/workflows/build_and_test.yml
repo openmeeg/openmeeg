@@ -102,7 +102,7 @@ jobs:
         # One without Python but with VTK (once we fix it!)
         - os: ubuntu-24.04
           python: no-python
-          # vtk: vtk9  # TODO: Uncomment and update merge reqs
+          vtk: vtk9
           slow: true
         # Windows static
         - os: windows-latest
