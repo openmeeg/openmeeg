@@ -54,23 +54,23 @@ jobs:
           blas_linking: dynamic
           python: cmake
           numpy: numpyold
-          slow: false
+          slow: fast
         - os: windows-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
           windows_compiler: msvc
-          slow: false
+          slow: fast
         - os: macos-15
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
-          slow: false
+          slow: fast
         - os: macos-13
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
-          slow: false
+          slow: fast
         # Latest OpenBLAS release
         - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
@@ -626,7 +626,6 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
-          ldd /home/runner/work/openmeeg/openmeeg/build/apps/om_assemble
           export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
