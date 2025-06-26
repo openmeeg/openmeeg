@@ -298,7 +298,7 @@ namespace OpenMEEG {
 
         EdgeMap edgemap;
         auto lambda = [&](const Vertex& V1,const Vertex& V2,const int incr) {
-            const auto& index = std::make_pair(&V1,&V2);
+            const auto index = std::make_pair(&V1,&V2);
             if (edgemap.count(index)==0)
                 edgemap[index] = incr;
             else
