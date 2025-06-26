@@ -298,7 +298,10 @@ namespace OpenMEEG {
 
         EdgeMap edgemap;
         auto lambda = [&](const Vertex& V1,const Vertex& V2,const int incr) {
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wdangling-reference"
             const auto& index = std::make_pair(&V1,&V2);
+            #pragma GCC diagnostic pop
             if (edgemap.count(index)==0)
                 edgemap[index] = incr;
             else
