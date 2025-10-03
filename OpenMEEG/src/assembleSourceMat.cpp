@@ -61,6 +61,51 @@ namespace OpenMEEG {
     }
 
     Matrix
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const Integrator& integrator,const std::string& domain_name) {
+
+        const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
+        const size_t n_monopoles = monopoles.nlin();
+
+        Matrix rhs(size,n_monopoles);
+        rhs.set(0.0);
+
+        ProgressBar pb(n_monopoles);
+        Vector rhs_col(rhs.nlin());
+        for (unsigned s=0; s<n_monopoles; ++s,++pb) {
+            const Monopole monopole(s,monopoles);
+            const Domain domain = (domain_name=="") ? geo.domain(monopole.position()) : geo.domain(domain_name);
+
+            //  Only consider monopoles in non-zero conductivity domain.
+
+            const double cond = domain.conductivity();
+            if (cond!=0.0) {
+                rhs_col.set(0.0);
+                for (const auto& boundary : domain.boundaries()) {
+                    const double factorD = (boundary.inside()) ? K : -K;
+                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
+                        //  Process the mesh.
+                        const double coeffD = factorD*oriented_mesh.orientation();
+                        const Mesh&  mesh   = oriented_mesh.mesh();
+                        operatorMonopolePotDer(monopole,mesh,rhs_col,coeffD,integrator);
+
+                        if (!oriented_mesh.mesh().current_barrier()) {
+                            const double coeff = -coeffD/cond;;
+                            operatorMonopolePot(monopole,mesh,rhs_col,coeff,integrator);
+                        }
+                    }
+                }
+                rhs.setcol(s,rhs_col);
+            }
+        }
+        return rhs;
+    }
+
+    Matrix
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const std::string& domain_name) {
+        return MonopoleSourceMat(geo,monopoles,Integrator(3,10,0.001),domain_name);
+    }
+
+    Matrix
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator,const std::string& domain_name) {
 
         const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
@@ -83,7 +128,7 @@ namespace OpenMEEG {
                 for (const auto& boundary : domain.boundaries()) {
                     const double factorD = (boundary.inside()) ? K : -K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        //  Treat the mesh.
+                        //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
                         operatorDipolePotDer(dipole,mesh,rhs_col,coeffD,integrator);
