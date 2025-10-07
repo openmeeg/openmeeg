@@ -25,26 +25,9 @@ if [ -z "$RUNNER_OS" ]; then
 fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
-# Let's have NumPy help us out
-if [[ "$RUNNER_OS" == "macOS" ]] && [[ $(uname -m) == 'arm64' ]]; then
-    echo "Making /usr/local/lib for macOS arm64"
-    sudo mkdir -p /usr/local/lib /usr/local/include
-    sudo chown $USER /usr/local/lib /usr/local/include
-fi
-curl -L https://github.com/numpy/numpy/archive/refs/tags/v1.23.1.tar.gz | tar xz numpy-1.23.1
-mv numpy-1.23.1/tools .
-mv numpy-1.23.1/numpy .  # on Windows, _distributor_init gets modified
-echo "Running NumPy tools/wheels/cibw_before_build.sh $1"
-chmod +x ./tools/wheels/cibw_before_build.sh
-./tools/wheels/cibw_before_build.sh $1
-PLATFORM=$(PYTHONPATH=tools python -c "import openblas_support; print(openblas_support.get_plat())")
-rm -Rf numpy numpy-1.23.1 tools
-echo "Using NumPy PLATFORM=\"${PLATFORM}\""
-git config --global --add safe.directory "$ROOT"
-git checkout LICENSE.txt  # This file is modified by NumPy
-if [[ "$KIND" == "app" ]]; then
-    rm -Rf .ccache gfortran.dmg gfortran-darwin-arm64.tar.gz openblas-v*.zip
-fi
+python -m pip install scipy-openblas32
+OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include())")
+OPENBLAS_LIB=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
@@ -61,9 +44,6 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
     yum -y install epel-release
     yum -y install hdf5-devel matio-devel curl zip unzip tar ninja-build
     echo "::endgroup::"
-    BLAS_DIR=/usr/local
-    export OPENBLAS_INCLUDE=$BLAS_DIR/include
-    export OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-lgfortran -lpthread"
     export DISABLE_CCACHE=1
@@ -82,11 +62,7 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
     fi
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    BLAS_DIR=/usr/local
-    OPENBLAS_INCLUDE=$BLAS_DIR/include
-    OPENBLAS_LIB=$BLAS_DIR/lib
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export CMAKE_PREFIX_PATH="$BLAS_DIR"
     export LINKER_OPT="-L$OPENBLAS_LIB"
     if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
         VC_NAME="x64"
@@ -139,7 +115,7 @@ elif [[ "$PLATFORM" == "win-amd64" ]]; then
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     if [[ "$KIND" == "app" ]]; then
-        OPENBLAS_DLL=$(ls $OPENBLAS_LIB/libopenblas*.dll)
+        OPENBLAS_DLL=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")
         echo "OPENBLAS_DLL=\"${OPENBLAS_DLL}\""
         test -f $OPENBLAS_DLL
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
@@ -201,7 +177,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     fi
 elif [[ "$PLATFORM" == 'win'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
-        cp -av $OPENBLAS_LIB/libopenblas_v0.3.20-140-gbfd9c1b5-gcc_8_1_0.dll install/bin/
+        cp -av $OPENBLAS_DLL install/bin/
     else
         ./build_tools/install_dependency_walker.sh
     fi

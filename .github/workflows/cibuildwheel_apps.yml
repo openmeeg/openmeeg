@@ -27,7 +27,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
         include:
           - os: ubuntu-latest
             arch: x86_64
@@ -36,9 +35,9 @@ jobs:
           #   arch: aarch64
           - os: windows-latest
             arch: AMD64
-          - os: macos-13
+          - os: macos-15-intel
             arch: x86_64
-          - os: macos-14
+          - os: macos-latest
             arch: arm64
 
     steps:
