@@ -25,10 +25,22 @@ if [ -z "$RUNNER_OS" ]; then
 fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
+echo "::group::scipy-openblas32"
 python -m pip install scipy-openblas32
 OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
+echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
+ls -alR $OPENBLAS_INCLUDE
 OPENBLAS_LIB=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+echo "OPENBLAS_LIB=\"$OPENBLAS_LIB\""
 ls -alR $OPENBLAS_LIB
+echo "./.openblas/scipy-openblas.pc:"
+mkdir -p ./.openblas
+echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy-openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
+export PKG_CONFIG_PATH="$PWD/.openblas"
+echo "PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
+cat $PKG_CONFIG_PATH/scipy-openblas.pc
+echo "::endgroup::"
+
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
@@ -91,15 +103,15 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
+    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
-    source ./build_tools/download_openblas.sh windows  # NumPy doesn't install the headers for Windows
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     if [[ "$KIND" == "app" ]]; then
-        OPENBLAS_DLL=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")
-        echo "OPENBLAS_DLL=\"${OPENBLAS_DLL}\""
+        OPENBLAS_DLL=$OPENBLAS_LIB\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
+        echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
         test -f $OPENBLAS_DLL
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
     fi
@@ -108,7 +120,8 @@ else
     exit 1
 fi
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
-export BLA_IMPLEMENTATION="OpenBLAS"
+export BLAS_LIBRARIES_OPT="-DBLA_IMPLEMENTATION=OpenBLAS -DUSE_SCIPY_OPENBLAS=ON"
+export CMAKE_SHARED_LINKER_FLAGS="-L$OPENBLAS_LIB -lscipy_openblas"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"

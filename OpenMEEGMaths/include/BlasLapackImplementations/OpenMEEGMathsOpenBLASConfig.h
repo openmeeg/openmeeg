@@ -21,7 +21,11 @@
 
 typedef int BLAS_INT;
 
-#define BLAS(x,X) cblas_ ## x
+#if defined(USE_SCIPY_OPENBLAS)
+    #define BLAS(x,X) scipy_cblas_ ## x
+#else
+    #define BLAS(x,X) cblas_ ## x
+#endif
 #define LAPACK(x,X) LAPACKE_ ## x
 
 #define CLAPACK_INTERFACE
