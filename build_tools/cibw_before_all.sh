@@ -26,12 +26,18 @@ fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
 echo "::group::scipy-openblas32"
-PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform())")
+PLATFORM=$(python -c "import platform; print(platform.platform())")
 echo "PLATFORM=$PLATFORM"
+# PLATFORM can be:
+# linux-*-x86_64-*
+# linux-*-aarch64-*
+# macOS-*-x86_64-*
+# macOS-*-arm64-*
+# win-*-amd64-*
 
 python -m pip install scipy-openblas32
 # fix a bug in the headers!
-if [[ "$PLATFORM" == 'macosx-'* ]]; then
+if [[ "$PLATFORM" == 'macOS-'* ]]; then
     SED_OPT="-i ''"
 else
     SED_OPT="-i"
@@ -57,13 +63,6 @@ echo "::endgroup::"
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
-# PLATFORM can be:
-# linux-*-x86_64
-# linux-*-aarch64
-# macosx-*-x86_64
-# macosx-*-arm64
-# win-*-amd64
-
 if [[ "$PLATFORM" == 'linux-'* ]]; then
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
@@ -75,9 +74,9 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
-        if [[ "$PLATFORM" == *'-x86_64' ]]; then
+        if [[ "$PLATFORM" == *'-x86_64'* ]]; then
             export VCPKG_DEFAULT_TRIPLET="x64-linux"
-        elif [[ "$PLATFORM" == *'-aarch64' ]]; then
+        elif [[ "$PLATFORM" == *'-aarch64'* ]]; then
             export VCPKG_DEFAULT_TRIPLET="arm64-linux"
         else
             echo "Unknown PLATFORM=\"$PLATFORM\""
@@ -87,11 +86,11 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
         LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
     fi
-elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    if [[ "$PLATFORM" == *'-x86_64' ]]; then
+elif [[ "$PLATFORM" == 'macOS-'* ]]; then
+    if [[ "$PLATFORM" == *'-x86_64'* ]]; then
         VC_NAME="x64"
         MIN_VER="10.15"
-    elif [[ "$PLATFORM" == *'-arm64' ]]; then
+    elif [[ "$PLATFORM" == *'-arm64'* ]]; then
         VC_NAME="arm64"
         MIN_VER="11.0"
     else
@@ -111,7 +110,7 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         fi
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
-elif [[ "$PLATFORM" == "win-amd64" ]]; then
+elif [[ "$PLATFORM" == 'win-'*'-amd64'* ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
@@ -184,6 +183,10 @@ fi
 if [[ "$KIND" == "wheel" ]]; then
     echo "ls -al $PWD:"
     ls -al
+fi
+
+if [[ "$GITHUB_ENV" != "" ]]; then
+    echo "OPENBLAS_INCLUDE=${OPENBLAS_INCLUDE}" | tee -a $GITHUB_ENV
 fi
 
 echo "git status:"
