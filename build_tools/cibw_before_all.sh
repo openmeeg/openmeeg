@@ -26,11 +26,14 @@ fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
 python -m pip install scipy-openblas32
-OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include())")
+OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
 OPENBLAS_LIB=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+ls -alR $OPENBLAS_LIB
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
+PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform())")
+echo "PLATFORM=$PLATFORM"
 # PLATFORM can be:
 # linux-x86_64
 # linux-aarch64
@@ -45,7 +48,7 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
     yum -y install hdf5-devel matio-devel curl zip unzip tar ninja-build
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export LINKER_OPT="-lgfortran -lpthread"
+    export LINKER_OPT="-lpthread"
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
@@ -64,14 +67,12 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export LINKER_OPT="-L$OPENBLAS_LIB"
-    if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
+    if [[ "$PLATFORM" == *'-x86_64' ]]; then
         VC_NAME="x64"
         MIN_VER="10.15"
-        LIBGFORTRAN="/usr/local/gfortran/lib/libgfortran.3.dylib"
-    elif [[ "$PLATFORM" == "macosx-arm64" ]]; then
+    elif [[ "$PLATFORM" == *'-arm64' ]]; then
         VC_NAME="arm64"
         MIN_VER="11.0"
-        LIBGFORTRAN="$(find /opt/gfortran-darwin-arm64/lib -name libgfortran.dylib)"
     else
         echo "Unknown PLATFORM=\"$PLATFORM\""
         exit 1
@@ -82,29 +83,11 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     if [[ "$KIND" == "app" ]]; then
-        GFORTRAN_LIB=$(dirname $LIBGFORTRAN)
-        GFORTRAN_NAME=$(basename $LIBGFORTRAN)
-        sudo chmod -R a+w $GFORTRAN_LIB
-        otool -L $LIBGFORTRAN
-        install_name_tool -id "@rpath/${GFORTRAN_NAME}" $LIBGFORTRAN
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$LIBGFORTRAN"
         if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
             PACKAGE_ARCH_SUFFIX="_Intel"
-            install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.1.dylib" "@rpath/libgcc_s.1.dylib" ${LIBGFORTRAN}
-            install_name_tool -change "${GFORTRAN_LIB}/libquadmath.0.dylib" "@rpath/libquadmath.0.dylib" ${LIBGFORTRAN}
-            LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.1.dylib;$GFORTRAN_LIB/libquadmath.0.dylib"
         else
             PACKAGE_ARCH_SUFFIX="_M1"
-            install_name_tool -change "${GFORTRAN_LIB}/libgcc_s.2.dylib" "@rpath/libgcc_s.2.dylib" ${LIBGFORTRAN}
-            LIBRARIES_INSTALL_OPT="$LIBRARIES_INSTALL_OPT;$GFORTRAN_LIB/libgcc_s.2.dylib"
-            # Doesn't seem like this should be necessary but it is for the arm64 build
-            codesign --force -s - $GFORTRAN_LIB/libgcc_s.2.dylib
         fi
-        # Need to fix the now-broken signature via ad-hoc signing (at least on arm)
-        # https://github.com/matthew-brett/delocate/blob/de38e09acd86b27c795c3d342d132031c45b1aff/delocate/tools.py#L660
-        codesign --force -s - $LIBGFORTRAN
-        # Set LINKER_OPT after vckpg_compilation.sh because it also sets LINKER_OPT
-        export LINKER_OPT="$LINKER_OPT -lgfortran -L$GFORTRAN_LIB"
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
@@ -140,11 +123,6 @@ else
     ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --config release
-    if [[ "${PLATFORM}" == 'macosx-'* ]]; then
-        for name in OpenMEEG OpenMEEGMaths; do
-            install_name_tool -change "${LIBGFORTRAN}" "@rpath/${GFORTRAN_NAME}" ./build/${name}/lib${name}.1.1.0.dylib
-        done
-    fi
     echo "::endgroup::"
     echo "::group::cmake --target package"
     cmake --build build --target package --target install --config release
@@ -165,7 +143,6 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
     if [[ "$KIND" == "app" ]]; then
         otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
-        otool -L $ROOT/install/lib/libgfortran*.dylib
     else
         if [[ "$PLATFORM" == 'macosx-arm64' ]]; then
             # https://matthew-brett.github.io/docosx/mac_runtime_link.html
