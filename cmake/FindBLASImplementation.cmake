@@ -88,27 +88,7 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
     if (USE_SCIPY_OPENBLAS)
-        find_package(PkgConfig REQUIRED)
-        pkg_search_module(OPENBLAS REQUIRED scipy-openblas)
-        set(BLA_INCLUDE_DIR ${OPENBLAS_INCLUDE_DIRS})
-        message(STATUS "Found OpenBLAS include dirs: ${BLA_INCLUDE_DIR}")
-        # In principle, either of these should work:
-        # set(BLAS_LIBRARIES ${OPENBLAS_LINK_LIBRARIES})
-        # pkg_get_variable(BLAS_LIBRARIES scipy-openblas Libs)
-        # But they don't, so manually find the file in the shared library dir
-        message(STATUS "Searching for OpenBLAS libraries with: ${OPENBLAS_LIBDIR}/*${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        file(GLOB BLAS_LIBRARIES "${OPENBLAS_LIBDIR}/*${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        message(STATUS "Found OpenBLAS libraries: ${BLAS_LIBRARIES}")
-        message(STATUS "Found OpenBLAS linker flags: ${OPENBLAS_LDFLAGS}")
-        mark_as_advanced(OPENBLAS_INCLUDE_DIRS OPENBLAS_LIBRARIES OPENBLAS_LDFLAGS)
-        foreach (TARG BLAS LAPACK)
-            add_library(${TARG}::${TARG} SHARED IMPORTED)
-            set_target_properties(${TARG}::${TARG} PROPERTIES
-                IMPORTED_LOCATION "${BLAS_LIBRARIES}"
-                INTERFACE_INCLUDE_DIRECTORIES "${BLA_INCLUDE_DIR}"
-                LINK_FLAGS "${OPENBLAS_LDFLAGS}"
-            )
-        endforeach()
+        message(STATUS "Using SciPy OpenBLAS variant with scipy_ prefix")
     endif()
 
 else()
@@ -164,6 +144,7 @@ endif()
 
 # OpenBLAS may or may not include lapacke.
 # Check which version is used.
+message(STATUS "Found BLAS libraries: ${BLAS_LIBRARIES}")
 
 set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
 check_function_exists(LAPACKE_dlange LAPACKE_WORKS)
@@ -173,5 +154,3 @@ if (NOT LAPACKE_WORKS)
     list(PREPEND _lapack_libs ${LAPACKE})
     set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")
 endif()
-
-message(STATUS "Found BLAS libraries: ${BLAS_LIBRARIES}")

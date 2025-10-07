@@ -31,14 +31,9 @@ OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.ge
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
 OPENBLAS_LIB=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+export CMAKE_MODULE_PATH="$OPENBLAS_LIB/cmake"
 echo "OPENBLAS_LIB=\"$OPENBLAS_LIB\""
 ls -alR $OPENBLAS_LIB
-echo "./.openblas/scipy-openblas.pc:"
-mkdir -p ./.openblas
-echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy-openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
-export PKG_CONFIG_PATH="$PWD/.openblas"
-echo "PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
-cat $PKG_CONFIG_PATH/scipy-openblas.pc
 echo "::endgroup::"
 
 git status --porcelain --untracked-files=no
@@ -47,11 +42,11 @@ test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELA
 PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform())")
 echo "PLATFORM=$PLATFORM"
 # PLATFORM can be:
-# linux-x86_64
-# linux-aarch64
-# macosx-x86_64
-# macosx-arm64
-# win-amd64
+# linux-*-x86_64
+# linux-*-aarch64
+# macosx-*-x86_64
+# macosx-*-arm64
+# win-*-amd64
 
 if [[ "$PLATFORM" == 'linux-'* ]]; then
     echo "::group::yum"
@@ -64,9 +59,9 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
-        if [[ "$PLATFORM" == "linux-x86_64" ]]; then
+        if [[ "$PLATFORM" == *'-x86_64' ]]; then
             export VCPKG_DEFAULT_TRIPLET="x64-linux"
-        elif [[ "$PLATFORM" == "linux-aarch64" ]]; then
+        elif [[ "$PLATFORM" == *'-aarch64' ]]; then
             export VCPKG_DEFAULT_TRIPLET="arm64-linux"
         else
             echo "Unknown PLATFORM=\"$PLATFORM\""
@@ -103,7 +98,6 @@ elif [[ "$PLATFORM" == 'macosx-'* ]]; then
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
 elif [[ "$PLATFORM" == "win-amd64" ]]; then
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
@@ -119,9 +113,9 @@ else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
 fi
+export BLA_IMPLEMENTATION="OpenBLAS"
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
-export BLAS_LIBRARIES_OPT="-DBLA_IMPLEMENTATION=OpenBLAS -DUSE_SCIPY_OPENBLAS=ON"
-export CMAKE_SHARED_LINKER_FLAGS="-L$OPENBLAS_LIB -lscipy_openblas"
+export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
