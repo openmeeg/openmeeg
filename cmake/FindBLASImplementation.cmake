@@ -1,4 +1,5 @@
 include(CheckFunctionExists)
+include(CheckSymbolExists)
 
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
@@ -88,7 +89,32 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
     if (USE_SCIPY_OPENBLAS)
-        message(STATUS "Using SciPy OpenBLAS variant with scipy_ prefix")
+        message(STATUS "  Using SciPy OpenBLAS variant with scipy_ prefix")
+        # In theory this should work, but it doesn't for some reason:
+        #
+        # find_package(PkgConfig REQUIRED)
+        # pkg_search_module(SP_OB REQUIRED scipy_openblas)
+        # message(STATUS ".. Found OpenBLAS version ${SP_OB_VERSION} at ${SP_OB_LIBRARY_DIRS} and includes ${SP_OB_INCLUDE_DIRS}")
+        # set(CMAKE_REQUIRED_INCLUDES ${SP_OB_INCLUDE_DIRS})
+        # set(BLA_PREFER_PKGCONFIG ON)
+        # set(BLA_PKGCONFIG_BLAS scipy_openblas)
+        # set(BLA_PKGCONFIG_LAPACK scipy_openblas)
+        #
+        # So we take care of it manually:
+        find_package(OpenBLAS REQUIRED CONFIG)
+        message(STATUS "  Libraries:    ${OpenBLAS_LIBRARIES}")
+        message(STATUS "  Include dirs: ${OpenBLAS_INCLUDE_DIRS}")
+        message(STATUS "  Linker flags: ${OpenBLAS_LDFLAGS}")
+        mark_as_advanced(OpenBLAS_INCLUDE_DIRS OpenBLAS_LIBRARIES OpenBLAS_LDFLAGS)
+        set(CMAKE_REQUIRED_INCLUDES ${OpenBLAS_INCLUDE_DIRS})
+        foreach (TARG BLAS LAPACK)
+            add_library(${TARG}::${TARG} SHARED IMPORTED)
+            set_target_properties(${TARG}::${TARG} PROPERTIES
+                IMPORTED_LOCATION "${OpenBLAS_LIBRARIES}"
+                INTERFACE_INCLUDE_DIRECTORIES "${OpenBLAS_INCLUDE_DIRS}"
+                LINK_FLAGS "${OpenBLAS_LDFLAGS}"
+            )
+        endforeach()
     endif()
 
 else()
@@ -144,12 +170,23 @@ endif()
 
 # OpenBLAS may or may not include lapacke.
 # Check which version is used.
-message(STATUS "Found BLAS libraries: ${BLAS_LIBRARIES}")
 
 set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
-check_function_exists(LAPACKE_dlange LAPACKE_WORKS)
+if (USE_SCIPY_OPENBLAS)
+    set(CHECK_DLANGE scipy_LAPACKE_dlange)
+else()
+    set(CHECK_DLANGE LAPACKE_dlange)
+endif()
+mark_as_advanced(CHECK_DLANGE)
+check_symbol_exists(${CHECK_DLANGE} "lapacke.h" HAVE_DLANGE)
+mark_as_advanced(HAVE_DLANGE)
+if (NOT HAVE_DLANGE)
+    message(STATUS "${CHECK_DLANGE} not found!")
+endif()
+check_function_exists(${CHECK_DLANGE} LAPACKE_WORKS)
 mark_as_advanced(LAPACKE_WORKS)
-if (NOT LAPACKE_WORKS)
+# TODO: unclear why this test doesn't work for scipy_openblas, so we skip it for now
+if (NOT LAPACKE_WORKS AND NOT SCIPY_USE_OPENBLAS)
     find_library(LAPACKE lapacke REQUIRED)
     list(PREPEND _lapack_libs ${LAPACKE})
     set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")

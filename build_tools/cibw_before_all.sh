@@ -26,21 +26,37 @@ fi
 echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
 echo "::group::scipy-openblas32"
+PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform())")
+echo "PLATFORM=$PLATFORM"
+
 python -m pip install scipy-openblas32
+# fix a bug in the headers!
+if [[ "$PLATFORM" == 'macosx-'* ]]; then
+    SED_OPT="-i ''"
+else
+    SED_OPT="-i"
+fi
+sed $SED_OPT "s/ LAPACKE_/ scipy_LAPACKE_/g" "$(python -c 'import scipy_openblas32; print(scipy_openblas32.get_include_dir())')/lapacke.h"
 OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
-OPENBLAS_LIB=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
-export CMAKE_MODULE_PATH="$OPENBLAS_LIB/cmake"
-echo "OPENBLAS_LIB=\"$OPENBLAS_LIB\""
-ls -alR $OPENBLAS_LIB
+OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+# echo "./.openblas/scipy_openblas.pc:"
+# mkdir -p ./.openblas
+# echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
+# export PKG_CONFIG_PATH="$PWD/.openblas"
+# echo "PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
+# cat $PKG_CONFIG_PATH/scipy_openblas.pc
+CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$OPENBLAS_LIB_DIR/cmake/openblas"
+# export OpenBLAS_DIR="$OPENBLAS_LIB_DIR/cmake/openblas"
+echo "CMAKE_MODULE_PATH=\"$CMAKE_MODULE_PATH\""
+echo "OPENBLAS_LIB_DIR=\"$OPENBLAS_LIB_DIR\""
+ls -alR $OPENBLAS_LIB_DIR
 echo "::endgroup::"
 
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
-PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform())")
-echo "PLATFORM=$PLATFORM"
 # PLATFORM can be:
 # linux-*-x86_64
 # linux-*-aarch64
@@ -72,8 +88,6 @@ if [[ "$PLATFORM" == 'linux-'* ]]; then
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
     fi
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export LINKER_OPT="-L$OPENBLAS_LIB"
     if [[ "$PLATFORM" == *'-x86_64' ]]; then
         VC_NAME="x64"
         MIN_VER="10.15"
