@@ -3,7 +3,7 @@ name = "openmeeg"
 description = "Forward problems solver in the field of EEG and MEG."
 dynamic = ["version"]
 maintainers = [{ name="Alexandre Gramfort", email = "alexandre.gramfort@inria.fr" }]
-license= { text = "CECILL-B" }
+license = "CECILL-B"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.10"
 keywords = [
@@ -19,7 +19,6 @@ keywords = [
 classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
-    "License :: OSI Approved",
     "Programming Language :: Python",
     "Topic :: Software Development",
     "Topic :: Scientific/Engineering",
@@ -62,8 +61,7 @@ root = "../../"
 local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
-# pp310 should in principle work but in practice it doesn't
-skip = ["pp*", "*-musllinux*", "pp*-manylinux_aarch64"]
+skip = ["*-musllinux*"]
 build = ["cp310-*"]  # abi3
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
