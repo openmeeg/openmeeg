@@ -62,7 +62,7 @@ local_scheme = "no-local-version"  # to allow TestPyPI uploads
 
 [tool.cibuildwheel]
 # pp310 should in principle work but in practice it doesn't
-skip = ["pp*", "*-musllinux*", "pp*-manylinux_aarch64"]
+skip = ["*-musllinux*"]
 build = ["cp310-*"]  # abi3
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
@@ -80,21 +80,21 @@ repair-wheel-command = [
     "auditwheel repair -w {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="../../.openblas/include" }
+environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1" }
 
 [tool.cibuildwheel.macos]
 repair-wheel-command = [
     "bash $GITHUB_WORKSPACE/build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="macOS", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="../../.openblas/include", MACOSX_DEPLOYMENT_TARGET="10.15" }
+environment = { RUNNER_OS="macOS", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1", MACOSX_DEPLOYMENT_TARGET="10.15" }
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = [
     "bash %GITHUB_WORKSPACE%/build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="Windows", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENMEEG_USE_SWIG="1", OPENBLAS_INCLUDE="../../.openblas/include", SWIG_FLAGS="msvc" }
+environment = { RUNNER_OS="Windows", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1", SWIG_FLAGS="msvc" }
 
 [tool.ruff]
 select = ["E", "F", "W", "D", "I"]

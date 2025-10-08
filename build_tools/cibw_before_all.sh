@@ -47,8 +47,7 @@ OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.ge
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
 OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
-mkdir -p ./.openblas
-cp -a "$OPENBLAS_INCLUDE" ./openblas/  # for build step, need it somewhere we know where it is!
+# mkdir -p ./.openblas
 # echo "./.openblas/scipy_openblas.pc:"
 # echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
 # export PKG_CONFIG_PATH="$PWD/.openblas"
@@ -118,7 +117,8 @@ elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
     if [[ "$KIND" == "app" ]]; then
-        OPENBLAS_DLL=$OPENBLAS_LIB\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
+        OPENBLAS_DLL=$OPENBLAS_LIB_DIR\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
+        OPENBLAS_DLL=$(cygpath -u $OPENBLAS_DLL)
         echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
         test -f $OPENBLAS_DLL
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
@@ -151,6 +151,8 @@ else
     cp -av build/OpenMEEG-*-*.* installers/
     echo "::endgroup::"
 fi
+cp -a "$OPENBLAS_INCLUDE" "${ROOT}/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
+test -f "${ROOT}/install/include/OpenBLAS/cblas.h"
 
 # Put DLLs where they can be found
 if [[ "$PLATFORM" == 'linux'* ]]; then
