@@ -47,8 +47,9 @@ OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.ge
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
 OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+mkdir -p ./.openblas
+cp -a "$OPENBLAS_INCLUDE" ./openblas/  # for build step, need it somewhere we know where it is!
 # echo "./.openblas/scipy_openblas.pc:"
-# mkdir -p ./.openblas
 # echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
 # export PKG_CONFIG_PATH="$PWD/.openblas"
 # echo "PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""

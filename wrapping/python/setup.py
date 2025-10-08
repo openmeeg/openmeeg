@@ -82,9 +82,9 @@ if __name__ == "__main__":
             print(f"Adding OpenMEEG library directory: {openmeeg_lib}")
             library_dirs.append(str(openmeeg_lib))
         scipy_openblas_include = Path(__file__).parent / "OPENBLAS_INCLUDE_PATH.txt"
-        if scipy_openblas_include.is_file():
-            openblas_include = Path(scipy_openblas_include.read_text("utf-8").strip())
-            openblas_include = openblas_include.resolve(strict=True)
+        openblas_include = os.getenv("OPENBLAS_INCLUDE")
+        if openblas_include is not None:
+            openblas_include = Path(openblas_include).resolve(strict=True)
             print(f"Adding OpenBLAS include directory: {openblas_include}")
             include_dirs.append(str(openblas_include))
             swig_opts.append(f"-I{openblas_include}")
