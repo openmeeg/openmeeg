@@ -70,7 +70,6 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     yum -y install hdf5-devel matio-devel curl zip unzip tar ninja-build
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export LINKER_OPT="-lpthread"
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
@@ -141,13 +140,13 @@ echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
-    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --target install --target package --config release
     echo "::endgroup::"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --config release
     echo "::endgroup::"
@@ -165,13 +164,16 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     mkdir -p /output
     if [[ "$KIND" == "wheel" ]]; then
         ls -al $LIB_OUTPUT_DIR/*.so*
-        cp -av "$OPENBLAS_LIB_DIR"/*.so* $LIB_OUTPUT_DIR/
+        # For some reason, copying to LIB_OUTPUT_DIR doesn't work for vendoring
+        # into the wheel, so copy it somewhere else it will be found
+        cp -av "$ROOT/install/lib64"/*.so* /usr/local/lib/
+        cp -av "$OPENBLAS_LIB_DIR"/*.so* /usr/local/lib/
     else
         cp -av build/OpenMEEG-*-*.* /output/
     fi
 elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
-        otool -L $ROOT/$LIB_OUTPUT_DIR/libOpenMEEG.1.1.0.dylib
+        otool -L $LIB_OUTPUT_DIR/libOpenMEEG.1.1.0.dylib
         cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
     else
         otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
@@ -189,7 +191,7 @@ fi
 
 if [[ "$KIND" == "wheel" ]]; then
     echo "ls -al $ROOT:"
-    ls -al $ROOT
+    ls -al "$ROOT"
 fi
 
 echo "git status:"
