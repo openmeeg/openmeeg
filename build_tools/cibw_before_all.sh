@@ -127,8 +127,8 @@ else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
 fi
-export BLA_IMPLEMENTATION="OpenBLAS"
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
+export BLA_IMPLEMENTATION="OpenBLAS"
 export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
@@ -184,10 +184,6 @@ fi
 if [[ "$KIND" == "wheel" ]]; then
     echo "ls -al $PWD:"
     ls -al
-fi
-
-if [[ "$GITHUB_ENV" != "" ]]; then
-    echo "${OPENBLAS_INCLUDE}" | tee -a OPENBLAS_INCLUDE_PATH.txt
 fi
 
 echo "git status:"
