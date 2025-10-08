@@ -32,7 +32,6 @@ elif [[ "${RUNNER_OS}" == "macOS" ]]; then
     sudo rm -Rf /opt/gfortran-darwin-arm64
     otool -L ./lib/libOpenMEEG.dylib
     otool -L ./lib/libOpenMEEGMaths.dylib
-    otool -L ./lib/libgfortran*.dylib
 elif [[ "${RUNNER_OS}" == "Windows" ]]; then
     ROOT=$(cygpath -u $ROOT)
     tar xzfv $ROOT/installers/OpenMEEG-*.tar.gz
