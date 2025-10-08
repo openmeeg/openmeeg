@@ -23,6 +23,7 @@ static const char version[] = "@OpenMEEG_VERSION@";
 #cmakedefine HAVE_LAPACK
 #cmakedefine USE_LAPACK
 #cmakedefine USE_MKL
+#cmakedefine USE_SCIPY_OPENBLAS
 #cmakedefine USE_ATLAS
 #cmakedefine USE_OPENBLAS
 #cmakedefine USE_VECLIB
