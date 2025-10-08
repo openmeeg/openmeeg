@@ -23,7 +23,7 @@ if [ -z "$RUNNER_OS" ]; then
     echo "RUNNER_OS is empty, it must be present in the environment"
     exit 1
 fi
-echo "Using project root \"${ROOT}\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
+echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
 echo "::group::scipy-openblas32"
 PLATFORM=$(python -c "import platform; print(f'{platform.system()}-{platform.machine()}')")
@@ -86,6 +86,7 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
         LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
     fi
+    LIB_OUTPUT_DIR="$ROOT/install/lib64"
 elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
     if [[ "$PLATFORM" == "Darwin-x86_64" ]]; then
         VC_NAME="x64"
@@ -103,13 +104,17 @@ elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
     # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
     export OPENMP_OPT="-DUSE_OPENMP=OFF"
     if [[ "$KIND" == "app" ]]; then
-        if [[ "$PLATFORM" == "macosx-x86_64" ]]; then
+        if [[ "$PLATFORM" == "Darwin-x86_64" ]]; then
             PACKAGE_ARCH_SUFFIX="_Intel"
-        else
+        elif [[ "$PLATFORM" == "Darwin-arm64" ]]; then
             PACKAGE_ARCH_SUFFIX="_M1"
+        else
+            echo "Unknown PLATFORM=\"$PLATFORM\""
+            exit 1
         fi
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
+    LIB_OUTPUT_DIR="$ROOT/install/lib"
 elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
@@ -123,6 +128,7 @@ elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     if [[ "$KIND" == "app" ]]; then
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
     fi
+    LIB_OUTPUT_DIR="$ROOT/install/bin"
 else
     echo "Unknown platform: ${PLATFORM}"
     exit 1
@@ -135,13 +141,13 @@ echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
-    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --target install --target package --config release
     echo "::endgroup::"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --config release
     echo "::endgroup::"
@@ -151,31 +157,34 @@ else
     cp -av build/OpenMEEG-*-*.* installers/
     echo "::endgroup::"
 fi
-cp -a "$OPENBLAS_INCLUDE" "${ROOT}/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
-test -f "${ROOT}/install/include/OpenBLAS/cblas.h"
+cp -av "$OPENBLAS_INCLUDE" "$ROOT/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
+test -f "$ROOT/install/include/OpenBLAS/cblas.h"
 
 # Put DLLs where they can be found
-if [[ "$PLATFORM" == 'linux'* ]]; then
+if [[ "$PLATFORM" == 'Linux-'* ]]; then
     mkdir -p /output
     if [[ "$KIND" == "wheel" ]]; then
-        ls -al install/lib64/*.so*
-        cp -av "$OPENBLAS_LIB_DIR/*.so*" "${ROOT}/install/lib/"
+        ls -al $LIB_OUTPUT_DIR/*.so*
+        cp -av "$OPENBLAS_LIB_DIR"/*.so* $LIB_OUTPUT_DIR/
     else
         cp -av build/OpenMEEG-*-*.* /output/
     fi
-elif [[ "$PLATFORM" == 'macosx-'* ]]; then
+elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
-        otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-        cp -av "$OPENBLAS_LIB_DIR/*.dylib" install/lib/
+        otool -L $ROOT/$LIB_OUTPUT_DIR/libOpenMEEG.1.1.0.dylib
+        cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
     else
         otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
     fi
-elif [[ "$PLATFORM" == 'win'* ]]; then
+elif [[ "$PLATFORM" == 'Windows-'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
-        cp -av $OPENBLAS_DLL install/bin/
+        cp -av "$OPENBLAS_DLL" $LIB_OUTPUT_DIR/
     else
         ./build_tools/install_dependency_walker.sh
     fi
+else
+    echo "Unknown platform: ${PLATFORM}"
+    exit 1
 fi
 
 if [[ "$KIND" == "wheel" ]]; then

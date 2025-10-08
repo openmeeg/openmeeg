@@ -8,8 +8,15 @@ fi
 DELOCATE_ARCHS=$1
 DEST_DIR=$2
 WHEEL=$3
-set -x
 
-export DYLD_LIBRARY_PATH="$GITHUB_WORKSPACE/install/lib"
+# If running locally, set GITHUB_WORKSPACE to current dir
+if [[ "$GITHUB_WORKSPACE" == "" ]]; then
+    GITHUB_WORKSPACE=$(pwd)
+fi
+
+set -x
+ADD_PATH="$GITHUB_WORKSPACE/install/lib"
+ls -alR "$ADD_PATH"
+export DYLD_LIBRARY_PATH="$ADD_PATH:$DYLD_LIBRARY_PATH"
 delocate-listdeps "$WHEEL"
 delocate-wheel --require-archs "$DELOCATE_ARCHS" -w "$DEST_DIR" "$WHEEL"
