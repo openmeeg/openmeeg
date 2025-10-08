@@ -33,7 +33,7 @@ echo "PLATFORM=$PLATFORM"
 # Linux-aarch64
 # Darwin-x86_64
 # Darwin-arm64
-# Windows-amd64
+# Windows-AMD64
 
 python -m pip install scipy-openblas32
 # fix a bug in the headers!
@@ -110,7 +110,7 @@ elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
         fi
         PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
     fi
-elif [[ "$PLATFORM" == "Windows-amd64" ]]; then
+elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
     export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
