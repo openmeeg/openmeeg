@@ -1,3 +1,6 @@
+include(CheckFunctionExists)
+include(CheckSymbolExists)
+
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas")
@@ -85,6 +88,46 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
     set(HAVE_BLAS ON)
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR ${BLA_IMPLEMENTATION})
+    if (USE_SCIPY_OPENBLAS)
+        message(STATUS "  Using SciPy OpenBLAS variant with scipy_ prefix")
+        # In theory this should work, but it doesn't for some reason:
+        #
+        # find_package(PkgConfig REQUIRED)
+        # pkg_search_module(SP_OB REQUIRED scipy_openblas)
+        # message(STATUS ".. Found OpenBLAS version ${SP_OB_VERSION} at ${SP_OB_LIBRARY_DIRS} and includes ${SP_OB_INCLUDE_DIRS}")
+        # set(CMAKE_REQUIRED_INCLUDES ${SP_OB_INCLUDE_DIRS})
+        # set(BLA_PREFER_PKGCONFIG ON)
+        # set(BLA_PKGCONFIG_BLAS scipy_openblas)
+        # set(BLA_PKGCONFIG_LAPACK scipy_openblas)
+        #
+        # So we take care of it manually:
+        find_package(OpenBLAS REQUIRED CONFIG)
+        message(STATUS "  Libraries:    ${OpenBLAS_LIBRARIES}")
+        message(STATUS "  Include dirs: ${OpenBLAS_INCLUDE_DIRS}")
+        message(STATUS "  Linker flags: ${OpenBLAS_LDFLAGS}")
+        get_filename_component(OpenBLAS_DLL ${OpenBLAS_LIBRARIES} NAME)
+        set(OpenBLAS_DLL "${OpenBLAS_DLL}.dll")
+        mark_as_advanced(OpenBLAS_INCLUDE_DIRS OpenBLAS_LIBRARIES OpenBLAS_LDFLAGS OpenBLAS_DLL)
+        set(CMAKE_REQUIRED_INCLUDES ${OpenBLAS_INCLUDE_DIRS})
+        foreach (TARG BLAS LAPACK)
+            add_library(${TARG}::${TARG} SHARED IMPORTED)
+            set_target_properties(${TARG}::${TARG} PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${OpenBLAS_INCLUDE_DIRS}"
+                LINK_FLAGS "${OpenBLAS_LDFLAGS}"
+            )
+            # If on Windows we need the implib and the actual DLL
+            if (WIN32)
+                set_target_properties(${TARG}::${TARG} PROPERTIES
+                    IMPORTED_IMPLIB "${OpenBLAS_LIBRARIES}"
+                    IMPORTED_LOCATION "${OpenBLAS_DLL}"
+                )
+            else()
+                set_target_properties(${TARG}::${TARG} PROPERTIES
+                    IMPORTED_LOCATION "${OpenBLAS_LIBRARIES}"
+                )
+            endif()
+        endforeach()
+    endif()
 
 else()
 
@@ -92,8 +135,10 @@ else()
 
 endif()
 
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+if (NOT USE_SCIPY_OPENBLAS)
+    find_package(BLAS REQUIRED)
+    find_package(LAPACK REQUIRED)
+endif()
 
 # Add targets for compatibility with older cmake versions < 3.18
 
@@ -139,7 +184,18 @@ endif()
 # Check which version is used.
 
 set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
-check_function_exists(LAPACKE_dlange LAPACKE_WORKS)
+if (USE_SCIPY_OPENBLAS)
+    set(CHECK_DLANGE scipy_LAPACKE_dlange)
+else()
+    set(CHECK_DLANGE LAPACKE_dlange)
+endif()
+mark_as_advanced(CHECK_DLANGE)
+check_symbol_exists(${CHECK_DLANGE} "lapacke.h" HAVE_DLANGE)
+mark_as_advanced(HAVE_DLANGE)
+if (NOT HAVE_DLANGE)
+    message(STATUS "${CHECK_DLANGE} not found!")
+endif()
+check_function_exists(${CHECK_DLANGE} LAPACKE_WORKS)
 mark_as_advanced(LAPACKE_WORKS)
 if (NOT LAPACKE_WORKS)
     find_library(LAPACKE lapacke REQUIRED)

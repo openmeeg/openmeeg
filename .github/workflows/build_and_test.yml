@@ -63,12 +63,12 @@ jobs:
           python: cmake
           windows_compiler: msvc
           testing: fast
-        - os: macos-15
+        - os: macos-latest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
           testing: fast
-        - os: macos-13
+        - os: macos-15-intel
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
