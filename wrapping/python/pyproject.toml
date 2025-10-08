@@ -76,8 +76,7 @@ environment-pass = ["CHECK_PORCELAIN", "RUNNER_OS"]  # useful to have RUNNER_OS 
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = [
-    "auditwheel show {wheel}",
-    "auditwheel repair -w {dest_dir} {wheel}",
+    "bash /project/build_tools/cibw_repair_wheel_command_linux.sh {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
 environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1" }

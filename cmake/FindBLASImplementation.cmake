@@ -105,15 +105,27 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
         message(STATUS "  Libraries:    ${OpenBLAS_LIBRARIES}")
         message(STATUS "  Include dirs: ${OpenBLAS_INCLUDE_DIRS}")
         message(STATUS "  Linker flags: ${OpenBLAS_LDFLAGS}")
-        mark_as_advanced(OpenBLAS_INCLUDE_DIRS OpenBLAS_LIBRARIES OpenBLAS_LDFLAGS)
+        get_filename_component(OpenBLAS_DLL ${OpenBLAS_LIBRARIES} NAME)
+        set(OpenBLAS_DLL "${OpenBLAS_DLL}.dll")
+        mark_as_advanced(OpenBLAS_INCLUDE_DIRS OpenBLAS_LIBRARIES OpenBLAS_LDFLAGS OpenBLAS_DLL)
         set(CMAKE_REQUIRED_INCLUDES ${OpenBLAS_INCLUDE_DIRS})
         foreach (TARG BLAS LAPACK)
             add_library(${TARG}::${TARG} SHARED IMPORTED)
             set_target_properties(${TARG}::${TARG} PROPERTIES
-                IMPORTED_LOCATION "${OpenBLAS_LIBRARIES}"
                 INTERFACE_INCLUDE_DIRECTORIES "${OpenBLAS_INCLUDE_DIRS}"
                 LINK_FLAGS "${OpenBLAS_LDFLAGS}"
             )
+            # If on Windows we need the implib and the actual DLL
+            if (WIN32)
+                set_target_properties(${TARG}::${TARG} PROPERTIES
+                    IMPORTED_IMPLIB "${OpenBLAS_LIBRARIES}"
+                    IMPORTED_LOCATION "${OpenBLAS_DLL}"
+                )
+            else()
+                set_target_properties(${TARG}::${TARG} PROPERTIES
+                    IMPORTED_LOCATION "${OpenBLAS_LIBRARIES}"
+                )
+            endif()
         endforeach()
     endif()
 
