@@ -46,7 +46,8 @@ sed $SED_OPT "s/ LAPACKE_/ scipy_LAPACKE_/g" "$(python -c 'import scipy_openblas
 OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
-OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")
+OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas32/lib"
+OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")  # typically, "libscipy_openblas32"
 # mkdir -p ./.openblas
 # echo "./.openblas/scipy_openblas.pc:"
 # echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
@@ -82,8 +83,16 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
             exit 1
         fi
         source ./build_tools/setup_vcpkg_compilation.sh
-        LAPACK_LIBRARIES_OPT="-DLAPACK_LIBRARIES=/usr/local/lib/libopenblas.a"
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
+        if [[ "$KIND" == "app" ]]; then
+            SOS=($OPENBLAS_LIB_DIR/*.so*)
+            OLD_IFS=$IFS
+            IFS=';'
+            SOS=("${SOS[*]}")
+            IFS=$OLD_IFS
+            LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
+            echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
+        fi
     fi
     LIB_OUTPUT_DIR="$ROOT/install/lib64"
 elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
@@ -120,8 +129,8 @@ elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     source ./build_tools/setup_vcpkg_compilation.sh
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
-    OPENBLAS_DLL=$OPENBLAS_LIB_DIR\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
-    OPENBLAS_DLL=$(cygpath -u $OPENBLAS_DLL)
+    OPENBLAS_DLL="$OPENBLAS_LIB_DIR\\$OPENBLAS_LIB_NAME.dll"
+    OPENBLAS_DLL="$(cygpath -u $OPENBLAS_DLL)"
     echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
     test -f $OPENBLAS_DLL
     if [[ "$KIND" == "app" ]]; then
@@ -140,13 +149,13 @@ echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
-    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --target install --target package --config release
     echo "::endgroup::"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=${ROOT}/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT} ${LAPACK_LIBRARIES_OPT}
+    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
     echo "::group::cmake --build"
     cmake --build build --config release
     echo "::endgroup::"
@@ -165,7 +174,9 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
         ls -al $LIB_OUTPUT_DIR/*.so*
         # For some reason, copying to LIB_OUTPUT_DIR doesn't work for vendoring
-        # into the wheel, so copy it somewhere else it will be found
+        # into the wheel, so copy it somewhere else it will be found.
+        # TODO: Maybe someday we can/should just use the EXTRA_INSTALL_LIBRARIES
+        # mechanic for this, too
         cp -av "$ROOT/install/lib64"/*.so* /usr/local/lib/
         cp -av "$OPENBLAS_LIB_DIR"/*.so* /usr/local/lib/
     else
