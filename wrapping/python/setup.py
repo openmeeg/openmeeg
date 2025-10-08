@@ -75,9 +75,10 @@ if __name__ == "__main__":
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f"-I{openmeeg_include}")
         msvc = os.getenv("SWIG_FLAGS", "") == "msvc"
-        openblas_include = os.getenv("OPENBLAS_INCLUDE")
-        if openblas_include is not None:
-            openblas_include = Path(openblas_include).resolve(strict=True)
+        scipy_openblas_include = Path(__file__).parent / "OPENBLAS_INCLUDE_PATH.txt"
+        if scipy_openblas_include.is_file():
+            openblas_include = Path(scipy_openblas_include.read_text("utf-8").strip())
+            openblas_include = openblas_include.resolve(strict=True)
             include_dirs.append(str(openblas_include))
             swig_opts.append(f"-I{openblas_include}")
         openmeeg_lib = os.getenv("OPENMEEG_LIB")

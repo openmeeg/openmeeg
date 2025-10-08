@@ -22,3 +22,4 @@ installers/
 wheelhouse/
 /Dependencies/
 *.zip
+/OPENBLAS_INCLUDE_PATH.txt
