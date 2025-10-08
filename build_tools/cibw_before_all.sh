@@ -36,7 +36,7 @@ echo "PLATFORM=$PLATFORM"
 # Windows-AMD64
 
 python -m pip install scipy-openblas32
-# fix a bug in the headers!
+# fix a bug in the headers! https://github.com/OpenMathLib/OpenBLAS/issues/5493
 if [[ "$PLATFORM" == 'Darwin-'* ]]; then
     SED_OPT="-i ''"
 else
@@ -116,11 +116,11 @@ elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     source ./build_tools/setup_vcpkg_compilation.sh
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
+    OPENBLAS_DLL=$OPENBLAS_LIB_DIR\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
+    OPENBLAS_DLL=$(cygpath -u $OPENBLAS_DLL)
+    echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
+    test -f $OPENBLAS_DLL
     if [[ "$KIND" == "app" ]]; then
-        OPENBLAS_DLL=$OPENBLAS_LIB_DIR\\$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())").dll
-        OPENBLAS_DLL=$(cygpath -u $OPENBLAS_DLL)
-        echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
-        test -f $OPENBLAS_DLL
         LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
     fi
 else
@@ -159,21 +159,16 @@ if [[ "$PLATFORM" == 'linux'* ]]; then
     mkdir -p /output
     if [[ "$KIND" == "wheel" ]]; then
         ls -al install/lib64/*.so*
-        cp -av install/lib64/*.so* /usr/local/lib/
+        cp -av "$OPENBLAS_LIB_DIR/*.so*" "${ROOT}/install/lib/"
     else
         cp -av build/OpenMEEG-*-*.* /output/
     fi
 elif [[ "$PLATFORM" == 'macosx-'* ]]; then
-    if [[ "$KIND" == "app" ]]; then
-        otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
+    if [[ "$KIND" == "wheel" ]]; then
+        otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
+        cp -av "$OPENBLAS_LIB_DIR/*.dylib" install/lib/
     else
-        if [[ "$PLATFORM" == 'macosx-arm64' ]]; then
-            # https://matthew-brett.github.io/docosx/mac_runtime_link.html
-            #cp -av $ROOT/vcpkg_installed/arm64-osx-release-11.0/lib/libomp* $ROOT/install/lib/
-            otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-            # install_name_tool -change "@@HOMEBREW_PREFIX@@/opt/libomp/lib/libomp.dylib" "@loader_path/libomp.dylib" $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-            # otool -L $ROOT/install/lib/libOpenMEEG.1.1.0.dylib
-        fi
+        otool -L $ROOT/build/OpenMEEG/libOpenMEEG.1.1.0.dylib
     fi
 elif [[ "$PLATFORM" == 'win'* ]]; then
     if [[ "$KIND" == "wheel" ]]; then
@@ -184,8 +179,8 @@ elif [[ "$PLATFORM" == 'win'* ]]; then
 fi
 
 if [[ "$KIND" == "wheel" ]]; then
-    echo "ls -al $PWD:"
-    ls -al
+    echo "ls -al $ROOT:"
+    ls -al $ROOT
 fi
 
 echo "git status:"
