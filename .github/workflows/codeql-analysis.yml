@@ -42,10 +42,10 @@ jobs:
       run: |
         export DISABLE_CCACHE=1
         source ./build_tools/cmake_configure.sh -DENABLE_WERROR=ON  # --trace-expand
-    - uses: github/codeql-action/init@v3
+    - uses: github/codeql-action/init@v4
       with:
         languages: cpp, python
     - name: Build
       run: |
         cmake --build build --config Release
-    - uses: github/codeql-action/analyze@v3
+    - uses: github/codeql-action/analyze@v4
