@@ -35,7 +35,7 @@ echo "PLATFORM=$PLATFORM"
 # Darwin-arm64
 # Windows-AMD64
 
-python -m pip install scipy-openblas32
+python -m pip install "scipy-openblas32!=0.3.30.0.4,!=0.3.30.0.3"
 # fix a bug in the headers! https://github.com/OpenMathLib/OpenBLAS/issues/5493
 if [[ "$PLATFORM" == 'Darwin-'* ]]; then
     SED_OPT="-i ''"
