@@ -80,7 +80,7 @@ jobs:
         # PyPy build
         - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
-          python-version: 'pypy-3.10'
+          python-version: 'pypy-3.11'
         # One with latest numpy, plus VTK
         - os: ubuntu-24.04
           blas: OpenBLAS
@@ -262,13 +262,7 @@ jobs:
         elif [[ "${{steps.env-vars.outputs.numpy_version}}" == 'oldest' ]]; then
           pip install --upgrade --only-binary ":all:" "numpy<2"
         else
-          echo "Installing NumPy 2.0"
-          IS_PYPY=$(python -c "import sys; print(int('pypy' in sys.implementation.name))")
-          if [[ "$IS_PYPY" == "1" ]]; then
-            pip install --upgrade numpy
-          else
-            pip install --upgrade --pre --only-binary ":all:" "numpy>=2.0.0rc1,<3"
-          fi
+          pip install --upgrade --only-binary numpy "numpy>=2"
         fi
         pip install --upgrade --progress-bar off --only-binary="numpy" -q setuptools setuptools_scm wheel twine threadpoolctl "swig>=4.2" $EXTRA_PIP
 
