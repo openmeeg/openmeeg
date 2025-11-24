@@ -40,7 +40,7 @@ jobs:
             arch: arm64
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v6  # to make before-all work properly
