@@ -139,12 +139,11 @@ root, run::
 
     $ source ./build_tools/setup_vcpkg_compilation.sh
 
-Then you need MKL or OpenBLAS. The easiest way to get this is to use our
-OpenBLAS download script (which will download to ``$PWD/openblas/64``) and set
-an envs var to tell ``cmake`` how to interface with it and how to find the DLL
-in the compiled library::
+Then you need MKL or OpenBLAS. The easiest way to get this is to use ``brew`` on macOS,
+``apt`` or similar on Linux, and download precompiled OpenBLAS binaries on Windows
+from using ``tools/download_openblas_windows.sh``::
 
-    $ ./build_tools/download_openblas.sh
+    $ ./build_tools/download_openblas_windows.sh
     $ export CMAKE_PREFIX_PATH=$(cygpath -m $PWD/openblas/64)
     $ export CMAKE_CXX_FLAGS="-I$(cygpath -m $PWD/openblas/64/include)"
     $ export PATH=$PATH:$PWD/openblas/64/lib
