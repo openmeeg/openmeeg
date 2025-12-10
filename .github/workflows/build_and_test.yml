@@ -333,7 +333,7 @@ jobs:
       run: |
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
-        source ./build_tools/download_openblas.sh windows
+        source ./build_tools/download_openblas_windows.sh
         echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
         echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
         echo "LIB=$LIB" >> $GITHUB_ENV
