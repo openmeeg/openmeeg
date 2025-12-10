@@ -453,10 +453,10 @@ jobs:
           if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
             #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
             if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
-              strip $OPENBLAS_LIB/libopenblas_v*.dll
+              strip $OPENBLAS_LIB/libopenblas*.dll
             fi
-            cp $OPENBLAS_LIB/libopenblas_v*.dll .
-            cp $OPENBLAS_LIB/libopenblas_v*.dll openblas.dll
+            cp $OPENBLAS_LIB/libopenblas*.dll .
+            cp $OPENBLAS_LIB/libopenblas*.dll openblas.dll
             #fi
           # TODO: if this is static it shouldn't be necessary, but it seems to be...
           elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
