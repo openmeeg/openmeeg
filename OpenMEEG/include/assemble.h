@@ -30,6 +30,11 @@ namespace OpenMEEG {
     OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005));
 
     OPENMEEG_EXPORT Matrix
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const Integrator& integrator,const std::string& domain_name);
+    OPENMEEG_EXPORT Matrix
+    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const std::string& domain_name);
+
+    OPENMEEG_EXPORT Matrix
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator,const std::string& domain_name);
     OPENMEEG_EXPORT Matrix
     DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name);
