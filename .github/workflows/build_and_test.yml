@@ -613,7 +613,7 @@ jobs:
 
     - name: Upload wrapped Python lib
       if: startswith(steps.env-vars.outputs.python, 'python') && (success() || failure())
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.windows_compiler }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
         path: ${{ steps.wheel.outputs.path }}
