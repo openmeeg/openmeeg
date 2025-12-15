@@ -59,7 +59,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
       - name: Cache vcpkg
         if: runner.os != 'Linux'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             vcpkg
