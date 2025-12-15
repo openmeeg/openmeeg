@@ -74,7 +74,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
           CIBW_ARCHS: ${{ matrix.arch }}
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           path: |
             ./installers/OpenMEEG-*.tar.gz
