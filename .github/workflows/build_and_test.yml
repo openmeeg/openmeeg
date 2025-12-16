@@ -381,6 +381,7 @@ jobs:
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+      timeout-minutes: 5
       run: |
         APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
