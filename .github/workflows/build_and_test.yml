@@ -128,61 +128,61 @@ jobs:
     - name: Environment variables
       id: env-vars
       run: |
-        echo "os=${{matrix.os}}" >> $GITHUB_OUTPUT
+        echo "os=${{matrix.os}}" | tee -a $GITHUB_OUTPUT
         if [[ "${{matrix.numpy}}" == *'dev' ]]; then
-          echo "numpy_version=dev" >> $GITHUB_OUTPUT
+          echo "numpy_version=dev" | tee -a $GITHUB_OUTPUT
         elif [[ "${{matrix.numpy}}" == *'old' ]]; then
-          echo "numpy_version=oldest" >> $GITHUB_OUTPUT
+          echo "numpy_version=oldest" | tee -a $GITHUB_OUTPUT
         else
-          echo "numpy_version=latest" >> $GITHUB_OUTPUT
+          echo "numpy_version=latest" | tee -a $GITHUB_OUTPUT
         fi
         PYTHON_VERSION="${{ matrix.python-version }}"
         if [[ "$PYTHON_VERSION" == "" ]]; then
           PYTHON_VERSION="3.10"
         fi
-        echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+        echo "python_version=$PYTHON_VERSION" | tee -a $GITHUB_OUTPUT
         if [[ "${{matrix.blas_linking}}" == 'static' ]]; then
           echo "Enabling static BLAS"
-          echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" >> $GITHUB_ENV
-          echo "blas_linking=static" >> $GITHUB_OUTPUT
+          echo "BLA_STATIC_OPT=-DBLA_STATIC=ON" | tee -a $GITHUB_ENV
+          echo "blas_linking=static" | tee -a $GITHUB_OUTPUT
         else
-          echo "blas_linking=dynamic" >> $GITHUB_OUTPUT
+          echo "blas_linking=dynamic" | tee -a $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.python}}" == 'no-python' ]]; then
           echo "Disabling Python"
-          echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
-          echo "python=no-python" >> $GITHUB_OUTPUT
-          echo "python_type=no-python" >> $GITHUB_OUTPUT
+          echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" | tee -a $GITHUB_ENV
+          echo "python=no-python" | tee -a $GITHUB_OUTPUT
+          echo "python_type=no-python" | tee -a $GITHUB_OUTPUT
         else
-          echo "python=python" >> $GITHUB_OUTPUT
+          echo "python=python" | tee -a $GITHUB_OUTPUT
           if [[ "${{matrix.python}}" == "" ]] || [[ "${{matrix.python}}" == "cmake" ]]; then
-            echo "python_type=cmake" >> $GITHUB_OUTPUT
+            echo "python_type=cmake" | tee -a $GITHUB_OUTPUT
           elif [[ "${{matrix.python}}" == "setuptools" ]]; then
-            echo "python_type=setuptools" >> $GITHUB_OUTPUT
-            echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" >> $GITHUB_ENV
+            echo "python_type=setuptools" | tee -a $GITHUB_OUTPUT
+            echo "PYTHON_OPT=-DENABLE_PYTHON=OFF" | tee -a $GITHUB_ENV
           else
             echo "Unknown matrix.python=\"${{matrix.python}}\""
             exit 1
           fi
         fi
         if [[ "${{matrix.windows_compiler}}" == "mingw64" ]]; then
-          echo "windows_compiler=mingw64" >> $GITHUB_OUTPUT
+          echo "windows_compiler=mingw64" | tee -a $GITHUB_OUTPUT
         else
-          echo "windows_compiler=msvc" >> $GITHUB_OUTPUT
+          echo "windows_compiler=msvc" | tee -a $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.testing}}" == "thorough" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
         fi
         if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
-          echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" >> $GITHUB_ENV
-          echo "blas=${{matrix.blas}}" >> $GITHUB_OUTPUT
+          echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" | tee -a $GITHUB_ENV
+          echo "blas=${{matrix.blas}}" | tee -a $GITHUB_OUTPUT
         else
-          echo "blas=OpenBLAS" >> $GITHUB_OUTPUT
+          echo "blas=OpenBLAS" | tee -a $GITHUB_OUTPUT
         fi
         if [[ "${{matrix.blas}}" == *'-latest' ]]; then
           echo "Setting blas_version=latest"
-          echo "blas_version=latest" >> $GITHUB_OUTPUT
+          echo "blas_version=latest" | tee -a $GITHUB_OUTPUT
         fi
         # Build docs on Ubuntu, not elsewhere (for speed)
         if [[ "${{matrix.os}}" == 'ubuntu'* ]]; then
@@ -195,7 +195,7 @@ jobs:
           OPENMP_OPT="-DUSE_OPENMP=OFF"
         fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
-          echo "vtk_version=${{matrix.vtk}}" >> $GITHUB_OUTPUT
+          echo "vtk_version=${{matrix.vtk}}" | tee -a $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON -DENABLE_VTK_BUG_WORKAROUND=ON"
         else
           VTK_OPT="-DUSE_VTK=OFF"
@@ -204,19 +204,19 @@ jobs:
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "OMP_NUM_THREADS=1" | tee -a $GITHUB_ENV
         fi
         echo "Using WERROR_OPT=$WERROR_OPT"
-        echo "SLOW_OPT=$SLOW_OPT" >> $GITHUB_ENV
-        echo "WERROR_OPT=$WERROR_OPT" >> $GITHUB_ENV
+        echo "SLOW_OPT=$SLOW_OPT" | tee -a $GITHUB_ENV
+        echo "WERROR_OPT=$WERROR_OPT" | tee -a $GITHUB_ENV
         echo "Using DOC_OPT=$DOC_OPT"
-        echo "DOC_OPT=$DOC_OPT" >> $GITHUB_ENV
+        echo "DOC_OPT=$DOC_OPT" | tee -a $GITHUB_ENV
         echo "Using VTK_OPT=$VTK_OPT"
-        echo "VTK_OPT=$VTK_OPT" >> $GITHUB_ENV
+        echo "VTK_OPT=$VTK_OPT" | tee -a $GITHUB_ENV
         echo "Using OPENMP_OPT=$OPENMP_OPT"
-        echo "OPENMP_OPT=$OPENMP_OPT" >> $GITHUB_ENV
+        echo "OPENMP_OPT=$OPENMP_OPT" | tee -a $GITHUB_ENV
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
-        echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" >> $GITHUB_ENV
+        echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
     - run: sudo apt update -q
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
@@ -293,14 +293,14 @@ jobs:
         echo "$CONDA_PREFIX/lib/*mkl*:"
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
-          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$(cygpath -m $CONDA_PREFIX/Library)" | tee -a $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$(cygpath -m $CONDA_PREFIX/Library/include) ${CMAKE_CXX_FLAGS}" | tee -a $GITHUB_ENV
         else
           ls -alR $CONDA_PREFIX/lib/*mkl*
-          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib" | tee -a $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$CONDA_PREFIX/include ${CMAKE_CXX_FLAGS}" | tee -a $GITHUB_ENV
           if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu'* ]]; then
-            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" >> $GITHUB_ENV
+            echo "LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so" | tee -a $GITHUB_ENV
           fi
         fi
 
@@ -326,7 +326,7 @@ jobs:
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
-        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" >> $GITHUB_ENV
+        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" | tee -a $GITHUB_ENV
 
     - name: Windows 3 - OpenBLAS via MacPython download
       if: startsWith(steps.env-vars.outputs.blas,'OpenBLAS') && startsWith(steps.env-vars.outputs.os,'windows')
@@ -334,10 +334,10 @@ jobs:
         # OpenBLAS direct download (too slow to build using vcpkg)
         # and renaming to match what cmake wants to see
         source ./build_tools/download_openblas_windows.sh
-        echo "OPENBLAS_LIB=$OPENBLAS_LIB" >> $GITHUB_ENV
-        echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
-        echo "LIB=$LIB" >> $GITHUB_ENV
-        echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" >> $GITHUB_ENV
+        echo "OPENBLAS_LIB=$OPENBLAS_LIB" | tee -a $GITHUB_ENV
+        echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" | tee -a $GITHUB_ENV
+        echo "LIB=$LIB" | tee -a $GITHUB_ENV
+        echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" | tee -a $GITHUB_ENV
 
     - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
@@ -367,16 +367,16 @@ jobs:
           test -f "$OPENBLAS_INCLUDE/lapack.h"
           ls -al $OPENBLAS_LIB
           test -f "$OPENBLAS_LIB/libopenblas.dylib"
-          echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" >> $GITHUB_ENV
-          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE" >> $GITHUB_ENV
-          echo "LINKER_OPT=-L$OPENBLAS_LIB" >> $GITHUB_ENV
-          echo "CMAKE_PREFIX_PATH=$BLAS_DIR" >> $GITHUB_ENV
+          echo "OPENBLAS_INCLUDE=$OPENBLAS_INCLUDE" | tee -a $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=-I$OPENBLAS_INCLUDE" | tee -a $GITHUB_ENV
+          echo "LINKER_OPT=-L$OPENBLAS_LIB" | tee -a $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=$BLAS_DIR" | tee -a $GITHUB_ENV
         fi
         # Set our version min
         if [[ $(uname -m) == 'arm64' ]]; then
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
         else
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" | tee -a $GITHUB_ENV
         fi
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
@@ -463,7 +463,7 @@ jobs:
           elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
             ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
             cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
-            echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" >> $GITHUB_ENV
+            echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" | tee -a $GITHUB_ENV
           fi
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             cp /c/Strawberry/c/bin/libquadmath-0.dll .
@@ -552,7 +552,7 @@ jobs:
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
-          echo "path=wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+          echo "path=wrapping/python/dist/*.whl" | tee -a $GITHUB_OUTPUT
           git status --porcelain --untracked-files=no
           test -z "$(git status --porcelain --untracked-files=no)"
         else
@@ -560,7 +560,7 @@ jobs:
           # is built from it but that's okay
           cp -a .git build/
           cd build/wrapping/python  # in build subdirectory
-          echo "path=build/wrapping/python/dist/*.whl" >> $GITHUB_OUTPUT
+          echo "path=build/wrapping/python/dist/*.whl" | tee -a $GITHUB_OUTPUT
         fi
         pwd
         python setup.py bdist_wheel sdist
@@ -609,7 +609,7 @@ jobs:
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
         if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
-          echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" | tee -a $GITHUB_ENV
         fi
 
     - name: Upload wrapped Python lib
