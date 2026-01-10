@@ -15,7 +15,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
 endif()
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy)
 
 if (BUILD_TESTING)
     find_package(Pytest)
