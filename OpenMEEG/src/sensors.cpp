@@ -8,7 +8,6 @@
 #include <sensors.h>
 
 #include <algorithm>
-#include <ciso646>
 #include <iterator>     // std::distance
 #include <vector>
 #include <stack>
