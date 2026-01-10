@@ -6,7 +6,7 @@ endif()
 
 project (OpenMEEG VERSION 2.5.15 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 17)  # use c++17
+set(CMAKE_CXX_STANDARD 23)  # use c++23 so that #warning remains portable
 
 set(OpenMEEG_HEADER_INSTALLDIR include) # XXX I don't know why this should be here
 
