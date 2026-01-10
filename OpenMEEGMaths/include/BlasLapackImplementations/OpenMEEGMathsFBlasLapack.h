@@ -30,7 +30,7 @@
 #define DPPTRF LAPACK(dpptrf,DPPTRF)
 #define DPPTRI LAPACK(dpptri,DPPTRI)
 
-#define DGESDD FC_GLOBAL(dgesdd,DGESDD)
+#define DGESDD LAPACK(dgesdd,DGESDD)
 
 #define DGETRF LAPACK(dgetrf,DGETRF)
 
