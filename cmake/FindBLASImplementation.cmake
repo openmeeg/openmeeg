@@ -3,7 +3,7 @@ include(CheckSymbolExists)
 
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
-set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas")
+set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS")
 
 if (BLA_IMPLEMENTATION STREQUAL "mkl-findblas")
 
@@ -129,6 +129,17 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
         endforeach()
     endif()
 
+elseif (BLA_IMPLEMENTATION STREQUAL "FlexiBLAS")
+    find_package(BLAS)
+    message(STATUS "Using BLA_IMPLEMENTATION=FlexiBLAS")
+    message(STATUS "  Libraries:    ${BLAS_LIBRARIES}")
+    message(STATUS "  Include dirs: ${BLAS_INCLUDE_DIRS}")
+    message(STATUS "  Linker flags: ${BLAS_LDFLAGS}")
+
+    set(USE_FLEXIBLAS ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
+    set(BLA_VENDOR ${BLA_IMPLEMENTATION})
 else()
 
     message(STATUS "Using no BLAS implementation")

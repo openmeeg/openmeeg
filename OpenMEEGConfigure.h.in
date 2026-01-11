@@ -26,6 +26,7 @@ static const char version[] = "@OpenMEEG_VERSION@";
 #cmakedefine USE_SCIPY_OPENBLAS
 #cmakedefine USE_ATLAS
 #cmakedefine USE_OPENBLAS
+#cmakedefine USE_FLEXIBLAS
 #cmakedefine USE_VECLIB
 #cmakedefine CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "@CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION@"
 #cmakedefine WIN32
