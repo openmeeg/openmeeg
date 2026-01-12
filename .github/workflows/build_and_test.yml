@@ -179,7 +179,7 @@ jobs:
         if [[ "${{matrix.testing}}" == "thorough" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
         fi
-        if [[ "${{matrix.blas}}" == 'mkl'* ]]; then
+        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == 'FlexiBLAS' ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" | tee -a $GITHUB_ENV
           echo "blas=${{matrix.blas}}" | tee -a $GITHUB_OUTPUT
@@ -355,7 +355,7 @@ jobs:
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
         fi
-        if [[ "${{matrix.blas}}" == 'FlexiBLAS' ]]; then
+        if [[ "${{steps.env-vars.outputs.blas}}" == 'FlexiBLAS' ]]; then
           BREW_EXTRA=flexiblas
         fi
         echo "Installing dependencies with brew"
