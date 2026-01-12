@@ -68,6 +68,12 @@ jobs:
           blas_linking: dynamic
           python: cmake
           testing: fast
+        # One with FlexiBLAS
+        - os: macos-latest
+          blas: FlexiBLAS
+          blas_linking: dynamic
+          python: cmake
+          testing: fast
         - os: macos-15-intel
           blas: OpenBLAS
           blas_linking: dynamic
@@ -339,7 +345,7 @@ jobs:
         echo "LIB=$LIB" | tee -a $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" | tee -a $GITHUB_ENV
 
-    - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS via brew
+    - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS or FlexiBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
         echo "Installing dependencies with brew"
@@ -348,6 +354,9 @@ jobs:
         echo "::endgroup::"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           BREW_EXTRA=openblas
+        fi
+        if [[ "${{matrix.blas}}" == 'FlexiBLAS' ]]; then
+          BREW_EXTRA=flexiblas
         fi
         echo "Installing dependencies with brew"
         HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
