@@ -104,6 +104,7 @@ message("Python: Copying MANIFEST.in, setup.py, pyproject.toml, and README.rst t
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_SOURCE_DIR}/LICENSE.txt
     ${CMAKE_SOURCE_DIR}/wrapping/python/MANIFEST.in
     ${CMAKE_SOURCE_DIR}/wrapping/python/setup.py
     ${CMAKE_SOURCE_DIR}/wrapping/python/pyproject.toml
@@ -113,12 +114,12 @@ add_custom_command(
 )
 # You need to be in the CMAKE_SOURCE_DIR for python -m setuptools_scm -c wrapping/python/pyproject.toml
 # to properly detect and use .git_archival.txt
-execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c wrapping/python/pyproject.toml WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c wrapping/python/pyproject.toml WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 message("Python: Extracted from setuptools_scm openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
 message("Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/wrapping/python
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
 )
