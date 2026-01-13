@@ -140,6 +140,8 @@ namespace OpenMEEG {
         BLAS_INT* pivots = new BLAS_INT[nlin()];
         int Info = 0;
         DSPTRF('U',M,A.data(),pivots,Info);
+        om_assert(Info == 0);
+
         // Solve the linear system AX=B
         DSPTRS('U',M,N,A.data(),pivots,RHS.data(),M,Info);
         om_assert(Info == 0);

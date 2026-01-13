@@ -111,9 +111,10 @@ namespace OpenMEEG {
         BLAS_INT* pivots=new BLAS_INT[nlin()];
         int Info = 0;
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
+        om_assert(Info==0);
+
         // Inverse
         DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,X.data(),sizet_to_int(invA.nlin()),Info);
-
         om_assert(Info==0);
         delete[] pivots;
     #else
@@ -133,11 +134,12 @@ namespace OpenMEEG {
         int Info = 0;
         //char *uplo="U";
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
-        // Inverse
-        for(int i = 0; i < nbvect; i++)
-            DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
-
         om_assert(Info==0);
+        // Inverse
+        for(int i=0; i<nbvect; ++i) {
+            DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
+            om_assert(Info==0);
+        }
         delete[] pivots;
     #else
         std::cout << "solveLin not defined" << std::endl;
@@ -173,6 +175,7 @@ namespace OpenMEEG {
         // U'U factorization then inverse
         int Info = 0;
         DPPTRF('U', sizet_to_int(nlin()),invA.data(),Info);
+        om_assert(Info==0);
         DPPTRI('U', sizet_to_int(nlin()),invA.data(),Info);
         om_assert(Info==0);
     #else
@@ -190,8 +193,10 @@ namespace OpenMEEG {
         int Info = 0;
         // TUDUtTt
         DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
-        if (Info<0)
+        if (Info<0) {
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
+            om_assert(Info==0);
+        }
         for (size_t i = 0; i< nlin(); i++){
             if (pivots[i] >= 0) {
                 d *= invA(i,i);
@@ -259,10 +264,10 @@ namespace OpenMEEG {
         int Info = 0;
         const BLAS_INT M = sizet_to_int(nlin());
         DSPTRF('U',M,invA.data(),pivots,Info);
+        om_assert(Info==0);
         // Inverse
         double* work = new double[nlin()*64];
         DSPTRI('U',M,invA.data(),pivots,work,Info);
-
         om_assert(Info==0);
         delete[] pivots;
         delete[] work;
@@ -279,11 +284,13 @@ namespace OpenMEEG {
         int Info = 0;
         const BLAS_INT M = sizet_to_int(nlin());
         DSPTRF('U',M,data(),pivots,Info);
+        om_assert(Info==0);
+
         // Inverse
         double* work = new double[nlin()*64];
         DSPTRI('U',M,data(),pivots,work,Info);
-
         om_assert(Info==0);
+
         delete[] pivots;
         delete[] work;
         return;
