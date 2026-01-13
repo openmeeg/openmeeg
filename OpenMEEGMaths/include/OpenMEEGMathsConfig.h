@@ -45,6 +45,8 @@
 #include <BlasLapackImplementations/OpenMEEGMathsAtlasConfig.h>
 #elif defined(USE_OPENBLAS)
 #include <BlasLapackImplementations/OpenMEEGMathsOpenBLASConfig.h>
+#elif defined(USE_FLEXIBLAS)
+#include <BlasLapackImplementations/OpenMEEGMathsFlexiBLASConfig.h>
 #else
 #warning "No blas/lapack implementation selected."
 #endif

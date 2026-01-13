@@ -24,8 +24,8 @@ if (USE_VTK)
         # set(CMAKE_MSVCIDE_RUN_PATH ${VTK_RUNTIME_LIBRARY_DIRS} ${CMAKE_MSVCIDE_RUN_PATH}) # specially for windows
         message(STATUS "Found VTK, including requested VTK IO support...")
 
-        if (VTK_VERSION VERSION_GREATER_EQUAL 9.1.0)
-            option(ENABLE_VTK_BUG_WORKAROUND "Add an interposer library to workaround the vtk/expat XML reading bug.")
+        if (VTK_VERSION VERSION_GREATER_EQUAL 9.1.0 AND VTK_VERSION VERSION_LESS 9.4.0 )
+            option(ENABLE_VTK_BUG_WORKAROUND "Add an interposer library to workaround the vtk/expat XML reading bug." ON)
         endif()
 
         set(VTK_BUG_WORKAROUND_LIB)
