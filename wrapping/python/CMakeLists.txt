@@ -120,14 +120,15 @@ execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c wrapping/pyth
                 OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION
                 OUTPUT_STRIP_TRAILING_WHITESPACE
                 COMMAND_ERROR_IS_FATAL LAST)
-
 message("Python: Extracted from setuptools_scm openmeeg/_version.py: ${PYTHON_OPENMEEG_VERSION}")
 
-message("Python: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
+message("Python Q: Generating ${CMAKE_CURRENT_BINARY_DIR}/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist_info")
 add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${Python3_EXECUTABLE} setup.py dist_info --output-dir ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env SETUPTOOLS_SCM_PRETEND_VERSION=${PYTHON_OPENMEEG_VERSION} PYTHON=${Python3_EXECUTABLE}
+                                    SDIR=${CMAKE_CURRENT_SOURCE_DIR} BDIR=${CMAKE_CURRENT_BINARY_DIR} -- 
+                             ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_dist_info.cmake
     VERBATIM
 )
 message("Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
@@ -166,11 +167,11 @@ endif()
 # Test Python wrapping
 
 if (BUILD_TESTING)
-    if (NOT TEST_SLOW_PYTHON)
+    if (TEST_SLOW_PYTHON)
+        message("Including slow tests for Python")
+    else()
         message("Excluding slow tests for Python")
         set(TEST_PYTHON_ARGS "-m" "not slowtest")
-    else()
-        message("Including slow tests for Python")
     endif()
     set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geometry.py test_python.py test_mesh.py)
     foreach (test ${PYTHON_TEST_FILES})
