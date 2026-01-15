@@ -3,7 +3,8 @@ name = "openmeeg"
 description = "Forward problems solver in the field of EEG and MEG."
 dynamic = ["version"]
 maintainers = [{ name="Alexandre Gramfort", email = "alexandre.gramfort@inria.fr" }]
-license = { file = "LICENSE.txt"}
+license = "CECILL-B"
+license-files = [ "LICENSE.txt" ]
 readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.10"
 keywords = [
