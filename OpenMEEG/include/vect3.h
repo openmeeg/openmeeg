@@ -91,7 +91,7 @@ namespace OpenMEEG {
 
         Vect3 operator-() const { return Vect3(-m[0],-m[1],-m[2]); }
 
-        inline double solid_angle(const Vect3& v1,const Vect3& v2,const Vect3& v3) const;
+        double solid_angle(const Vect3& v1,const Vect3& v2,const Vect3& v3) const;
 
         Vect3& normalize() {
             *this /= (*this).norm();
