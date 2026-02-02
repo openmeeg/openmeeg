@@ -70,6 +70,17 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     yum -y install epel-release
     yum -y install curl zip unzip tar ninja-build
     echo "::endgroup::"
+    echo "::group::matio"
+    set -x
+    wget https://github.com/telehan/libmatio/archive/refs/tags/v1.5.2.tar.gz
+    tar xvf v1.5.2.tar.gz
+    cd libmatio-1.5.2
+    ./autogen.sh
+    ./configure
+    make -j$(nproc)
+    make install
+    set +x
+    echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
