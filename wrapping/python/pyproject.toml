@@ -100,7 +100,7 @@ repair-wheel-command = [
 
 [tool.cibuildwheel.macos.environment]
 RUNNER_OS = "macOS"
-OPENMEEG_LIB == "../../install/lib"
+OPENMEEG_LIB = "../../install/lib"
 OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
 OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
 OPENMEEG_USE_SWIG = "1"
@@ -113,7 +113,6 @@ repair-wheel-command = [
 ]
 
 [tool.cibuildwheel.windows.environment]
-
 RUNNER_OS="Windows"
 OPENMEEG_LIB = "../../install/lib"
 OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
