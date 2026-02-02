@@ -22,4 +22,4 @@ installers/
 wheelhouse/
 /Dependencies/
 *.zip
-/matio-*/
+/matio-*
