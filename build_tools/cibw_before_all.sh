@@ -72,13 +72,12 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     echo "::endgroup::"
     echo "::group::matio"
     set -x
-    wget https://github.com/telehan/libmatio/archive/refs/tags/v1.5.2.tar.gz
-    tar xvf v1.5.2.tar.gz
-    cd libmatio-1.5.2
-    ./autogen.sh
-    ./configure
-    make -j$(nproc)
-    make install
+    wget https://github.com/tbeu/matio/releases/download/v1.5.30/matio-1.5.30.tar.gz
+    tar xvf matio-1.5.30.tar.gz
+    pushd matio-1.5.30
+    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    cmake --build build --config Release --target install
+    popd
     set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
