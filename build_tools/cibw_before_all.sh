@@ -68,7 +68,7 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
-    yum -y install curl zip unzip tar ninja-build
+    yum -y install curl zip unzip tar ninja-build wget
     echo "::endgroup::"
     echo "::group::matio"
     set -x
