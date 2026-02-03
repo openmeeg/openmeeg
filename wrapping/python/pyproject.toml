@@ -80,21 +80,45 @@ repair-wheel-command = [
     "bash build_tools/cibw_repair_wheel_command_linux.sh {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="Linux", OPENMEEG_LIB="../../install/lib64", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1" }
+# adapted from h5py
+manylinux-x86_64-image = "ghcr.io/h5py/manylinux_2_28_x86_64-hdf5"
+manylinux-aarch64-image = "ghcr.io/h5py/manylinux_2_28_aarch64-hdf5"
+
+[tool.cibuildwheel.linux.environment]
+RUNNER_OS = "Linux"
+OPENMEEG_LIB = "../../install/lib64"
+OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
+OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
+OPENMEEG_USE_SWIG = "1"
+CFLAGS = "-g1"  # from h5py
 
 [tool.cibuildwheel.macos]
 repair-wheel-command = [
     "bash build_tools/cibw_repair_wheel_command_macos.sh {delocate_archs} {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="macOS", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1", MACOSX_DEPLOYMENT_TARGET="10.15" }
+
+[tool.cibuildwheel.macos.environment]
+RUNNER_OS = "macOS"
+OPENMEEG_LIB = "../../install/lib"
+OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
+OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
+OPENMEEG_USE_SWIG = "1"
+MACOSX_DEPLOYMENT_TARGET = "10.15"
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = [
     "bash build_tools/cibw_repair_wheel_command_windows.sh {dest_dir} {wheel}",
     "pipx run abi3audit --strict --report {wheel}",
 ]
-environment = { RUNNER_OS="Windows", OPENMEEG_LIB="../../install/lib", OPENMEEG_INCLUDE="../../install/include/OpenMEEG", OPENBLAS_INCLUDE="../../install/include/OpenBLAS", OPENMEEG_USE_SWIG="1", SWIG_FLAGS="msvc" }
+
+[tool.cibuildwheel.windows.environment]
+RUNNER_OS="Windows"
+OPENMEEG_LIB = "../../install/lib"
+OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
+OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
+OPENMEEG_USE_SWIG = "1"
+SWIG_FLAGS = "msvc"
 
 [tool.ruff]
 select = ["E", "F", "W", "D", "I"]

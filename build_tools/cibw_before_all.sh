@@ -68,7 +68,17 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
-    yum -y install hdf5-devel matio-devel curl zip unzip tar ninja-build
+    yum -y install curl zip unzip tar ninja-build wget
+    echo "::endgroup::"
+    echo "::group::matio"
+    set -x
+    wget https://github.com/tbeu/matio/releases/download/v1.5.30/matio-1.5.30.tar.gz
+    tar xvf matio-1.5.30.tar.gz
+    pushd matio-1.5.30
+    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    cmake --build build --config Release --target install
+    popd
+    set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export DISABLE_CCACHE=1
