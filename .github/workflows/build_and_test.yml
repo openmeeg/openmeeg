@@ -228,13 +228,13 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
 
     - name: Setup ccache
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: hendrikmuhs/ccache-action@v1.2.22
       with:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
     # Use conda for all Python except PyPy
     - name: Python via conda
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v3.3.0
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         activate-environment: "test"
