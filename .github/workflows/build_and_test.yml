@@ -224,31 +224,25 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
-    - run: sudo apt update -q
-      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
-
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
-    # Use conda for MKL
+    # Use conda for all Python except PyPy
     - uses: mamba-org/setup-micromamba@v3
       with:
         environment-name: test
         log-level: 'info'
         create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }} pip mkl-devel
-      timeout-minutes: 10
-      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.blas,'mkl')
+          python=${{ steps.env-vars.outputs.python_version }} pip
+      timeout-minutes: 5
+      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
     - name: Python via setup-python
       uses: actions/setup-python@v6
-      id: setup-python
-      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.blas,'mkl')
+      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         python-version: "${{ steps.env-vars.outputs.python_version }}"
-    - run: echo "export PATH=\"$(dirname ${{ steps.setup-python.outputs.python-path }}):$PATH\"" | tee -a ~/.bash_profile
-      if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.blas, 'mkl') && startswith(matrix.os, 'macos')
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
       run: |
@@ -291,6 +285,13 @@ jobs:
         # cmake --build build --config Release
         # cd build && LD_PRELOAD=$CONDA_PREFIX/lib/libmkl_rt.so ctest -C Release
         #
+        # >=2024.2.0 problematic on Windows, see
+        # https://github.com/openmeeg/openmeeg/actions/runs/9844278326/job/27177300969?pr=675
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          conda install -c conda-forge -q "mkl-devel<2024.2.0"
+        else
+          conda install -c conda-forge -q mkl-devel
+        fi
         echo "$CONDA_PREFIX/lib/*mkl*:"
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           ls -alR $(cygpath -u $CONDA_PREFIX)/Library/lib/*mkl*
@@ -398,6 +399,7 @@ jobs:
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
         set -x
+        sudo apt update -q
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
         set +x
         # Set GCC version
