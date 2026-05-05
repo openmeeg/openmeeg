@@ -232,7 +232,7 @@ jobs:
       with:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
-    # Use conda for all Python except PyPy
+    # Use conda for MKL
     - uses: mamba-org/setup-micromamba@v3
       with:
         environment-name: test
