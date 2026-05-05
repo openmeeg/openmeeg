@@ -406,7 +406,7 @@ jobs:
         if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
-        if [[ "${{ steps.env-vars.outputs.python_version }}" == "pypy"]]; then
+        if [[ "${{ steps.env-vars.outputs.python_version }}" == "pypy" ]]; then
           APT_EXTRA="$APT_EXTRA libhdf5-dev libmatio-dev"
         fi
         set -x
