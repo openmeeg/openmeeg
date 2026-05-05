@@ -8,6 +8,7 @@ fi
 echo "OPENMEEG_DATA_PATH=\"$OPENMEEG_DATA_PATH\""
 set -xe
 python -m threadpoolctl -i numpy openmeeg
+python -m threadpoolctl -i openmeeg
 pwd
 pytest --tb=short -ra -m "not slow" -vv --pyargs openmeeg
 # Smoke test for https://github.com/swig/swig/issues/3061

@@ -235,7 +235,7 @@ jobs:
         environment-name: test
         log-level: 'info'
         create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }} pip
+          python=${{ steps.env-vars.outputs.python_version }} pip conda
       timeout-minutes: 5
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
     - name: Python via setup-python
@@ -243,6 +243,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         python-version: "${{ steps.env-vars.outputs.python_version }}"
+
     - name: Python packages
       if: startswith(steps.env-vars.outputs.python, 'python')
       run: |
@@ -386,7 +387,7 @@ jobs:
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
-      timeout-minutes: 5
+      timeout-minutes: 10
       run: |
         APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
