@@ -101,7 +101,7 @@ jobs:
         # of if we decide to fully drop it later.
         # - os: windows-latest
         #   windows_compiler: mingw64
-        # MKL on each OS (static unless it has to be dynamic)
+        # MKL on Linux and Windows (static unless it has to be dynamic)
         - os: windows-latest
           blas: mkl-findblas
           blas_linking: static
@@ -238,8 +238,11 @@ jobs:
       with:
         environment-name: test
         log-level: 'info'
+        # We annoyingly need `git` in here because `brew` installs its own on macOS and
+        # can create issues when we prepend our conda path but use a non-conda git
+        # ... same thing for curl on Linux
         create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }} pip conda
+          python=${{ steps.env-vars.outputs.python_version }} pip conda git curl
       timeout-minutes: 5
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
     - name: Python via setup-python
@@ -391,7 +394,7 @@ jobs:
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
-      timeout-minutes: 10
+      timeout-minutes: 15
       run: |
         APT_EXTRA=""
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS" ]] && [[ "${{ steps.env-vars.outputs.blas_version }}" != "latest" ]]; then
@@ -415,10 +418,10 @@ jobs:
     - name: Linux - OpenBLAS via GitHub
       if: startsWith(steps.env-vars.outputs.os,'ubuntu') && startsWith(steps.env-vars.outputs.blas_version,'latest')
       run: |
-        curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.20.tar.gz
-        tar xzf v0.3.20.tar.gz
+        curl -LO https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.33.tar.gz
+        tar xzf v0.3.33.tar.gz
         ls -al
-        cd OpenBLAS-0.3.20
+        cd OpenBLAS-0.3.33
         ls -alR .
         make NO_FORTRAN=0 NO_STATIC=0 NO_DYNAMIC=0 NUM_THREADS=24 NO_WARMUP=1
         sudo make install PREFIX=/usr/local
@@ -562,7 +565,7 @@ jobs:
             echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           fi
           cd wrapping/python  # in root
-          echo "path=wrapping/python/dist/*.whl" | tee -a $GITHUB_OUTPUT
+          GOT_PATH=build/wrapping/python/dist/*.whl
           git status --porcelain --untracked-files=no
           test -z "$(git status --porcelain --untracked-files=no)"
         else
@@ -570,8 +573,11 @@ jobs:
           # is built from it but that's okay
           cp -a .git build/
           cd build/wrapping/python  # in build subdirectory
-          echo "path=build/wrapping/python/dist/*.whl" | tee -a $GITHUB_OUTPUT
+          GOT_PATH=build/wrapping/python/dist/*.whl
         fi
+        test ! -z "$GOT_PATH"
+        test -n "$GOT_PATH"
+        echo "path=$GOT_PATH" | tee -a $GITHUB_OUTPUT
         pwd
         python setup.py bdist_wheel sdist
         echo "Wheels:"
@@ -583,10 +589,10 @@ jobs:
         unzip "$FNAME" -d check
         echo "Contents before:"
         ls -alR check/*
-        if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel show "$FNAME"
           PATH="$(cygpath -w $PWD/openmeeg);$PATH" delvewheel repair $DELVEWHEEL_ADD_DLL -w dist "$FNAME"
-        elif [[ ${{steps.env-vars.outputs.os}} == 'macos'* ]]; then
+        elif [[ "${{steps.env-vars.outputs.os}}" == 'macos'* ]]; then
           length=${#FNAME}
           ORIG_FNAME="${FNAME::length-4}.orig"
           cp -a "$FNAME" "$ORIG_FNAME"
@@ -618,7 +624,7 @@ jobs:
         ${GITHUB_WORKSPACE}/build_tools/cibw_test_command.sh ${GITHUB_WORKSPACE}
         pip uninstall -yq openmeeg
         # Now make it so our tests can find the libs
-        if [[ ${{steps.env-vars.outputs.os}} == 'windows'* ]]; then
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           echo "PYTHONPATH=$(cygpath -w ${PWD}/build);$PYTHONPATH" | tee -a $GITHUB_ENV
         fi
 
