@@ -238,7 +238,7 @@ jobs:
         environment-name: test
         log-level: 'info'
         create-args: >-
-          python="${{ steps.env-vars.outputs.python_version }}" pip mkl-devel
+          python=${{ steps.env-vars.outputs.python_version }} pip mkl-devel
       timeout-minutes: 10
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.blas,'mkl')
     - name: Python via setup-python
