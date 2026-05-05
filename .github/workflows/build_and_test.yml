@@ -242,7 +242,7 @@ jobs:
         # can create issues when we prepend our conda path but use a non-conda git
         # ... same thing for curl on Linux
         create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }} pip conda git curl hdf5 libmatio
+          python=${{ steps.env-vars.outputs.python_version }} pip conda git
       timeout-minutes: 5
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
     - name: Python via setup-python
@@ -323,7 +323,7 @@ jobs:
           build/vcpkg_installed
         key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ steps.env-vars.outputs.windows_compiler }}-0
 
-    - name: Windows 2 - libmatio via vcpkg
+    - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(steps.env-vars.outputs.os,'windows')
       id: runvcpkg
       run: |
@@ -349,7 +349,7 @@ jobs:
         echo "LIB=$LIB" | tee -a $GITHUB_ENV
         echo "CMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS" | tee -a $GITHUB_ENV
 
-    - name: macOS - libomp and (optionally) OpenBLAS or FlexiBLAS via brew
+    - name: macOS - hdf5, libmatio, libomp and (optionally) OpenBLAS or FlexiBLAS via brew
       if: startswith(steps.env-vars.outputs.os,'macos')
       run: |
         echo "Installing dependencies with brew"
@@ -363,7 +363,7 @@ jobs:
           BREW_EXTRA=flexiblas
         fi
         echo "Installing dependencies with brew"
-        HOMEBREW_NO_AUTO_UPDATE=1 brew install libomp swig zlib $BREW_EXTRA
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
         echo "brew install complete"
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
@@ -392,7 +392,7 @@ jobs:
           echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" | tee -a $GITHUB_ENV
         fi
 
-    - name: Linux - doxygen, optionally vtk / hdf5 / libmatio / OpenBLAS via apt
+    - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       timeout-minutes: 15
       run: |
@@ -406,11 +406,8 @@ jobs:
         if [[ "${{ steps.env-vars.outputs.vtk_version }}" != "" ]]; then
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
-        if [[ "${{ steps.env-vars.outputs.python_version }}" == "pypy" ]]; then
-          APT_EXTRA="$APT_EXTRA libhdf5-dev libmatio-dev"
-        fi
         set -x
-        sudo apt -yq install liblapacke-dev doxygen graphviz libmatio-dev lcov $APT_EXTRA
+        sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
         set +x
         # Set GCC version
         if [[ "${{ steps.env-vars.outputs.blas }}" == "OpenBLAS-latest" ]]; then
