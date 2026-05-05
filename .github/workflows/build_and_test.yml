@@ -224,6 +224,10 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
+    - run: sudo apt update -q
+      if: startsWith(steps.env-vars.outputs.os,'ubuntu')
+      timeout-minutes: 10
+
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2.23
       with:
@@ -400,7 +404,6 @@ jobs:
           APT_EXTRA="$APT_EXTRA lib${{ steps.env-vars.outputs.vtk_version }}-dev"
         fi
         set -x
-        sudo apt update -q
         sudo apt -yq install liblapacke-dev doxygen graphviz libhdf5-dev libmatio-dev lcov $APT_EXTRA
         set +x
         # Set GCC version
