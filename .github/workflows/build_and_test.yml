@@ -234,17 +234,16 @@ jobs:
         key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
 
     # Use conda for all Python except PyPy
-    - uses: mamba-org/setup-micromamba@v3
-      with:
-        environment-name: test
-        log-level: 'info'
-        # We annoyingly need `git` in here because `brew` installs its own on macOS and
-        # can create issues when we prepend our conda path but use a non-conda git
-        # ... same thing for curl on Linux
-        create-args: >-
-          python=${{ steps.env-vars.outputs.python_version }} pip conda git
-      timeout-minutes: 5
+    # micromamba causes issues
+    - name: Python via conda
+      uses: conda-incubator/setup-miniconda@v4.0.1
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
+      timeout-minutes: 5
+      with:
+        activate-environment: "test"
+        python-version: "${{ steps.env-vars.outputs.python_version }}"
+        channels: conda-forge
+        channel-priority: strict
     - name: Python via setup-python
       uses: actions/setup-python@v6
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
