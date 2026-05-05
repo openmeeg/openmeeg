@@ -243,6 +243,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.blas,'mkl')
     - name: Python via setup-python
       uses: actions/setup-python@v6
+      id: setup-python
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.blas,'mkl')
       with:
         python-version: "${{ steps.env-vars.outputs.python_version }}"
