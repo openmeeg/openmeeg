@@ -236,7 +236,7 @@ jobs:
     # Use conda for all Python except PyPy
     # micromamba causes issues
     - name: Python via conda
-      uses: conda-incubator/setup-miniconda@v4.0.1
+      uses: conda-incubator/setup-miniconda@v4
       if: startswith(steps.env-vars.outputs.python, 'python') && !startswith(steps.env-vars.outputs.python_version, 'pypy')
       timeout-minutes: 5
       with:
@@ -255,6 +255,12 @@ jobs:
       run: |
         which python
         python --version
+        if [[ ! -z "$CONDA" ]]; then
+          echo "Using conda Python at $CONDA_PREFIX"
+          conda install -yq pip
+        else
+          echo "Using system Python"
+        fi
         which pip
         pip --version
         python -m pip install --upgrade -q pip
