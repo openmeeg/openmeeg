@@ -648,8 +648,8 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         set -x
-        lcov --directory . --capture --output-file --ignore-errors gcov,gcov coverage.info # capture coverage info
-        lcov --remove coverage.info '/usr/*' --ignore-errors unused,gcov,gcov --output-file coverage.info # filter out system
+        lcov --directory . --capture           --ignore-errors gcov,gcov        --output-file coverage.info # capture coverage info
+        lcov --remove coverage.info '/usr/*'   --ignore-errors unused,gcov,gcov --output-file coverage.info # filter out system
         lcov --remove coverage.info '*numpy/*' --ignore-errors unused,gcov,gcov --output-file coverage.info # filter out NumPy
         lcov --list coverage.info
 
