@@ -648,9 +648,9 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       run: |
         set -x
-        lcov --directory . --capture --output-file coverage.info # capture coverage info
-        lcov --remove coverage.info '/usr/*' --ignore-errors unused --output-file coverage.info # filter out system
-        lcov --remove coverage.info '*numpy/*' --ignore-errors unused --output-file coverage.info # filter out NumPy
+        lcov --directory . --capture           --ignore-errors gcov,gcov        --output-file coverage.info # capture coverage info
+        lcov --remove coverage.info '/usr/*'   --ignore-errors unused,gcov,gcov --output-file coverage.info # filter out system
+        lcov --remove coverage.info '*numpy/*' --ignore-errors unused,gcov,gcov --output-file coverage.info # filter out NumPy
         lcov --list coverage.info
 
     - name: Upload coverage to CodeCov
