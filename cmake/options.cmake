@@ -14,6 +14,10 @@ option(PYTHON_INSTALL_RELATIVE "Make Python install path relative to install-pre
 option(PYTHON_COPY_RUNTIME_DLLS "Copy runtime DLLs to the cmake build path" OFF)
 option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
 
+if (ENABLE_PYTHON)
+    option(ENABLE_PYTHON_APPS "Enable python bindings based apps" OFF)
+endif()
+
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
 option(TEST_SLOW_PYTHON "Run slow tests on Python" OFF)
