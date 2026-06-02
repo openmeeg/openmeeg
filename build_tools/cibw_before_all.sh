@@ -156,14 +156,13 @@ export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
-CONFIGURE_ARGS="-DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${CMAKE_PREFIX_PATH_OPT} ${SHARED_OPT} ${BLAS_LIBRARIES_OPT}"
 if [[ "${KIND}" == "wheel" ]]; then
-    CONFIGURE_ARGS="-DENABLE_APPS=OFF ${CONFIGURE_ARGS}"
+    APP_OPT="-DENABLE_APPS=OFF"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    CONFIGURE_ARGS="-DENABLE_APPS=ON ${CONFIGURE_ARGS}"
+    APP_OPT="-DENABLE_APPS=ON"
 fi
-./build_tools/cmake_configure.sh -DENABLE_APPS=OFF ${CONFIGURE_ARGS}
+./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${CMAKE_PREFIX_PATH_OPT} ${SHARED_OPT} ${BLAS_LIBRARIES_OPT} ${APP_OPT}
 echo "::group::cmake --build"
 cmake --build build --target install --target package --config release
 echo "::endgroup::"
