@@ -44,8 +44,8 @@ if [ ! -d vcpkg ]; then
     echo "Getting vcpkg $VCPKG_VERSION..."
     git clone https://github.com/Microsoft/vcpkg.git --depth=1
     cd vcpkg
-    git fetch origin $VCPKG_VERSION:use --depth=1
-    git checkout use
+    git fetch origin --tags
+    git checkout $VCPKG_VERSION
     ./bootstrap-vcpkg.sh
     cd ..
 fi
