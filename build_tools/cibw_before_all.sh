@@ -84,25 +84,14 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
-        if [[ "$PLATFORM" == "Linux-x86_64" ]]; then
-            export VCPKG_DEFAULT_TRIPLET="x64-linux"
-        elif [[ "$PLATFORM" == "Linux-aarch64" ]]; then
-            export VCPKG_DEFAULT_TRIPLET="arm64-linux"
-        else
-            echo "Unknown PLATFORM=\"$PLATFORM\""
-            exit 1
-        fi
-        source ./build_tools/setup_vcpkg_compilation.sh
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
-        if [[ "$KIND" == "app" ]]; then
-            SOS=($OPENBLAS_LIB_DIR/*.so*)
-            OLD_IFS=$IFS
-            IFS=';'
-            SOS=("${SOS[*]}")
-            IFS=$OLD_IFS
-            LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
-            echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
-        fi
+        SOS=($OPENBLAS_LIB_DIR/*.so*)
+        OLD_IFS=$IFS
+        IFS=';'
+        SOS=("${SOS[*]}")
+        IFS=$OLD_IFS
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
+        echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
     fi
     LIB_OUTPUT_DIR="$ROOT/install/lib64"
 elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
