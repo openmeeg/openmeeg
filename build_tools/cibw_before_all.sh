@@ -84,6 +84,15 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
+        if [[ "$PLATFORM" == "Linux-x86_64" ]]; then
+            export VCPKG_DEFAULT_TRIPLET="x64-linux"
+        elif [[ "$PLATFORM" == "Linux-aarch64" ]]; then
+            export VCPKG_DEFAULT_TRIPLET="arm64-linux"
+        else
+            echo "Unknown PLATFORM=\"$PLATFORM\""
+            exit 1
+        fi
+        source ./build_tools/setup_vcpkg_compilation.sh
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
         SOS=($OPENBLAS_LIB_DIR/*.so*)
         OLD_IFS=$IFS
@@ -147,19 +156,20 @@ export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
+CONFIGURE_ARGS="-DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${CMAKE_PREFIX_PATH_OPT} ${SHARED_OPT} ${BLAS_LIBRARIES_OPT}"
 if [[ "${KIND}" == "wheel" ]]; then
-    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
-    echo "::group::cmake --build"
-    cmake --build build --target install --target package --config release
-    echo "::endgroup::"
+    CONFIGURE_ARGS="-DENABLE_APPS=OFF ${CONFIGURE_ARGS}"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
-    echo "::group::cmake --build"
-    cmake --build build --config release
-    echo "::endgroup::"
-    echo "::group::cmake --target package"
-    cmake --build build --target package --target install --config release
+    CONFIGURE_ARGS="-DENABLE_APPS=ON ${CONFIGURE_ARGS}"
+fi
+./build_tools/cmake_configure.sh -DENABLE_APPS=OFF ${CONFIGURE_ARGS}
+echo "::group::cmake --build"
+cmake --build build --target install --target package --config release
+echo "::endgroup::"
+
+if [[ "$KIND" == "app" ]]; then
+    echo "::group::Copying installers"
     mkdir -p installers
     cp -av build/OpenMEEG-*-*.* installers/
     echo "::endgroup::"
