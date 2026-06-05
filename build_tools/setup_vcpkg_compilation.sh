@@ -11,10 +11,7 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
 fi
 
 USE_CYPATH=1
-if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-mingw'* ]]; then
-    export CMAKE_GENERATOR="MinGW Makefiles"
-    export LINKER_OPT="-s"
-elif [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
+if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
         CMAKE_GENERATOR="Visual Studio 17 2022"
     fi
@@ -57,9 +54,7 @@ cp -v ./build_tools/vcpkg_triplets/*.cmake vcpkg/triplets
 export VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-if [[ "$VCPKG_DEFAULT_TRIPLET" != 'x64-mingw'* ]]; then  # for some reason this breaks things
-    export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
-fi
+export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
 
 if [[ "$USE_CYGPATH" == "1" ]]; then
     export VCPKG_INSTALLED_DIR=$(cygpath -m "${VCPKG_INSTALLED_DIR}")
