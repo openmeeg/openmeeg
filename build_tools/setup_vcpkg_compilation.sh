@@ -42,9 +42,10 @@ fi
 if [ ! -d vcpkg ]; then
     VCPKG_VERSION=$(cat build_tools/vcpkg_version.txt)
     echo "Getting vcpkg $VCPKG_VERSION..."
-    git clone https://github.com/Microsoft/vcpkg.git --depth=1
+    # TODO: To test libaec fix
+    git clone https://github.com/larsoner/vcpkg.git --depth=1
     cd vcpkg
-    git fetch origin --tags
+    git fetch origin $VCPKG_VERSION
     git checkout $VCPKG_VERSION
     ./bootstrap-vcpkg.sh
     cd ..
