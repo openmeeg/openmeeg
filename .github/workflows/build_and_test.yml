@@ -516,20 +516,30 @@ jobs:
           export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
+        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          ./build_tools/install_dependency_walker.sh
+          echo "::group::Dependency walker on om_minverser.exe"
+          ./Dependencies/Dependencies.exe -modules ./install/bin/om_minverser.exe
+          echo "::endgroup::"
+        fi
+        echo "::group::om_minverser --help"
         ./install/bin/om_minverser --help
+        echo "::endgroup::"
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
           if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
             export PYTHONPATH=$PWD/install/lib/site-packages
-            ./build_tools/install_dependency_walker.sh
             # Ideally this would not be necessary but it makes things work
-            cp build/*.dll $PWD/install/lib/site-packages/openmeeg/
+            cp -v build/*.dll $PWD/install/lib/site-packages/openmeeg/
+            echo "::group::Dependency walker on Python extension"
             ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
+            echo "::endgroup::"
           else
             export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi
           echo "PYTHONPATH=$PYTHONPATH"
+          echo "openmeeg import:"
           python -c "import openmeeg._openmeeg_wrapper as _omc; print(_omc.sqr(4)); assert _omc.sqr(4) == 16"
           echo "pip show openmeeg:"
           pip show openmeeg
