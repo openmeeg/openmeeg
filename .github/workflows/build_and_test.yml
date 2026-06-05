@@ -505,7 +505,9 @@ jobs:
 
     - name: Check installed binaries and Python wrapper
       run: |
+        echo "::group::Installed files"
         ls -alR ./install/bin ./install/lib
+        echo "::endgroup::"
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
           export PATH="$PWD/build:$PWD/install/bin:$(cygpath -u $CONDA_PREFIX)/Library:$PATH"
           echo "PATH=$PATH"
