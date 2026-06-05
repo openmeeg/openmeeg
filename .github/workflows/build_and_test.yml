@@ -453,53 +453,53 @@ jobs:
       run: |
         cmake --build build --target install --config Release
 
-    - name: Prepare for delocate
-      if: startswith(steps.env-vars.outputs.python, 'python')
       # Let's make it easy for delvewheel to find the stuff it might need
+    - name: Prepare for delvewheel
+      if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.os, 'windows')
+      working-directory: ${{ github.workspace }}/build
       run: |
-        cd build
-        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          echo "All:"
-          find . -type f -iname "*.dll"
-          echo "Data:"
-          find . -type f -name "Head1.geom"
-          echo "Before:"
-          ls -al *.dll || true
-          if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
-            #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
-            if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
-              strip $OPENBLAS_LIB/libopenblas*.dll
-            fi
-            cp $OPENBLAS_LIB/libopenblas*.dll .
-            cp $OPENBLAS_LIB/libopenblas*.dll openblas.dll
-            #fi
-          # TODO: if this is static it shouldn't be necessary, but it seems to be...
-          elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
-            ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
-            cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
-            echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" | tee -a $GITHUB_ENV
-          fi
+        echo "::group::All:"
+        find . -type f -iname "*.dll"
+        echo "::endgroup::"
+        echo "Data:"
+        find . -type f -name "Head1.geom"
+        echo "Before:"
+        ls -al *.dll || true
+        if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
+          #if [[ "${{ steps.env-vars.outputs.blas_linking }}" != "static" ]]; then
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
-            cp /c/Strawberry/c/bin/libquadmath-0.dll .
-            cp /mingw64/bin/libgcc_s_seh-1.dll .
-            cp /mingw64/bin/libwinpthread-1.dll .
-            cp /mingw64/bin/libstdc++-6.dll .
-            strip libstdc++-6.dll
-            cp /c/Strawberry/c/bin/libgomp-1.dll .
+            strip $OPENBLAS_LIB/libopenblas*.dll
           fi
-          if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
-            cp ./OpenMEEGMaths/libmatio.dll .
-          elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
-            cp ./OpenMEEGMaths/Release/libmatio.dll .
-            cp ./OpenMEEGMaths/Release/hdf5.dll .
-          fi
-          echo "After:"
-          ls -al *.dll || true
-          if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
-            cp -a *.dll wrapping/python/openmeeg
-          else
-            cp -a *.dll ../wrapping/python/openmeeg
-          fi
+          cp $OPENBLAS_LIB/libopenblas*.dll .
+          cp $OPENBLAS_LIB/libopenblas*.dll openblas.dll
+          #fi
+        # TODO: if this is static it shouldn't be necessary, but it seems to be...
+        elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
+          ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
+          cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
+          echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" | tee -a $GITHUB_ENV
+        fi
+        if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
+          cp /c/Strawberry/c/bin/libquadmath-0.dll .
+          cp /mingw64/bin/libgcc_s_seh-1.dll .
+          cp /mingw64/bin/libwinpthread-1.dll .
+          cp /mingw64/bin/libstdc++-6.dll .
+          strip libstdc++-6.dll
+          cp /c/Strawberry/c/bin/libgomp-1.dll .
+        fi
+        if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
+          cp ./OpenMEEGMaths/libmatio.dll .
+        elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
+          cp ./OpenMEEGMaths/Release/libmatio.dll .
+          # cp ./OpenMEEGMaths/Release/z.dll .
+          cp ./OpenMEEGMaths/Release/hdf5.dll .
+        fi
+        echo "After:"
+        ls -al *.dll || true
+        if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
+          cp -a *.dll wrapping/python/openmeeg
+        else
+          cp -a *.dll ../wrapping/python/openmeeg
         fi
         cat OpenMEEGConfigure.h
 
