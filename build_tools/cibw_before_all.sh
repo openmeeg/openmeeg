@@ -133,7 +133,6 @@ elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
     LIB_OUTPUT_DIR="$ROOT/install/lib"
 elif [[ "$PLATFORM" == "Windows-AMD64" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release-static"
-    export CMAKE_GENERATOR="Visual Studio 17 2022"
     source ./build_tools/setup_vcpkg_compilation.sh
     pip install delvewheel "pefile!=2024.8.26"
     export SYSTEM_VERSION_OPT="-DCMAKE_SYSTEM_VERSION=7"
