@@ -68,7 +68,7 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
-    yum -y install curl zip unzip tar ninja-build wget
+    yum -y install curl zip unzip tar ninja-build wget zlib-devel
     echo "::endgroup::"
     echo "::group::matio"
     set -x
@@ -94,15 +94,13 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
         fi
         source ./build_tools/setup_vcpkg_compilation.sh
         LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
-        if [[ "$KIND" == "app" ]]; then
-            SOS=($OPENBLAS_LIB_DIR/*.so*)
-            OLD_IFS=$IFS
-            IFS=';'
-            SOS=("${SOS[*]}")
-            IFS=$OLD_IFS
-            LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
-            echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
-        fi
+        SOS=($OPENBLAS_LIB_DIR/*.so*)
+        OLD_IFS=$IFS
+        IFS=';'
+        SOS=("${SOS[*]}")
+        IFS=$OLD_IFS
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
+        echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
     fi
     LIB_OUTPUT_DIR="$ROOT/install/lib64"
 elif [[ "$PLATFORM" == 'Darwin-'* ]]; then
@@ -159,18 +157,18 @@ echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
-    ./build_tools/cmake_configure.sh -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=OFF ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
-    echo "::group::cmake --build"
-    cmake --build build --target install --target package --config release
-    echo "::endgroup::"
+    APP_OPT="-DENABLE_APPS=OFF"
 else
     export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT} ${CMAKE_PREFIX_PATH_OPT} -DENABLE_APPS=ON ${SHARED_OPT} -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${BLAS_LIBRARIES_OPT}
-    echo "::group::cmake --build"
-    cmake --build build --config release
-    echo "::endgroup::"
-    echo "::group::cmake --target package"
-    cmake --build build --target package --target install --config release
+    APP_OPT="-DENABLE_APPS=ON"
+fi
+./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${CMAKE_PREFIX_PATH_OPT} ${SHARED_OPT} ${BLAS_LIBRARIES_OPT} ${APP_OPT} ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT}
+echo "::group::cmake --build"
+cmake --build build --target install --target package --config release
+echo "::endgroup::"
+
+if [[ "$KIND" == "app" ]]; then
+    echo "::group::Copying installers"
     mkdir -p installers
     cp -av build/OpenMEEG-*-*.* installers/
     echo "::endgroup::"
