@@ -7,7 +7,7 @@ cd $DIR/..
 echo "::group::setup_vcpkg_compilation"
 
 if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
-    export VCPKG_DEFAULT_TRIPLET="x64-windows"
+    export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
 fi
 
 USE_CYPATH=1

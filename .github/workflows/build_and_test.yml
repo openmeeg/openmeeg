@@ -314,8 +314,6 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'windows')
       id: runvcpkg
       run: |
-        export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
-        export CMAKE_GENERATOR="Visual Studio 17 2022"
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
