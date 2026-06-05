@@ -46,7 +46,7 @@ if [ ! -d vcpkg ]; then
     git clone https://github.com/larsoner/vcpkg.git --depth=1
     cd vcpkg
     git fetch origin $VCPKG_VERSION
-    git checkout -b origin/$VCPKG_VERSION
+    git checkout -b $VCPKG_VERSION origin/$VCPKG_VERSION
     ./bootstrap-vcpkg.sh
     cd ..
 fi
