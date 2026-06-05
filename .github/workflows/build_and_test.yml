@@ -470,38 +470,40 @@ jobs:
           if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
             strip $OPENBLAS_LIB/libopenblas*.dll
           fi
-          cp $OPENBLAS_LIB/libopenblas*.dll .
-          cp $OPENBLAS_LIB/libopenblas*.dll openblas.dll
+          cp -v $OPENBLAS_LIB/libopenblas*.dll .
+          cp -v $OPENBLAS_LIB/libopenblas*.dll openblas.dll
           #fi
         # TODO: if this is static it shouldn't be necessary, but it seems to be...
         elif [[ "${{steps.env-vars.outputs.blas}}" == 'mkl'* ]]; then
           ls -alR $(cygpath -u $CONDA_PREFIX)/Library/bin
-          cp $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
+          cp -v $(cygpath -u $CONDA_PREFIX)/Library/bin/*mkl*.dll .
           echo "DELVEWHEEL_ADD_DLL=--add-dll=mkl_intel_thread.2.dll" | tee -a $GITHUB_ENV
         fi
         if [[ "{{ steps.env-vars.outputs.windows_compiler }}" != "msvc"* ]]; then
           cp /c/Strawberry/c/bin/libquadmath-0.dll .
-          cp /mingw64/bin/libgcc_s_seh-1.dll .
-          cp /mingw64/bin/libwinpthread-1.dll .
-          cp /mingw64/bin/libstdc++-6.dll .
+          cp -v /mingw64/bin/libgcc_s_seh-1.dll .
+          cp -v /mingw64/bin/libwinpthread-1.dll .
+          cp -v /mingw64/bin/libstdc++-6.dll .
           strip libstdc++-6.dll
-          cp /c/Strawberry/c/bin/libgomp-1.dll .
+          cp -v /c/Strawberry/c/bin/libgomp-1.dll .
         fi
         if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
-          cp ./OpenMEEGMaths/libmatio.dll .
+          cp -v ./OpenMEEGMaths/libmatio.dll .
         elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
-          cp ./OpenMEEGMaths/Release/libmatio.dll .
-          # cp ./OpenMEEGMaths/Release/z.dll .
-          cp ./OpenMEEGMaths/Release/hdf5.dll .
+          cp -v ./OpenMEEGMaths/Release/libmatio.dll .
+          cp -v ./OpenMEEGMaths/Release/z.dll .
+          cp -v ./OpenMEEGMaths/Release/hdf5.dll .
         fi
         echo "After:"
         ls -al *.dll || true
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
-          cp -a *.dll wrapping/python/openmeeg
+          cp -av *.dll wrapping/python/openmeeg
         else
-          cp -a *.dll ../wrapping/python/openmeeg
+          cp -av *.dll ../wrapping/python/openmeeg
         fi
+        echo "::group::OpenMEEGConfigure.h"
         cat OpenMEEGConfigure.h
+        echo "::endgroup::"
 
     - name: Check installed binaries and Python wrapper
       run: |
@@ -519,8 +521,8 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+          echo "::group::Dependency walker install and om_minverser.exe"
           ./build_tools/install_dependency_walker.sh
-          echo "::group::Dependency walker on om_minverser.exe"
           ./Dependencies/Dependencies.exe -modules ./install/bin/om_minverser.exe
           echo "::endgroup::"
         fi
