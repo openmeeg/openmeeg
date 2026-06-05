@@ -486,13 +486,11 @@ jobs:
             cp /mingw64/bin/libstdc++-6.dll .
             strip libstdc++-6.dll
             cp /c/Strawberry/c/bin/libgomp-1.dll .
-            cp /mingw64/bin/zlib1.dll .
           fi
           if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
             cp ./OpenMEEGMaths/libmatio.dll .
           elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
             cp ./OpenMEEGMaths/Release/libmatio.dll .
-            cp ./OpenMEEGMaths/Release/zlib1.dll .
             cp ./OpenMEEGMaths/Release/hdf5.dll .
           fi
           echo "After:"
