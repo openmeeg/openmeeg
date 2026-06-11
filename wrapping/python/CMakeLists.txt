@@ -84,7 +84,11 @@ else()
     message("Python default suffix ${Python3_EXT_SUFFIX}")
 endif()
 
-target_link_libraries(${SWIG_TARGET_NAME} OpenMEEG::OpenMEEG)
+if(WIN32)
+    target_link_libraries(${SWIG_TARGET_NAME} ${Python3_SABI_LIBRARIES} OpenMEEG::OpenMEEG)
+else()
+    target_link_libraries(${SWIG_TARGET_NAME} OpenMEEG::OpenMEEG)
+endif()
 
 set(PYTHON_SITE_ARCH ${Python3_SITEARCH})
 if (PYTHON_INSTALL_RELATIVE)
