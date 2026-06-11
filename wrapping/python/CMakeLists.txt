@@ -6,7 +6,6 @@
 #
 #   - swig_add_module
 #   - swig_add_library
-#   - swig_link_libraries
 #
 # those macros are driven by CMAKE_SWIG_FLAGS, and SWIG_MODULE_XXXXXXX_EXTRA_DEPS
 # where XXXXXXX is the name of the target object in swig_add_library(XXXXXXX ...)
@@ -15,7 +14,15 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     cmake_policy(SET CMP0148 NEW)  # fail FindPythonInterp / FindPythonLibs
 endif()
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy)
+if (PYTHON_USE_SABI)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development.SABIModule)
+    message("Python3_Development.SABIModule_FOUND:   ${Python3_Development.SABIModule_FOUND}")
+    message("Python3_SABI_LIBRARY:                   ${Python3_SABI_LIBRARY}")
+    message("Python3_SABI_LIBRARIES:                 ${Python3_SABI_LIBRARIES}")
+    message("Python3_SABI_LIBRARY_DIRS:              ${Python3_SABI_LIBRARY_DIRS}")
+else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development)
+endif()
 
 if (BUILD_TESTING)
     find_package(Pytest)
@@ -50,6 +57,9 @@ set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTR
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/
 swig_add_library(${SWIG_TARGET_NAME} LANGUAGE python OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/openmeeg SOURCES openmeeg/_openmeeg.i)
+if (PYTHON_USE_SABI)
+    set_target_properties(${SWIG_TARGET_NAME} PROPERTIES COMPILE_FLAGS "-DPy_LIMITED_API=0x030A0000")
+endif()
 
 # This puts __openmeeg.so in openmeeg/
 set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY openmeeg/)
@@ -78,11 +88,7 @@ else()
     message("Python default suffix ${Python3_EXT_SUFFIX}")
 endif()
 
-if (APPLE)
-    swig_link_libraries(${SWIG_TARGET_NAME} OpenMEEG::OpenMEEG)
-else()
-    swig_link_libraries(${SWIG_TARGET_NAME} ${Python3_LIBRARIES} OpenMEEG::OpenMEEG)
-endif()
+target_link_libraries(${SWIG_TARGET_NAME} OpenMEEG::OpenMEEG)
 
 set(PYTHON_SITE_ARCH ${Python3_SITEARCH})
 if (PYTHON_INSTALL_RELATIVE)
@@ -116,7 +122,7 @@ add_custom_command(
 # to properly detect and use .git_archival.txt
 
 execute_process(COMMAND ${Python3_EXECUTABLE} -m setuptools_scm -c wrapping/python/pyproject.toml
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 OUTPUT_VARIABLE PYTHON_OPENMEEG_VERSION
                 OUTPUT_STRIP_TRAILING_WHITESPACE
                 COMMAND_ERROR_IS_FATAL LAST)
@@ -127,7 +133,7 @@ add_custom_command(
     TARGET ${SWIG_TARGET_NAME} PRE_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${CMAKE_COMMAND} -E env SETUPTOOLS_SCM_PRETEND_VERSION=${PYTHON_OPENMEEG_VERSION} PYTHON=${Python3_EXECUTABLE}
-                                    SDIR=${CMAKE_CURRENT_SOURCE_DIR} BDIR=${CMAKE_CURRENT_BINARY_DIR} -- 
+                                    SDIR=${CMAKE_CURRENT_SOURCE_DIR} BDIR=${CMAKE_CURRENT_BINARY_DIR} --
                              ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_dist_info.cmake
     VERBATIM
 )

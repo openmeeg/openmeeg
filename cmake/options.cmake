@@ -13,6 +13,7 @@ set(PYTHON_VERSION 3 CACHE STRING "Python version to use: 3, 3.x, or empty")
 option(PYTHON_INSTALL_RELATIVE "Make Python install path relative to install-prefix (instead of using Python3_SITEARCH directly)" ON)
 option(PYTHON_COPY_RUNTIME_DLLS "Copy runtime DLLs to the cmake build path" OFF)
 option(PYTHON_FORCE_EXT_SUFFIX "Force Python extension suffix" OFF)
+option(PYTHON_USE_SABI "Use Python stable ABI" ON)
 
 option(ENABLE_WERROR "Turn on -Werror" OFF)
 option(TEST_HEAD3 "Run tests on Head 3" OFF)
