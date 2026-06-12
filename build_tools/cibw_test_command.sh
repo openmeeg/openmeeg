@@ -10,10 +10,10 @@ set -xe
 python -m threadpoolctl -i numpy
 python -m threadpoolctl -i openmeeg
 pwd
-pytest --tb=short -ra -m "not slow" -vv --pyargs openmeeg
+pytest --tb=short -ra -m "not slow" -vv --pyargs openmeeg --fixtures | grep conftest
 # Smoke test for https://github.com/swig/swig/issues/3061
 PYTHONFAULTHANDLER=1 PYTHONWARNINGS=error python -uc "import openmeeg"
 
 # Rerun the "bad" way
 TEST_PATH=$(python -c 'from pathlib import Path; import openmeeg; print(Path(openmeeg.__file__).parent)')
-pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH"
+pytest --tb=short -ra -m "not slow" -vv "$TEST_PATH" --fixtures | grep conftest
