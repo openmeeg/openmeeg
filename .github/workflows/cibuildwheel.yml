@@ -7,7 +7,7 @@
 # - Builds OpenMEEG
 # - Creates wheels
 # - Delocates them
-# - Uploads them to TestPyPI (main) or PyPi (releases)
+# - Uploads them to PyPi (releases)
 # Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
 
 name: cibuildwheel
@@ -121,29 +121,15 @@ jobs:
         shell: bash
       - run: pytest -m "not slow" --pyargs openmeeg
 
-  upload_test_pypi:
-    name: Upload to TestPyPI
-    needs: [build_wheels, test_wheels]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          path: dist
-          merge-multiple: true
-      - run: ls -alt dist/
-      # upload to Test PyPI for every commit on main branch
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
-        with:
-          user: __token__
-          password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
-          repository-url: https://test.pypi.org/legacy/
-          skip-existing: true
-
   upload_pypi:
     name: Upload to PyPI
     needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # for trusted publishing
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mne
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -152,6 +138,3 @@ jobs:
       # upload to PyPI on every tag (we assume these are releases!)
       - uses: pypa/gh-action-pypi-publish@release/v1
         if: github.event_name == 'release' && github.event.action == 'published'
-        with:
-          user: __token__
-          password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
