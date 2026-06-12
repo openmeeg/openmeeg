@@ -125,6 +125,7 @@ jobs:
     name: Upload to PyPI
     needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       id-token: write  # for trusted publishing
     environment:
@@ -137,4 +138,3 @@ jobs:
           merge-multiple: true
       # upload to PyPI on every tag (we assume these are releases!)
       - uses: pypa/gh-action-pypi-publish@release/v1
-        if: github.event_name == 'release' && github.event.action == 'published'
