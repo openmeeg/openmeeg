@@ -509,9 +509,10 @@ jobs:
             export PYTHONPATH=$PWD/install/lib/site-packages
             # Ideally this would not be necessary but it makes things work
             cp -v build/*.dll $PWD/install/lib/site-packages/openmeeg/
-            echo "::group::Dependency walker on Python extension"
-            ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
-            echo "::endgroup::"
+            # Enable this if there are problems (it takes a while so skip for now)
+            # echo "::group::Dependency walker on Python extension"
+            # ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
+            # echo "::endgroup::"
           else
             export PYTHONPATH=$PWD/install/lib/${PYNAME}${PYVER}/site-packages
           fi
