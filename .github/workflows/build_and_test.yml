@@ -493,12 +493,13 @@ jobs:
           export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$PWD/install/lib:/usr/local/lib:LD_LIBRARY_PATH"
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         fi
-        if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          echo "::group::Dependency walker install and om_minverser.exe"
-          ./build_tools/install_dependency_walker.sh
-          ./Dependencies/Dependencies.exe -modules ./install/bin/om_minverser.exe
-          echo "::endgroup::"
-        fi
+        # Enable this if there are problems (it takes a while so skip for now)
+        # if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
+        #   echo "::group::Dependency walker install and om_minverser.exe"
+        #   ./build_tools/install_dependency_walker.sh
+        #   ./Dependencies/Dependencies.exe -modules ./install/bin/om_minverser.exe
+        #   echo "::endgroup::"
+        # fi
         echo "::group::om_minverser --help"
         ./install/bin/om_minverser --help
         echo "::endgroup::"
@@ -509,7 +510,6 @@ jobs:
             export PYTHONPATH=$PWD/install/lib/site-packages
             # Ideally this would not be necessary but it makes things work
             cp -v build/*.dll $PWD/install/lib/site-packages/openmeeg/
-            # Enable this if there are problems (it takes a while so skip for now)
             # echo "::group::Dependency walker on Python extension"
             # ./Dependencies/Dependencies.exe -modules $PWD/install/lib/site-packages/openmeeg/_openmeeg*.pyd
             # echo "::endgroup::"
