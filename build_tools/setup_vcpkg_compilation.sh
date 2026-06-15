@@ -12,14 +12,20 @@ fi
 
 USE_CYPATH=1
 if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
+    # https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html#visual-studio-generators
     if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
-        CMAKE_GENERATOR="Visual Studio 17 2022"
+        CMAKE_GENERATOR="Visual Studio 18 2026"
     fi
     if [[ "$CMAKE_GENERATOR_TOOLSET" == "" ]]; then
         if [[ "$CMAKE_GENERATOR" == "Visual Studio 16 2019" ]]; then
-            CMAKE_GENERATOR_TOOLSET="v142"
+            CMAKE_GENERATOR_TOOLSET="v142"  # 2019
+        elif [[ "$CMAKE_GENERATOR" == "Visual Studio 17 2022" ]]; then
+            CMAKE_GENERATOR_TOOLSET="v143"  # 2022
+        elif [[ "$CMAKE_GENERATOR" == "Visual Studio 18 2026" ]]; then
+            CMAKE_GENERATOR_TOOLSET="v143"  # Still use v143
         else
-            CMAKE_GENERATOR_TOOLSET="v143"
+            echo "Unknown CMAKE_GENERATOR: '${CMAKE_GENERATOR}'"
+            exit 1
         fi
     fi
     export CMAKE_GENERATOR="$CMAKE_GENERATOR"
