@@ -7,7 +7,7 @@
 # - Builds OpenMEEG
 # - Creates wheels
 # - Delocates them
-# - Uploads them to TestPyPI (main) or PyPi (releases)
+# - Uploads them to PyPi (releases)
 # Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
 
 name: cibuildwheel
@@ -38,7 +38,7 @@ jobs:
             arch: AMD64
     timeout-minutes: 70
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -57,7 +57,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-${{ matrix.arch }}-0
-      - uses: pypa/cibuildwheel@v3.4.1
+      - uses: pypa/cibuildwheel@v4.0.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
@@ -113,29 +113,16 @@ jobs:
         shell: bash
       - run: pytest -m "not slow" --pyargs openmeeg
 
-  upload_test_pypi:
-    name: Upload to TestPyPI
-    needs: [build_wheels, test_wheels]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          path: dist
-          merge-multiple: true
-      - run: ls -alt dist/
-      # upload to Test PyPI for every commit on main branch
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
-        with:
-          user: __token__
-          password: ${{ secrets.OPENMEEG_TEST_PYPI_TOKEN }}
-          repository-url: https://test.pypi.org/legacy/
-          skip-existing: true
-
   upload_pypi:
     name: Upload to PyPI
     needs: [build_wheels, test_wheels]
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      id-token: write  # for trusted publishing
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mne
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -143,7 +130,3 @@ jobs:
           merge-multiple: true
       # upload to PyPI on every tag (we assume these are releases!)
       - uses: pypa/gh-action-pypi-publish@release/v1
-        if: github.event_name == 'release' && github.event.action == 'published'
-        with:
-          user: __token__
-          password: ${{ secrets.OPENMEEG_PYPI_TOKEN }}
