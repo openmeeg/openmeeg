@@ -69,7 +69,7 @@ archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
 test-requires = [
-    "pytest",
+    "pytest !=9.1.0",
     "threadpoolctl",
 ]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
