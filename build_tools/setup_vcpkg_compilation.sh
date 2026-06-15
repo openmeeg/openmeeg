@@ -22,7 +22,7 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
         elif [[ "$CMAKE_GENERATOR" == "Visual Studio 17 2022" ]]; then
             CMAKE_GENERATOR_TOOLSET="v143"  # 2022
         elif [[ "$CMAKE_GENERATOR" == "Visual Studio 18 2026" ]]; then
-            CMAKE_GENERATOR_TOOLSET="v144"  # 2026
+            CMAKE_GENERATOR_TOOLSET="v143"  # Still use v143
         else
             echo "Unknown CMAKE_GENERATOR: '${CMAKE_GENERATOR}'"
             exit 1
