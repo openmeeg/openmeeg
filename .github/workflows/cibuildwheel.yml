@@ -46,7 +46,7 @@ jobs:
             arch: arm64
     timeout-minutes: 70
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -65,7 +65,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-${{ matrix.arch }}-0
-      - uses: pypa/cibuildwheel@v3.4.1
+      - uses: pypa/cibuildwheel@v4.0.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
