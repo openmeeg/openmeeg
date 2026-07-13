@@ -65,6 +65,7 @@ git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
 if [[ "$PLATFORM" == 'Linux-'* ]]; then
+    export CMAKE_GENERATOR=ninja
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
@@ -75,14 +76,13 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     wget https://github.com/tbeu/matio/releases/download/v1.5.30/matio-1.5.30.tar.gz
     tar xvf matio-1.5.30.tar.gz
     pushd matio-1.5.30
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
     cmake --build build --config Release --target install
     popd
     set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export DISABLE_CCACHE=1
-    export CMAKE_GENERATOR=ninja
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
         if [[ "$PLATFORM" == "Linux-x86_64" ]]; then
