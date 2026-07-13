@@ -82,6 +82,7 @@ if [[ "$PLATFORM" == 'Linux-'* ]]; then
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     export DISABLE_CCACHE=1
+    export CMAKE_MAKE_PROGRAM=ninja
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
         if [[ "$PLATFORM" == "Linux-x86_64" ]]; then

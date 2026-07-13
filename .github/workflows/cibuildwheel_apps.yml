@@ -63,7 +63,7 @@ jobs:
           package-dir: ./wrapping/python
           output-dir: installers
         env:
-          CIBW_ENVIRONMENT_LINUX: "CMAKE_MAKE_PROGRAM=ninja"
+          CIBW_ENVIRONMENT_LINUX: ""
           CIBW_ENVIRONMENT_MACOS: ""
           CIBW_ENVIRONMENT_WINDOWS: ""
           CIBW_BUILD: "cp310-*"  # same as default, but just in case we add PyPy in the future

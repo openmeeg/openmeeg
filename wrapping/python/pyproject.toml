@@ -91,7 +91,6 @@ OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
 OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
 OPENMEEG_USE_SWIG = "1"
 CFLAGS = "-g1"  # from h5py
-CMAKE_MAKE_PROGRAM = "ninja"
 
 [tool.cibuildwheel.macos]
 repair-wheel-command = [
