@@ -162,7 +162,7 @@ set(EPSILON3 0.09)
 
 foreach(SENSORORIENT "" "-tangential" "-noradial")
     foreach(ADJOINT "" adjoint adjoint2)
-        if (NOT(${ADJOINT} STREQUAL "adjoint" OR ${ADJOINT} STREQUAL "adjoint2") OR (SENSORORIENT STREQUAL ""))
+        if (NOT ("${ADJOINT}" STREQUAL "adjoint" OR "${ADJOINT}" STREQUAL "adjoint2") OR ("${SENSORORIENT}" STREQUAL ""))
             foreach(HEADGEO "" ${NNG})
                 foreach(HEADNUM 1 2 ${HEAD3})
                     set(HEAD "Head${HEADGEO}${HEADNUM}")
