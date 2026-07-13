@@ -65,10 +65,10 @@ git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
 echo "::group::cmake"
-pip install --upgrade cmake "swig>=4.2" ninja
-echo "cmake version: $(cmake --version)"
-echo "ninja version: $(ninja --version)"
-echo "swig version:  $(swig -version)"
+pip install --upgrade "cmake!=4.4.0" "swig>=4.2" ninja
+echo "cmake version: $(cmake --version | head -n 1)"
+echo "ninja version: $(ninja --version | head -n 1)"
+echo "swig version:  $(swig -version | head -n 1)"
 echo "::endgroup::"
 
 if [[ "$PLATFORM" == 'Linux-'* ]]; then
