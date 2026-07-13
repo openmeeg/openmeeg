@@ -64,7 +64,7 @@ echo "::endgroup::"
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
-echo "::group::cmake"
+echo "::group::pip"
 pip install --upgrade cmake "swig>=4.2" ninja
 echo "cmake version: $(cmake --version | head -n 1)"
 echo "ninja version: $(ninja --version | head -n 1)"
@@ -160,8 +160,6 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 export WERROR_OPT="-DENABLE_WERROR=ON"
-echo "::group::pip"
-echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
     APP_OPT="-DENABLE_APPS=OFF"
 else
