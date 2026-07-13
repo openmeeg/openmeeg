@@ -64,18 +64,26 @@ echo "::endgroup::"
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
+echo "::group::pip"
+pip install --upgrade cmake "swig>=4.2" ninja
+echo "cmake version: $(cmake --version | head -n 1)"
+echo "ninja version: $(ninja --version | head -n 1)"
+echo "swig version:  $(swig -version | head -n 1)"
+echo "::endgroup::"
+
 if [[ "$PLATFORM" == 'Linux-'* ]]; then
+    export CMAKE_GENERATOR=Ninja
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
-    yum -y install curl zip unzip tar ninja-build wget zlib-devel
+    yum -y install curl zip unzip tar wget zlib-devel
     echo "::endgroup::"
     echo "::group::matio"
     set -x
     wget https://github.com/tbeu/matio/releases/download/v1.5.30/matio-1.5.30.tar.gz
     tar xvf matio-1.5.30.tar.gz
     pushd matio-1.5.30
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
     cmake --build build --config Release --target install
     popd
     set +x
@@ -152,9 +160,6 @@ export PYTHON_OPT="-DENABLE_PYTHON=OFF"
 export BLA_IMPLEMENTATION="OpenBLAS"
 export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 export WERROR_OPT="-DENABLE_WERROR=ON"
-echo "::group::pip"
-pip install --upgrade cmake "swig>=4.2"
-echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
     APP_OPT="-DENABLE_APPS=OFF"
 else
