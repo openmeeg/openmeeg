@@ -64,12 +64,19 @@ echo "::endgroup::"
 git status --porcelain --untracked-files=no
 test -z "$(git status --porcelain --untracked-files=no)" || test "$CHECK_PORCELAIN" == "false"
 
+echo "::group::cmake"
+pip install --upgrade cmake "swig>=4.2" ninja
+echo "cmake version: $(cmake --version)"
+echo "ninja version: $(ninja --version)"
+echo "swig version:  $(swig -version)"
+echo "::endgroup::"
+
 if [[ "$PLATFORM" == 'Linux-'* ]]; then
     export CMAKE_GENERATOR=ninja
     echo "::group::yum"
     rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
     yum -y install epel-release
-    yum -y install curl zip unzip tar ninja-build wget zlib-devel
+    yum -y install curl zip unzip tar wget zlib-devel
     echo "::endgroup::"
     echo "::group::matio"
     set -x
@@ -154,7 +161,6 @@ export BLA_IMPLEMENTATION="OpenBLAS"
 export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 export WERROR_OPT="-DENABLE_WERROR=ON"
 echo "::group::pip"
-pip install --upgrade cmake "swig>=4.2"
 echo "::endgroup::"
 if [[ "${KIND}" == "wheel" ]]; then
     APP_OPT="-DENABLE_APPS=OFF"
