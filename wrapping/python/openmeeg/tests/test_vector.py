@@ -51,3 +51,18 @@ def test_vector():
     vec = _omc.Vector(3)
     with pytest.raises(IndexError, match="Index out of range"):
         vec.value(3)
+
+    # A 2D array must raise a nice exception, not crash (gh-584): this goes
+    # through the same Vector& typemap used e.g. by om.Sensors' weights and
+    # radii arguments.
+    with pytest.raises(ValueError, match="1 dimensional"):
+        _omc.Vector(np.zeros((2, 2)), _omc.DEEP_COPY)
+
+
+def test_vector_non_contiguous():
+    """Read non-contiguous input arrays correctly, not silently misread (gh-584)."""
+    padded = np.array([[1.0, -1.0], [2.0, -1.0], [3.0, -1.0]])
+    strided = padded[:, 0]
+    assert not strided.flags["C_CONTIGUOUS"]
+    V = _omc.Vector(strided, _omc.DEEP_COPY)
+    np.testing.assert_array_equal(V.array(), strided)
