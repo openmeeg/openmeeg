@@ -164,11 +164,9 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
     n_eeg_sensors = patches.getNumberOfSensors()
 
-    # Compute forward problem (Build Gain Matrices)
-    # gauss_order = 3  # XXX Integrator is now exposed, just need to use it...
-    # use_adaptive_integration = True
-    # dipole_in_cortex = True
-
+    # Compute forward problem (Build Gain Matrices).
+    # The Integrator (gauss order, adaptive refinement levels, tolerance) is now
+    # exposed and used directly below.
     integrator = om.Integrator(3, 0, 0.005)
     print()
     print("*" * 80)
@@ -215,8 +213,19 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     if has_meg:
         ss2mm = om.SurfSource2MEGMat(mesh, sensors)
         ds2mm = om.DipSource2MEGMat(dipoles, sensors)
-        # XXX test DipSourceMat with dipoles as array and make sure it breaks
-        # if it's transposed
+        # gh-584: dipoles are accepted as a plain (n_dipoles, 6) array (giving
+        # the same result as an om.Matrix), and a transposed (6, n) array is
+        # rejected cleanly rather than crashing.
+        dip_arr = np.zeros((4, 6))
+        dip_arr[:, 2] = [0.02, 0.03, 0.04, 0.05]  # z positions
+        dip_arr[:, 3] = 1.0  # x orientation
+        dip_arr = np.asfortranarray(dip_arr)
+        assert_allclose(
+            om.DipSource2MEGMat(dip_arr, sensors).array(),
+            om.DipSource2MEGMat(om.Matrix(dip_arr), sensors).array(),
+        )
+        with pytest.raises(Exception, match="6 columns"):
+            om.DipSource2MEGMat(np.asfortranarray(dip_arr.T), sensors)
         h2mm = om.Head2MEGMat(geom, sensors)
         gain_meg_surf = om.GainMEG(hminv, ssm, h2mm, ss2mm)
         gain_meg_dip = om.GainMEG(hminv, dsm, h2mm, ds2mm)
