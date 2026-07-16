@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
 import openmeeg as om
@@ -28,3 +29,9 @@ def test_symmatrix():
 
     XX = om.SymMatrix(Z)
     assert_array_equal(XX.array_flat(), Z)
+
+    # A dtype that cannot be cast to double must raise a nice exception
+    # instead of crashing (the cast used to fail silently and dereference a
+    # null pointer).
+    with pytest.raises(ValueError, match="cannot be converted"):
+        om.SymMatrix(np.zeros(3, dtype=complex))

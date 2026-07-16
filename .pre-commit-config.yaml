@@ -6,7 +6,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.21
     hooks:
-      - id: ruff
+      - id: ruff-check
         name: ruff lint
         args: ["--fix", "--config=wrapping/python/pyproject.toml"]
       - id: ruff-format
