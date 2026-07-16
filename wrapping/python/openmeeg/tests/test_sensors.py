@@ -44,9 +44,9 @@ def test_sensors(data_path):
     print("s1 =", s1)
     s1.info()
 
-    # Test creating sensors from only positions and orientations
-    # XXX it's still broken for the moment
-    # s1 = om.Sensors(positions, orientations)
+    # Test creating MEG sensors from only positions and orientations
+    s2 = om.make_sensors(positions, orientations)
+    assert s2.getNumberOfSensors() == 2
 
     # Test creating Sensors from a geometry
     subject = "Head1"
@@ -59,6 +59,53 @@ def test_sensors(data_path):
     # Test creating Sensors from file and a geometry
     om.Sensors(op.join(dirpath, subject + ".patches"), geom)
 
-    # Test creating Sensors from an array and a geometry
-    # XXX should be possible to pass positions as array directly
-    om.Sensors(om.Matrix(positions), geom)
+    # Test creating EEG sensors from an array and a geometry (no om.Matrix wrap)
+    om.make_sensors(positions, geometry=geom)
+
+
+def test_make_sensors(data_path):
+    """The make_sensors helper builds MEG/EEG sensors from plain arrays."""
+    rng = np.random.RandomState(0)
+    n = 5
+    # C-ordered arrays (make_sensors converts to Fortran internally)
+    positions = rng.randn(n, 3) * 0.02 + [0, 0, 0.12]
+    orientations = positions / np.linalg.norm(positions, axis=1, keepdims=True)
+    assert not positions.flags["F_CONTIGUOUS"]
+
+    # MEG from positions + orientations, with defaults
+    sensors = om.make_sensors(positions, orientations)
+    assert sensors.getNumberOfSensors() == n
+    np.testing.assert_allclose(sensors.getPositions().array(), positions)
+    np.testing.assert_allclose(sensors.getWeights().array(), 1.0)
+    np.testing.assert_allclose(sensors.getRadii().array(), 0.0)
+
+    # Custom labels / weights / radii
+    sensors = om.make_sensors(
+        positions,
+        orientations,
+        labels=[f"MEG{i}" for i in range(n)],
+        weights=np.full(n, 2.0),
+        radii=np.full(n, 0.01),
+    )
+    np.testing.assert_allclose(sensors.getWeights().array(), 2.0)
+
+    # EEG electrodes from positions + geometry
+    subject = "Head1"
+    dirpath = op.join(data_path, subject)
+    geom = om.read_geometry(
+        op.join(dirpath, subject + ".geom"), op.join(dirpath, subject + ".cond")
+    )
+    eeg = om.make_sensors(positions, geometry=geom)
+    assert eeg.getNumberOfSensors() == n
+
+    # Bad shapes raise cleanly (gh-584: previously segfaulted)
+    with pytest.raises(ValueError, match="shape .n_sensors, 3."):
+        om.make_sensors(np.zeros((n, 2)), orientations)
+    with pytest.raises(ValueError, match="same shape as positions"):
+        om.make_sensors(positions, np.zeros((n, 2)))
+    with pytest.raises(ValueError, match=f"shape .{n},."):
+        om.make_sensors(positions, orientations, weights=np.ones(n + 1))
+    with pytest.raises(ValueError, match=f"length {n}"):
+        om.make_sensors(positions, orientations, labels=["a", "b"])
+    with pytest.raises(ValueError, match="require a geometry"):
+        om.make_sensors(positions)
