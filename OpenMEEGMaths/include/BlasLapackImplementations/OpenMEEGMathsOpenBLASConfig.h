@@ -15,16 +15,26 @@
     #pragma clang diagnostic ignored "-Wc99-extensions"
 #endif
 
+#include <cstdint>
+#if defined(USE_SCIPY_OPENBLAS) && !defined(LAPACK_ILP64)
+    // LAPACKe's `lapack_int` only becomes 64-bit when LAPACK_ILP64 is
+    // defined *before* <lapacke.h>, so set it here
+    #define LAPACK_ILP64
+#endif
 #include <cblas.h>
 #include <lapacke.h>
 #undef I // undefine this def due to complex.h that causes issues later
 
-typedef int BLAS_INT;
-
 #if defined(USE_SCIPY_OPENBLAS)
-    #define BLAS(x,X) scipy_cblas_ ## x
-    #define LAPACK(x,X) scipy_LAPACKE_ ## x
+    // Guard against accidentally building against the LP64 scipy-openblas32.
+    #if !defined(OPENBLAS_USE64BITINT)
+        #error "USE_SCIPY_OPENBLAS expects the ILP64 scipy-openblas64 package"
+    #endif
+    typedef int64_t BLAS_INT;
+    #define BLAS(x,X) scipy_cblas_ ## x ## 64_
+    #define LAPACK(x,X) scipy_LAPACKE_ ## x ## 64_
 #else
+    typedef int BLAS_INT;
     #define BLAS(x,X) cblas_ ## x
     #define LAPACK(x,X) LAPACKE_ ## x
 #endif
