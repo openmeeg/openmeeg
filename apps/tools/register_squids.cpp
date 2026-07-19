@@ -18,7 +18,7 @@ using namespace OpenMEEG;
 
 //  Should not be here.
 
-Vector cross_product(const Vector &a, const Vector &b)
+Vector cross_product(const Vector &a,const Vector &b)
 {
     om_assert(a.size() == 3);
     om_assert(b.size() == 3);
@@ -45,7 +45,7 @@ main(int argc,char* argv[]) {
     if (cmd.help_mode())
         return 0;
 
-    if(squids_filename=="" || fiducials_filename=="" || squids_output_filename=="") {
+    if (squids_filename=="" || fiducials_filename=="" || squids_output_filename=="") {
         std::cout << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
@@ -66,7 +66,7 @@ main(int argc,char* argv[]) {
 
     const Vector origin = (lpa+rpa)/2.0;
     Vector vx = (nas-origin);
-    Vector vz = cross_product(vx, lpa-rpa);
+    Vector vz = cross_product(vx,lpa-rpa);
     Vector vy = cross_product(vz,vx);
 
     vx = vx/vx.norm();

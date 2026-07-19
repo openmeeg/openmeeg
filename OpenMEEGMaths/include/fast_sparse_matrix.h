@@ -35,13 +35,13 @@ namespace OpenMEEG {
                 tank[cnt] = val;
                 js[cnt]   = j;
                 if (i!=current_line) {
-                    for(size_t k=current_line+1; k<=i; ++k)
+                    for (size_t k=current_line+1; k<=i; ++k)
                         rowindex[k] = cnt;
                     current_line = i;
                 }
             }
 
-            for(size_t k=current_line+1; k<=M.nlin(); ++k)
+            for (size_t k=current_line+1; k<=M.nlin(); ++k)
                 rowindex[k] = M.size();
         }
 
@@ -168,8 +168,8 @@ namespace OpenMEEG {
         const size_t nz = M.rowindex[M.nlin()];
         f << M.nlin() << " " << M.ncol() << std::endl;
         f << nz << std::endl;
-        for(size_t i=0; i<M.nlin(); ++i)
-            for(size_t j=M.rowindex[i]; j<M.rowindex[i+1]; ++j)
+        for (size_t i=0; i<M.nlin(); ++i)
+            for (size_t j=M.rowindex[i]; j<M.rowindex[i+1]; ++j)
                 f << static_cast<unsigned long>(i) << "\t" << static_cast<unsigned long>(M.js[j]) << "\t" << M.tank[j] << std::endl;
         return f;
     }

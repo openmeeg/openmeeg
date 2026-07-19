@@ -12,7 +12,7 @@
 double eps = 1.e-12;
 
 template <typename T>
-void genericTest(const std::string& basename, T &M) {
+void genericTest(const std::string& basename,T &M) {
 
     using namespace OpenMEEG;
 

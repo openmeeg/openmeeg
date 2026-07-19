@@ -29,10 +29,13 @@ namespace io_utils {
 
     template <typename TP>
     class imanip {
-        std::istream& (*func)(std::istream&, TP);
+
+        std::istream& (*func)(std::istream&,TP);
         TP obj;
+
     public:
-        imanip(std::istream& (*f)(std::istream&, TP), TP a): func(f), obj(a) {}
+
+        imanip(std::istream& (*f)(std::istream&,TP),TP a): func(f),obj(a) { }
 
         friend std::istream& operator>> <>(std::istream&,const imanip<TP>&);
     };
@@ -44,11 +47,14 @@ namespace io_utils {
 
     template <typename T1,typename T2>
     class imanip2 {
+
         std::istream& (*func)(std::istream&,T1,T2);
         T1 obj1;
         T2 obj2;
+
     public:
-        imanip2(std::istream& (*f)(std::istream&,T1,T2),T1 a,T2 b): func(f), obj1(a),obj2(b) {}
+
+        imanip2(std::istream& (*f)(std::istream&,T1,T2),T1 a,T2 b): func(f),obj1(a),obj2(b) {}
         friend std::istream& operator>> <>(std::istream&,const imanip2<T1,T2>&);
     };
 
@@ -59,12 +65,15 @@ namespace io_utils {
 
     template <typename T1,typename T2,typename T3>
     class imanip3 {
+
         std::istream& (*func)(std::istream&,T1,T2,T3);
         T1 obj1;
         T2 obj2;
         T3 obj3;
+
     public:
-        imanip3(std::istream& (*f)(std::istream&,T1,T2,T3),T1 a,T2 b,T3 c): func(f), obj1(a),obj2(b),obj3(c) {}
+
+        imanip3(std::istream& (*f)(std::istream&,T1,T2,T3),T1 a,T2 b,T3 c): func(f),obj1(a),obj2(b),obj3(c) {}
         friend std::istream& operator>> <>(std::istream&,const imanip3<T1,T2,T3>&);
     };
 
@@ -75,10 +84,13 @@ namespace io_utils {
 
     template <typename TP>
     class omanip {
+
         std::ostream& (*func)(std::ostream&,TP);
         TP obj;
+
     public:
-        omanip(std::ostream& (*f)(std::ostream&,TP),TP a): func(f), obj(a) {}
+
+        omanip(std::ostream& (*f)(std::ostream&,TP),TP a): func(f),obj(a) {}
         friend std::ostream& operator<< <>(std::ostream&,const omanip<TP>&);
     };
 
@@ -89,11 +101,14 @@ namespace io_utils {
 
     template <typename T1,typename T2>
     class omanip2 {
+
         std::ostream& (*func)(std::ostream&,T1,T2);
         T1 obj1;
         T2 obj2;
+
     public:
-        omanip2(std::ostream& (*f)(std::ostream&,T1,T2),T1 a,T2 b): func(f), obj1(a),obj2(b) {}
+
+        omanip2(std::ostream& (*f)(std::ostream&,T1,T2),T1 a,T2 b): func(f),obj1(a),obj2(b) {}
         friend std::ostream& operator<< <>(std::ostream& i,const omanip2<T1,T2>& m);
     };
 
@@ -137,8 +152,7 @@ namespace io_utils {
     //  Test if the input character stream is equal to s.
 
     inline bool
-    match_string(std::istream& is,const char*& s)
-    {
+    match_string(std::istream& is,const char*& s) {
         is >> std::ws;
         while (*s && is.peek()==static_cast<unsigned char>(*s)) {
             is.get();
@@ -153,8 +167,7 @@ namespace io_utils {
     //      cin >> skip_comments("//") >> data;
 
     inline std::istream&
-    skip_lines_internal(std::istream& is,const char* s)
-    {
+    skip_lines_internal(std::istream& is,const char* s) {
         const char* s1 = s;
         while (match_string(is,s1)) {
             skip_line(is);
@@ -240,7 +253,7 @@ namespace io_utils {
     //  Restore the string [s,s1[ to the input stream.
 
     inline void
-    restore_string(std::istream& is,const char* s,const char *s1) {
+    restore_string(std::istream& is,const char* s,const char* s1) {
         while (s!=s1--)
             is.putback(*s1);
     }
@@ -256,8 +269,7 @@ namespace io_utils {
     //  presence of the string is given in result.
 
     inline std::istream&
-    match_string_internal(std::istream& is,const char* s,bool& res)
-    {
+    match_string_internal(std::istream& is,const char* s,bool& res) {
         std::ios::iostate state = is.rdstate();
         is >> std::ws;
         const char* s1 = s;
@@ -339,8 +351,7 @@ namespace io_utils {
     //  Skip everything until string s is found on the stream.
 
     inline std::istream&
-    skip_to_internal(std::istream& is,const char* s)
-    {
+    skip_to_internal(std::istream& is,const char* s) {
         const char* s1 = s;
 
         while(is) {
@@ -497,7 +508,7 @@ namespace io_utils {
         return is;
     }
 
-    inline imanip2<std::string&, const char&>
+    inline imanip2<std::string&,const char&>
     token(std::string& str,const char& del) {
         return imanip2<std::string&,const char&>(token_internal,str,del);
     }

@@ -46,13 +46,13 @@ int main(int argc,char** argv) {
     mesh_orig.save("tmp.tri");
     mesh.load("tmp.tri");
 
-    om_error(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh,mesh_orig));
 
     // VTK
     mesh_orig.save("tmp.vtk");
 #ifdef USE_VTK
     mesh.load("tmp.vtk");
-    om_error(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh,mesh_orig));
 #endif
 
 #ifdef USE_GIFTI
@@ -60,14 +60,14 @@ int main(int argc,char** argv) {
 
     mesh_orig.save("tmp.gii");
     mesh.load("tmp.gii");
-    om_error(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh,mesh_orig));
 #endif
 
     // MESH
 
     mesh_orig.save("tmp.mesh");
     mesh.load("tmp.mesh");
-    om_error(are_equal(mesh, mesh_orig));
+    om_error(are_equal(mesh,mesh_orig));
 
     // BND && OFF that do not store normals
 
@@ -79,7 +79,7 @@ int main(int argc,char** argv) {
     Mesh mesh2;
     mesh1.load("tmp.bnd");
     mesh2.load("tmp.off");
-    om_error(are_equal(mesh1, mesh2));
+    om_error(are_equal(mesh1,mesh2));
 
     return 0;
 }

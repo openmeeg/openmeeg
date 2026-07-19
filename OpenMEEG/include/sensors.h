@@ -185,12 +185,12 @@ namespace OpenMEEG {
             return m_triangles[idx];
         }
 
-        Vector getRadii()   const { return m_radii; }
+        Vector getRadii()   const { return m_radii;   }
         Vector getWeights() const { return m_weights; }
 
         SparseMatrix getWeightsMatrix() const {
             SparseMatrix weight_matrix(getNumberOfSensors(),getNumberOfPositions());
-            for(size_t i=0; i<getNumberOfPositions(); ++i)
+            for (size_t i=0; i<getNumberOfPositions(); ++i)
                 weight_matrix(m_pointSensorIdx[i],i) = m_weights(i);
             return weight_matrix;
         }

@@ -29,76 +29,78 @@ int usage(const std::string progname)
 
 using namespace OpenMEEG;
 
-int main(int argc, char *argv[])
-{
-    if (argc < 6) {
-        std::cerr<<"Wrong number of arguments !"<<std::endl;
+int main(int argc,char *argv[]) {
+
+    if (argc<6) {
+        std::cerr << "Wrong number of arguments !" << std::endl;
         return usage(argv[0]);
     }
 
-    if ( (std::string(argv[1]) == "--help") || (std::string(argv[1]) == "-h") ) {
+    if (std::string(argv[1])=="--help" || std::string(argv[1])=="-h")
         return usage(argv[0]);
-    }
 
-    std::string meshFileName;
     std::string meshFileNameO = meshFileName;
     vtkSmartPointer<vtkPolyData> mesh;
     std::string dataName;
     Matrix data;
 
     // parse command line arguments
+
     for (int i=1; i<argc; ++i) {
-        if (std::string(argv[i]) == "-m") {
+        if (std::string(argv[i])=="-m") {
             // read a mesh (vtkPolyData)
             vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-            meshFileName = argv[++i];
+            const std::string& meshFileName = argv[++i];
             reader->SetFileName(meshFileName.c_str());
             mesh = reader->GetOutput();
             reader->Update();
-        } else if (std::string(argv[i]) == "-n") {
+        } else if (std::string(argv[i])=="-n") {
             // read the new data field name
             dataName = argv[++i];
-            std::cerr<<"DataName=<"<<dataName<<">"<<std::endl;
-        } else if (std::string(argv[i]) == "-o") {
+            std::cerr << "DataName=<" << dataName << ">" << std::endl;
+        } else if (std::string(argv[i])=="-o") {
             // set an output filename
             meshFileNameO = argv[++i];
         } else {
-            std::cerr<<"Opening data file <"<<argv[i]<<">"<<std::endl;
+            std::cerr << "Opening data file <" << argv[i] << ">" << std::endl;
             data.load(argv[i]);
         }
     }
 
-    if (! mesh.GetPointer()) {
+    if (!mesh.GetPointer()) {
         std::cerr<<"You must give a vtk mesh !"<<std::endl;
         return usage(argv[0]);
     }
 
-    if ( data.ncol() * data.nlin() == 0) {
+    if (data.ncol()==0 || data.nlin()==0) {
         std::cerr<<"You must give a correct matrix data file !"<<std::endl;
         return usage(argv[0]);
     }
 
     // get the number of cells and points so we can know where to add our data
-    vtkIdType nbPoints = mesh->GetNumberOfPoints();
-    vtkIdType nbCells = mesh->GetNumberOfCells();
+
+    const vtkIdType nbPoints = mesh->GetNumberOfPoints();
+    const vtkIdType nbCells  = mesh->GetNumberOfCells();
 
     // Add the data set   
-    for ( unsigned j = 0; j < data.ncol(); ++j) {
+    for (unsigned j=0; j<data.ncol(); ++j) {
         std::ostringstream dataname;
         dataname << dataName;
         // Build a vtkDataArray with our data
         vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
-        for ( unsigned i = 0; i < data.nlin(); ++i) {
-            array->InsertNextValue(data(i, j));
-        }
-        if (data.ncol() > 1) {
+        for (unsigned i=0; i<data.nlin(); ++i)
+            array->InsertNextValue(data(i,j));
+
+        if (data.ncol()>1) {
             // dataname << "-" << std::setw(unsigned(log10(data.ncol())+1)) << std::setfill('0') << j; with 001 instead of 1
             dataname << "-" << j;
         }
         array->SetName(dataname.str().c_str());
 
-        if (data.nlin() == (size_t)nbPoints) mesh->GetPointData()->AddArray(array);
-        else if (data.nlin() == (size_t)nbCells) mesh->GetCellData()->AddArray(array);
+        if (data.nlin()==static_cast<size_t>(nbPoints))
+            mesh->GetPointData()->AddArray(array);
+        else if (data.nlin() == static_cast<size_t>(nbCells))
+            mesh->GetCellData()->AddArray(array);
         else {
             std::cerr << "Something's wrong ! got a mesh with " << nbPoints << " points and " << nbCells << " cells, and ("<< data.nlin() << ","<< data.ncol() <<") data. Don't know what to do with them !" << std::endl;
             return usage(argv[0]);
@@ -111,11 +113,10 @@ int main(int argc, char *argv[])
     cell_indices->SetName("Indices");
     point_indices->SetName("Indices");
 
-    unsigned i = 0;
-    for ( i = 0; i < nbPoints; ++i)
+    for (unsigned i=0; i<nbPoints; ++i)
         point_indices->InsertNextValue(i);
 
-    for (; i < nbPoints+nbCells; ++i)
+    for (unsigned i=nbPoints; i<nbPoints+nbCells; ++i)
         cell_indices->InsertNextValue(i);
 
     mesh->GetPointData()->AddArray(point_indices);

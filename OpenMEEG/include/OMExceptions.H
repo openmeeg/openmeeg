@@ -232,7 +232,7 @@ namespace OpenMEEG {
 
     template <typename T>
     struct NonExistingDomain: public std::exception {
-        NonExistingDomain(const std::string& dom,const T& id): domain(dom), interface(id) { }
+        NonExistingDomain(const std::string& dom,const T& id): domain(dom),interface(id) { }
 
         virtual ~NonExistingDomain() noexcept { }
 
@@ -327,27 +327,27 @@ namespace OpenMEEG {
 
     // OpenMP
     // https://stackoverflow.com/questions/11828539/elegant-exceptionhandling-in-openmp
+
     class ThreadException {
         std::exception_ptr Ptr;
         std::mutex         Lock;
     public:
         ThreadException(): Ptr(nullptr) {}
-        void Rethrow(){
-            if(this->Ptr) std::rethrow_exception(this->Ptr);
+
+        void Rethrow() {
+            if (this->Ptr) std::rethrow_exception(this->Ptr);
         }
+
         void CaptureException() {
             std::unique_lock<std::mutex> guard(this->Lock);
             this->Ptr = std::current_exception();
         }
-        template <typename Function, typename... Parameters>
-        void Run(Function f, Parameters... params)
-        {
-            try
-            {
+
+        template <typename Function,typename... Parameters>
+        void Run(Function f,Parameters... params) {
+            try {
                 f(params...);
-            }
-            catch (...)
-            {
+            } catch (...) {
                 CaptureException();
             }
         }

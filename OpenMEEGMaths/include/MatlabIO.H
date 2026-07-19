@@ -178,7 +178,7 @@ namespace OpenMEEG {
                 Mat_Close(mat);
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
                 if (os.is_open()) {
                     os.close();
                     std::remove(name().c_str());
@@ -358,7 +358,7 @@ namespace OpenMEEG {
 
                 size_t dims[2] = { linop.nlin(), linop.ncol() };
                 matvar_t *matvar;
-                mat_sparse_t  sparse = { sz, ir, sz, jc, num, sz, t};
+                mat_sparse_t  sparse = { sz, ir, sz, jc, num, sz, t };
 
                 matvar = Mat_VarCreate("matrix",MAT_C_SPARSE,MAT_T_DOUBLE,2,dims,&sparse,MAT_F_DONT_COPY_DATA);
                 Mat_VarWrite(mat,matvar,MAT_COMPRESSION_ZLIB);

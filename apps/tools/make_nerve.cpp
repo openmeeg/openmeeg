@@ -24,7 +24,27 @@
 
 using namespace OpenMEEG;
 
-void getHelp(char** argv);
+void getHelp(char** argv) {
+    std::cerr << argv[0] <<" [options] [filepaths...]"     << std::endl << std::endl
+              << "       Arguments :"                      << std::endl << std::endl
+              << "         -useparameters       "          << std::endl
+              << "               Input parameter file"     << std::endl
+              << "               Output geom file "        << std::endl
+              << "               Output cond file "        << std::endl
+              << "               Output surf1 tri mesh "   << std::endl
+              << "               Output surf2 tri mesh "   << std::endl
+              << "               Output patches Matrix"    << std::endl
+              << "               Output patchcount Matrix" << std::endl << std::endl
+              << "         -makeparameters       "         << std::endl
+              << "               Output parameter file"    << std::endl
+              << "               Output geom file "        << std::endl
+              << "               Output cond file "        << std::endl
+              << "               Output surf1 tri mesh "   << std::endl
+              << "               Output surf2 tri mesh "   << std::endl
+              << "               Output patches Matrix"    << std::endl
+              << "               Output patchcount Matrix" << std::endl << std::endl;
+    exit(0);
+}
 
 unsigned num_points(const double x,const double dt) { return std::max(static_cast<unsigned>(x/dt+0.5),1U); }
 double   step_size(const double x,const unsigned n) { return x/n; }
@@ -261,7 +281,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
             const unsigned ng = (j%2==0) ? ((j==4) ? niz2 : niz) : nez;
             for (unsigned g=0; g<ng; ++g) {
                 for (unsigned k=0; k<4; ++k,trianglecounter+=2*nio) {
-                    maxelectrodetriangles = std::max(maxelectrodetriangles, electrodetriangleindex);
+                    maxelectrodetriangles = std::max(maxelectrodetriangles,electrodetriangleindex);
                     for (unsigned i=0; i<neo; ++i,trianglecounter+=2){
                         // find for each electrode to which triangles it corresponds
                         if (j%2==1) { 
@@ -270,7 +290,6 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
                         }
                     }
                 }
-                //    if(j%2 == 1) eleccounter++;
             }
         }
 
@@ -301,7 +320,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
     }
 }
 
-int main(int argc, char** argv) {
+int main(int argc,char** argv) {
 
     const CommandLine cmd(argc,argv,"Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
 
@@ -317,14 +336,14 @@ int main(int argc, char** argv) {
 
     const unsigned Nc = 2;
 
-    double Ea, Eb, Eb2;
     std::vector<double> L(Nc);
     std::vector<double> R(Nc);
     std::vector<double> dt(Nc);
     std::vector<double> sig(Nc+1);
     sig[Nc]=0;
 
-    if (!strcmp(argv[1], "-makeparameters")){
+    double Ea,Eb,Eb2;
+    if (!strcmp(argv[1], "-makeparameters")) {
         input("Size of electrode contact along z :",Ea);
         input("Distance between first anode and cathode:",Eb);
         input("Distance between second anode and cathode :",Eb2);
@@ -346,7 +365,7 @@ int main(int argc, char** argv) {
         for (unsigned i=0; i<Nc; ++i)
             ofs << L[i] << ' ' << R[i] << ' ' << dt[i] << ' ' << sig[i] << std::endl;
 
-    } else if (!strcmp(argv[1], "-useparameters")){
+    } else if (!strcmp(argv[1],"-useparameters")){
 
         // Read parameter file :
 
@@ -413,26 +432,4 @@ int main(int argc, char** argv) {
     std::cerr << "New nerve geometry made." << std::endl;
 
     return 0;
-}
-
-void getHelp(char** argv) {
-    std::cerr << argv[0] <<" [options] [filepaths...]"     << std::endl << std::endl
-              << "       Arguments :"                      << std::endl << std::endl
-              << "         -useparameters       "          << std::endl
-              << "               Input parameter file"     << std::endl
-              << "               Output geom file "        << std::endl
-              << "               Output cond file "        << std::endl
-              << "               Output surf1 tri mesh "   << std::endl
-              << "               Output surf2 tri mesh "   << std::endl
-              << "               Output patches Matrix"    << std::endl
-              << "               Output patchcount Matrix" << std::endl << std::endl
-              << "         -makeparameters       "         << std::endl
-              << "               Output parameter file"    << std::endl
-              << "               Output geom file "        << std::endl
-              << "               Output cond file "        << std::endl
-              << "               Output surf1 tri mesh "   << std::endl
-              << "               Output surf2 tri mesh "   << std::endl
-              << "               Output patches Matrix"    << std::endl
-              << "               Output patchcount Matrix" << std::endl << std::endl;
-    exit(0);
 }

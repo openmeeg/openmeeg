@@ -28,7 +28,7 @@ int main(const int,const char** argv) {
 
         /**** test on copy constructor ****/
         Sensors Scopy(S);
-        if(Scopy.getNumberOfSensors()!=n)
+        if (Scopy.getNumberOfSensors()!=n)
             std::cout << "ERROR in copy from copy constructor : incorrect number of sensors" << std::endl;
 
         Scopy.info();
