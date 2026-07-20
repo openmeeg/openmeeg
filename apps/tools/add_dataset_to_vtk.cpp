@@ -21,9 +21,9 @@
 
 int usage(const std::string progname)
 {
-    std::cerr<<"Usage:"<<std::endl
-             <<"\t"<<progname<<" -m <vtk polydata file> -n <data field name> [data file] (-o optional_output_filename) "<<std::endl
-             <<""<<std::endl;
+    std::cerr << "Usage:" << std::endl
+              << "\t" << progname << " -m <vtk polydata file> -n <data field name> data_file [-o optional_output_filename] " << std::endl
+              << std::endl;
     return -1;
 }
 
@@ -39,7 +39,7 @@ int main(int argc,char *argv[]) {
     if (std::string(argv[1])=="--help" || std::string(argv[1])=="-h")
         return usage(argv[0]);
 
-    std::string meshFileNameO = meshFileName;
+    std::string input_mesh,output_mesh;
     vtkSmartPointer<vtkPolyData> mesh;
     std::string dataName;
     Matrix data;
@@ -50,8 +50,8 @@ int main(int argc,char *argv[]) {
         if (std::string(argv[i])=="-m") {
             // read a mesh (vtkPolyData)
             vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-            const std::string& meshFileName = argv[++i];
-            reader->SetFileName(meshFileName.c_str());
+            input_mesh = argv[++i];
+            reader->SetFileName(input_mesh.c_str());
             mesh = reader->GetOutput();
             reader->Update();
         } else if (std::string(argv[i])=="-n") {
@@ -60,12 +60,15 @@ int main(int argc,char *argv[]) {
             std::cerr << "DataName=<" << dataName << ">" << std::endl;
         } else if (std::string(argv[i])=="-o") {
             // set an output filename
-            meshFileNameO = argv[++i];
+            output_mesh = argv[++i];
         } else {
             std::cerr << "Opening data file <" << argv[i] << ">" << std::endl;
             data.load(argv[i]);
         }
     }
+
+    if (output_mesh=="")
+        output_mesh = input_mesh;
 
     if (!mesh.GetPointer()) {
         std::cerr<<"You must give a vtk mesh !"<<std::endl;
@@ -124,14 +127,14 @@ int main(int argc,char *argv[]) {
 
     // save output to the input file
     vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetFileName(meshFileNameO.c_str());
+    writer->SetFileName(output_mesh.c_str());
     #if VTK_MAJOR_VERSION >=6
     writer->SetInputData(mesh);
     #else
     writer->SetInput(mesh);
     #endif
     writer->Write();
-    std::cerr << "saved into " << meshFileNameO << "." << std::endl;
+    std::cerr << "saved into " << output_mesh << "." << std::endl;
 
     return 0;
 }
