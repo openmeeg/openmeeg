@@ -23,6 +23,14 @@ using namespace OpenMEEG;
 
 void help(const char* cmd_name);
 
+static inline bool
+check_option_is_in_list(const char* option,const std::vector<std::string>& optlist) {
+    for (const std::string& opt : optlist)
+        if (opt==option)
+            return true;
+    return false;
+}
+
 int main(int argc, char** argv)
 {
     print_version(argv[0]);
@@ -40,6 +48,7 @@ int main(int argc, char** argv)
     constexpr char geomfileopt[]       = "geometry file";
     constexpr char condfileopt[]       = "conductivity file";
     constexpr char outputfileopt[]     = "output file";
+    constexpr char monopolefileopt[]   = "monopoles file";
     constexpr char dipolefileopt[]     = "dipoles file";
     constexpr char electrodesfileopt[] = "electrodes positions file";
     constexpr char squidsfileopt[]     = "squids file";
@@ -141,6 +150,35 @@ int main(int argc, char** argv)
         ssm.save(opt_parms[4]);
     }
 
+    const auto& MSMparms = { geomfileopt, condfileopt, monopolefileopt, outputfileopt };
+    if (char** opt_parms = cmd.option({"-MonopoleSourceMat", "-MSM", "-msm", "-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"},MSMparms)) {
+
+        assert_non_conflicting_options(argv[0],++num_options);
+
+        // Computation of RHS for discrete monopolar case
+
+        std::string domain_name = "";
+        if (cmd.num_args(opt_parms)==5) {
+            domain_name = opt_parms[6];
+            std::cout << "Monopoles are considered to be in \"" << domain_name << "\" domain." << std::endl;
+        }
+
+        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const Matrix monopoles(opt_parms[3]);
+        if (monopoles.ncol()!=4) {
+            std::cerr << "Monopoles File Format Error" << std::endl;
+            exit(1);
+        }
+
+        // Choosing between adaptive integration or not for the RHS
+
+        const char* optname = opt_parms[0];
+        const unsigned integration_levels = check_option_is_in_list(optname,{"-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"}) ? 0 : 10;
+
+        const Matrix& msm = MonopoleSourceMat(geo,monopoles,Integrator(3,integration_levels,0.001),domain_name);
+        msm.save(opt_parms[4]);
+    }
+
     const auto& DSMparms = { geomfileopt, condfileopt, dipolefileopt, outputfileopt };
     if (char** opt_parms = cmd.option({"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},DSMparms)) {
 
@@ -163,15 +201,8 @@ int main(int argc, char** argv)
 
         // Choosing between adaptive integration or not for the RHS
 
-        const auto& check_no_adapt = [](const char* option,const std::vector<std::string>& optlist) {
-            for (const std::string& opt : optlist)
-                if (opt==option)
-                    return true;
-            return false;
-        };
-
         const char* optname = opt_parms[0];
-        const unsigned integration_levels = check_no_adapt(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
+        const unsigned integration_levels = check_option_is_in_list(optname,{"-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"}) ? 0 : 10;
 
         const Matrix& dsm = DipSourceMat(geo,dipoles,Integrator(3,integration_levels,0.001),domain_name);
         dsm.save(opt_parms[4]);
@@ -368,6 +399,15 @@ void help(const char* cmd_name) {
               << "               conductivity file (.cond)" << std::endl
               << "               mesh of sources (.tri .vtk .mesh .bnd)" << std::endl
               << "               output matrix" << std::endl << std::endl;
+
+    std::cout << "   -MonopoleSourceMat, -MSM, -msm:    " << std::endl
+              << "      Compute Monopolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << std::endl
+              << "            Arguments:" << std::endl
+              << "               geometry file (.geom)" << std::endl
+              << "               conductivity file (.cond)" << std::endl
+              << "               monopole positions and charges" << std::endl
+              << "               output matrix" << std::endl
+              << "               (Optional) domain name where lie all monopoles." << std::endl << std::endl;
 
     std::cout << "   -DipSourceMat, -DSM, -dsm:    " << std::endl
               << "      Compute Dipolar Source Matrix for Symmetric BEM (right-hand side of linear system). " << std::endl
