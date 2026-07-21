@@ -585,7 +585,7 @@ namespace OpenMEEG {
         mesh->name() = name;
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
-        mesh->update(true);
+        mesh->update();
         return mesh;
     }
 
@@ -625,7 +625,7 @@ namespace OpenMEEG {
             Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8AndSize(name,nullptr));  // Since 3.10
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
-            mesh.update(true);
+            mesh.update();
             #ifdef DEBUG
             std::ostringstream oss;
             oss << "SWIG Geometry update of meshes(" << i << ")=\"" << mesh.name() << "\"";

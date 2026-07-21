@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iostream>
 #include <om_common.h>
+#include <vector.h>
 #include <vector>
 
 #include <OpenMEEG_Export.h>
@@ -22,6 +23,8 @@
 namespace OpenMEEG {
 
     inline double sqr(const double x) { return x*x; }
+
+    class Triangle;
 
     /// \brief  Vect3
 
@@ -35,6 +38,12 @@ namespace OpenMEEG {
         Vect3(const double a=0.0) { std::fill(&m[0],&m[3],a); }
 
         Vect3(const Vect3& v) { std::copy(&v.m[0],&v.m[3],&m[0]); }
+
+        operator Vector() const {
+            Vector V(3);
+            std::copy(&m[0],&m[3],V.data());
+            return V;
+        }
 
         operator const double*() const { return m; }
 
@@ -63,19 +72,23 @@ namespace OpenMEEG {
         double norm()  const { return sqrt(norm2());                 }
         double norm2() const { return sqr(m[0])+sqr(m[1])+sqr(m[2]); }
 
+        Vect3  unit_vector() const { return *this/norm(); }
+
+        Vect3& normalize() { return *this /= norm(); }
+
         bool operator==(const Vect3& v) const { return (m[0]==v.x() && m[1]==v.y() && m[2]==v.z()); }
         bool operator!=(const Vect3& v) const { return (m[0]!=v.x() || m[1]!=v.y() || m[2]!=v.z()); }
 
-        void operator+=(const Vect3& v)  { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); }
-        void operator-=(const Vect3& v)  { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); }
-        void operator*=(const double d) { m[0] *= d; m[1] *= d; m[2] *= d; }
-        void operator/=(const double d) { operator*=(1.0/d); }
+        Vect3& operator+=(const Vect3& v) { m[0] += v.x(); m[1] += v.y(); m[2] += v.z(); return *this; }
+        Vect3& operator-=(const Vect3& v) { m[0] -= v.x(); m[1] -= v.y(); m[2] -= v.z(); return *this; }
+        Vect3& operator*=(const double d) { m[0] *= d; m[1] *= d; m[2] *= d; return *this; }
+        Vect3& operator/=(const double d) { return operator*=(1.0/d); }
 
         void multadd(const double d,const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
 
-        Vect3 operator+(const Vect3& v)  const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
-        Vect3 operator-(const Vect3& v)  const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
-        Vect3 operator^(const Vect3& v)  const { return Vect3(m[1]*v.z()-m[2]*v.y(),m[2]*v.x()-m[0]*v.z(),m[0]*v.y()-m[1]*v.x()); }
+        Vect3 operator+(const Vect3& v) const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
+        Vect3 operator-(const Vect3& v) const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
+        Vect3 operator^(const Vect3& v) const { return Vect3(m[1]*v.z()-m[2]*v.y(),m[2]*v.x()-m[0]*v.z(),m[0]*v.y()-m[1]*v.x()); }
         Vect3 operator*(const double d) const { return Vect3(d*m[0],d*m[1],d*m[2]); }
         Vect3 operator/(const double d) const { return Vect3(m[0]/d,m[1]/d,m[2]/d); }
 
@@ -92,11 +105,8 @@ namespace OpenMEEG {
         Vect3 operator-() const { return Vect3(-m[0],-m[1],-m[2]); }
 
         inline double solid_angle(const Vect3& v1,const Vect3& v2,const Vect3& v3) const;
-
-        Vect3& normalize() {
-            *this /= (*this).norm();
-            return *this;
-        }
+        double solid_angle(const Vect3 pts[3]) const { return solid_angle(pts[0],pts[1],pts[2]); }
+        double solid_angle(const Triangle& T) const;
 
         friend std::ostream& operator<<(std::ostream& os,const Vect3& v);
         friend std::istream& operator>>(std::istream& is,Vect3& v);

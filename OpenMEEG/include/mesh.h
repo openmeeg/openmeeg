@@ -126,7 +126,7 @@ namespace OpenMEEG {
         bool intersection(const Mesh&) const;      ///< \brief Check whether the mesh intersects another mesh.
         bool has_correct_orientation() const;      ///< \brief Check local orientation of mesh triangles.
         void generate_indices();                   ///< \brief Generate indices (if allocate).
-        void update(const bool topology_changed);  ///< \brief Recompute triangles normals, area, and vertex triangles.
+        void update();                             ///< \brief Recompute triangles normals, area, and vertex triangles.
         void merge(const Mesh&,const Mesh&);       ///< Merge two meshes.
 
         #ifdef DEBUG
