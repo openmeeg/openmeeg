@@ -120,6 +120,8 @@ namespace OpenMEEG {
 
         bool intersects(const Triangle& triangle) const;
 
+        double solid_angle(const Vertex& p) const { return p.solid_angle(*this); }
+
     private:
 
         unsigned vertex_index(const Vertex& V) const {

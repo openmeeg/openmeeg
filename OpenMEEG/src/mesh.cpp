@@ -239,7 +239,7 @@ namespace OpenMEEG {
     double Mesh::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
         for (const auto& triangle : triangles())
-            solangle += p.solid_angle(triangle.vertex(0),triangle.vertex(1),triangle.vertex(2));
+            solangle += triangle.solid_angle(p);
         return solangle;
     }
 
