@@ -50,7 +50,7 @@ namespace OpenMEEG {
             // TODO
             load_triangles(m);
             fs.close();
-            m.update(true);
+            m.update();
         }
 
         virtual void save(const Mesh& mesh,std::ostream& os) const = 0;
