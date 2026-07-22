@@ -36,8 +36,8 @@ namespace OpenMEEG {
                 //  Get the size of the file.
 
                 std::ifstream::pos_type pos = is.tellg();
-                is.seekg(0, std::ios::end);
-                const std::streamoff size = static_cast<std::streamoff>(is.tellg())-sizeof(unsigned int);
+                is.seekg(0,std::ios::end);
+                const std::streamoff size = static_cast<std::streamoff>(is.tellg())-sizeof(unsigned);
                 is.seekg(pos);
 
                 //  Attempt to find the type of the file from its size.
@@ -53,15 +53,15 @@ namespace OpenMEEG {
                     linop.ncol()        = 1;
                 } else {
                     linop.dimension()   = 2;
-                    if (size==static_cast<std::streamoff>((long)ui*(ui+1)*sizeof(double)/2)) {
+                    const unsigned long n = ui; // Widen ui to avoid overflow on the next line.
+                    if (size==static_cast<std::streamoff>(n*(n+1)*sizeof(double)/2)) {
                         linop.storageType() = LinOp::SYMMETRIC;
                         linop.ncol()        = ui;
                     } else {
-                        is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned int));
+                        is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned));
                         linop.ncol()        = ui;
                         const std::streamoff n_elmts = static_cast<std::streamoff>(linop.nlin())*static_cast<std::streamoff>(linop.ncol());
-                        linop.storageType() = (size-sizeof(unsigned int)==n_elmts*sizeof(double)) ?
-                                                LinOp::FULL : LinOp::SPARSE;
+                        linop.storageType() = (size-sizeof(unsigned)==n_elmts*sizeof(double)) ? LinOp::FULL : LinOp::SPARSE;
                     }
                 }
 
@@ -80,7 +80,7 @@ namespace OpenMEEG {
                 }
 
                 if (linop.dimension()!=inforead.dimension())
-                    throw BadStorageType("TrivialBinIO dimension during read of " + name());
+                    throw BadStorageType("TrivialBinIO dimension during read of "+name());
 
                 linop.nlin() = inforead.nlin();
                 linop.ncol() = inforead.ncol();
@@ -104,7 +104,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
 
                 //  Write the header.
 
@@ -122,7 +122,7 @@ namespace OpenMEEG {
                         write_sparse(os,linop);
                         return;
                     case LinOp::FULL :
-                        if(linop.dimension()==1) {
+                        if (linop.dimension()==1) {
                             write_internal<Vector>(os,linop);
                         } else {
                             write_internal<Matrix>(os,linop);
@@ -142,29 +142,32 @@ namespace OpenMEEG {
                 SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
 
                 while (!is.eof()) {
-                    unsigned int ui;
+                    unsigned ui;
 
-                    if (!is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) break;
+                    if (!is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned)))
+                        break;
                     const size_t i = ui;
 
-                    if (!is.read(reinterpret_cast<char*>(&ui), sizeof(unsigned int))) break;
+                    if (!is.read(reinterpret_cast<char*>(&ui),sizeof(unsigned)))
+                        break;
                     const size_t j = ui;
 
                     double val;
-                    if (!is.read(reinterpret_cast<char*>(&val), sizeof(double))) break;
+                    if (!is.read(reinterpret_cast<char*>(&val),sizeof(double)))
+                        break;
 
                     m(i,j) = val;
                 }
             }
 
-            void write_sparse(std::ofstream& os, const LinOp& linop) const {
+            void write_sparse(std::ofstream& os,const LinOp& linop) const {
                 const SparseMatrix& m = dynamic_cast<const SparseMatrix&>(linop);
-                for (SparseMatrix::const_iterator it=m.begin();it!=m.end();++it) {
+                for (SparseMatrix::const_iterator it=m.begin(); it!=m.end(); ++it) {
                     const unsigned i = it->first.first;
                     const unsigned j = it->first.second;
                     const double val = it->second;
-                    os.write(reinterpret_cast<const char*>(&i),sizeof(unsigned int));
-                    os.write(reinterpret_cast<const char*>(&j),sizeof(unsigned int));
+                    os.write(reinterpret_cast<const char*>(&i),  sizeof(unsigned));
+                    os.write(reinterpret_cast<const char*>(&j),  sizeof(unsigned));
                     os.write(reinterpret_cast<const char*>(&val),sizeof(double));
                 }
             }
@@ -180,13 +183,13 @@ namespace OpenMEEG {
                 // There seems to be a bug in the C++ library on MAC
                 // XXX : Read line by line to avoid overflow on MAC Grrr !!!
                 size_t buffer_size = l.ncol()*sizeof(double);
-                for(size_t i = 0; i < linop.nlin(); ++i)
-                    is.read(reinterpret_cast<char*>(l.data()) + i*buffer_size, buffer_size);
+                for (size_t i=0; i<linop.nlin(); ++i)
+                    is.read(reinterpret_cast<char*>(l.data())+i*buffer_size,buffer_size);
 #endif
             }
 
             template <typename LINOP>
-            static void write_internal(std::ofstream& os, const LinOp& linop) {
+            static void write_internal(std::ofstream& os,const LinOp& linop) {
                 const LINOP& l = dynamic_cast<const LINOP&>(linop);
                 os.write(reinterpret_cast<const char*>(l.data()),l.size()*sizeof(double));
             }

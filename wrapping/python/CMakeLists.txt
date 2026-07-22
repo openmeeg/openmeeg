@@ -70,8 +70,8 @@ endif()
 if (PYTHON_FORCE_EXT_SUFFIX)
     # For PyPy, see
     # https://github.com/conda-forge/openmeeg-feedstock/pull/20#issuecomment-1161729565
-    if(NOT Python3_EXT_SUFFIX)
-        if(UNIX)
+    if (NOT Python3_EXT_SUFFIX)
+        if (UNIX)
             set(Python3_EXT_SUFFIX ".${Python3_SOABI}.so")
         else()
             set(Python3_EXT_SUFFIX ".${Python3_SOABI}.pyd")
@@ -84,7 +84,7 @@ else()
     message("Python default suffix ${Python3_EXT_SUFFIX}")
 endif()
 
-if(WIN32)
+if (WIN32)
     if (PYTHON_USE_SABI)
         target_link_libraries(${SWIG_TARGET_NAME} ${Python3_SABI_LIBRARIES} OpenMEEG::OpenMEEG)
     else()
@@ -144,6 +144,7 @@ add_custom_command(
 message("Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
+
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
@@ -153,6 +154,7 @@ install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPEN
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
+
 if (PYTHON_COPY_RUNTIME_DLLS)
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
@@ -201,5 +203,4 @@ if (BUILD_TESTING)
         add_test(openmeeg_python_doc ${Python3_EXECUTABLE} ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg/tests/test_doc.py)
         set_tests_properties(openmeeg_python_doc PROPERTIES ENVIRONMENT PYTHONPATH=${OpenMEEG_BINARY_DIR}/wrapping/python)
     endif()
-
 endif()

@@ -24,7 +24,7 @@ main(int argc,char** argv) {
     if (cmd.help_mode())
         return 0;
 
-    if(input_filename=="" || output_filename=="") {
+    if (input_filename=="" || output_filename=="") {
         std::cerr << "Not enough arguments, try the -h option" << std::endl;
         return 1;
     }
@@ -43,13 +43,13 @@ main(int argc,char** argv) {
         << "DATASET POLYDATA" << std::endl
         << "POINTS " << squids.nlin() << " float" << std::endl;
 
-    for (unsigned int i=0; i<squids.nlin(); ++i)
+    for (unsigned i=0; i<squids.nlin(); ++i)
         ofs << squids(i,0) << ' ' << squids(i,1) << ' ' << squids(i,2) << std::endl;
 
     ofs << "POINT_DATA " << squids.nlin() << std::endl
         << "NORMALS normals float" << std::endl;
 
-    for (unsigned int i=0; i<squids.nlin(); ++i)
+    for (unsigned i=0; i<squids.nlin(); ++i)
         ofs << squids(i,3) << ' ' << squids(i,4) << ' ' << squids(i,5) << std::endl;
 
     return 0;

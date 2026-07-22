@@ -35,14 +35,14 @@ namespace OpenMEEG {
         SparseMatrix(const size_t N,const size_t M): LinOp(N,M,SPARSE,2) {};
         ~SparseMatrix() {};
 
-        inline double operator()(const size_t i,const size_t j) const {
+        double operator()(const size_t i,const size_t j) const {
             om_assert(i<nlin());
             om_assert(j<ncol());
             const_iterator it = m_tank.find(std::make_pair(i,j));
             return (it!=m_tank.end()) ? it->second : 0.0;
         }
 
-        inline double& operator()( size_t i, size_t j ) {
+        double& operator()(const size_t i,const size_t j) {
             om_assert(i<nlin());
             om_assert(j<ncol());
             return m_tank[std::make_pair(i,j)];
@@ -60,7 +60,7 @@ namespace OpenMEEG {
         const Tank& tank() const { return m_tank; }
 
         void set(const double d) {
-            for(auto& tkelmt : m_tank)
+            for (auto& tkelmt : m_tank)
                 tkelmt.second = d;
         }
 

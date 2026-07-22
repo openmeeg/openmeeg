@@ -113,11 +113,9 @@ namespace OpenMEEG {
             virtual void write(std::ofstream&,const LinOp&) const = 0;
 
             virtual bool known_suffix(const char* suffix)  const noexcept {
-                const Suffixes& suffs = suffixes();
-                for (Suffixes::const_iterator i=suffs.begin();i!=suffs.end();++i) {
-                    if (!strcmp(suffix,i->c_str()))
+                for (const std::string& str : suffixes())
+                    if (!strcmp(suffix,str.c_str()))
                         return true;
-                }
                 return false;
             }
 

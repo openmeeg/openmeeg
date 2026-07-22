@@ -21,7 +21,7 @@ namespace OpenMEEG {
         struct OPENMEEGMATHS_EXPORT MathsIO;
     }
 
-    // Properly convert an unsigned int to a BLAS_INT
+    // Properly convert an unsigned to a BLAS_INT
 
     inline BLAS_INT sizet_to_int(const unsigned& num) {
         const BLAS_INT num_out = static_cast<BLAS_INT>(num);

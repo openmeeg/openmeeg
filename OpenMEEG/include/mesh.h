@@ -192,7 +192,7 @@ namespace OpenMEEG {
         /// \param smoothing_intensity
         /// \param niter
 
-        void smooth(const double& smoothing_intensity, const unsigned& niter);
+        void smooth(const double& smoothing_intensity,const unsigned& niter);
 
         /// \brief Compute the square norm of the surfacic gradient
 

@@ -48,12 +48,12 @@ switch format
         end
         fclose(file);
     case 'ascii'
-        dlmwrite(filename, dims, 'delimiter', '\t', 'precision', '%d')
+        dlmwrite(filename,dims,'delimiter','\t','precision','%d')
         data = double([ii jj vv]);
         if isOctave
-            dlmwrite(filename, data, '-append', 'delimiter', '\t')
+            dlmwrite(filename,data,'-append','delimiter','\t')
         else
-            dlmwrite(filename, data, '-append', 'delimiter', '\t', 'precision','%.18e')
+            dlmwrite(filename,data,'-append','delimiter','\t','precision','%.18e')
         end
     otherwise
         error([me,' : Unknown file format'])

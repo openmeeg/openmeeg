@@ -130,12 +130,10 @@ main(int argc,char* argv[]) {
 template<class T>
 double normInf(const T& mat){ // compute the max of the norm 1 of each line
     double max = 0.0;
-    double sum;
-    for(unsigned int i=0;i<mat.nlin();++i){
-        sum = 0.0;
-        for(unsigned int j=0;j<mat.ncol();++j) {
+    for (unsigned i=0; i<mat.nlin(); ++i){
+        double sum = 0.0;
+        for (unsigned j=0; j<mat.ncol(); ++j)
             sum += std::abs(mat(i,j));
-        }
         if (max<sum)
             max = sum;
     }
@@ -172,22 +170,22 @@ bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
 }
 
 template<class T>
-bool compare(const T& mat1, const T& mat2, double eps, size_t col){
+bool compare(const T& mat1,const T& mat2,const double eps,const size_t col){
     // T is a Matrix or a SymMatrix
 
     if (col) {
-        if ((mat1.ncol()<col) || (mat2.ncol()<col)) {
+        if (mat1.ncol()<col || mat2.ncol()<col) {
             std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
             exit(1);
         }
     } else {
-        if ((mat1.ncol()!=mat2.ncol()) || (mat1.nlin()!=mat2.nlin())) {
+        if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
             exit(1);
         }
     }
 
-    unsigned int jmin,jmax;
+    unsigned jmin,jmax;
     if (col>0) {
         jmin = col-1;
         jmax = col;
@@ -198,66 +196,56 @@ bool compare(const T& mat1, const T& mat2, double eps, size_t col){
 
     bool flag = true;
 
-    double norm1 = normInf<T>(mat1);
-    double norm2 = normInf<T>(mat2);
-    double diff;
+    const double norm1 = normInf<T>(mat1);
+    const double norm2 = normInf<T>(mat2);
     unsigned count = 0;
 
-    if ((norm1>1e-4)&(norm2>1e-4)&(mat1.nlin()!=1)) {
-        for(unsigned int i=0;i<mat1.nlin();++i) {
-            for(unsigned int j=jmin;j<jmax;++j) {
-                diff = std::abs(mat1(i,j)/norm1 - mat2(i,j)/norm2);
-                flag = flag && (diff<eps);
-                if (!(diff<eps)&&(++count<100)) {
-                    if (count == 0)
+    if (norm1>1e-4 && norm2>1e-4 && mat1.nlin()!=1) {
+        for (unsigned i=0; i<mat1.nlin(); ++i)
+            for (unsigned j=jmin; j<jmax; ++j) {
+                const double diff = std::abs(mat1(i,j)/norm1-mat2(i,j)/norm2);
+                flag = flag && diff<eps;
+                if (diff>=eps &&++count<100) {
+                    if (count==0)
                         std::cout << "ERROR NORM  mat(i,j) | mat2(i,j) | diff" << std::endl;
                     std::cout.precision(20);
                     std::cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                     std::cout.flush();
                 }
-                if ( count >= 100 ) {
+                if (count>=100) {
                     std::cout << "values from 1 to 100.... stopping display..." << std::endl;
-                    break;
+                    return false;
                 }
             }
-            if ( count >= 100 ) {
-                break;
-            }
-        }
     } else {
-        for(unsigned int i=0;i<mat1.nlin();++i) {
-            for(unsigned int j=jmin;j<jmax;++j) {
+        for (unsigned i=0; i<mat1.nlin(); ++i)
+            for (unsigned j=jmin; j<jmax; ++j) {
                 if (std::abs(mat2(i,j))>1e-4) {
-                    diff = std::abs(mat1(i,j) - mat2(i,j))/std::abs(mat2(i,j));
+                    const double diff = std::abs(mat1(i,j)-mat2(i,j))/std::abs(mat2(i,j));
                     flag = flag && (diff<eps);
-                    if (!(diff<eps)&&(++count<100)) {
+                    if (diff>=eps && ++count<100) {
                         std::cout.precision(20);
                         std::cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }
-                    if ( count >= 100 ) {
+                    if (count>=100) {
                         std::cout << "values from 1 to 100.... stopping display..." << std::endl;
-                        break;
+                        return false;
                     }
-                }
-                else {
-                    diff = std::abs(mat1(i,j) - mat2(i,j));
+                } else {
+                    const double diff = std::abs(mat1(i,j)-mat2(i,j));
                     flag = flag && (diff<eps);
-                    if (!(diff<eps)&&(++count<100)) {
+                    if (diff>=eps && ++count<100) {
                         std::cout.precision(20);
                         std::cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }
-                    if ( count >= 100 ) {
+                    if (count>=100) {
                         std::cout << "values from 1 to 100. Stopping the display..." << std::endl;
-                        break;
+                        return false;
                     }
                 }
             }
-            if ( count >= 100 ) {
-                break;
-            }
-        }
     }
     return flag;
 }
@@ -282,11 +270,11 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
     const double norm1 = normInf(V1);
     const double norm2 = normInf(V2);
 
-    if ((norm1>1e-4) && (norm2>1e-4)) {
+    if (norm1>1e-4 && norm2>1e-4) {
         for (unsigned i=0;i<V1.size();++i) {
             const double diff = std::abs(V1(i)/norm1-V2(i)/norm2);
             flag = flag && (diff<eps);
-            if (!(diff<eps)) {
+            if (diff>=eps) {
                 std::cout << "ERROR NORM  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
                 std::cout.flush();
             }
@@ -296,14 +284,14 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
             if (std::abs(V2(i))>1e-4) {
                 const double diff = std::abs(V1(i)-V2(i))/std::abs(V2(i));
                 flag = flag && (diff<eps);
-                if (!(diff<eps)) {
+                if (diff>=eps) {
                     std::cout << "ERROR RELATIVE  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
                     std::cout.flush();
                 }
             } else {
                 const double diff = std::abs(V1(i)-V2(i));
                 flag = flag && (diff<eps);
-                if (!(diff<eps)) {
+                if (diff>=eps) {
                     std::cout << "ERROR DIFF  " << V1(i) << "  " << V2(i) << "  " << diff << std::endl;
                     std::cout.flush();
                 }
@@ -314,7 +302,7 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
 }
 
 template<class T>
-bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
+bool compare_rdm(const T& mat1,const T& mat2,const double eps,const size_t col){
     // T is a Matrix
 
     if (col) {
@@ -323,15 +311,14 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
             exit(1);
         }
     } else {
-        if ((mat1.ncol()!=mat2.ncol()) || (mat1.nlin()!=mat2.nlin())) {
+        if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
             exit(1);
         }
     }
 
     bool flag = true;
-    double diff;
-    unsigned int jmin,jmax;
+    unsigned jmin,jmax;
     if (col>0) {
         jmin = col-1;
         jmax = col;
@@ -341,17 +328,17 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
     }
 
     std::cout.precision(20); // TODO
-    for(unsigned int j=jmin;j<jmax;++j) {
+    for (unsigned j=jmin; j<jmax; ++j) {
         Vector col1 = mat1.getcol(j);
         Vector col2 = mat2.getcol(j);
         col1 = col1 - col1.mean();
         col2 = col2 - col2.mean();
         col1 = col1 / col1.norm();
         col2 = col2 / col2.norm();
-        diff = (col1 - col2).norm();
+        const double diff = (col1 - col2).norm();
 
         flag = flag && (diff<eps);
-        if (diff>eps) {
+        if (diff>=eps) {
             std::cout << "ERROR RDM (column " << j << " ) " << diff << std::endl;
             std::cout.flush();
         }
@@ -360,24 +347,23 @@ bool compare_rdm(const T& mat1, const T& mat2, double eps, size_t col){
 }
 
 template<class T>
-bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col){
+bool compare_mag(const T& mat1,const T& mat2,const double eps,const size_t col){
     // T is a Matrix
 
     if (col) {
-        if ((mat1.ncol()<col) || (mat2.ncol()<col)) {
+        if (mat1.ncol()<col || mat2.ncol()<col) {
             std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
             exit(1);
         }
     } else {
-        if ((mat1.ncol()!=mat2.ncol()) || (mat1.nlin()!=mat2.nlin())) {
+        if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
             exit(1);
         }
     }
 
     bool flag = true;
-    double diff;
-    unsigned int jmin,jmax;
+    unsigned jmin,jmax;
     if (col>0) {
         jmin = col-1;
         jmax = col;
@@ -386,15 +372,15 @@ bool compare_mag(const T& mat1, const T& mat2, double eps, size_t col){
         jmax = mat1.ncol();;
     }
 
-    for(unsigned int j=jmin;j<jmax;++j) {
+    for (unsigned j=jmin; j<jmax; ++j) {
         Vector col1 = mat1.getcol(j);
         Vector col2 = mat2.getcol(j);
         col1 = col1 - col1.mean();
         col2 = col2 - col2.mean();
-        diff = std::abs(1-col1.norm()/col2.norm()); //distance to 1
+        const double diff = std::abs(1-col1.norm()/col2.norm()); //distance to 1
 
         flag = flag && (diff<eps);
-        if (diff>eps) {
+        if (diff>=eps) {
             std::cout << "ERROR MAG (column " << j << " ) = " << col1.norm()/col2.norm() << "\trelMAG = "<< diff << std::endl;
             std::cout.flush();
         }

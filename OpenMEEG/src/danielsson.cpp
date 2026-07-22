@@ -56,15 +56,17 @@ namespace OpenMEEG {
         }
         // If alpha_i<0 -> brought to 0 and recursion
         // NB: also takes care of alpha > 1 because if alpha_i>1 then alpha_j<0 for at least one j
-        for (unsigned i=0; i<nb; ++i) {
+
+        for (unsigned i=0; i<nb; ++i)
             if (alphas(idx[i])<0) {
                 inside = false;
                 alphas(idx[i]) = 0;
-                swap(idx[i], idx[nb-1]);
-                return dpc(p, triangle, alphas, nb-1, idx, inside);
+                swap(idx[i],idx[nb-1]);
+                return dpc(p,triangle,alphas,nb-1,idx,inside);
             }
-        }
-        // Sinon: distance HM
+
+        // Otherwise: distance HM
+
         Vect3 MH = -A0M;
         for (unsigned i=1; i<nb; ++i)
             MH += alphas(idx[i]) * A0Ai[i];
@@ -72,6 +74,7 @@ namespace OpenMEEG {
     }
 
     // Main Function
+
     double dist_point_triangle(const Vect3& p,const Triangle& triangle,Vect3& alphas,bool& inside) {
         int idx[3] = { 0, 1, 2 };
         inside = true;
@@ -108,7 +111,7 @@ namespace OpenMEEG {
         const Interface* nearest_interface = nullptr;
         const Triangle*  nearest_triangle  = nullptr;
 
-        for(const auto& domain : g.domains())
+        for (const auto& domain : g.domains())
             if (domain.conductivity()==0.0)
                 for (const auto& boundary : domain.boundaries()) {
                     const auto& res = dist_point_interface(p,boundary.interface(),alphas);

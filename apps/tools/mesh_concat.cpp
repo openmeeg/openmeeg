@@ -34,7 +34,7 @@ main( int argc,char* argv[]) {
     Mesh m2(input_filename2);
     Mesh m3;
 
-    m3.merge(m1, m2);
+    m3.merge(m1,m2);
     m3.save(output_filename);
 
     return 0;

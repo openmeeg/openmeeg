@@ -25,7 +25,7 @@ int main () {
     for ( unsigned i=0;i<5;++i) {
         n = (n*1237+1493)%1723;
         const int p = (n*1237+1493)%1723;
-        spM(n%10, p%10) = n;
+        spM(n%10,p%10) = n;
     }
     genericTest("sparse",spM);
 
@@ -44,7 +44,7 @@ int main () {
     for ( unsigned i=0;i<5;++i) {
         n = (n*1007+1493)%2551;
         const int p = (n*1007+1493)%2551;
-        spM2(n%10, p%10) = n;
+        spM2(n%10,p%10) = n;
     }
     Mzero += Matrix(spM*spM2) - Matrix(spM)*Matrix(spM2) - Matrix(spM2)*Matrix(spM) + Matrix(spM2*spM);
     // Vectt & Sparse

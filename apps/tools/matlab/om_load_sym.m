@@ -30,9 +30,9 @@ switch format
         else
             data_raw = load(filename,'-mat');
         end
-        if isfield(data_raw, 'symmatrix')
+        if isfield(data_raw,'symmatrix')
             sym = data_raw.symmatrix;
-        elseif isfield(data_raw, 'data') && isfield(data_raw, 'size')
+        elseif isfield(data_raw,'data') && isfield(data_raw,'size')
             sym = data_raw;
         end
         clear data_raw;

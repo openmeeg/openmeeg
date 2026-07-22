@@ -18,7 +18,7 @@ namespace OpenMEEG {
                 try {
                     is.read(buffer,maxtagsize);
 
-                    for(int i=maxtagsize-1;i>=0;--i)
+                    for (int i=maxtagsize-1; i>=0; --i)
                         is.putback(buffer[i]);
 
                     buffer[maxtagsize] = '\0'; // Add an end of string.
@@ -35,10 +35,9 @@ namespace OpenMEEG {
         bool MathsIO::permanent = false;
 
         const MathsIO::IO& MathsIO::format(const std::string& fmt) {
-            for (IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
-                if (fmt==(*i)->identity())
-                    return *i;
-            }
+            for (const IO& io : ios())
+                if (fmt==io->identity())
+                    return io;
             throw UnknownFileFormat(fmt);
         }
 
@@ -48,9 +47,9 @@ namespace OpenMEEG {
                 throw NoSuffix(name);
 
             const std::string suffix = name.substr(pos+1);
-            for (IOs::const_iterator i=ios().begin();i!=ios().end();++i)
-                if ((*i)->known_suffix(suffix.c_str()))
-                    return *i;
+            for (const IO& io : ios())
+                if (io->known_suffix(suffix.c_str()))
+                    return io;
             throw UnknownFileSuffix(suffix);
         }
 
@@ -69,14 +68,13 @@ namespace OpenMEEG {
                     return mio;
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(buffer)) {
-                        (*io)->setName(mio.name());
-                        (*io)->read(is,linop);
-                        linop.default_io() = *io;
+                for (const maths::MathsIO::IO& io : MathsIO::ios())
+                    if (io->identify(buffer)) {
+                        io->setName(mio.name());
+                        io->read(is,linop);
+                        linop.default_io() = io;
                         return mio;
                     }
-                }
             }
             throw NoIO(mio.name(),NoIO::READ);
         }
@@ -94,20 +92,19 @@ namespace OpenMEEG {
                     return mio;
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->known(linop)) {
-                        (*io)->setName(mio.name());
-                        (*io)->write(os,linop);
+                for (const maths::MathsIO::IO& io : MathsIO::ios())
+                    if (io->known(linop)) {
+                        io->setName(mio.name());
+                        io->write(os,linop);
                         return mio;
                     }
-                }
             }
             throw NoIO(mio.name(),NoIO::WRITE);
         }
 
         LinOpInfo info(const char* name) {
             std::ifstream is(name,std::ios::binary);
-            if(is.fail())
+            if (is.fail())
                 throw BadFileOpening(name,BadFileOpening::READ);
 
             const std::string& buffer = Internal::ReadTag(is);
@@ -118,12 +115,11 @@ namespace OpenMEEG {
                     return dio->info(is);
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(buffer)) {
-                        (*io)->setName(name);
-                        return (*io)->info(is);
+                for (const maths::MathsIO::IO& io : MathsIO::ios())
+                    if (io->identify(buffer)) {
+                        io->setName(name);
+                        return io->info(is);
                     }
-                }
             }
             throw NoIO(name,NoIO::READ);
         }
