@@ -169,7 +169,9 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
     rdm, mag = _rdm_mag(gain, ref)
     # A wrong-sign or missing secondary term (cf. issue #577) blows RDM up well
     # past this; a correct forward on this mesh gives RDM ~1e-3.
+    print(rdm)
     assert_array_less(rdm, 0.02)
+    print(np.abs(mag - 1.0))
     assert_array_less(np.abs(mag - 1.0), 0.02)
 
 

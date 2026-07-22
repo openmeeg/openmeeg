@@ -144,6 +144,7 @@ add_custom_command(
 message("Python: Expecting to install ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPENMEEG_VERSION}.dist-info")
 
 # Installation just copies the directory
+
 install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg
         DESTINATION ${PYTHON_SITE_ARCH}
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
@@ -153,6 +154,7 @@ install(DIRECTORY  ${OpenMEEG_BINARY_DIR}/wrapping/python/openmeeg-${PYTHON_OPEN
 if (APPLE)
     set_target_properties(${SWIG_TARGET_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
+
 if (PYTHON_COPY_RUNTIME_DLLS)
     add_custom_command(TARGET ${SWIG_TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${SWIG_TARGET_NAME}> ${CMAKE_BINARY_DIR}
@@ -179,9 +181,10 @@ endif()
 if (BUILD_TESTING)
     if (TEST_SLOW_PYTHON)
         message("Including slow tests for Python")
+        set(TEST_PYTHON_ARGS "-s")
     else()
         message("Excluding slow tests for Python")
-        set(TEST_PYTHON_ARGS "-m" "not slowtest")
+        set(TEST_PYTHON_ARGS "-s" "-m" "not slowtest")
     endif()
     set(PYTHON_TEST_FILES test_vector.py test_matrix.py test_sensors.py test_geometry.py test_python.py test_mesh.py test_single_layer_meg.py)
     foreach (test ${PYTHON_TEST_FILES})
