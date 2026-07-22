@@ -103,7 +103,7 @@ def _om_meg_gain(meshes, conductivity, dipoles, squids_file):
     integrator = om.Integrator(3, 0, 0.005)
     hminv = om.HeadMat(geom, integrator).inverse()
     dip = om.Matrix(np.asfortranarray(dipoles))
-    dsm = om.DipSourceMat(geom, dip, "Brain")
+    dsm = om.DipSourceMat(geom, dip, integrator, "Brain")
     sensors = om.Sensors(str(squids_file))
     h2mm = om.Head2MEGMat(geom, sensors)
     ds2mm = om.DipSource2MEGMat(dip, sensors)
