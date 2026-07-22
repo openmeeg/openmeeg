@@ -25,7 +25,7 @@ if [ -z "$RUNNER_OS" ]; then
 fi
 echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" to set up KIND=\"$KIND\""
 
-echo "::group::scipy-openblas32"
+echo "::group::scipy-openblas64"
 PLATFORM=$(python -c "import platform; print(f'{platform.system()}-{platform.machine()}')")
 echo "PLATFORM=$PLATFORM"
 # PLATFORM can be:
@@ -35,22 +35,24 @@ echo "PLATFORM=$PLATFORM"
 # Darwin-arm64
 # Windows-AMD64
 
-python -m pip install "scipy-openblas32!=0.3.30.0.4,!=0.3.30.0.3"
+# scipy-openblas64 is the ILP64 (64-bit integer) build; see
+# OpenMEEGMathsOpenBLASConfig.h and USE_SCIPY_OPENBLAS for the consuming side.
+python -m pip install "scipy-openblas64"
 # fix a bug in the headers! https://github.com/OpenMathLib/OpenBLAS/issues/5493
 if [[ "$PLATFORM" == 'Darwin-'* ]]; then
     SED_OPT="-i ''"
 else
     SED_OPT="-i"
 fi
-sed $SED_OPT "s/ LAPACKE_/ scipy_LAPACKE_/g" "$(python -c 'import scipy_openblas32; print(scipy_openblas32.get_include_dir())')/lapacke.h"
-OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
+sed $SED_OPT "s/ LAPACKE_/ scipy_LAPACKE_/g" "$(python -c 'import scipy_openblas64; print(scipy_openblas64.get_include_dir())')/lapacke.h"
+OPENBLAS_INCLUDE=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_include_dir())")
 echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
 ls -alR $OPENBLAS_INCLUDE
-OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas32/lib"
-OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")  # typically, "libscipy_openblas32"
+OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas64/lib"
+OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_library())")  # typically, "libscipy_openblas64_"
 # mkdir -p ./.openblas
 # echo "./.openblas/scipy_openblas.pc:"
-# echo $(python -c "import pathlib, scipy_openblas32; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas32.get_pkg_config())")
+# echo $(python -c "import pathlib, scipy_openblas64; pathlib.Path('./.openblas/scipy_openblas.pc').write_text(scipy_openblas64.get_pkg_config())")
 # export PKG_CONFIG_PATH="$PWD/.openblas"
 # echo "PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
 # cat $PKG_CONFIG_PATH/scipy_openblas.pc

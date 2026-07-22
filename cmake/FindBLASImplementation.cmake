@@ -5,6 +5,11 @@ set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
 set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS")
 
+# We build the wheels against scipy-openblas64, an ILP64 (64-bit integer) build.
+if (USE_SCIPY_OPENBLAS)
+    set(BLA_SIZEOF_INTEGER 8)
+endif()
+
 if (BLA_IMPLEMENTATION STREQUAL "mkl-findblas")
 
     # Just use the findblas interface
@@ -196,7 +201,7 @@ endif()
 
 set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
 if (USE_SCIPY_OPENBLAS)
-    set(CHECK_DLANGE scipy_LAPACKE_dlange)
+    set(CHECK_DLANGE scipy_LAPACKE_dlange64_)  # ILP64 symbols carry a 64_ suffix
 else()
     set(CHECK_DLANGE LAPACKE_dlange)
 endif()
