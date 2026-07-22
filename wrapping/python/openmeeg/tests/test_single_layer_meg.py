@@ -165,6 +165,10 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
     # Three shells (brain/skull/scalp); only the inner one is used for 1 layer.
     meshes = [_icosphere(2, radius * f) for f in (1.0, 1.1, 1.2)][:n_layers]
     gain = _om_meg_gain(meshes, conductivity, dipoles, squids)
+    print("Gain")
+    print(gain)
+    print("Ref")
+    print(ref)
 
     rdm, mag = _rdm_mag(gain, ref)
     # A wrong-sign or missing secondary term (cf. issue #577) blows RDM up well
