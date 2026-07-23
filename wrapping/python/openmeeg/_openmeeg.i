@@ -192,6 +192,9 @@ namespace OpenMEEG {
 
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
+
+    %naturalvar Interface;
+    class Interface;
 }
 
 %inline %{
@@ -442,6 +445,7 @@ namespace OpenMEEG {
 
 %ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
+%rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
 
 %extend OpenMEEG::Geometry {
 
