@@ -150,8 +150,8 @@ namespace OpenMEEG {
                 const Vect3 q(dipoles(j,3),dipoles(j,4),dipoles(j,5));
                 const Vect3& diff = Vect3(positions(i,0),positions(i,1),positions(i,2))-r;
                 const double norm_diff = diff.norm();
-                const Vect3 fergusonField = q ^ diff / (norm_diff * norm_diff * norm_diff);
-                const Vect3 direction(orientations(i,0),orientations(i,1),orientations(i,2));
+                const Vect3& fergusonField = crossprod(q,diff)/(norm_diff*norm_diff*norm_diff);
+                const Vect3  direction(orientations(i,0),orientations(i,1),orientations(i,2));
                 mat(i,j) = dotprod(fergusonField,direction)*MagFactor/direction.norm();
             }
 

@@ -9,96 +9,61 @@
 
 #include <cmath>
 #include <triangle.h>
-#include <monopole.h>
 #include <dipole.h>
 
 namespace OpenMEEG {
 
-    inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
-                                            const Vect3& p1x, const double norm2p1x,
-                                            const Vect3& p1p0,const double norm2p1p0)
-    {
-        //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
-        //  between p0, p1 and x.
-        //  Consequently, there is no need of an absolute value in the first case.
+    // Analytical computation of the integral over a triangle of 1/|r-x| dr.
+    // The formula are derived from Ferguson, Zhang and Stroink, 1994.
 
-        const double arg = (norm2p0x*norm2p1p0-dotprod(p0x,p1p0))/(norm2p1x*norm2p1p0-dotprod(p1x,p1p0));
-        return (std::isnormal(arg) && arg>0.0) ? log(arg) : fabs(log(norm2p1x/norm2p0x));
-    }
-
-    // TODO: There is some common code in analyticS and analyticD3 (compute distances of the point to the triangle vertices),
-    // even though it takes a somewhat different form.
-    // Factorize this ?
-
-    class OPENMEEG_EXPORT analyticS {
-
-        // TODO: Instead of storing the individual points and the normal, store the triangle instead.
-
-        void initialize(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
-            // All computations needed when the first triangle of integration is changed
-
-            p0 = v0;
-            p1 = v1;
-            p2 = v2;
-
-            p1p0 = p1-p0;
-            p2p1 = p2-p1;
-            p0p2 = p0-p2;
-
-            norm2p1p0 = p1p0.norm();
-            norm2p2p1 = p2p1.norm();
-            norm2p0p2 = p0p2.norm();
-        }
-
-        void finish_intialization() {
-            nu0 = (p1p0^n);
-            nu1 = (p2p1^n);
-            nu2 = (p0p2^n);
-            nu0.normalize();
-            nu1.normalize();
-            nu2.normalize();
-        }
-
+    class OPENMEEG_EXPORT OperatorS {
     public:
 
-        analyticS(const Triangle& T) {
-            initialize(T.vertex(0),T.vertex(1),T.vertex(2));
-            n = T.normal();
-            finish_intialization();
+        OperatorS(const Triangle& T): triangle(T) {
+            for (unsigned i=0; i<3; ++i) {
+                const Vect3  vref = triangle.vertex(i)-triangle.vertex(next[i]);
+                const double len  = vref.norm();
+                const Vect3  unit = vref/len;
+                lengths[i] = len;
+                normals[i] = crossprod(triangle.normal(),unit);
+            }
         }
 
-        analyticS(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
-            initialize(v0,v1,v2);
-            n = p1p0^p0p2;
-            n /= n.norm();
-            finish_intialization();
-        }
+        // Analytical value of the internal integral of S operator at point x.
 
-        double f(const Vect3& x) const {
-            // analytical value of the internal integral of S operator at point X
-            const Vect3& p0x = p0-x;
-            const Vect3& p1x = p1-x;
-            const Vect3& p2x = p2-x;
-            const double norm2p0x = p0x.norm();
-            const double norm2p1x = p1x.norm();
-            const double norm2p2x = p2x.norm();
+        double operator()(const Vect3& x) const {
+            const Vect3  rays[3]  = { triangle.vertex(0)-x, triangle.vertex(1)-x, triangle.vertex(2)-x };
+            const double dists[3] = { rays[0].norm(),       rays[1].norm(),       rays[2].norm()       };
+            const double R[3]     = { dists[0]+dists[1],    dists[1]+dists[2],    dists[2]+dists[0]    };
 
-            const double g0 = integral_simplified_green(p0x,norm2p0x,p1x,norm2p1x,p1p0,norm2p1p0);
-            const double g1 = integral_simplified_green(p1x,norm2p1x,p2x,norm2p2x,p2p1,norm2p2p1);
-            const double g2 = integral_simplified_green(p2x,norm2p2x,p0x,norm2p0x,p0p2,norm2p0p2);
+            // Formula derived from the article Ferguson, Zhang, Stroink IEEE, Trans. on Biomedical Engineering (41) 5, 1994.
+            // The result in the article is (n,p0-x,p1-x)/|p0-p1| log(arg) with:
+            // arg = (|p1-x|*|p1-p0|+dotprod(p1-x,p1-p0))/(|p0-x|*|p1-p0|+dotprod(p0-x,p1-p0));
+            // It is not too difficult (but a bit tedious) to prove that:
+            // arg = (|p0-x|+|p1-x|+|p1-p0|)/(|p0-x|+|p1-x|-|p1-p0|);
+            // This last form of arg is both less expensive and makes it clear that arg>=1,
+            // The lengths |p0-x|,|p1-x| and |p1-p0| are respectively dists[0], dists[1] and lengths[0].
+            // |p0-x|+|p1-x| is R[0]. Introducing u = |p1-p0|/(|p0-x|+|p1-x|) leads to:
+            // arg = (1+u)/(1-u) and log(arg) = 2 atanh(u)
+            // This last formula is both more stable and simpler to compute.
 
-            const double alpha = dotprod(p0x,n);
+            double sum = 0.0;
+            for (unsigned i=0; i<3; ++i)
+                sum += dotprod(rays[i],normals[i])*atanh(lengths[i]/R[i]);
 
-            return ((dotprod(p0x,nu0)*g0+dotprod(p1x,nu1)*g1+dotprod(p2x,nu2)*g2)-alpha*x.solid_angle(p0,p1,p2));
+            return 2*sum-dotprod(rays[0],triangle.normal())*triangle.solid_angle(x);
         }
 
     private:
 
-        Vect3 p0, p1, p2; //!< vertices of the triangle
-        Vect3 p2p1, p1p0, p0p2;
-        Vect3 nu0, nu1, nu2;
-        Vect3 n;
-        double norm2p2p1, norm2p1p0, norm2p0p2;
+        static constexpr unsigned next[3] = { 1, 2, 0 };
+
+        const Triangle& triangle;
+
+        // Storage order in lengths and normals is p1p0, p2p1 and p0p2 (p[next[i]]-p[i], for i=0,1,2, where p are the vertices of the triangle).
+
+        double lengths[3]; ///< Lengths of the edges of the triangle. 
+        Vect3  normals[3]; ///< These are the normals in the triangle plane to the edges of the triangle.
     };
 
     class OPENMEEG_EXPORT analyticD3 {
@@ -169,116 +134,56 @@ namespace OpenMEEG {
         const Vect3     U3;
     };
 
-    // This class basically recomputes the barycentric coordinates of a point r in the triangle.
-    // This just solves with a least squares approach the linear system
-    //                 r = l*r0+m*r1+(1-l-m)*r2
-    // Least squares is needed because if we select a subset of equations, we may run in a
-    // singular case. This leads to the 2x2 system:
-    //
-    //              |r0-r2]^2       * l + (r0-r2).(r1-r1) * m = (r0-r2).(r-r2)
-    //              (r0-r2).(r1-r1) * l + |r1-r2]^2       * m = (r1-r2).(r-r2)
-    //
-    //  which is solved using the Kramer formualas.             
-    //
-    // TODO: It is a little bit silly to do this. The points that are passed by the integrator
-    // are computed from their barycentric coordinates and we now do the opposite computation.
-    // A more clever way would be to pass the barycentric coordinates directly and to compute
-    // the point in the analytic functions. This will totally suppress the need for this class.
-
-    class OPENMEEG_EXPORT BarycentricCoordinates {
+    class OPENMEEG_EXPORT analyticDipPotDer {
     public:
 
-        BarycentricCoordinates(const Triangle& T) {
+        analyticDipPotDer(const Dipole& dip,const Triangle& T): dipole(dip) {
 
             const Vect3& p0 = T.vertex(0);
             const Vect3& p1 = T.vertex(1);
             const Vect3& p2 = T.vertex(2);
 
-            r20 = p0-p2;
-            r21 = p1-p2;
-            r2  = p2;
+            const Vect3& p1p0 = p0-p1;
+            const Vect3& p2p1 = p1-p2;
+            const Vect3& p0p2 = p2-p0;
+            const Vect3& p1p0n = p1p0/p1p0.norm();
+            const Vect3& p2p1n = p2p1/p2p1.norm();
+            const Vect3& p0p2n = p0p2/p0p2.norm();
 
-            const double norm_r20_squared = r20.norm2();
-            const double norm_r21_squared = r21.norm2();
-            const double prod_r20_r21     = dotprod(r20,r21);
+            const Vect3& p1H0 = dotprod(p1p0,p2p1n)*p2p1n;
+            H0 = p1H0+p1;
+            H0p0DivNorm2 = p0-H0;
+            H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
+            const Vect3& p2H1 = dotprod(p2p1,p0p2n)*p0p2n;
+            H1 = p2H1+p2;
+            H1p1DivNorm2 = p1-H1;
+            H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
+            const Vect3& p0H2 = dotprod(p0p2,p1p0n)*p1p0n;
+            H2 = p0H2+p0;
+            H2p2DivNorm2 = p2-H2;
+            H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
 
-            const double det = norm_r20_squared*norm_r21_squared-sqr(prod_r20_r21);
-            const double invdet = 1.0/det;
-
-            c11 = norm_r20_squared*invdet;
-            c22 = norm_r21_squared*invdet;
-            c12 = prod_r20_r21*invdet;
+            n = -crossprod(p1p0,p0p2);
+            n.normalize();
         }
-
-        Vect3 operator()(const Vect3& r) const {
-
-            const Vect3& u = r-r2;
-            const double b1 = dotprod(r20,u);
-            const double b2 = dotprod(r21,u);
-            const double l = b1*c22-b2*c12;
-            const double m = b2*c11-b1*c12;
-            return Vect3(l,m,1-l-m);
-        }
-
-    private:
-
-        double c11,c12,c22;
-        Vect3  r20,r21,r2;
-    };
-
-    class OPENMEEG_EXPORT analyticMonopolePotDer {
-    public:
-
-        analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
-            barycentric_coords(T),triangle(T),monopole(monop)
-        { }
 
         Vect3 f(const Vect3& r) const {
+            Vect3 P1part(dotprod(H0p0DivNorm2,r-H0),dotprod(H1p1DivNorm2,r-H1),dotprod(H2p2DivNorm2,r-H2));
 
-            // B = n.grad_x(A) with grad_x(A)= -q x/|x|^3, with x = r-r0
-
-            const Vect3& x      = r-monopole.position();
-            const double xnrm2  = x.norm2();
-            const Vect3& n      = triangle.normal();
-			const double EMpart = monopole.charge()*dotprod(n,x)/(xnrm2*sqrt(xnrm2));
-            const Vect3& P1term = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
-
-            return EMpart*P1term; // RK: why not - sign ?
-        }
-
-    private:
-
-        const BarycentricCoordinates barycentric_coords;
-
-        const Triangle& triangle;
-        const Monopole& monopole;
-    };
-
-    class OPENMEEG_EXPORT analyticDipPotDer {
-    public:
-
-        analyticDipPotDer(const Dipole& dip,const Triangle& T):
-            barycentric_coords(T),triangle(T),dipole(dip)
-        { }
-
-        Vect3 f(const Vect3& r) const {
-
-            // B = n.grad_x(A) with grad_x(A)= q/|x|^3 - 3r(q.x)/|x|^5 with x = r-r0
+            // B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
 
             const Vect3& x         = r-dipole.position();
             const double inv_xnrm2 = 1.0/x.norm2();
-            const Vect3& n         = triangle.normal();
-            const double EMpart    = dotprod(n,dipole.moment()-(3*dotprod(dipole.moment(),x)*inv_xnrm2)*x)*(inv_xnrm2*sqrt(inv_xnrm2));
-            const Vect3& P1term    = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
+            const double EMpart = dotprod(n,dipole.moment()-3*dotprod(dipole.moment(),x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
 
-            return -EMpart*P1term; // RK: why - sign ?
+            return -EMpart*P1part; // RK: why - sign ?
         }
 
     private:
 
-        const BarycentricCoordinates barycentric_coords;
+        const Dipole& dipole;
 
-        const Triangle& triangle;
-        const Dipole&   dipole;
+        Vect3 H0, H1, H2;
+        Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
     };
 }

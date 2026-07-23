@@ -95,7 +95,7 @@ namespace OpenMEEG {
 
         const Normal& normal() const { return out_normal; }
 
-        double  area() const { return surface; }
+        double area() const { return surface; }
 
         unsigned& index()       { return ind; }
         unsigned  index() const { return ind; }
@@ -146,8 +146,14 @@ namespace OpenMEEG {
         unsigned      ind;           ///< Index of the triangle
     };
 
+    inline std::ostream& operator<<(std::ostream& os,const Triangle& T) {
+        return os << T.index() << ": " << T.vertex(0) << " | " << T.vertex(1) << " | " << T.vertex(2) << " -- " << T.area() << ' ' << T.normal() << std::endl;
+    }
+
     inline double
-    Vect3::solid_angle(const Triangle& T) const { return solid_angle(T.vertex(0),T.vertex(1),T.vertex(2)); }
+    Vect3::solid_angle(const Triangle& T) const {
+        return solid_angle(T.vertex(0),T.vertex(1),T.vertex(2));
+    }
 
     typedef std::vector<Triangle>  Triangles;
     typedef std::vector<Triangle*> TrianglesRefs;
