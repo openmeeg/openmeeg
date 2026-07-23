@@ -95,7 +95,7 @@ namespace OpenMEEG {
             for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
             #endif
-                e.Run([&](){
+                e.run([&](){
                     for (const auto& triangle2 : triangles2) {
                         const analyticD3 analyD(triangle2);
                         const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
@@ -107,7 +107,7 @@ namespace OpenMEEG {
                     ++pb;
                 });
             }
-            e.Rethrow();
+            e.rethrow();
         }
 
         // Operator N for two vertices of the same mesh.
@@ -224,11 +224,11 @@ namespace OpenMEEG {
                 for (int i2=tit1-triangles.begin(); i2<static_cast<int>(triangles.size()); ++i2) {
                     const Triangle& triangle2 = *(triangles.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
             }
         }
 
@@ -282,11 +282,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<=vit1-mesh.vertices().begin();++i2) {
                     const auto vit2 = mesh.vertices().begin()+i2;
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix((*vit1)->index(),(*vit2)->index()) += base::N(**vit1,**vit2,mesh,S)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }
@@ -411,11 +411,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<static_cast<int>(m2_triangles.size());++i2) {
                     const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }
@@ -466,11 +466,11 @@ namespace OpenMEEG {
                 for (int i2=0; i2<static_cast<int>(m2_vertices.size()); ++i2) {
                     const Vertex* vertex2 = *(m2_vertices.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }
