@@ -120,7 +120,6 @@ namespace OpenMEEG {
 
         /// \brief Print info
         ///  Print to std::cout some info about the mesh.
-        ///  \return void \sa
 
         void info(const bool verbose=false) const; ///< \brief Print mesh information.
         bool has_self_intersection() const;        ///< \brief Check whether the mesh self-intersects.
