@@ -120,13 +120,19 @@ def _rdm_mag(gain, ref):
 
 
 @pytest.mark.parametrize(
-    "n_layers, conductivity",
+    "n_layers, conductivity, tol",
     [
-        (1, (0.3,)),
-        (3, (0.3, 0.006, 0.3)),
+        (1, (0.3,), 0.02),
+        # The 50x skull/brain conductivity contrast makes this a much more
+        # numerically delicate (ill-conditioned) system than the 1-layer
+        # case: the clean value is ~5e-3, but it has been observed to drift
+        # as high as ~0.025 depending on the BLAS/LAPACK implementation used
+        # for the HeadMat inversion (e.g. system vs numpy-bundled OpenBLAS),
+        # so this tolerance carries extra margin to avoid CI flakiness.
+        (3, (0.3, 0.006, 0.3), 0.04),
     ],
 )
-def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
+def test_meg_sphere_vs_sarvas(n_layers, conductivity, tol, tmp_path):
     """MEG leadfield on a sphere matches the analytic Sarvas solution."""
     radius = 0.1  # radius of the innermost (brain) sphere
     # Tangential dipoles along +z at increasing depth. Purely radial dipoles
@@ -169,8 +175,8 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
     rdm, mag = _rdm_mag(gain, ref)
     # A wrong-sign or missing secondary term (cf. issue #577) blows RDM up well
     # past this; a correct forward on this mesh gives RDM ~1e-3.
-    assert_array_less(rdm, 0.02)
-    assert_array_less(np.abs(mag - 1.0), 0.02)
+    assert_array_less(rdm, tol)
+    assert_array_less(np.abs(mag - 1.0), tol)
 
 
 def test_meg_sphere_radial_dipole_is_silent(tmp_path):

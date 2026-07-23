@@ -17,6 +17,14 @@ on:
 env:
   BUILD_TYPE: Release
   PYTHONUNBUFFERED: '1'
+  # Building OpenMEEG's C++ core against the system BLAS while numpy ships
+  # its own bundled BLAS means two independently-threaded BLAS instances
+  # can end up loaded in the same Python process. Pin all of them to a
+  # single thread to avoid thread-pool oversubscription, which has been
+  # observed to cause hangs/flakiness in the Python tests.
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
 
 defaults:
   run:
