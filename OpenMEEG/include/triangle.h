@@ -120,7 +120,18 @@ namespace OpenMEEG {
 
         bool intersects(const Triangle& triangle) const;
 
-        double solid_angle(const Vertex& p) const { return p.solid_angle(*this); }
+        double solid_angle(const Vertex& V) const {
+            // De Munck formula.
+
+            const Vect3& Y1 = vertex(0)-V;
+            const Vect3& Y2 = vertex(1)-V;
+            const Vect3& Y3 = vertex(2)-V;
+            const double y1 = Y1.norm();
+            const double y2 = Y2.norm();
+            const double y3 = Y3.norm();
+            const double d = det(Y1,Y2,Y3);
+            return (fabs(d)<1e-10) ? 0.0 : 2*atan2(d,(y1*y2*y3+y1*dotprod(Y2,Y3)+y2*dotprod(Y3,Y1)+y3*dotprod(Y1,Y2)));
+        }
 
     private:
 
@@ -148,11 +159,6 @@ namespace OpenMEEG {
 
     inline std::ostream& operator<<(std::ostream& os,const Triangle& T) {
         return os << T.index() << ": " << T.vertex(0) << " | " << T.vertex(1) << " | " << T.vertex(2) << " -- " << T.area() << ' ' << T.normal() << std::endl;
-    }
-
-    inline double
-    Vect3::solid_angle(const Triangle& T) const {
-        return solid_angle(T.vertex(0),T.vertex(1),T.vertex(2));
     }
 
     typedef std::vector<Triangle>  Triangles;

@@ -103,10 +103,6 @@ namespace OpenMEEG {
 
         Vect3 operator-() const { return Vect3(-m[0],-m[1],-m[2]); }
 
-        inline double solid_angle(const Vect3& v1,const Vect3& v2,const Vect3& v3) const;
-        double solid_angle(const Vect3 pts[3]) const { return solid_angle(pts[0],pts[1],pts[2]); }
-        double solid_angle(const Triangle& T) const;
-
         friend std::ostream& operator<<(std::ostream& os,const Vect3& v);
         friend std::istream& operator>>(std::istream& is,Vect3& v);
     };
@@ -116,19 +112,6 @@ namespace OpenMEEG {
     inline Vect3  crossprod(const Vect3& V1,const Vect3& V2) { return Vect3(V1.y()*V2.z()-V1.z()*V2.y(),V1.z()*V2.x()-V1.x()*V2.z(),V1.x()*V2.y()-V1.y()*V2.x()); }
 
     inline double det(const Vect3& V1,const Vect3& V2,const Vect3& V3) { return dotprod(V1,crossprod(V2,V3)); }
-
-    inline double Vect3::solid_angle(const Vect3& V1,const Vect3& V2,const Vect3& V3) const {
-        // De Munck : Good sign directly
-        const Vect3& V0 = *this;
-        const Vect3& Y1 = V1-V0;
-        const Vect3& Y2 = V2-V0;
-        const Vect3& Y3 = V3-V0;
-        const double y1 = Y1.norm();
-        const double y2 = Y2.norm();
-        const double y3 = Y3.norm();
-        const double d = det(Y1,Y2,Y3);
-        return (fabs(d)<1e-10) ? 0.0 : 2*atan2(d,(y1*y2*y3+y1*dotprod(Y2,Y3)+y2*dotprod(Y3,Y1)+y3*dotprod(Y1,Y2)));
-    }
 
     inline std::istream& operator>>(std::istream& is,Vect3& v) {
         return is >> v.x() >> v.y() >> v.z();
