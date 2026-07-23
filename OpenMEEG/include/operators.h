@@ -43,14 +43,14 @@ namespace OpenMEEG {
                 const Triangle& T    = *tp;
                 const Edge&     edge = T.edge(V);
 
-                // A, B are the two opposite vertices to V (triangle A, B, V)
+                // A, B are the two opposite vertices to V in T (triangle A, B, V)
+
                 const Vertex& A = edge.vertex(0);
                 const Vertex& B = edge.vertex(1);
-                const Vect3& AB = (A-B)/(2*T.area());
 
-                const analyticS analyS(V,A,B);
+                const OperatorS S(T);
 
-                result += AB*analyS.f(x);
+                result += (B-A)*S(x)/(2*T.area());
             }
 
             return result;
@@ -213,8 +213,8 @@ namespace OpenMEEG {
             const Triangles& triangles = mesh.triangles();
             for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1,++pb) {
                 const Triangle& triangle1 = *tit1;
-                const analyticS analyS(triangle1);
-                const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
+                const OperatorS S(triangle1);
+                const auto& Sfunc = [&S](const Vect3& r) { return S(r); };
 
                 #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
@@ -315,9 +315,9 @@ namespace OpenMEEG {
         void S(const double coeff,const Vertices& points,Matrix& matrix) const {
             log_stream(INFORMATION) << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
-                const analyticS analyS(triangle);
+                const OperatorS S(triangle);
                 for (const auto& vertex : points)
-                    matrix(vertex.index(),triangle.index()) = coeff*analyS.f(vertex);
+                    matrix(vertex.index(),triangle.index()) = coeff*S(vertex);
             }
         }
 
@@ -397,8 +397,8 @@ namespace OpenMEEG {
 
             for (const auto& triangle1 : mesh1.triangles()) {
 
-                const analyticS analyS(triangle1);
-                const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
+                const OperatorS S(triangle1);
+                const auto& Sfunc = [&S](const Vect3& r) { return S(r); };
 
                 const Triangles& m2_triangles = mesh2.triangles();
                 #pragma omp parallel for

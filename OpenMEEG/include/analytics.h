@@ -13,85 +13,57 @@
 
 namespace OpenMEEG {
 
-    inline double integral_simplified_green(const Vect3& p0x, const double norm2p0x,
-                                            const Vect3& p1x, const double norm2p1x,
-                                            const Vect3& p1p0,const double norm2p1p0)
-    {
-        //  The quantity arg is normally >= 1, verifying this relates to a triangular inequality
-        //  between p0, p1 and x.
-        //  Consequently, there is no need of an absolute value in the first case.
+    // Analytical computation of the integral over a triangle of 1/|r-x| dr.
+    // The formula are derived from Ferguson, Zhang and Stroink, 1994.
 
-        const double arg = (norm2p0x*norm2p1p0-dotprod(p0x,p1p0))/(norm2p1x*norm2p1p0-dotprod(p1x,p1p0));
-        return (std::isnormal(arg) && arg>0.0) ? log(arg) : fabs(log(norm2p1x/norm2p0x));
-    }
-
-    class OPENMEEG_EXPORT analyticS {
-
-        void initialize(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
-            // All computations needed when the first triangle of integration is changed
-
-            p0 = v0;
-            p1 = v1;
-            p2 = v2;
-
-            p1p0 = p1-p0;
-            p2p1 = p2-p1;
-            p0p2 = p0-p2;
-
-            norm2p1p0 = p1p0.norm();
-            norm2p2p1 = p2p1.norm();
-            norm2p0p2 = p0p2.norm();
-        }
-
-        void finish_intialization() {
-            nu0 = (p1p0^n);
-            nu1 = (p2p1^n);
-            nu2 = (p0p2^n);
-            nu0.normalize();
-            nu1.normalize();
-            nu2.normalize();
-        }
-
+    class OPENMEEG_EXPORT OperatorS {
     public:
 
-        analyticS(const Triangle& T) {
-            initialize(T.vertex(0),T.vertex(1),T.vertex(2));
-            n = T.normal();
-            finish_intialization();
+        OperatorS(const Triangle& T): triangle(T) {
+            for (unsigned i=0; i<3; ++i) {
+                const Vect3  vref = triangle.vertex(i)-triangle.vertex(next[i]);
+                const double len  = vref.norm();
+                const Vect3  unit = vref/len;
+                lengths[i] = len;
+                normals[i] = crossprod(triangle.normal(),unit);
+            }
         }
 
-        analyticS(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
-            initialize(v0,v1,v2);
-            n = p1p0^p0p2;
-            n /= n.norm();
-            finish_intialization();
-        }
+        // Analytical value of the internal integral of S operator at point x.
 
-        double f(const Vect3& x) const {
-            // analytical value of the internal integral of S operator at point X
-            const Vect3& p0x = p0-x;
-            const Vect3& p1x = p1-x;
-            const Vect3& p2x = p2-x;
-            const double norm2p0x = p0x.norm();
-            const double norm2p1x = p1x.norm();
-            const double norm2p2x = p2x.norm();
+        double operator()(const Vect3& x) const {
+            const Vect3  rays[3]  = { triangle.vertex(0)-x, triangle.vertex(1)-x, triangle.vertex(2)-x };
+            const double dists[3] = { rays[0].norm(),       rays[1].norm(),       rays[2].norm()       };
+            const double R[3]     = { dists[0]+dists[1],    dists[1]+dists[2],    dists[2]+dists[0]    };
 
-            const double g0 = integral_simplified_green(p0x,norm2p0x,p1x,norm2p1x,p1p0,norm2p1p0);
-            const double g1 = integral_simplified_green(p1x,norm2p1x,p2x,norm2p2x,p2p1,norm2p2p1);
-            const double g2 = integral_simplified_green(p2x,norm2p2x,p0x,norm2p0x,p0p2,norm2p0p2);
+            // Formula derived from the article Ferguson, Zhang, Stroink IEEE, Trans. on Biomedical Engineering (41) 5, 1994.
+            // The result in the article is (n,p0-x,p1-x)/|p0-p1| log(arg) with:
+            // arg = (|p1-x|*|p1-p0|+dotprod(p1-x,p1-p0))/(|p0-x|*|p1-p0|+dotprod(p0-x,p1-p0));
+            // It is not too difficult (but a bit tedious) to prove that:
+            // arg = (|p0-x|+|p1-x|+|p1-p0|)/(|p0-x|+|p1-x|-|p1-p0|);
+            // This last form of arg is both less expensive and makes it clear that arg>=1,
+            // The lengths |p0-x|,|p1-x| and |p1-p0| are respectively dists[0], dists[1] and lengths[0].
+            // |p0-x|+|p1-x| is R[0]. Introducing u = |p1-p0|/(|p0-x|+|p1-x|) leads to:
+            // arg = (1+u)/(1-u) and log(arg) = 2 atanh(u)
+            // This last formula is both more stable and simpler to compute.
 
-            const double alpha = dotprod(p0x,n);
+            double sum = 0.0;
+            for (unsigned i=0; i<3; ++i)
+                sum += dotprod(rays[i],normals[i])*atanh(lengths[i]/R[i]);
 
-            return ((dotprod(p0x,nu0)*g0+dotprod(p1x,nu1)*g1+dotprod(p2x,nu2)*g2)-alpha*x.solid_angle(p0,p1,p2));
+            return 2*sum-dotprod(rays[0],triangle.normal())*triangle.solid_angle(x);
         }
 
     private:
 
-        Vect3 p0, p1, p2; //!< vertices of the triangle
-        Vect3 p2p1, p1p0, p0p2;
-        Vect3 nu0, nu1, nu2;
-        Vect3 n;
-        double norm2p2p1, norm2p1p0, norm2p0p2;
+        static constexpr unsigned next[3] = { 1, 2, 0 };
+
+        const Triangle& triangle;
+
+        // Storage order in lengths and normals is p1p0, p2p1 and p0p2 (p[next[i]]-p[i], for i=0,1,2, where p are the vertices of the triangle).
+
+        double lengths[3]; ///< Lengths of the edges of the triangle. 
+        Vect3  normals[3]; ///< These are the normals in the triangle plane to the edges of the triangle.
     };
 
     class OPENMEEG_EXPORT analyticD3 {

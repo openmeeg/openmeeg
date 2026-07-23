@@ -88,7 +88,6 @@ namespace OpenMEEG {
 
         Vect3 operator+(const Vect3& v) const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
         Vect3 operator-(const Vect3& v) const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
-        Vect3 operator^(const Vect3& v) const { return Vect3(m[1]*v.z()-m[2]*v.y(),m[2]*v.x()-m[0]*v.z(),m[0]*v.y()-m[1]*v.x()); }
         Vect3 operator*(const double d) const { return Vect3(d*m[0],d*m[1],d*m[2]); }
         Vect3 operator/(const double d) const { return Vect3(m[0]/d,m[1]/d,m[2]/d); }
 
@@ -112,9 +111,10 @@ namespace OpenMEEG {
         friend std::istream& operator>>(std::istream& is,Vect3& v);
     };
 
-    inline Vect3  operator*(const double d,const Vect3& V)  { return V*d;   }
+    inline Vect3  operator*(const double d,const Vect3& V)   { return V*d;   }
     inline double dotprod(const Vect3& V1,const Vect3& V2)   { return V1.x()*V2.x()+V1.y()*V2.y()+V1.z()*V2.z(); }
-    inline Vect3  crossprod(const Vect3& V1,const Vect3& V2) { return V1^V2; }
+    inline Vect3  crossprod(const Vect3& V1,const Vect3& V2) { return Vect3(V1.y()*V2.z()-V1.z()*V2.y(),V1.z()*V2.x()-V1.x()*V2.z(),V1.x()*V2.y()-V1.y()*V2.x()); }
+
     inline double det(const Vect3& V1,const Vect3& V2,const Vect3& V3) { return dotprod(V1,crossprod(V2,V3)); }
 
     inline double Vect3::solid_angle(const Vect3& V1,const Vect3& V2,const Vect3& V3) const {
