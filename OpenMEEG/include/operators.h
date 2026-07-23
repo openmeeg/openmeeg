@@ -98,7 +98,7 @@ namespace OpenMEEG {
                 e.run([&](){
                     for (const auto& triangle2 : triangles2) {
                         const analyticD3 analyD(triangle2);
-                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
+                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD(r); };
                         const Vect3& total = integrator.integrate(Dfunc,triangle1);
 
                         for (unsigned i=0; i<3; ++i)
@@ -305,7 +305,7 @@ namespace OpenMEEG {
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
                 for (const auto& vertex : points) {
-                    const Vect3& integrals = analyD.f(vertex);
+                    const Vect3& integrals = analyD(vertex);
                     for (unsigned i=0;i<3;++i)
                         matrix(vertex.index(),triangle.vertex(i).index()) += integrals(i)*coeff;
                 }
