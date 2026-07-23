@@ -98,7 +98,7 @@ namespace OpenMEEG {
         #endif
             e.run([&](){
                 const analyticDipPotDer anaDPD(dipole,triangle);
-                const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
+                const auto dipder = [&](const Vect3& r) { return anaDPD(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
 
