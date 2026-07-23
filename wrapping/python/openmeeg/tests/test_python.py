@@ -116,7 +116,7 @@ def read_tri(fname):
     "subject",
     [
         "Head1",
-        pytest.param("mne_sample_ico3", marks=pytest.mark.slow),
+        pytest.param("mne_sample_ico3", marks=pytest.mark.slowtest),
     ],
 )
 @pytest.mark.parametrize("load_from_numpy", [True, False])
