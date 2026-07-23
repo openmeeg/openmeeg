@@ -126,53 +126,53 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT analyticDipPotDer {
     public:
 
-        analyticDipPotDer(const Dipole& dip,const Triangle& T): dipole(dip) {
+        analyticDipPotDer(const Dipole& dip,const Triangle& T): triangle(T),dipole(dip) {
 
-            const Vect3& p0 = T.vertex(0);
-            const Vect3& p1 = T.vertex(1);
-            const Vect3& p2 = T.vertex(2);
+            edge10 = triangle.vertex(1)-triangle.vertex(0);
+            edge20 = triangle.vertex(2)-triangle.vertex(0);
 
-            const Vect3& p1p0 = p0-p1;
-            const Vect3& p2p1 = p1-p2;
-            const Vect3& p0p2 = p2-p0;
-            const Vect3& p1p0n = p1p0/p1p0.norm();
-            const Vect3& p2p1n = p2p1/p2p1.norm();
-            const Vect3& p0p2n = p0p2/p0p2.norm();
+            d00 = dotprod(edge10,edge10);
+            d01 = dotprod(edge10,edge20);
+            d11 = dotprod(edge20,edge20);
 
-            const Vect3& p1H0 = dotprod(p1p0,p2p1n)*p2p1n;
-            H0 = p1H0+p1;
-            H0p0DivNorm2 = p0-H0;
-            H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
-            const Vect3& p2H1 = dotprod(p2p1,p0p2n)*p0p2n;
-            H1 = p2H1+p2;
-            H1p1DivNorm2 = p1-H1;
-            H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
-            const Vect3& p0H2 = dotprod(p0p2,p1p0n)*p1p0n;
-            H2 = p0H2+p0;
-            H2p2DivNorm2 = p2-H2;
-            H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
-
-            n = -crossprod(p1p0,p0p2);
-            n.normalize();
+            inv_denom = 1.0/(d00*d11-d01*d01);
         }
 
-        Vect3 f(const Vect3& r) const {
-            Vect3 P1part(dotprod(H0p0DivNorm2,r-H0),dotprod(H1p1DivNorm2,r-H1),dotprod(H2p2DivNorm2,r-H2));
+        Vect3 operator()(const Vect3& r) const {
 
-            // B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
+            // Barycentric coordinates of r in the triangle.
+
+            const Vect3& v   = r-triangle.vertex(0);
+            const double d0 = dotprod(v,edge10);
+            const double d1 = dotprod(v,edge20);
+
+            // Solve the 2x2 system [[d00,d01],[d01,d11]] [lambda1,lambda2]^T = [d0,d1]^T
+            // to obtain the barycentric coordinates of r in the triangle.
+
+            const double lambda1 = (d11*d0-d01*d1)*inv_denom;
+            const double lambda2 = (d00*d1-d01*d0)*inv_denom;
+
+            const Vect3 barycentric_coordinates(1.0-lambda1-lambda2,lambda1,lambda2);
+            
+            // gradPotn = dotprod(normal,grad(q.(r-p)/|r-p|^3)) = dotprod(normal,grad(V)) with grad(V) = q/|r-p|^3-3 q.(r-p) (r-p)/|r-p|^5
 
             const Vect3& x         = r-dipole.position();
+            const Vect3& moment    = dipole.moment();
             const double inv_xnrm2 = 1.0/x.norm2();
-            const double EMpart = dotprod(n,dipole.moment()-3*dotprod(dipole.moment(),x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
+            const double gradPotn  = dotprod(triangle.normal(),moment-3*dotprod(moment,x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
 
-            return -EMpart*P1part; // RK: why - sign ?
+            std::cerr << "Coords(" << r << ") = " << barycentric_coordinates << std::endl; 
+            return -gradPotn*barycentric_coordinates; // RK: why - sign ?
         }
 
     private:
 
-        const Dipole& dipole;
+        const Triangle& triangle; // Triangle.
+        const Dipole&   dipole;   // Source.
 
-        Vect3 H0, H1, H2;
-        Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
+        Vect3 edge10,edge20;
+
+        double d00,d01,d11; // Coefficients of the symmetric matrix used to find the barycentric coordinates.
+        double inv_denom;   // Inverse of the determinant of the symmetric matrix.
     };
 }
