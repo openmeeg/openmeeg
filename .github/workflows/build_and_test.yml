@@ -126,9 +126,9 @@ jobs:
       id: env-vars
       run: |
         echo "os=${{matrix.os}}" | tee -a $GITHUB_OUTPUT
-        if [[ "${{matrix.numpy}}" == *'dev' ]]; then
+        if [[ "${{matrix.numpy}}" == 'numpydev' ]]; then
           echo "numpy_version=dev" | tee -a $GITHUB_OUTPUT
-        elif [[ "${{matrix.numpy}}" == *'old' ]]; then
+        elif [[ "${{matrix.numpy}}" == 'numpyold' ]]; then
           echo "numpy_version=oldest" | tee -a $GITHUB_OUTPUT
         else
           echo "numpy_version=latest" | tee -a $GITHUB_OUTPUT
@@ -527,6 +527,7 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python')
       id: wheel
       run: |
+        ctest -V -R openmeeg_python_test_single_layer_meg
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'setuptools' ]]; then
           export OPENMEEG_INCLUDE=$PWD/install/include/OpenMEEG
           export OPENMEEG_LIB=$PWD/install/lib
