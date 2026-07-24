@@ -161,7 +161,6 @@ namespace OpenMEEG {
             const double inv_xnrm2 = 1.0/x.norm2();
             const double gradPotn  = dotprod(triangle.normal(),moment-3*dotprod(moment,x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
 
-            std::cerr << "Coords(" << r << ") = " << barycentric_coordinates << std::endl; 
             return -gradPotn*barycentric_coordinates; // RK: why - sign ?
         }
 
