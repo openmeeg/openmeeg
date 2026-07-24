@@ -41,11 +41,6 @@ namespace OpenMEEG {
     OPENMEEG_EXPORT SparseMatrix Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
     OPENMEEG_EXPORT SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
 
-    inline SparseMatrix
-    Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const std::string& id) { // Mainly for SWIG
-        return Head2ECoGMat(geo,electrodes,geo.interface(id));
-    }
-
     OPENMEEG_EXPORT Matrix Head2MEGMat(const Geometry& geo,const Sensors& sensors);
     OPENMEEG_EXPORT Matrix SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
     OPENMEEG_EXPORT Matrix DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);

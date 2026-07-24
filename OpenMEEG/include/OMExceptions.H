@@ -187,7 +187,7 @@ namespace OpenMEEG {
     private:
 
         static std::string message(const std::string& fmtname,const std::string& object) {
-            return std::string("This "+fmtname+" file does not contains a "+object+" as expected.");
+            return std::string("This "+fmtname+" file does not contain a "+object+" as expected.");
         }
     };
 
@@ -329,27 +329,32 @@ namespace OpenMEEG {
     // https://stackoverflow.com/questions/11828539/elegant-exceptionhandling-in-openmp
 
     class ThreadException {
-        std::exception_ptr Ptr;
-        std::mutex         Lock;
     public:
-        ThreadException(): Ptr(nullptr) {}
 
-        void Rethrow() {
-            if (this->Ptr) std::rethrow_exception(this->Ptr);
-        }
+        ThreadException(): ptr(nullptr) { }
 
-        void CaptureException() {
-            std::unique_lock<std::mutex> guard(this->Lock);
-            this->Ptr = std::current_exception();
+        void rethrow() {
+            if (ptr)
+                std::rethrow_exception(ptr);
         }
 
         template <typename Function,typename... Parameters>
-        void Run(Function f,Parameters... params) {
+        void run(Function f,Parameters... params) {
             try {
                 f(params...);
             } catch (...) {
-                CaptureException();
+                capture_exception();
             }
         }
+
+    private:
+
+        void capture_exception() {
+            std::unique_lock<std::mutex> guard(lock);
+            ptr = std::current_exception();
+        }
+
+        std::exception_ptr ptr;
+        std::mutex         lock;
     };
 }

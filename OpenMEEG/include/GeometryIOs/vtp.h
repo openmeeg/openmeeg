@@ -106,7 +106,7 @@ namespace OpenMEEG::GeometryIOs {
                         if (mesh_vertices.insert(vertex).second)
                             mesh.vertices().push_back(vertex);
 
-                mesh.update(true);
+                mesh.update();
             }
         }
 

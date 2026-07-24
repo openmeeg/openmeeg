@@ -217,7 +217,7 @@ namespace OpenMEEG {
         for (const auto& desc : mesh_descriptions) {
             Mesh& mesh = add_mesh(desc.name);
             desc.io->load_triangles(mesh);
-            mesh.update(true);
+            mesh.update();
         }
 
         for (auto& desc : mesh_descriptions)

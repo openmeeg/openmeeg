@@ -85,7 +85,7 @@ def make_geometry(meshes, interfaces, domains):
     for name, mesh in meshes.items():
         om_mesh = geom.add_mesh(name)
         om_mesh.add_triangles(mesh[1], indmaps[name])
-        om_mesh.update(True)
+        om_mesh.update()
 
     del meshes, indmaps
 

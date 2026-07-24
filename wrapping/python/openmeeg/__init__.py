@@ -20,17 +20,23 @@ from ._openmeeg_wrapper import (
     Head2MEGMat,
     DipSourceMat,
     DipSource2MEGMat,
+    DipSource2InternalPotMat,
+    EITSourceMat,
     GainEEG,
     GainMEG,
     GainEEGadjoint,
     GainMEGadjoint,
     GainEEGMEGadjoint,
+    GainInternalPot,
+    GainEITInternalPot,
     Forward,
+    Surf2VolMat,
     SurfSourceMat,
     SurfSource2MEGMat,
     Matrix,
     SymMatrix,
 )
+from ._misc import Head2ECoGMat
 from ._make_geometry import make_geometry, make_nested_geometry, read_geometry
 from ._utils import get_log_level, set_log_level, use_log_level
 

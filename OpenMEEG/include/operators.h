@@ -43,14 +43,14 @@ namespace OpenMEEG {
                 const Triangle& T    = *tp;
                 const Edge&     edge = T.edge(V);
 
-                // A, B are the two opposite vertices to V (triangle A, B, V)
+                // A, B are the two opposite vertices to V in T (triangle A, B, V)
+
                 const Vertex& A = edge.vertex(0);
                 const Vertex& B = edge.vertex(1);
-                const Vect3& AB = (A-B)/(2*T.area());
 
-                const analyticS analyS(V,A,B);
+                const OperatorS S(T);
 
-                result += AB*analyS.f(x);
+                result += (B-A)*S(x)/(2*T.area());
             }
 
             return result;
@@ -95,10 +95,10 @@ namespace OpenMEEG {
             for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
             #endif
-                e.Run([&](){
+                e.run([&](){
                     for (const auto& triangle2 : triangles2) {
                         const analyticD3 analyD(triangle2);
-                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD.f(r); };
+                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD(r); };
                         const Vect3& total = integrator.integrate(Dfunc,triangle1);
 
                         for (unsigned i=0; i<3; ++i)
@@ -107,7 +107,7 @@ namespace OpenMEEG {
                     ++pb;
                 });
             }
-            e.Rethrow();
+            e.rethrow();
         }
 
         // Operator N for two vertices of the same mesh.
@@ -213,8 +213,8 @@ namespace OpenMEEG {
             const Triangles& triangles = mesh.triangles();
             for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1,++pb) {
                 const Triangle& triangle1 = *tit1;
-                const analyticS analyS(triangle1);
-                const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
+                const OperatorS S(triangle1);
+                const auto& Sfunc = [&S](const Vect3& r) { return S(r); };
 
                 #pragma omp parallel for
                 #if defined NO_OPENMP || defined OPENMP_ITERATOR
@@ -224,11 +224,11 @@ namespace OpenMEEG {
                 for (int i2=tit1-triangles.begin(); i2<static_cast<int>(triangles.size()); ++i2) {
                     const Triangle& triangle2 = *(triangles.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
             }
         }
 
@@ -282,11 +282,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<=vit1-mesh.vertices().begin();++i2) {
                     const auto vit2 = mesh.vertices().begin()+i2;
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix((*vit1)->index(),(*vit2)->index()) += base::N(**vit1,**vit2,mesh,S)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }
@@ -305,7 +305,7 @@ namespace OpenMEEG {
             for (const auto& triangle : mesh.triangles()) {
                 const analyticD3 analyD(triangle);
                 for (const auto& vertex : points) {
-                    const Vect3& integrals = analyD.f(vertex);
+                    const Vect3& integrals = analyD(vertex);
                     for (unsigned i=0;i<3;++i)
                         matrix(vertex.index(),triangle.vertex(i).index()) += integrals(i)*coeff;
                 }
@@ -315,9 +315,9 @@ namespace OpenMEEG {
         void S(const double coeff,const Vertices& points,Matrix& matrix) const {
             log_stream(INFORMATION) << "PARTIAL OPERATOR S..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
-                const analyticS analyS(triangle);
+                const OperatorS S(triangle);
                 for (const auto& vertex : points)
-                    matrix(vertex.index(),triangle.index()) = coeff*analyS.f(vertex);
+                    matrix(vertex.index(),triangle.index()) = coeff*S(vertex);
             }
         }
 
@@ -397,8 +397,8 @@ namespace OpenMEEG {
 
             for (const auto& triangle1 : mesh1.triangles()) {
 
-                const analyticS analyS(triangle1);
-                const auto& Sfunc = [&analyS](const Vect3& r) { return analyS.f(r); };
+                const OperatorS S(triangle1);
+                const auto& Sfunc = [&S](const Vect3& r) { return S(r); };
 
                 const Triangles& m2_triangles = mesh2.triangles();
                 #pragma omp parallel for
@@ -411,11 +411,11 @@ namespace OpenMEEG {
                 for (int i2=0;i2<static_cast<int>(m2_triangles.size());++i2) {
                     const Triangle& triangle2 = *(m2_triangles.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }
@@ -466,11 +466,11 @@ namespace OpenMEEG {
                 for (int i2=0; i2<static_cast<int>(m2_vertices.size()); ++i2) {
                     const Vertex* vertex2 = *(m2_vertices.begin()+i2);
                 #endif
-                    e.Run([&](){
+                    e.run([&](){
                         matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
                     });
                 }
-                e.Rethrow();
+                e.rethrow();
                 ++pb;
             }
         }

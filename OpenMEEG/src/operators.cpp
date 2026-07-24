@@ -24,7 +24,7 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.vertices().size()); ++i) {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const unsigned vindex = vertexp->index();
                 Vect3 v = Details::operatorFerguson(x,*vertexp,m);
                 mat(offsetI+0,vindex) += v.x()*coeff;
@@ -32,7 +32,7 @@ namespace OpenMEEG {
                 mat(offsetI+2,vindex) += v.z()*coeff;
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
     void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
@@ -47,9 +47,9 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const analyticDipPotDer anaDPD(dipole,triangle);
-                const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
+                const auto dipder = [&](const Vect3& r) { return anaDPD(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
                 // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
@@ -62,7 +62,7 @@ namespace OpenMEEG {
                 }
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
     void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
@@ -78,11 +78,11 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const double d = integrator.integrate(dippot,triangle);
                 rhs(triangle.index()) += d*coeff;
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 }

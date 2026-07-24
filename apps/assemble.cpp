@@ -264,7 +264,7 @@ int main(int argc,char** argv)
         // Computation of the linear application which maps the distributed source
         // |----> binf (contrib to MEG response)
 
-        const Mesh mesh_sources(opt_parms[1]);
+        const Mesh    mesh_sources(opt_parms[1]);
         const Sensors sensors(opt_parms[2]);
 
         const Matrix& mat = SurfSource2MEGMat(mesh_sources,sensors);

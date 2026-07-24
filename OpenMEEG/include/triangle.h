@@ -52,27 +52,29 @@ namespace OpenMEEG {
 
         Triangle() { } // Is this needed besides for SWIG ?
 
-        /// Create a new triangle from a set of vertices.
+        /// Create a new triangle from 3 vertex adresses.
 
-        Triangle(Vertex* pts[3],const unsigned index=-1): ind(index) {
-            for (unsigned i=0;i<3;++i)
-                vertices_[i] = pts[i];
+        Triangle(const Vertex* p1,const Vertex* p2,const Vertex* p3,const unsigned index=-1): vertices{p1,p2,p3},ind(index) {
+            out_normal = crossprod(vertex(1)-vertex(0),vertex(2)-vertex(0));
+            const double nrm = out_normal.norm();
+            surface = 0.5*nrm;
+            out_normal /= nrm;
         }
 
-        /// Create a new triangle from a 3 vertex adresses.
+        /// Create a new triangle from a list of 3 vertices.
 
-        Triangle(Vertex* p1,Vertex* p2,Vertex* p3,const unsigned index=-1): vertices_{p1,p2,p3},ind(index) { }
+        Triangle(const Vertex* pts[3],const unsigned index=-1): Triangle(pts[0],pts[1],pts[2],index) { }
 
-        /// Create a new triangle from a 3 vertices.
+        /// Create a new triangle from 3 vertices.
 
-        Triangle(Vertex& p1,Vertex& p2,Vertex& p3,const unsigned index=-1): Triangle(&p1,&p2,&p3,index) { }
+        Triangle(const Vertex& p1,const Vertex& p2,const Vertex& p3,const unsigned index=-1): Triangle(&p1,&p2,&p3,index) { }
 
         /// Iterators.
 
-        const_iterator begin() const { return const_iterator(vertices_);   }
-        const_iterator end()   const { return const_iterator(vertices_+3); }
-        iterator       begin()       { return iterator(vertices_);         }
-        iterator       end()         { return iterator(vertices_+3);       }
+        const_iterator begin() const { return const_iterator(vertices);   }
+        const_iterator end()   const { return const_iterator(vertices+3); }
+        iterator       begin()       { return iterator(vertices);         }
+        iterator       end()         { return iterator(vertices+3);       }
 
         /// Operators
 
@@ -80,8 +82,7 @@ namespace OpenMEEG {
             return (&T.vertex(0)==&vertex(0)) && (&T.vertex(1)==&vertex(1)) && (&T.vertex(2)==&vertex(2));
         }
 
-              Vertex& vertex(const unsigned& vindex)       { return *vertices_[vindex]; }
-        const Vertex& vertex(const unsigned& vindex) const { return *vertices_[vindex]; }
+        const Vertex& vertex(const unsigned& vindex) const { return *vertices[vindex]; }
 
         Edge edge(const Vertex& V) const {
             const unsigned indx = vertex_index(V);
@@ -92,11 +93,9 @@ namespace OpenMEEG {
             return { Edge(vertex(1),vertex(2)), Edge(vertex(2),vertex(0)), Edge(vertex(0),vertex(1)) };
         }
 
-              Normal&  normal()       { return normal_; }
-        const Normal&  normal() const { return normal_; }
+        const Normal& normal() const { return out_normal; }
 
-        double  area() const { return area_; }
-        double& area()       { return area_; }
+        double area() const { return surface; }
 
         unsigned& index()       { return ind; }
         unsigned  index() const { return ind; }
@@ -112,11 +111,29 @@ namespace OpenMEEG {
 
         /// Change triangle orientation by flipping two of the vertices.
 
-        void change_orientation() { std::swap(vertices_[0],vertices_[1]); }
+        void change_orientation() {
+            std::swap(vertices[0],vertices[1]);
+            out_normal = -out_normal;
+        }
 
         /// Check for intersection with another triangle.
 
         bool intersects(const Triangle& triangle) const;
+
+        double solid_angle(const Vertex& V) const {
+            // De Munck formula.
+
+            const Vect3 rays[3] = { vertex(0)-V,              vertex(1)-V,              vertex(2)-V              }; 
+            const Vect3 dists   = { rays[0].norm(),           rays[1].norm(),           rays[2].norm()           };
+            const Vect3 prods   = { dotprod(rays[1],rays[2]), dotprod(rays[2],rays[0]), dotprod(rays[0],rays[1]) };
+
+            const double prod = dists[0]*dists[1]*dists[2];
+            const double d    = 2*area()*dotprod(rays[0],normal()); // Less expensive computation of det(rays[0],rays[1],rays[2]).
+
+            // prod+dotprod(dists,prods) = prod*(1+cos(a0)+cos(a1)+cos(a2)), where a0, a1 and a2 are the angles of the triangle (V0,V1,V2).
+
+            return (fabs(d)<1e-10) ? 0.0 : 2*atan2(d,prod+dotprod(dists,prods));
+        }
 
     private:
 
@@ -136,11 +153,15 @@ namespace OpenMEEG {
 
         static constexpr unsigned indices[3][2] = {{1,2},{2,0},{0,1}};
 
-        Vertex*  vertices_[3]; ///< &Vertex-triplet defining the triangle
-        double   area_ = 0.0;  ///< Area
-        Normal   normal_;      ///< Normal
-        unsigned ind;          ///< Index of the triangle
+        const Vertex* vertices[3];   ///< &Vertex-triplet defining the triangle
+        double        surface = 0.0; ///< Area
+        Normal        out_normal;    ///< Normal
+        unsigned      ind;           ///< Index of the triangle
     };
+
+    inline std::ostream& operator<<(std::ostream& os,const Triangle& T) {
+        return os << T.index() << ": " << T.vertex(0) << " | " << T.vertex(1) << " | " << T.vertex(2) << " -- " << T.area() << ' ' << T.normal() << std::endl;
+    }
 
     typedef std::vector<Triangle>  Triangles;
     typedef std::vector<Triangle*> TrianglesRefs;
