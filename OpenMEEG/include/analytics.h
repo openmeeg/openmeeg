@@ -78,7 +78,9 @@ namespace OpenMEEG {
     public:
 
         analyticD3(const Triangle& T):
-            triangle(T),D{ diff(1,0), diff(2,1), diff(0,2)}, U{ D[0].unit_vector(), D[1].unit_vector(), D[2].unit_vector() }
+            triangle(T),
+            D{ diff(1,0), diff(2,1), diff(0,2)},
+            U{ D[0].unit_vector(), D[1].unit_vector(), D[2].unit_vector() }
         { }
 
         Vect3 operator()(const Vect3& x) const {
@@ -88,12 +90,13 @@ namespace OpenMEEG {
             const Vect3 Z[3]     = { crossprod(rays[1],rays[2]), crossprod(rays[2],rays[0]), crossprod(rays[0],rays[1]) };
             const Vect3 prods    = { dotprod(rays[1],rays[2]),   dotprod(rays[2],rays[0]),   dotprod(rays[0],rays[1])   };
 
-            const Vect3& N = Z[0]+Z[1]+Z[2];
+            const Vect3& n = triangle.normal();
+            const double h = dotprod(rays[0],triangle.normal()); // Half the distance of x to the plane of the triangle.
+            const double d = 2*h*triangle.area();
 
-            // If the volume of the tetrahedron (x,p0,p1,p2) is too small just return 0.
+            // If the volume of the tetrahedron (x,p0,p1,p2), i.e. h is too small just return 0.
 
-            const double d = det(rays[0],rays[1],rays[2]);
-            if (fabs(d)<1e-10)
+            if (fabs(h)<1e-10)
                 return 0.0;
 
             Vect3 S;
@@ -102,16 +105,16 @@ namespace OpenMEEG {
                 S  += U[i]*log((dists[i1]+dotprod(rays[i1],U[i]))/(dists[i]+dotprod(rays[i],U[i])));
             }
 
-            // omega is just triangle.solid_angle(x).
+            // omega is just half of triangle.solid_angle(x).
             // We duplicated the code here because many quantities are needed for the rest of the computation.
 
             const double d1    = dists[0]*dists[1]*dists[2]+dotprod(dists,prods);
-            const double omega = 2*atan2(d,d1);
+            const double omega = atan2(d,d1);
 
-            const Vect3 E1(dotprod(Z[0],N),dotprod(Z[1],N),dotprod(Z[2],N));
+            const Vect3 E1(dotprod(Z[0],n),dotprod(Z[1],n),dotprod(Z[2],n));
             const Vect3 E2(dotprod(D[1],S),dotprod(D[2],S),dotprod(D[0],S));
 
-            return (omega*E1+d*E2)/N.norm2();
+            return (omega*E1+0.5*h*E2)/triangle.area();
         }
 
     private:
