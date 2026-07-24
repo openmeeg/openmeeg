@@ -123,14 +123,16 @@ namespace OpenMEEG {
         double solid_angle(const Vertex& V) const {
             // De Munck formula.
 
-            const Vect3& Y1 = vertex(0)-V;
-            const Vect3& Y2 = vertex(1)-V;
-            const Vect3& Y3 = vertex(2)-V;
-            const double y1 = Y1.norm();
-            const double y2 = Y2.norm();
-            const double y3 = Y3.norm();
-            const double d = det(Y1,Y2,Y3);
-            return (fabs(d)<1e-10) ? 0.0 : 2*atan2(d,(y1*y2*y3+y1*dotprod(Y2,Y3)+y2*dotprod(Y3,Y1)+y3*dotprod(Y1,Y2)));
+            const Vect3 rays[3] = { vertex(0)-V,              vertex(1)-V,              vertex(2)-V              }; 
+            const Vect3 dists   = { rays[0].norm(),           rays[1].norm(),           rays[2].norm()           };
+            const Vect3 prods   = { dotprod(rays[1],rays[2]), dotprod(rays[2],rays[0]), dotprod(rays[0],rays[1]) };
+
+            const double prod = dists[0]*dists[1]*dists[2];
+            const double d    = 2*area()*dotprod(rays[0],normal()); // Less expensive computation of det(rays[0],rays[1],rays[2]).
+
+            // prod+dotprod(dists,prods) = prod*(1+cos(a0)+cos(a1)+cos(a2)), where a0, a1 and a2 are the angles of the triangle (V0,V1,V2).
+
+            return (fabs(d)<1e-10) ? 0.0 : 2*atan2(d,prod+dotprod(dists,prods));
         }
 
     private:
