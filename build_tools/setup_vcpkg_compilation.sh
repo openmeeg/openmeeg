@@ -45,18 +45,23 @@ fi
 if [ ! -d vcpkg ]; then
     VCPKG_VERSION=$(cat build_tools/vcpkg_version.txt)
     echo "Getting vcpkg $VCPKG_VERSION..."
-    # TODO: To test libaec fix
-    # git clone https://github.com/Microsoft/vcpkg.git --depth=1
-    # cd vcpkg
-    # git fetch origin --tags
-    # git checkout $VCPKG_VERSION
-    git clone https://github.com/larsoner/vcpkg.git
+    git clone https://github.com/microsoft/vcpkg.git --depth=1 --branch $VCPKG_VERSION
     cd vcpkg
-    git checkout -b $VCPKG_VERSION origin/$VCPKG_VERSION
     ./bootstrap-vcpkg.sh
     cd ..
 fi
 cp -v ./build_tools/vcpkg_triplets/*.cmake vcpkg/triplets
+
+# Local port patches live in-tree as overlay ports rather than in a vcpkg fork,
+# so that upstream can stay pinned to a release tag and shallow-cloned above.
+VCPKG_OVERLAY_PORTS="${PWD}/build_tools/vcpkg_overlay_ports"
+if command -v cygpath &> /dev/null; then
+    # vcpkg.exe cannot parse MSYS-style paths, so always convert when available
+    VCPKG_OVERLAY_PORTS=$(cygpath -m "${VCPKG_OVERLAY_PORTS}")
+fi
+export VCPKG_OVERLAY_PORTS
+echo "Using VCPKG_OVERLAY_PORTS=\"$VCPKG_OVERLAY_PORTS\""
+test -f "${PWD}/build_tools/vcpkg_overlay_ports/libaec/portfile.cmake"
 export VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -73,6 +78,7 @@ if [[ "$GITHUB_ENV" != "" ]]; then
     echo "VCPKG_DEFAULT_HOST_TRIPLET=$VCPKG_DEFAULT_TRIPLET" >> $GITHUB_ENV
     echo "VCPKG_TRIPLET_OPT=$VCPKG_TRIPLET_OPT" >> $GITHUB_ENV
     echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
+    echo "VCPKG_OVERLAY_PORTS=$VCPKG_OVERLAY_PORTS" >> $GITHUB_ENV
     echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
     echo "STRIP_OPT=${STRIP_OPT}" >> $GITHUB_ENV
     echo "TOOLSET_OPT=${TOOLSET_OPT}" >> $GITHUB_ENV
