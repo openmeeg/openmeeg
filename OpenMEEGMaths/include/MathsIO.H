@@ -32,9 +32,13 @@ namespace OpenMEEG {
 
         private:
 
-            //  thread_local: a one-shot format override must not leak across threads.
+            //  thread_local, so a one-shot format override cannot leak across threads.
+            //  Kept behind functions defined in MathsIO.C rather than as static data
+            //  members: MSVC rejects thread storage duration on a dll-exported class
+            //  (C2492), and one definition keeps every module sharing one instance.
 
-            static thread_local IO DefaultIO;
+            static IO&   current_format();
+            static bool& current_format_is_permanent();
 
         public:
 
@@ -44,9 +48,7 @@ namespace OpenMEEG {
 
             static IOs& ios() { static IOs* ios = new IOs; return *ios; }
 
-            static IO default_io() { return DefaultIO; }
-
-            static thread_local bool permanent;
+            static IO default_io() { return current_format(); }
 
             const std::string& name() const { return file_name; }
 
@@ -55,15 +57,15 @@ namespace OpenMEEG {
             //  Handle the default io.
 
             static IO GetCurrentFormat() {
-                IO tmp = DefaultIO;
-                if (!permanent)
-                    DefaultIO = 0;
+                IO tmp = current_format();
+                if (!current_format_is_permanent())
+                    current_format() = 0;
                 return tmp;
             }
 
             static void SetCurrentFormat(IO io,const bool perm=false) {
-                DefaultIO = io;
-                permanent = perm;
+                current_format() = io;
+                current_format_is_permanent() = perm;
             }
 
             static const IO& format(const std::string&);

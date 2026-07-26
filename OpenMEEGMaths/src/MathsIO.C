@@ -31,8 +31,15 @@ namespace OpenMEEG {
             }
         }
 
-        thread_local MathsIO::IO MathsIO::DefaultIO = 0;
-        thread_local bool MathsIO::permanent = false;
+        MathsIO::IO& MathsIO::current_format() {
+            static thread_local IO io = 0;
+            return io;
+        }
+
+        bool& MathsIO::current_format_is_permanent() {
+            static thread_local bool perm = false;
+            return perm;
+        }
 
         const MathsIO::IO& MathsIO::format(const std::string& fmt) {
             for (const IO& io : ios())
