@@ -13,7 +13,7 @@ namespace OpenMEEG {
             static std::string
             ReadTag(std::istream& is) {
 
-                static char buffer[maxtagsize+1];
+                char buffer[maxtagsize+1]; // Not static: shared would corrupt concurrent readers.
 
                 try {
                     is.read(buffer,maxtagsize);
@@ -31,8 +31,8 @@ namespace OpenMEEG {
             }
         }
 
-        MathsIO::IO MathsIO::DefaultIO = 0;
-        bool MathsIO::permanent = false;
+        thread_local MathsIO::IO MathsIO::DefaultIO = 0;
+        thread_local bool MathsIO::permanent = false;
 
         const MathsIO::IO& MathsIO::format(const std::string& fmt) {
             for (const IO& io : ios())
@@ -62,16 +62,14 @@ namespace OpenMEEG {
 
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->identify(buffer)) {
-                    dio->setName(mio.name());
-                    dio->read(is,linop);
+                    dio->read(mio.name(),is,linop);
                     linop.default_io() = dio;
                     return mio;
                 }
             } else {
                 for (const maths::MathsIO::IO& io : MathsIO::ios())
                     if (io->identify(buffer)) {
-                        io->setName(mio.name());
-                        io->read(is,linop);
+                        io->read(mio.name(),is,linop);
                         linop.default_io() = io;
                         return mio;
                     }
@@ -87,15 +85,13 @@ namespace OpenMEEG {
 
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->known(linop)) {
-                    dio->setName(mio.name());
-                    dio->write(os,linop);
+                    dio->write(mio.name(),os,linop);
                     return mio;
                 }
             } else {
                 for (const maths::MathsIO::IO& io : MathsIO::ios())
                     if (io->known(linop)) {
-                        io->setName(mio.name());
-                        io->write(os,linop);
+                        io->write(mio.name(),os,linop);
                         return mio;
                     }
             }
@@ -111,14 +107,12 @@ namespace OpenMEEG {
 
             if (maths::MathsIO::IO dio = maths::MathsIO::default_io()) {
                 if (dio->identify(buffer)) {
-                    dio->setName(name);
-                    return dio->info(is);
+                    return dio->info(name,is);
                 }
             } else {
                 for (const maths::MathsIO::IO& io : MathsIO::ios())
                     if (io->identify(buffer)) {
-                        io->setName(name);
-                        return io->info(is);
+                        return io->info(name,is);
                     }
             }
             throw NoIO(name,NoIO::READ);

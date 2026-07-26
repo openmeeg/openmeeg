@@ -32,7 +32,9 @@ namespace OpenMEEG {
 
         private:
 
-            static IO DefaultIO;
+            //  thread_local: a one-shot format override must not leak across threads.
+
+            static thread_local IO DefaultIO;
 
         public:
 
@@ -44,11 +46,9 @@ namespace OpenMEEG {
 
             static IO default_io() { return DefaultIO; }
 
-            static bool permanent;
+            static thread_local bool permanent;
 
             const std::string& name() const { return file_name; }
-
-            void setName(const std::string& n) { file_name = n; }
 
             //  This is very similar with ImageIO, how to commonize it ?
 
@@ -107,10 +107,13 @@ namespace OpenMEEG {
             virtual bool identify(const std::string&) const = 0;
             virtual bool known(const LinOp&) const = 0;
 
-            virtual LinOpInfo info(std::ifstream&) const = 0;
+            //  Filename passed explicitly: ios() are singletons, so stashing it on
+            //  them via setName() races as soon as two threads do i/o.
 
-            virtual void read(std::ifstream&,LinOp&) const = 0;
-            virtual void write(std::ofstream&,const LinOp&) const = 0;
+            virtual LinOpInfo info(const std::string& filename,std::ifstream&) const = 0;
+
+            virtual void read(const std::string& filename,std::ifstream&,LinOp&) const = 0;
+            virtual void write(const std::string& filename,std::ofstream&,const LinOp&) const = 0;
 
             virtual bool known_suffix(const char* suffix)  const noexcept {
                 for (const std::string& str : suffixes())

@@ -9,6 +9,8 @@
 
 #include <matio.h>
 
+#include <mutex>
+
 #include <OMMathExceptions.H>
 #include "MathsIO.H"
 #include "sparse_matrix.h"
@@ -128,32 +130,37 @@ namespace OpenMEEG {
                 return st==LinOpInfo::FULL || st==LinOpInfo::SYMMETRIC || st==LinOpInfo::SPARSE;
             }
 
-            LinOpInfo info(std::ifstream& is) const {
+            LinOpInfo info(const std::string& filename,std::ifstream& is) const {
                 if (is.is_open())
                     is.close();
 
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
                 LinOpInfo linop;
-                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
+                mat_t* mat = Mat_Open(filename.c_str(),MAT_ACC_RDONLY);
                 if (mat) {
                     try { read_header<Vector>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<Matrix>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<SymMatrix>(mat,linop);    return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<SparseMatrix>(mat,linop); return finish(mat,linop); } catch(...) { }
                     Mat_Close(mat);
-                    throw ImpossibleObjectIdentification(name());
+                    throw ImpossibleObjectIdentification(filename);
                 } else {
-                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
+                    throw BadFileOpening(filename,maths::BadFileOpening::READ);
                 }
                 // We can never get here based on the above return/throw combinations
             }
 
-            void read(std::ifstream& is,LinOp& linop) const {
+            void read(const std::string& filename,std::ifstream& is,LinOp& linop) const {
                 if (is.is_open()) {
                     is.close();
                 }
-                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
+
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
+                mat_t* mat = Mat_Open(filename.c_str(),MAT_ACC_RDONLY);
                 if (!mat)
-                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
+                    throw BadFileOpening(filename,maths::BadFileOpening::READ);
 
                 if (linop.dimension()==1)
                     read<Vector>(mat,linop);
@@ -170,7 +177,7 @@ namespace OpenMEEG {
                             break;
                         default: {
                             Mat_Close(mat);
-                            throw BadStorageType(name());
+                            throw BadStorageType(filename);
                         }
                     }
                 }
@@ -178,14 +185,17 @@ namespace OpenMEEG {
                 Mat_Close(mat);
             }
 
-            void write(std::ofstream& os,const LinOp& linop) const {
+            void write(const std::string& filename,std::ofstream& os,const LinOp& linop) const {
                 if (os.is_open()) {
                     os.close();
-                    std::remove(name().c_str());
+                    std::remove(filename.c_str());
                 }
-                mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_MAT73);
+
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
+                mat_t* mat = Mat_CreateVer(filename.c_str(),NULL,MAT_FT_MAT73);
                 if (!mat)
-                    throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
+                    throw BadFileOpening(filename,maths::BadFileOpening::WRITE);
 
                 if (linop.dimension()==1)
                     write<Vector>(mat,linop);
@@ -201,7 +211,7 @@ namespace OpenMEEG {
                             write<Matrix>(mat,linop);
                             break;
                         default:
-                            throw BadStorageType(name());
+                            throw BadStorageType(filename);
                     }
                 }
 
@@ -209,6 +219,16 @@ namespace OpenMEEG {
             }
 
         private:
+
+            //  matio and HDF5 keep non-reentrant global state and are not built
+            //  thread-safe, so serialise every entry point. Also covers the static
+            //  scratch in details::helper<>.
+
+            static std::mutex& matio_mutex() {
+                static std::mutex m;
+                return m;
+            }
+
             #if MATIO_VERSION>=1527
             static void matiologfunc(int log_level,const char* message) {
             #else

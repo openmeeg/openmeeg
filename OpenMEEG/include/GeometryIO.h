@@ -71,7 +71,12 @@ namespace OpenMEEG {
 
         static Registery registery;
 
-        GeometryIO(const std::string& filename,const char* name): fname(filename) { registery.insert({ name, this }); }
+        //  Only prototypes register, see MeshIO.h.
+
+        GeometryIO(const std::string& filename,const char* name): fname(filename) {
+            if (filename.empty())
+                registery.insert({ name, this });
+        }
 
         std::string fname;
     };

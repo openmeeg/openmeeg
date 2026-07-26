@@ -32,14 +32,14 @@ namespace OpenMEEG {
                 return linop.storageType()==LinOp::FULL && linop.dimension()==2;
             }
 
-            LinOpInfo info(std::ifstream& is) const {
+            LinOpInfo info(const std::string&,std::ifstream& is) const {
                 Dimension nlin,ncol;
                 read_header(is,nlin,ncol);
                 is.seekg(0,std::ios_base::beg);
                 return LinOpInfo(nlin,ncol,LinOpInfo::FULL,2);
             }
 
-            void read(std::ifstream& is,LinOp& linop) const {
+            void read(const std::string&,std::ifstream& is,LinOp& linop) const {
                 Matrix& m = dynamic_cast<Matrix&>(linop);
                 read_header(is,m.nlin(),m.ncol());
                 if (linop.dimension()==1 && m.ncol()!=1)
@@ -60,7 +60,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(std::ofstream& os,const LinOp& linop) const {
+            void write(const std::string&,std::ofstream& os,const LinOp& linop) const {
                 const Matrix& m = dynamic_cast<const Matrix&>(linop);
 
                 os << "ascii" << std::endl << "FLOAT" << std::endl << static_cast<unsigned>(m.ncol()) << std::endl;
