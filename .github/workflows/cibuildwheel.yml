@@ -57,6 +57,10 @@ jobs:
         if: runner.os != 'Linux'
         with:
           key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
+      # Stays Linux-gated: wheel builds get hdf5 from the h5py manylinux image
+      # and build matio from source, so Linux never creates a vcpkg tree here.
+      # Caching it would only warn about non-existent paths. (The app workflow
+      # does use vcpkg on Linux, and caches it there.)
       - name: Cache vcpkg
         if: runner.os != 'Linux'
         uses: actions/cache@v6.1.0
@@ -64,7 +68,7 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-${{ matrix.arch }}-0
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}-${{ matrix.os }}-${{ matrix.arch }}-0
       - uses: pypa/cibuildwheel@v4.1.0
         with:
           package-dir: ./wrapping/python
