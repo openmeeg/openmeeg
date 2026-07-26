@@ -308,7 +308,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}
+        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}
 
     - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(steps.env-vars.outputs.os,'windows')
