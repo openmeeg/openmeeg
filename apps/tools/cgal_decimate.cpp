@@ -13,16 +13,16 @@
 
 using namespace OpenMEEG;
 
-int main(int argc, char **argv)
-{
-    command_usage("Decimate a mesh:");
-    const char * input_filename  = command_option("-i", (const char *) NULL,"Input image or mesh");
-    const int    nb_points       = command_option("-n", 1000,"desired output number of vertices");
-    const char * output_filename = command_option("-o", (const char *) NULL,"Output Mesh");
+int main(int argc,char **argv) {
 
-    Mesh m_in(input_filename, false);
+    command_usage("Decimate a mesh:");
+    const char* input_filename  = command_option("-i",(const char *) NULL,"Input image or mesh");
+    const int   nb_points       = command_option("-n",1000,"desired output number of vertices");
+    const char* output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
+
+    const Mesh m_in(input_filename,false);
     std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
-    Mesh m = cgal_decimate(m_in, nb_points);
+    const Mesh m = cgal_decimate(m_in,nb_points);
     m.info();
     m.save(output_filename);
 

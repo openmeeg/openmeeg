@@ -130,7 +130,7 @@ namespace OpenMEEG {
 
     /// Merge two meshes into one (without duplicating vertices).
 
-    void Mesh::merge(const Mesh& m1, const Mesh& m2) {
+    void Mesh::merge(const Mesh& m1,const Mesh& m2) {
         clear();
         geom->vertices().reserve(m1.vertices().size()+m2.vertices().size());
         add_mesh(m1);
@@ -209,10 +209,10 @@ namespace OpenMEEG {
 
         if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
             for (const auto& triangle1 : triangles()) {
-                A(triangle1.index(),triangle1.index()) = 0.;
+                A(triangle1.index(),triangle1.index()) = 0.0;
                 for (const auto& triangle2 : adjacent_triangles(triangle1))
                     if (triangle1.index()<triangle2->index()) // sym matrix only lower half
-                        A(triangle1.index(), triangle2->index()) += P0gradient_norm2(triangle1,*triangle2)*triangle1.area()*triangle2->area();
+                        A(triangle1.index(),triangle2->index()) += P0gradient_norm2(triangle1,*triangle2)*triangle1.area()*triangle2->area();
             }
     }
 

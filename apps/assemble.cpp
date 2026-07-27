@@ -23,12 +23,12 @@ using namespace OpenMEEG;
 
 void help(const char* cmd_name);
 
-int main(int argc, char** argv)
+int main(int argc,char** argv)
 {
     print_version(argv[0]);
 
     const CommandLine cmd(argc,argv,"Compute various head matrices [options] geometry");
-    const bool use_old_ordering = cmd.option("-old-ordering", false,"Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)");
+    const bool use_old_ordering = cmd.option("-old-ordering",false,"Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)");
 
     if (argc<2 || cmd.help_mode()) {
         help(argv[0]);
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 
         const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
 
-        const Sensors electrodes(opt_parms[3], geo); // special parameter for EIT electrodes: the interface
+        const Sensors electrodes(opt_parms[3],geo); // special parameter for EIT electrodes: the interface
         electrodes.info(); // <- just to test that function on the code coverage TODO this is not the place.
         const Matrix& EITsource = EITSourceMat(geo,electrodes);
         EITsource.save(opt_parms[4]);
@@ -303,7 +303,7 @@ int main(int argc, char** argv)
     }
 
     const auto& DS2IPMparms = { geomfileopt, condfileopt, dipolefileopt, pointsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm"},DS2IPMparms)) {
+    if (char** opt_parms = cmd.option({ "-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm" },DS2IPMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 

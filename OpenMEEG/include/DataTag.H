@@ -36,7 +36,7 @@ namespace Types {
         is >> io_utils::match_optional(tag.tag(),DataP);
 
         if (!DataP)
-            throw OpenMEEG::BadContent("data", tag.tag());
+            throw OpenMEEG::BadContent("data",tag.tag());
 
         return is;
     }

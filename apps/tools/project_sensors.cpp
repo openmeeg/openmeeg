@@ -41,7 +41,7 @@ main(int argc,char* argv[]) {
     Interface interface;
     interface.oriented_meshes().push_back(OrientedMesh(mesh,OrientedMesh::Normal)); // one mesh per interface, (well oriented)
 
-    Matrix output(sensors.getNumberOfPositions(), 3);
+    Matrix output(sensors.getNumberOfPositions(),3);
 
     const size_t nb_positions = sensors.getNumberOfPositions();
     for (size_t i=0; i<nb_positions; ++i) {
