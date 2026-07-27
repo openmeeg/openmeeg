@@ -40,6 +40,9 @@ PLATFORM=$(python -c "import platform; print(f'{platform.system()}-{platform.mac
 # PACKAGE_ARCH_SUFFIX keeps installer filenames distinct per arch, since the
 # release job in cibuildwheel_apps.yml merges every platform's artifacts into
 # one directory (Windows builds only one arch, so it needs no suffix).
+# BLAS_BACKEND is OpenBLAS everywhere except Darwin-arm64, which uses the
+# system Accelerate framework (nothing to download, nothing to vendor).
+BLAS_BACKEND="OpenBLAS"
 case "$PLATFORM" in
     Linux-x86_64)
         OS=linux
@@ -62,10 +65,11 @@ case "$PLATFORM" in
         ;;
     Darwin-arm64)
         OS=macos
-        VCPKG_TRIPLET="arm64-osx-release-110"
+        VCPKG_TRIPLET="arm64-osx-release-133"
         LIB_OUTPUT_DIR="$ROOT/install/lib"
-        MACOS_MIN_VER="11.0"
+        MACOS_MIN_VER="13.3"  # first release with Accelerate's modern BLAS/LAPACK
         PACKAGE_ARCH_SUFFIX="_M1"
+        BLAS_BACKEND="Accelerate"
         ;;
     Windows-AMD64)
         OS=windows
@@ -80,19 +84,23 @@ case "$PLATFORM" in
 esac
 echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" PLATFORM=\"${PLATFORM}\" to set up KIND=\"$KIND\""
 
-echo "::group::scipy-openblas32"
-# >=0.3.31 is required: 0.3.30.x and earlier shipped a lapacke.h whose symbols
-# were not SYMBOLPREFIX-mangled (OpenMathLib/OpenBLAS#5493, fixed upstream),
-# which used to have to be patched up with sed here.
-python -m pip install "scipy-openblas32>=0.3.31"
-OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
-OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas32/lib"
-OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")  # typically, "libscipy_openblas32"
-echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
-echo "OPENBLAS_LIB_DIR=\"$OPENBLAS_LIB_DIR\""
-ls -al "$OPENBLAS_INCLUDE" "$OPENBLAS_LIB_DIR"
-CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$OPENBLAS_LIB_DIR/cmake/openblas"
-echo "::endgroup::"
+if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+    echo "::group::scipy-openblas32"
+    # >=0.3.31 is required: 0.3.30.x and earlier shipped a lapacke.h whose symbols
+    # were not SYMBOLPREFIX-mangled (OpenMathLib/OpenBLAS#5493, fixed upstream),
+    # which used to have to be patched up with sed here.
+    python -m pip install "scipy-openblas32>=0.3.31"
+    OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
+    OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas32/lib"
+    OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")  # typically, "libscipy_openblas32"
+    echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
+    echo "OPENBLAS_LIB_DIR=\"$OPENBLAS_LIB_DIR\""
+    ls -al "$OPENBLAS_INCLUDE" "$OPENBLAS_LIB_DIR"
+    CMAKE_PREFIX_PATH_OPT="-DCMAKE_PREFIX_PATH=$OPENBLAS_LIB_DIR/cmake/openblas"
+    echo "::endgroup::"
+else
+    echo "Using system $BLAS_BACKEND, no BLAS/LAPACK to download"
+fi
 
 check_porcelain
 
@@ -163,8 +171,10 @@ else  # windows
 fi
 
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
-export BLA_IMPL="-DBLA_IMPLEMENTATION=OpenBLAS"  # cmake_configure.sh wants the whole flag
-export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
+export BLA_IMPL="-DBLA_IMPLEMENTATION=$BLAS_BACKEND"  # cmake_configure.sh wants the whole flag
+if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+    export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
+fi
 export WERROR_OPT="-DENABLE_WERROR=ON"
 if [[ "${KIND}" == "wheel" ]]; then
     APP_OPT="-DENABLE_APPS=OFF"
@@ -184,8 +194,10 @@ if [[ "$KIND" == "app" ]]; then
     cp -av build/OpenMEEG-*-*.* installers/
     echo "::endgroup::"
 fi
-cp -av "$OPENBLAS_INCLUDE" "$ROOT/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
-test -f "$ROOT/install/include/OpenBLAS/cblas.h"
+if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+    cp -av "$OPENBLAS_INCLUDE" "$ROOT/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
+    test -f "$ROOT/install/include/OpenBLAS/cblas.h"
+fi
 
 # Put DLLs where they can be found
 if [[ "$OS" == "linux" ]]; then
@@ -204,7 +216,9 @@ if [[ "$OS" == "linux" ]]; then
 elif [[ "$OS" == "macos" ]]; then
     if [[ "$KIND" == "wheel" ]]; then
         otool -L $LIB_OUTPUT_DIR/libOpenMEEG.*.dylib
-        cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
+        if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+            cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
+        fi
     else
         otool -L $ROOT/build/OpenMEEG/libOpenMEEG.*.dylib
     fi
