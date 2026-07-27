@@ -71,12 +71,10 @@ namespace OpenMEEG {
 
         static Registery registery;
 
-        //  Only prototypes register, see MeshIO.h.
+        struct Prototype { };  //  Only the prototypes register, see MeshIO.h.
 
-        GeometryIO(const std::string& filename,const char* name): fname(filename) {
-            if (filename.empty())
-                registery.insert({ name, this });
-        }
+        GeometryIO(Prototype,const char* name) { registery.insert({ name, this }); }
+        GeometryIO(const std::string& filename): fname(filename) { }
 
         std::string fname;
     };

@@ -130,37 +130,37 @@ namespace OpenMEEG {
                 return st==LinOpInfo::FULL || st==LinOpInfo::SYMMETRIC || st==LinOpInfo::SPARSE;
             }
 
-            LinOpInfo info(const std::string& filename,std::ifstream& is) const {
+            LinOpInfo info(std::ifstream& is) const {
                 if (is.is_open())
                     is.close();
 
                 const std::lock_guard<std::mutex> lock(matio_mutex());
 
                 LinOpInfo linop;
-                mat_t* mat = Mat_Open(filename.c_str(),MAT_ACC_RDONLY);
+                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
                     try { read_header<Vector>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<Matrix>(mat,linop);       return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<SymMatrix>(mat,linop);    return finish(mat,linop); } catch(...) { Mat_Rewind(mat); }
                     try { read_header<SparseMatrix>(mat,linop); return finish(mat,linop); } catch(...) { }
                     Mat_Close(mat);
-                    throw ImpossibleObjectIdentification(filename);
+                    throw ImpossibleObjectIdentification(name());
                 } else {
-                    throw BadFileOpening(filename,maths::BadFileOpening::READ);
+                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
                 }
                 // We can never get here based on the above return/throw combinations
             }
 
-            void read(const std::string& filename,std::ifstream& is,LinOp& linop) const {
+            void read(std::ifstream& is,LinOp& linop) const {
                 if (is.is_open()) {
                     is.close();
                 }
 
                 const std::lock_guard<std::mutex> lock(matio_mutex());
 
-                mat_t* mat = Mat_Open(filename.c_str(),MAT_ACC_RDONLY);
+                mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (!mat)
-                    throw BadFileOpening(filename,maths::BadFileOpening::READ);
+                    throw BadFileOpening(name(),maths::BadFileOpening::READ);
 
                 if (linop.dimension()==1)
                     read<Vector>(mat,linop);
@@ -177,7 +177,7 @@ namespace OpenMEEG {
                             break;
                         default: {
                             Mat_Close(mat);
-                            throw BadStorageType(filename);
+                            throw BadStorageType(name());
                         }
                     }
                 }
@@ -185,17 +185,17 @@ namespace OpenMEEG {
                 Mat_Close(mat);
             }
 
-            void write(const std::string& filename,std::ofstream& os,const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
                 if (os.is_open()) {
                     os.close();
-                    std::remove(filename.c_str());
+                    std::remove(name().c_str());
                 }
 
                 const std::lock_guard<std::mutex> lock(matio_mutex());
 
-                mat_t* mat = Mat_CreateVer(filename.c_str(),NULL,MAT_FT_MAT73);
+                mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_MAT73);
                 if (!mat)
-                    throw BadFileOpening(filename,maths::BadFileOpening::WRITE);
+                    throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
 
                 if (linop.dimension()==1)
                     write<Vector>(mat,linop);
@@ -211,7 +211,7 @@ namespace OpenMEEG {
                             write<Matrix>(mat,linop);
                             break;
                         default:
-                            throw BadStorageType(filename);
+                            throw BadStorageType(name());
                     }
                 }
 
@@ -255,9 +255,14 @@ namespace OpenMEEG {
                 std::cerr << error << message << std::endl;
             }
 
+            //  Only the prototype touches matio's global log hook.
+
             MatlabIO(): MathsIOBase(5) { Mat_LogInitFunc("OpenMEEG",matiologfunc); }
+            MatlabIO(const std::string& filename): MathsIOBase(filename) { }
 
             ~MatlabIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new MatlabIO(filename); }
 
             template <typename TYPE>
             matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const {

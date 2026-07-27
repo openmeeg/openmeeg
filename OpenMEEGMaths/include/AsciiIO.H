@@ -31,7 +31,7 @@ namespace OpenMEEG {
 
             bool known(const LinOp&) const { return true; }
 
-            LinOpInfo info(const std::string&,std::ifstream& is) const {
+            LinOpInfo info(std::ifstream& is) const {
                 is.clear();
                 is.seekg(0,std::ios::beg);
 
@@ -67,12 +67,12 @@ namespace OpenMEEG {
                 return linop;
             }
 
-            void read(const std::string& filename,std::ifstream& is,LinOp& linop) const {
+            void read(std::ifstream& is,LinOp& linop) const {
 
-                const LinOpInfo& inforead = info(filename,is);
+                const LinOpInfo& inforead = info(is);
 
                 if (linop.storageType()!=inforead.storageType())
-                    throw BadStorageType("AsciiIO reading of " + filename);
+                    throw BadStorageType("AsciiIO reading of " + name());
 
                 if (linop.dimension()!=inforead.dimension())
                     throw BadVector(inforead.ncol());
@@ -91,7 +91,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(const std::string&,std::ofstream& os,const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
                 switch (linop.storageType()) {
                     case LinOp::SPARSE :
                         write_sparse(os,linop);
@@ -110,7 +110,10 @@ namespace OpenMEEG {
         private:
 
             AsciiIO(): MathsIOBase(9) {}
+            AsciiIO(const std::string& filename): MathsIOBase(filename) {}
             ~AsciiIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new AsciiIO(filename); }
 
             static unsigned length(const std::string& line) {
                 std::stringstream buffer(line);

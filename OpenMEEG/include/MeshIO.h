@@ -90,13 +90,14 @@ namespace OpenMEEG {
 
         static Registery registery;
 
-        //  Only prototypes (empty filename) register; create() clones with a real one.
-        //  Keeps registery immutable after static init, so create() reads need no lock.
+        struct Prototype { };  //  Tag selecting the registering constructor.
 
-        MeshIO(const std::string& filename,const char* name): fname(filename) {
-            if (filename.empty())
-                registery.insert({ name, this });
-        }
+        //  Only the prototypes register; create() clones with a real file name. The
+        //  registery is therefore immutable after static initialisation, so create()
+        //  can read it from several threads without locking.
+
+        MeshIO(Prototype,const char* name) { registery.insert({ name, this }); }
+        MeshIO(const std::string& filename): fname(filename) { }
 
         std::string  fname;
         std::fstream fs;

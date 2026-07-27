@@ -31,7 +31,7 @@ namespace OpenMEEG {
                 \sa
             **/
 
-            LinOpInfo info(const std::string&,std::ifstream& is) const {
+            LinOpInfo info(std::ifstream& is) const {
 
                 //  Get the size of the file.
 
@@ -68,19 +68,19 @@ namespace OpenMEEG {
                 return linop;
             }
 
-            void read(const std::string& filename,std::ifstream& is,LinOp& linop) const {
-                const LinOpInfo& inforead = info(filename,is);
+            void read(std::ifstream& is,LinOp& linop) const {
+                const LinOpInfo& inforead = info(is);
 
                 if (linop.storageType()!=inforead.storageType()) {
                     std::ostringstream oss;
                     oss << "TrivialBinIO linop.storageType (" << linop.storageType()
                         << ") != inforead.storageType (" << inforead.storageType()
-                        << ") for file " << filename;
+                        << ") for file " << name();
                     throw BadStorageType(oss.str());
                 }
 
                 if (linop.dimension()!=inforead.dimension())
-                    throw BadStorageType("TrivialBinIO dimension during read of "+filename);
+                    throw BadStorageType("TrivialBinIO dimension during read of "+name());
 
                 linop.nlin() = inforead.nlin();
                 linop.ncol() = inforead.ncol();
@@ -104,7 +104,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(const std::string&,std::ofstream& os,const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
 
                 //  Write the header.
 
@@ -195,7 +195,10 @@ namespace OpenMEEG {
             }
 
             TrivialBinIO(): MathsIOBase(20) { }
+            TrivialBinIO(const std::string& filename): MathsIOBase(filename) { }
             ~TrivialBinIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new TrivialBinIO(filename); }
 
             static Suffixes init() {
                 Suffixes suffixes;

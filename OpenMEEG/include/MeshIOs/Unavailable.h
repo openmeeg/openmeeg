@@ -43,8 +43,11 @@ namespace OpenMEEG::MeshIOs {
 
     protected:
 
+        //  Unavailable formats only ever exist as prototypes: clone() below hands back
+        //  this same object after complaining, it never constructs a new one.
+
         Unavailable(const char* name,const char* extension,const char* cmake):
-            base("",extension),ioname(name),cmakevar(cmake)
+            base(Prototype{},extension),ioname(name),cmakevar(cmake)
         { }
 
     private:

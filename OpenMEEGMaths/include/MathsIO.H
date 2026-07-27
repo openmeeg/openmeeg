@@ -44,6 +44,7 @@ namespace OpenMEEG {
 
             MathsIO(const unsigned pr): priority(pr) { };
             MathsIO(const char* file): file_name(file),priority(0) { }
+            MathsIO(const std::string& file): file_name(file),priority(0) { }
             virtual ~MathsIO() {};
 
             static IOs& ios() { static IOs* ios = new IOs; return *ios; }
@@ -109,13 +110,16 @@ namespace OpenMEEG {
             virtual bool identify(const std::string&) const = 0;
             virtual bool known(const LinOp&) const = 0;
 
-            //  Filename passed explicitly: ios() are singletons, so stashing it on
-            //  them via setName() races as soon as two threads do i/o.
+            //  The registered ios() are prototypes shared by the whole process, so an
+            //  operation runs on a clone owning its own file name rather than mutating
+            //  the prototype, which would race as soon as two threads do i/o.
 
-            virtual LinOpInfo info(const std::string& filename,std::ifstream&) const = 0;
+            virtual MathsIOBase* clone(const std::string& filename) const = 0;
 
-            virtual void read(const std::string& filename,std::ifstream&,LinOp&) const = 0;
-            virtual void write(const std::string& filename,std::ofstream&,const LinOp&) const = 0;
+            virtual LinOpInfo info(std::ifstream&) const = 0;
+
+            virtual void read(std::ifstream&,LinOp&) const = 0;
+            virtual void write(std::ofstream&,const LinOp&) const = 0;
 
             virtual bool known_suffix(const char* suffix)  const noexcept {
                 for (const std::string& str : suffixes())
@@ -128,7 +132,10 @@ namespace OpenMEEG {
 
         protected:
 
+            //  Only the prototypes register; clones are made per operation by clone().
+
             MathsIOBase(const unsigned pr): MathsIO(pr) { base::ios().insert(this); }
+            MathsIOBase(const std::string& filename): MathsIO(filename) { }
             ~MathsIOBase() {};
         };
 

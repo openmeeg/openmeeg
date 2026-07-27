@@ -133,7 +133,9 @@ namespace OpenMEEG::MeshIOs {
 
     private:
 
-        Vtk(const std::string& filename=""): base(filename,"vtk") { }
+        Vtk(): base(Prototype{},"vtk") { }
+
+        Vtk(const std::string& filename): base(filename) { }
 
         #ifdef USE_VTK
         char*                        buffer = nullptr;
