@@ -10,7 +10,6 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == "" ]]; then
     export VCPKG_DEFAULT_TRIPLET="x64-windows-release"
 fi
 
-USE_CYPATH=1
 if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     # https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html#visual-studio-generators
     if [[ "$CMAKE_GENERATOR" == "" ]]; then  # assume we're using an old version
@@ -32,7 +31,6 @@ if [[ "$VCPKG_DEFAULT_TRIPLET" == 'x64-windows'* ]]; then
     export CMAKE_GENERATOR_PLATFORM="x64"
     export TOOLSET_OPT="-DCMAKE_GENERATOR_TOOLSET=$CMAKE_GENERATOR_TOOLSET"
 elif [[ "$VCPKG_DEFAULT_TRIPLET" == *'-osx'* ]] || [[ "$VCPKG_DEFAULT_TRIPLET" == *'-linux' ]]; then
-    USE_CYGPATH=0
     if [[ "$VCPKG_DEFAULT_TRIPLET" == 'arm64-linux' ]]; then
         # Environment variable VCPKG_FORCE_SYSTEM_BINARIES must be set on arm, s390x, ppc64le and riscv platforms.
         export VCPKG_FORCE_SYSTEM_BINARIES=1
@@ -67,10 +65,10 @@ export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$V
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
 export VCPKG_TRIPLET_OPT="-DVCPKG_TARGET_TRIPLET=${VCPKG_DEFAULT_TRIPLET}"
 
-if [[ "$USE_CYGPATH" == "1" ]]; then
-    export VCPKG_INSTALLED_DIR=$(cygpath -m "${VCPKG_INSTALLED_DIR}")
-    export CMAKE_TOOLCHAIN_FILE=$(cygpath -m "${CMAKE_TOOLCHAIN_FILE}")
-fi
+# NB: these are not cygpath-converted. On Windows they are only ever passed to
+# cmake on a bash command line, where MSYS rewrites POSIX paths to native form
+# automatically. VCPKG_OVERLAY_PORTS above is different: vcpkg.exe reads it
+# straight from the environment, which MSYS does not rewrite.
 
 if [[ "$GITHUB_ENV" != "" ]]; then
     echo "VCPKG_INSTALLED_DIR=$VCPKG_INSTALLED_DIR" >> $GITHUB_ENV
@@ -86,11 +84,7 @@ if [[ "$GITHUB_ENV" != "" ]]; then
     echo "CMAKE_GENERATOR=${CMAKE_GENERATOR}" >> $GITHUB_ENV
     echo "CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}" >> $GITHUB_ENV
 fi
-CMAKE_TOOLCHAIN_CHECK=$CMAKE_TOOLCHAIN_FILE
-if [[ "$USE_CYGPATH" == "1" ]]; then
-    CMAKE_TOOLCHAIN_CHECK=$(cygpath -m "${CMAKE_TOOLCHAIN_CHECK}")
-fi
-echo "Checking for CMAKE_TOOLCHAIN_FILE=\"$CMAKE_TOOLCHAIN_CHECK\""
-test -f "$CMAKE_TOOLCHAIN_CHECK"
+echo "Checking for CMAKE_TOOLCHAIN_FILE=\"$CMAKE_TOOLCHAIN_FILE\""
+test -f "$CMAKE_TOOLCHAIN_FILE"
 
 echo "::endgroup::"

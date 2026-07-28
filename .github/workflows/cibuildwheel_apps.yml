@@ -40,24 +40,27 @@ jobs:
             arch: arm64
 
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6.3.0  # to make before-all work properly
+      - uses: actions/setup-python@v7.0.0  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2.23
         if: runner.os != 'Linux'
         with:
           key: ${{ github.job }}-${{ matrix.os }}
+      # Linux included: app builds use vcpkg on every platform (see the KIND=app
+      # branch of cibw_before_all.sh), and on Linux vcpkg is bootstrapped inside
+      # the manylinux container, whose /project is this workspace -- so the tree
+      # it writes is what gets cached and restored here.
       - name: Cache vcpkg
-        if: runner.os != 'Linux'
         uses: actions/cache@v6.1.0
         with:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-0
+          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}-${{ matrix.os }}-0
       - uses: pypa/cibuildwheel@v4.1.0
         with:
           package-dir: ./wrapping/python
