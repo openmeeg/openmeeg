@@ -195,7 +195,10 @@ namespace OpenMEEG {
             }
 
             TrivialBinIO(): MathsIOBase(20) { }
+            TrivialBinIO(const std::string& filename): MathsIOBase(filename) { }
             ~TrivialBinIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new TrivialBinIO(filename); }
 
             static Suffixes init() {
                 Suffixes suffixes;

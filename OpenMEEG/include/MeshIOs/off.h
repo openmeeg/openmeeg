@@ -78,7 +78,9 @@ namespace OpenMEEG::MeshIOs {
 
     private:
 
-        Off(const std::string& filename=""): base(filename,"off") { }
+        Off(): base(Prototype{},"off") { }
+
+        Off(const std::string& filename): base(filename) { }
 
         static const Off prototype;
 

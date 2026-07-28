@@ -75,7 +75,10 @@ namespace OpenMEEG {
         private:
 
             BrainVisaTextureIO(): MathsIOBase(8) { }
+            BrainVisaTextureIO(const std::string& filename): MathsIOBase(filename) { }
             ~BrainVisaTextureIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new BrainVisaTextureIO(filename); }
 
             static void read_header(std::ifstream& is,Dimension& nlin,Dimension& ncol) {
                 is >> io_utils::match(MagicTag) >> io_utils::skip_line;

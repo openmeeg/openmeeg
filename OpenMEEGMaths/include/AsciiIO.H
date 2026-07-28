@@ -110,7 +110,10 @@ namespace OpenMEEG {
         private:
 
             AsciiIO(): MathsIOBase(9) {}
+            AsciiIO(const std::string& filename): MathsIOBase(filename) {}
             ~AsciiIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new AsciiIO(filename); }
 
             static unsigned length(const std::string& line) {
                 std::stringstream buffer(line);

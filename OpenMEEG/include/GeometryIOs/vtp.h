@@ -245,7 +245,9 @@ namespace OpenMEEG::GeometryIOs {
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 
-        Vtp(const std::string& filename=""): base(filename,"vtp") { }
+        Vtp(): base(Prototype{},"vtp") { }
+
+        Vtp(const std::string& filename): base(filename) { }
 
         static const Vtp prototype;
 
@@ -279,7 +281,9 @@ namespace OpenMEEG::GeometryIOs {
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 
-        Vtp(const std::string& filename=""): base(filename,"vtp") { }
+        Vtp(): base(Prototype{},"vtp") { }
+
+        Vtp(const std::string& filename): base(filename) { }
 
         static const Vtp prototype;
     };
