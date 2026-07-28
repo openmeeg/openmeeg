@@ -68,6 +68,19 @@ Additional repositories recommended on RHEL 7::
 
     $ subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
+Visualize a head model
+----------------------
+
+The Python wrappers ship an ``om_viz`` command that displays OpenMEEG head model
+files. It requires the optional plotting dependencies::
+
+    $ pip install "openmeeg[viz]"
+
+Pass it any combination of files, the content of each one is guessed from its
+extension (a ``.geom`` file additionally pulls in the meshes it references)::
+
+    $ om_viz Head1.geom Head1.dip Head1.squids
+
 Build OpenMEEG from source
 --------------------------
 
