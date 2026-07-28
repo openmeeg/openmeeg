@@ -67,13 +67,16 @@ namespace OpenMEEG {
 
         virtual GeometryIO* clone(const std::string& filename) const = 0;
 
-        typedef std::map<std::string,GeometryIO*> Registery;
+        typedef std::map<Extension,GeometryIO*> Registery;
 
         static Registery registery;
 
-        struct Prototype { };  //  Only the prototypes register, see MeshIO.h.
+        // The first constructor is only for prototypes in the registery.
+        // The second one is for cloning the prototype with an actual file name in create().
+        // The registery is therefore immutable after static initialisation, so create()
+        // can read it from several threads without locking.
 
-        GeometryIO(Prototype,const char* name) { registery.insert({ name, this }); }
+        explicit GeometryIO(const Extension extension) { registery.insert({ extension, this }); } 
         GeometryIO(const std::string& filename): fname(filename) { }
 
         std::string fname;

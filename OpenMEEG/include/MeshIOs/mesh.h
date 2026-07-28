@@ -159,7 +159,7 @@ namespace OpenMEEG::MeshIOs {
 
         bool binary() const override { return true; }
 
-        Mesh(): base(Prototype{},"mesh") { }
+        Mesh(): base(Extension("mesh")) { }
 
         Mesh(const std::string& filename): base(filename) { }
 

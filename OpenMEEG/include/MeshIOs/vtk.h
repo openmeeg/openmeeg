@@ -133,7 +133,7 @@ namespace OpenMEEG::MeshIOs {
 
     private:
 
-        Vtk(): base(Prototype{},"vtk") { }
+        Vtk(): base(Extension("vtk")) { }
 
         Vtk(const std::string& filename): base(filename) { }
 
