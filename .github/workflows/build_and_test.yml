@@ -210,6 +210,12 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
+    - name: Enable debug NPZ collection (branch-specific)
+      if: github.ref == 'refs/heads/debug/arm-npz-upload'
+      run: |
+        echo "OPENMEEG_DEBUG=1" | tee -a $GITHUB_ENV
+        echo "OPENMEEG_DEBUG_DIR=$GITHUB_WORKSPACE/debug_npz" | tee -a $GITHUB_ENV
+
     - run: sudo apt update -q
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       timeout-minutes: 10
@@ -625,6 +631,13 @@ jobs:
           export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
         ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+
+    - name: Upload debug NPZ artifacts
+      if: github.ref == 'refs/heads/debug/arm-npz-upload' && (success() || failure())
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-npz
+        path: ${{ github.workspace }}/debug_npz/*.npz
 
     - name: Prepare coverage
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')

@@ -1,0 +1,29 @@
+name: Upload debug NPZ
+
+on:
+  push:
+    branches:
+      - debug/arm-npz-upload
+  workflow_dispatch:
+
+jobs:
+  upload-debug-npz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: List debug directory (if present)
+        run: |
+          echo "Workspace: $GITHUB_WORKSPACE"
+          if [ -d "$GITHUB_WORKSPACE/debug_npz" ]; then
+            ls -la "$GITHUB_WORKSPACE/debug_npz" || true
+          else
+            echo "No debug_npz directory found"
+          fi
+
+      - name: Upload debug NPZ artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-npz
+          path: debug_npz/*.npz
