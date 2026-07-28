@@ -126,6 +126,8 @@ namespace OpenMEEG {
         const Vect3     U[3];
     };
 
+    // P1 integral of the normal component of the gradient of the potential.
+
     class OPENMEEG_EXPORT analyticDipPotDer {
     public:
 
