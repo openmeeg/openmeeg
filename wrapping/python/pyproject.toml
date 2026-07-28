@@ -33,6 +33,15 @@ dependencies = [
     "numpy",
 ]
 
+[project.optional-dependencies]
+viz = [
+    "pyvista",
+    "pyvistaqt",
+]
+
+[project.scripts]
+om_viz = "openmeeg._viz:main"
+
 [project.urls]
 Homepage = "http://openmeeg.github.io"
 Download = "http://github.com/openmeeg/openmeeg"
