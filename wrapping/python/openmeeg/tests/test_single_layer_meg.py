@@ -17,6 +17,10 @@ import pytest
 from numpy.testing import assert_array_less
 
 import openmeeg as om
+import sys
+import platform
+import os
+import shutil
 
 MAG_FACTOR = 1e-7  # mu_0 / (4 * pi)
 
@@ -164,11 +168,81 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
 
     # Three shells (brain/skull/scalp); only the inner one is used for 1 layer.
     meshes = [_icosphere(2, radius * f) for f in (1.0, 1.1, 1.2)][:n_layers]
-    gain = _om_meg_gain(meshes, conductivity, dipoles, squids)
+
+    # Compute using the same steps as _om_meg_gain but keep intermediates for debug
+    geom = om.make_nested_geometry(meshes, conductivity=conductivity)
+    integrator = om.Integrator(3, 0, 0.005)
+    hmat = om.HeadMat(geom, integrator)
+    hminv = hmat.inverse()
+    dip = om.Matrix(np.asfortranarray(dipoles))
+    dsm = om.DipSourceMat(geom, dip, integrator, "Brain")
+    sensors = om.Sensors(str(squids))
+    h2mm = om.Head2MEGMat(geom, sensors)
+    ds2mm = om.DipSource2MEGMat(dip, sensors)
+    gain = om.GainMEG(hminv, dsm, h2mm, ds2mm).array()
 
     rdm, mag = _rdm_mag(gain, ref)
-    # A wrong-sign or missing secondary term (cf. issue #577) blows RDM up well
-    # past this; a correct forward on this mesh gives RDM ~1e-3.
+
+    # Debugging output on macOS/arm to track down platform-specific discrepancy
+    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith("arm")
+    if IS_MAC_ARM or os.environ.get("OPENMEEG_DEBUG", ""):
+        np.set_printoptions(precision=8, suppress=True, linewidth=200)
+        print("=== DEBUG: test_meg_sphere_vs_sarvas ===")
+        print("platform:", platform.platform(), "machine:", platform.machine())
+        print("python:", sys.version.splitlines()[0])
+        print("numpy:", np.__version__, "openmeeg:", getattr(om, "__version__", "unknown"))
+        print("ref.shape:", ref.shape, "gain.shape:", gain.shape)
+        print("gain.dtype:", getattr(gain, "dtype", None), "ref.dtype:", getattr(ref, "dtype", None))
+        print("rdm (per dipole):", rdm)
+        print("mag (per dipole):", mag)
+        diffs = gain - ref
+        max_abs_per_dip = np.max(np.abs(diffs), axis=0)
+        print("max abs difference per dipole:", max_abs_per_dip)
+        worst_dip = int(np.argmax(max_abs_per_dip))
+        worst_sensor = int(np.argmax(np.abs(diffs[:, worst_dip])))
+        print(
+            "worst dipole index:", worst_dip,
+            "max abs:", max_abs_per_dip[worst_dip],
+            "worst sensor index:", worst_sensor,
+            "value diff:", diffs[worst_sensor, worst_dip],
+        )
+        # Try to get numeric HeadMat inverse if the binding exposes .array()
+        try:
+            hminv_arr = hminv.array()
+        except Exception:
+            hminv_arr = None
+        if hminv_arr is not None:
+            try:
+                cond = np.linalg.cond(hminv_arr)
+            except Exception as e:
+                cond = f"cond-failed:{e}"
+            print("HeadMat inverse shape:", hminv_arr.shape, "cond:", cond)
+        # Save a compact dump for offline inspection
+        dumpfile = tmp_path / f"debug_meg_sphere_{n_layers}_layers.npz"
+        np.savez_compressed(
+            dumpfile,
+            ref=ref,
+            gain=gain,
+            rdm=rdm,
+            mag=mag,
+            dipoles=dipoles,
+            spos=spos,
+            diffs=diffs,
+        )
+        print("Saved debug NPZ to", dumpfile)
+
+        # If runner requested a shared debug dir, also copy there for artifact upload
+        debug_dir = os.environ.get("OPENMEEG_DEBUG_DIR")
+        if debug_dir:
+            os.makedirs(debug_dir, exist_ok=True)
+            target = os.path.join(debug_dir, os.path.basename(str(dumpfile)))
+            try:
+                shutil.copy(str(dumpfile), target)
+                print("Copied debug NPZ to", target)
+            except Exception as e:
+                print("Failed to copy debug NPZ to debug dir:", e)
+
+    # Run the standard assertions (keeps test failing so CI shows the error)
     assert_array_less(rdm, 0.02)
     assert_array_less(np.abs(mag - 1.0), 0.02)
 
@@ -197,7 +271,36 @@ def test_meg_sphere_radial_dipole_is_silent(tmp_path):
         for p, o in zip(spos, sori):
             fid.write("%g %g %g %g %g %g\n" % (*p, *o))
 
-    gain = _om_meg_gain([_icosphere(2, radius)], (0.3,), dipoles, squids)
+    geom = om.make_nested_geometry([_icosphere(2, radius)], conductivity=(0.3,))
+    integrator = om.Integrator(3, 0, 0.005)
+    hminv = om.HeadMat(geom, integrator).inverse()
+    dip = om.Matrix(np.asfortranarray(dipoles))
+    dsm = om.DipSourceMat(geom, dip, integrator, "Brain")
+    sensors = om.Sensors(str(squids))
+    h2mm = om.Head2MEGMat(geom, sensors)
+    ds2mm = om.DipSource2MEGMat(dip, sensors)
+    gain = om.GainMEG(hminv, dsm, h2mm, ds2mm).array()
+
     radial_norm = np.linalg.norm(gain[:, 0])
     tangential_norm = np.linalg.norm(gain[:, 1])
+
+    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith("arm")
+    if IS_MAC_ARM or os.environ.get("OPENMEEG_DEBUG", ""):
+        print("=== DEBUG: test_meg_sphere_radial_dipole_is_silent ===")
+        print("platform:", platform.platform(), "machine:", platform.machine())
+        print("radial_norm:", radial_norm, "tangential_norm:", tangential_norm)
+        print("ratio radial/tangential:", radial_norm / (tangential_norm + 1e-30))
+        dumpfile = tmp_path / "debug_meg_radial.npz"
+        np.savez_compressed(dumpfile, gain=gain, dipoles=dipoles, radial_norm=radial_norm, tangential_norm=tangential_norm)
+        print("Saved debug NPZ to", dumpfile)
+        debug_dir = os.environ.get("OPENMEEG_DEBUG_DIR")
+        if debug_dir:
+            os.makedirs(debug_dir, exist_ok=True)
+            target = os.path.join(debug_dir, os.path.basename(str(dumpfile)))
+            try:
+                shutil.copy(str(dumpfile), target)
+                print("Copied debug NPZ to", target)
+            except Exception as e:
+                print("Failed to copy debug NPZ to debug dir:", e)
+
     assert radial_norm < 0.02 * tangential_norm
