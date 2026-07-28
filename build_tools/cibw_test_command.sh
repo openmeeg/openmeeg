@@ -11,5 +11,6 @@ python -m threadpoolctl -i numpy
 python -m threadpoolctl -i openmeeg
 pwd
 pytest --tb=short -ra -m "not slow" -vv --pyargs openmeeg
+om_viz --help  # check that the om_viz entry point is actually installed
 # Smoke test for https://github.com/swig/swig/issues/3061
 PYTHONFAULTHANDLER=1 PYTHONWARNINGS=error python -uc "import openmeeg"

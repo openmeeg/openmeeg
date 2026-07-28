@@ -123,7 +123,16 @@ jobs:
         shell: bash
       - run: pip install -v pytest dist/*.whl
         shell: bash
+      # Only exercise the om_viz plotting path on one runner, it is heavy
+      - name: Install viz dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: pip install pyvista pyvistaqt PyQt6
+      - uses: pyvista/setup-headless-display-action@v4
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          qt: true
       - run: pytest -m "not slow" --pyargs openmeeg
+      - run: om_viz --help
 
   upload_pypi:
     name: Upload to PyPI
