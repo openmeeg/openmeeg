@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <iostream>
 #include <NullStream.h>
 
@@ -17,7 +18,9 @@ namespace OpenMEEG {
     class Logger {
     public:
 
-        Logger() { }
+        //  DEBUG is what the previously uninitialised, zero-initialised singleton got.
+
+        Logger(): verbosity(DEBUG) { }
 
         void set_info_level(const InfoLevel level) { verbosity = level; }
 
@@ -32,12 +35,14 @@ namespace OpenMEEG {
 
     private:
 
-        InfoLevel verbosity;
+        std::atomic<InfoLevel> verbosity; // set_info_level() can race with logging.
     };
 
     inline std::ostream&
     log_stream(const InfoLevel level) {
-        static NullStream<char> nullstream;
+        //  thread_local: callers write to it, so a shared streambuf would race.
+
+        static thread_local NullStream<char> nullstream;
         if (level==WARNING && Logger::logger().is_verbose(level))
             std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
                       << "!!!!!!!!!!! WARNING !!!!!!!!!!!" << std::endl
