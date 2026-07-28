@@ -18,7 +18,7 @@
 
 namespace OpenMEEG {
 
-    double dist_point_cell(const Vect3&,const Triangle&,Vect3&, bool&);
+    double dist_point_cell(const Vect3&,const Triangle&,Vect3&,bool&);
     OPENMEEG_EXPORT std::tuple<double,const Triangle&,const Mesh&>  dist_point_interface(const Vect3&,const Interface&,Vect3&);
     OPENMEEG_EXPORT std::tuple<double,const Triangle&,const Mesh&,const Interface&> dist_point_geom(const Vect3&,const Geometry&,Vect3&);
 }

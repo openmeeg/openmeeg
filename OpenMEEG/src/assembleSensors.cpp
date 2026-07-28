@@ -103,7 +103,7 @@ namespace OpenMEEG {
 
         const Matrix& positions    = sensors.getPositions();
         const Matrix& orientations = sensors.getOrientations();
-        const unsigned nsquids = positions.nlin();
+        const unsigned nsquids     = positions.nlin();
 
         Matrix mat(nsquids,sources_mesh.vertices().size());
         mat.set(0.0);

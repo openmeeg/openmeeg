@@ -130,7 +130,7 @@ The steps are roughly:
           using the `Windows VM dev images <https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/>`__.
 
 For dependencies on Windows, we make use of ``vcpkg``. The default generator
-is ``"Visual Studio 15 2017"``, if you would like to use 2019 then set::
+is ``"Visual Studio 17 2022"``, if you would like to use 2019 then set::
 
     $ export CMAKE_GENERATOR="Visual Studio 16 2019"
 
@@ -139,12 +139,11 @@ root, run::
 
     $ source ./build_tools/setup_vcpkg_compilation.sh
 
-Then you need MKL or OpenBLAS. The easiest way to get this is to use our
-OpenBLAS download script (which will download to ``$PWD/openblas/64``) and set
-an envs var to tell ``cmake`` how to interface with it and how to find the DLL
-in the compiled library::
+Then you need MKL or OpenBLAS. The easiest way to get this is to use ``brew`` on macOS,
+``apt`` or similar on Linux, and download precompiled OpenBLAS binaries on Windows
+from using ``tools/download_openblas_windows.sh``::
 
-    $ ./build_tools/download_openblas.sh
+    $ ./build_tools/download_openblas_windows.sh
     $ export CMAKE_PREFIX_PATH=$(cygpath -m $PWD/openblas/64)
     $ export CMAKE_CXX_FLAGS="-I$(cygpath -m $PWD/openblas/64/include)"
     $ export PATH=$PATH:$PWD/openblas/64/lib
@@ -191,7 +190,7 @@ Optional build variables
 ^^^^^^^^^^^^^^^^^^^^^^^^
 You will need to define more CMake variables if you want the support for:
 
-`-DENABLE_PYTHON=ON`` (Python >= 3.9 is required)
+`-DENABLE_PYTHON=ON`` (Python >= 3.10 is required)
     Enable Python wrapping (automatically enabled by cmake_configure.sh)
 `-DUSE_VTK=ON`
     VTK file format support.

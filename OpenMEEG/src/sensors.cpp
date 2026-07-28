@@ -8,7 +8,6 @@
 #include <sensors.h>
 
 #include <algorithm>
-#include <ciso646>
 #include <iterator>     // std::distance
 #include <vector>
 #include <stack>
@@ -145,7 +144,7 @@ namespace OpenMEEG {
 
     void Sensors::save(const char* filename) const {
         std::ofstream outfile(filename);
-        for(size_t i=0; i<getNumberOfPositions(); ++i) {
+        for (size_t i=0; i<getNumberOfPositions(); ++i) {
 
             if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
@@ -219,7 +218,7 @@ namespace OpenMEEG {
             }
             m_triangles.push_back(triangles);
         }
-        for(size_t i=0;i<ci_mesh_names.size();++i)
+        for (size_t i=0; i<ci_mesh_names.size(); ++i)
             std::cout << ci_triangles[i] << " points have been mapped to mesh " << ci_mesh_names[i] << std::endl;
     }
 
@@ -237,7 +236,7 @@ namespace OpenMEEG {
 
         if (hasOrientations()) {
             std::cout << "Orientations" << std::endl;
-            for(size_t i = 0; i<nb_to_display; ++i) {
+            for (size_t i=0; i<nb_to_display; ++i) {
                 for (size_t j=0; j<m_orientations.ncol(); ++j)
                     std::cout << m_orientations(i,j) << " ";
                 std::cout << std::endl;

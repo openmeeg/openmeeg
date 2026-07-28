@@ -4,7 +4,7 @@
 
 option(USE_OPENMP "Use OpenMP (if available)"  ON)
 
-if(CMAKE_CXX_COMPILER_LOADED)
+if (CMAKE_CXX_COMPILER_LOADED)
      message(STATUS "Compiler path: ${CMAKE_CXX_COMPILER}")
      message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
      message(STATUS "Compiler version:

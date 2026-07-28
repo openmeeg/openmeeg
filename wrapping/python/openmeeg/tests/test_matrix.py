@@ -61,3 +61,9 @@ def test_matrix():
     mat = om.Matrix(np.zeros((2, 2)).T)  # okay
     with pytest.raises(IndexError, match="out of range"):
         mat.value(2, 2)
+
+    # A dtype that cannot be cast to double must raise a nice exception
+    # instead of crashing (the cast used to fail silently and dereference a
+    # null pointer).
+    with pytest.raises(ValueError, match="cannot be converted"):
+        om.Matrix(np.zeros((2, 2), dtype=complex))

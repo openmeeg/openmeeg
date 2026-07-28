@@ -63,7 +63,7 @@ namespace OpenMEEG {
 
     protected:
 
-        typedef std::map<std::string,MeshIO*> Registery;
+        typedef std::map<Extension,MeshIO*> Registery;
 
         class VertexIndices {
         public:
@@ -90,7 +90,13 @@ namespace OpenMEEG {
 
         static Registery registery;
 
-        MeshIO(const std::string& filename,const char* name): fname(filename) { registery.insert({ name, this }); }
+        // The first constructor is only for prototypes in the registery.
+        // The second one is for cloning the prototype with an actual file name in create().
+        // The registery is therefore immutable after static initialisation, so create()
+        // can read it from several threads without locking.
+
+        explicit MeshIO(const Extension extension) { registery.insert({ extension, this }); }
+        MeshIO(const std::string& filename): fname(filename) { }
 
         std::string  fname;
         std::fstream fs;

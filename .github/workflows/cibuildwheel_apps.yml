@@ -1,7 +1,7 @@
 # This CI run builds wheels using the cibuildwheel infrastructure
 # to build the C++ binaries (with no Python wrappers).
 
-name: installers
+name: cibuildwheel-apps
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -22,69 +22,72 @@ env:
 # https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
 jobs:
   apps:
-    continue-on-error: false
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         include:
-        - os: ubuntu-20.04
-        - os: macos-11
-          archs_macos: "x86_64"
-        - os: macos-11
-          archs_macos: "arm64"
-        - os: windows-2019
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-15-intel
+            arch: x86_64
+          - os: macos-latest
+            arch: arm64
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7.0.0  # to make before-all work properly
         with:
           python-version: '3.10'
-      - uses: hendrikmuhs/ccache-action@v1.2
-        if: matrix.os != 'ubuntu-20.04'
+      - uses: hendrikmuhs/ccache-action@v1.2.23
+        if: runner.os != 'Linux'
         with:
-          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.archs_macos }}
+          key: ${{ github.job }}-${{ matrix.os }}
+      # Linux included: app builds use vcpkg on every platform (see the KIND=app
+      # branch of cibw_before_all.sh), and on Linux vcpkg is bootstrapped inside
+      # the manylinux container, whose /project is this workspace -- so the tree
+      # it writes is what gets cached and restored here.
       - name: Cache vcpkg
-        if: matrix.os != 'ubuntu-20.04'
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}-${{ matrix.os }}-${{ matrix.archs_macos }}-0
-      # cibuildwheel@2.11.2 okay, @2.11.3 bad b/c of quay.io/pypa/manylinux_2_28_x86_64:2022-11-27-b2d7fda
-      # "libOpenMEEGMaths.so.1: ELF load command address/offset not properly aligned"
-      # so use the last known good image below
-      - uses: pypa/cibuildwheel@v2.17.0
+          key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}-${{ matrix.os }}-0
+      - uses: pypa/cibuildwheel@v4.1.0
         with:
           package-dir: ./wrapping/python
           output-dir: installers
         env:
-          CIBW_ARCHS_MACOS: "${{matrix.archs_macos}}"
-          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_28_x86_64:2022-10-25-fbea779"
-          CIBW_ENVIRONMENT_LINUX: "RUNNER_OS=Linux"
-          CIBW_ENVIRONMENT_MACOS: "OPENMEEG_MACOS_WHEEL_PURE=false"
+          CIBW_ENVIRONMENT_LINUX: ""
+          CIBW_ENVIRONMENT_MACOS: ""
           CIBW_ENVIRONMENT_WINDOWS: ""
-          CIBW_BUILD: "cp310-*"
+          CIBW_BUILD: "cp310-*"  # same as default, but just in case we add PyPy in the future
           CIBW_BUILD_FRONTEND: "pip"
-          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all_apps.sh {project}"
-          CIBW_BEFORE_BUILD_WINDOWS: ""
+          CIBW_BEFORE_ALL: "bash {project}/build_tools/cibw_before_all.sh {project} app"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
           CIBW_TEST_COMMAND: "bash {project}/build_tools/cibw_test_command_apps.sh {project}"
-      - uses: actions/upload-artifact@v4
+          CIBW_ARCHS: ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
         with:
           path: |
             ./installers/OpenMEEG-*.tar.gz
-          name: OpenMEEG-installers-${{ matrix.os }}-${{ matrix.archs_macos }}
+          name: OpenMEEG-installers-${{ matrix.os }}
 
   release:
     needs: [apps]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           merge-multiple: true
       - name: Set vars
@@ -114,7 +117,7 @@ jobs:
           done
       # https://github.com/ncipollo/release-action
       # https://github.com/softprops/action-gh-release
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3.0.2
         if: github.ref_type == 'tag' || github.event_name != 'pull_request'
         with:
           draft: true

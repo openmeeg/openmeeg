@@ -41,7 +41,7 @@ namespace OpenMEEG::GeometryIOs {
         /// \brief load a VTK\\vtp file \param filename into a mesh. Optionally read some associated data in matrix \param data if \param READ_DATA is true.
 
         void load_meshes(Geometry& geometry) override {
-            vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+            vtkNew<vtkXMLPolyDataReader> reader;
             reader->SetFileName(fname.c_str());
             reader->Update();
 
@@ -180,7 +180,7 @@ namespace OpenMEEG::GeometryIOs {
             vtkSmartPointer<vtkUnsignedIntArray> cell_indices = vtkSmartPointer<vtkUnsignedIntArray>::New(); // indices
             cell_indices->SetName("Indices");
 
-            for(const auto& mesh : geometry.meshes())
+            for (const auto& mesh : geometry.meshes())
                 for (const auto& triangle: mesh.triangles()) {
                     const vtkIdType vtktriangle[3] = { map[&(triangle.vertex(0))], map[&(triangle.vertex(1))], map[&(triangle.vertex(2))] };
                     cells->InsertNextCell(3,vtktriangle);
@@ -203,7 +203,7 @@ namespace OpenMEEG::GeometryIOs {
             std::vector<vtkSmartPointer<vtkDoubleArray>> potentials(data.ncol()); // potential on vertices
             std::vector<vtkSmartPointer<vtkDoubleArray>> currents(data.ncol()); // current on triangles
 
-            for (unsigned j = 0; j < data.ncol(); ++j) {
+            for (unsigned j=0; j<data.ncol(); ++j) {
                 std::stringstream sdip;
                 sdip << j;
 
@@ -216,12 +216,12 @@ namespace OpenMEEG::GeometryIOs {
                 for (const auto& vertex : geometry.vertices())
                     potentials[j]->InsertNextValue(data(vertex.index(),j));
 
-                for(const auto& mesh : geometry.meshes())
+                for (const auto& mesh : geometry.meshes())
                     for (const auto& triangle: mesh.triangles())
                         currents[j]->InsertNextValue(((mesh.outermost() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
             }
 
-            for (unsigned j=0;j<data.ncol();++j) {
+            for (unsigned j=0; j<data.ncol(); ++j) {
                 vtkMesh->GetPointData()->AddArray(potentials[j]);
                 vtkMesh->GetCellData()->AddArray(currents[j]);
             }
@@ -245,7 +245,9 @@ namespace OpenMEEG::GeometryIOs {
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 
-        Vtp(const std::string& filename=""): base(filename,"vtp") { }
+        Vtp(): base(Extension("vtp")) { }
+
+        Vtp(const std::string& filename): base(filename) { }
 
         static const Vtp prototype;
 
@@ -279,7 +281,9 @@ namespace OpenMEEG::GeometryIOs {
 
         GeometryIO* clone(const std::string& filename) const override { return new Vtp(filename); }
 
-        Vtp(const std::string& filename=""): base(filename,"vtp") { }
+        Vtp(): base(Extension("vtp")) { }
+
+        Vtp(const std::string& filename): base(filename) { }
 
         static const Vtp prototype;
     };

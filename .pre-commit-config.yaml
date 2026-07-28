@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
     -   id: check-yaml
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.1
+    rev: v0.16.0
     hooks:
-      - id: ruff
+      - id: ruff-check
         name: ruff lint
         args: ["--fix", "--config=wrapping/python/pyproject.toml"]
       - id: ruff-format

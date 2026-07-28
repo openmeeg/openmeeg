@@ -1,22 +1,3 @@
-###########################################
-# CAVEAT on using OpenMEEG from python !!
-# Beware that a temporary object has its memory
-# released. So do not work with data provided from
-# an OpenMEEG temporary object.
-# For example, having a symmetric matrix defined as :
-# > M = om.SymMatrix(100)
-#
-# TODO:
-# taking as an numpy array the sub-matrix of M might lead to corrupted memory:
-# > mySubMat = om.asarray(M.submat(0,10,0,10))
-# since submat returns a newly created object that is hold by nothing, thus
-# destroyed afterward.
-# ENDTODO
-# Instead do keep an object pointing the newly created submatrix, and then
-# access the numpy array form of it:
-# > subM = M.submat(0,10,0,10)
-# > mySubMat = om.asarray(subM)
-###########################################
 import os
 import os.path as op
 import shutil

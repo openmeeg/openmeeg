@@ -136,7 +136,9 @@ namespace OpenMEEG::MeshIOs {
 
         MeshIO* clone(const std::string& filename) const override { return new Gifti(filename); }
 
-        Gifti(const std::string& filename=""): base(filename,"gii") { }
+        Gifti(): base(Extension("gii")) { }
+
+        Gifti(const std::string& filename): base(filename) { }
 
         template <typename T>
         void read_pts(const void* data,Geometry& geom) {
@@ -168,7 +170,7 @@ namespace OpenMEEG::MeshIOs {
 #else
     struct OPENMEEG_EXPORT Gifti: public Unavailable {
 
-        Gifti(const std::string& /* filename */=""): Unavailable("GIFTI","gii","USE_GIFTI") { }
+        Gifti(): Unavailable("GIFTI","gii","USE_GIFTI") { }
 
         static const Gifti prototype;
     };

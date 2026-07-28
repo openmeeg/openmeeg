@@ -30,7 +30,7 @@ main(int argc,char* argv[]) {
     }
 
     Mesh m(input_filename);
-    m.smooth(smoothing_intensity, niter);
+    m.smooth(smoothing_intensity,niter);
     std::cout << "Smoothing done !" << std::endl;
     m.info();
     m.save(output_filename);

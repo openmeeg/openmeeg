@@ -159,7 +159,7 @@ def make_nested_geometry(meshes, conductivity):
     """
     if not isinstance(meshes, list) or len(meshes) not in [1, 3]:
         raise ValueError(
-            "Wrong argument (should be a list of 1 or 3 meshes). " f"Got {type(meshes)}"
+            f"Wrong argument (should be a list of 1 or 3 meshes). Got {type(meshes)}"
         )
 
     if len(meshes) == 3:

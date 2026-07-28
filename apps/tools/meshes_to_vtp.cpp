@@ -18,7 +18,7 @@ param(const char* base,const unsigned n) {
     return res.str();
 }
 
-int main( int argc, char **argv) {
+int main( int argc,char **argv) {
 
     print_version(argv[0]);
 

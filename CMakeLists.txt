@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 3.14)
-project (OpenMEEG VERSION 2.5.9999 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 17)  # use c++17
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.31")
+    cmake_policy(SET CMP0174 NEW)  # empty values different from not defined
+endif()
+
+project (OpenMEEG VERSION 2.5.16 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 23)  # use c++23 so that #warning remains portable
 
 set(OpenMEEG_HEADER_INSTALLDIR include) # XXX I don't know why this should be here
 

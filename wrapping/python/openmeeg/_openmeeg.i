@@ -1,6 +1,8 @@
 %module(docstring="OpenMEEG bindings for python") openmeeg
 
-%feature("autodoc", "1");
+// TODO: Should use modern macros https://numpy.org/doc/stable/reference/swig.interface-file.html#macros
+
+%feature("autodoc","1");
 
 %inline %{
 
@@ -129,7 +131,7 @@
 namespace std {
     // std::vector<Mesh> cannot be handled similarly because swig assumes a copy constructor.
     %template(vector_int) vector<int>;
-    %template(vector_unsigned) vector<unsigned int>;
+    %template(vector_unsigned) vector<unsigned>;
     %template(vector_double) vector<double>;
     %template(vector_vertex) vector<OpenMEEG::Vertex>;
     %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
@@ -200,7 +202,16 @@ namespace OpenMEEG {
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
         if (pyobj && PyArray_Check(pyobj)) {
-            PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+            // Force a native-byte-order, contiguous double array: the
+            // Vector below references the raw buffer directly (no
+            // element-wise copy), so a non-contiguous input (e.g. a
+            // strided slice) would otherwise be silently misread.
+            PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(
+                PyArray_FROM_OTF(pyobj,NPY_DOUBLE,NPY_ARRAY_IN_ARRAY));
+            if (vect==nullptr)
+                throw Error(SWIG_ValueError,"Vector cannot be converted into an array of double.");
+            if (PyArray_NDIM(vect)!=1)
+                throw Error(SWIG_ValueError,"Vector must be a 1 dimensional array.");
             const size_t nelem = PyArray_DIM(vect,0);
             OpenMEEG::Vector* v = new Vector(nelem);
             v->reference_data(static_cast<double*>(PyArray_GETPTR1(vect,0)));
@@ -212,7 +223,7 @@ namespace OpenMEEG {
 
         void* ptr = 0 ;
         if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Vector,SWIG_POINTER_EXCEPTION)))
-            throw Error(SWIG_TypeError, "Input object is neither a PyArray nor a Vector.");
+            throw Error(SWIG_TypeError,"Input object is neither a PyArray nor a Vector.");
 
         return new Vector(*(reinterpret_cast<OpenMEEG::Vector*>(ptr)),DEEP_COPY);
     }
@@ -223,12 +234,14 @@ namespace OpenMEEG {
         if (pyobj && PyArray_Check(pyobj)) {
             const int nbdims = PyArray_NDIM(reinterpret_cast<PyArrayObject*>(pyobj));
             if (nbdims!=2)
-                throw Error(SWIG_TypeError, "Matrix can only have 2 dimensions.");
+                throw Error(SWIG_TypeError,"Matrix can only have 2 dimensions.");
 
             PyArrayObject* mat = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,2,2));
+            if (mat==nullptr)
+                throw Error(SWIG_ValueError,"Matrix cannot be converted into an array of double.");
 
             if (!PyArray_ISFARRAY(mat))
-                throw Error(SWIG_TypeError, "Matrix requires the use of Fortran order.");
+                throw Error(SWIG_TypeError,"Matrix requires the use of Fortran order.");
 
             const size_t nblines = PyArray_DIM(mat,0);
             const size_t nbcol   = PyArray_DIM(mat,1);
@@ -242,7 +255,7 @@ namespace OpenMEEG {
 
         void* ptr = 0;
         if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_EXCEPTION)))
-            throw Error(SWIG_TypeError, "Input object must be a PyArray or an OpenMEEG Matrix.");
+            throw Error(SWIG_TypeError,"Input object must be a PyArray or an OpenMEEG Matrix.");
 
         return new Matrix(*(reinterpret_cast<OpenMEEG::Matrix*>(ptr)));
     }
@@ -251,12 +264,14 @@ namespace OpenMEEG {
         if (pyobj && PyArray_Check(pyobj)) {
             const int nbdims = PyArray_NDIM(reinterpret_cast<PyArrayObject*>(pyobj));
             if (nbdims!=1)
-                throw Error(SWIG_TypeError, "SymMatrix are stored as 1 dimensional arrays.");
+                throw Error(SWIG_TypeError,"SymMatrix are stored as 1 dimensional arrays.");
 
             PyArrayObject* mat = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+            if (mat==nullptr)
+                throw Error(SWIG_ValueError,"SymMatrix cannot be converted into an array of double.");
 
             if (!PyArray_ISFARRAY(mat))
-                throw Error(SWIG_TypeError, "SymMatrixMatrix requires the use of Fortran order.");
+                throw Error(SWIG_TypeError,"SymMatrixMatrix requires the use of Fortran order.");
 
             const size_t size = PyArray_DIM(mat,0);
             const size_t nblines = round((-1 + sqrt(1+8*size))/2);
@@ -270,7 +285,7 @@ namespace OpenMEEG {
 
         void* ptr = 0;
         if (!SWIG_IsOK(SWIG_ConvertPtr(pyobj,&ptr,SWIGTYPE_p_OpenMEEG__Matrix,SWIG_POINTER_EXCEPTION)))
-            throw Error(SWIG_TypeError, "Input object must be a PyArray or an OpenMEEG Matrix.");
+            throw Error(SWIG_TypeError,"Input object must be a PyArray or an OpenMEEG Matrix.");
 
         return new SymMatrix(*(reinterpret_cast<OpenMEEG::SymMatrix*>(ptr)));
     }
@@ -290,7 +305,7 @@ namespace OpenMEEG {
 
         IndexMap indmap;
         const size_t num_vertices = PyArray_DIM(array,0);
-        for (unsigned int i=0; i<num_vertices; ++i) {
+        for (unsigned i=0; i<num_vertices; ++i) {
             const double x = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,0));
             const double y = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,1));
             const double z = *reinterpret_cast<double*>(PyArray_GETPTR2(array,i,2));
@@ -304,49 +319,67 @@ namespace OpenMEEG {
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Matrix of triangles should be an array.");
 
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(pyobj);
-        if (PyArray_SIZE(array)==0) {
+        PyArrayObject* orig_array = reinterpret_cast<PyArrayObject*>(pyobj);
+        if (PyArray_SIZE(orig_array)==0) {
             std::ostringstream oss;
             oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
             throw Error(SWIG_ValueError,oss.str().c_str());
         }
-        const PyArray_Descr* descr = PyArray_DESCR(array);
+        const PyArray_Descr* descr = PyArray_DESCR(orig_array);
         const int type_num = descr->type_num;
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
             !PyArray_EquivTypenums(type_num,NPY_INT64) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
             std::ostringstream oss;
-            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << PyDataType_ELSIZE(descr) << "'";
-            throw Error(SWIG_TypeError, oss.str().c_str());
+            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << PyArray_ITEMSIZE(orig_array) << "'";
+            throw Error(SWIG_TypeError,oss.str().c_str());
         }
 
-        const size_t ndims = PyArray_NDIM(array);
+        const size_t ndims = PyArray_NDIM(orig_array);
         if (ndims!=2)
             throw Error(SWIG_TypeError,"Matrix of triangles must be a 2 dimensional array.");
 
-        const size_t nbTriangles  = PyArray_DIM(array,0);
-        if (PyArray_DIM(array,1)!=3)
+        const size_t nbTriangles  = PyArray_DIM(orig_array,0);
+        if (PyArray_DIM(orig_array,1)!=3)
             throw Error(SWIG_TypeError,"Matrix of triangles requires exactly 3 columns, standing for indices of 3 vertices.");
 
-        mesh->reference_vertices(indmap);
+        // Canonicalize to a native-byte-order, contiguous int64 array so
+        // that the raw buffer below can be read safely regardless of the
+        // original dtype's byte order or itemsize (e.g. big-endian int32,
+        // see gh-817). PyArray_FROM_OTF performs an actual value-preserving
+        // cast (not a reinterpretation), so byte-swapped inputs are handled
+        // correctly; it returns the same object (refcounted) when the input
+        // already satisfies these requirements.
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(
+            PyArray_FROM_OTF(pyobj,NPY_INT64,NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST));
+        if (array==nullptr)
+            throw Error(SWIG_ValueError,"Matrix of triangles cannot be converted to a matrix of int64.");
 
-        auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
-            const unsigned vi = *reinterpret_cast<unsigned*>(PyArray_GETPTR2(mat,i,j));
-            if (vi>=indmap.size()) {
-                std::ostringstream oss;
-                oss << "Vertex index " << vi << " in triangle " << i << " out of range";
-                throw Error(SWIG_ValueError,oss.str().c_str());
+        try {
+            mesh->reference_vertices(indmap);
+
+            auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
+                const npy_int64 vi = *reinterpret_cast<npy_int64*>(PyArray_GETPTR2(mat,i,j));
+                if (vi<0 || static_cast<size_t>(vi)>=indmap.size()) {
+                    std::ostringstream oss;
+                    oss << "Vertex index " << vi << " in triangle " << i << " out of range";
+                    throw Error(SWIG_ValueError,oss.str().c_str());
+                }
+                return &(mesh->geometry().vertices().at(indmap.at(vi)));
+            };
+
+            for (int unsigned i=0; i<nbTriangles; ++i) {
+                Vertex* v1 = get_vertex(array,i,0);
+                Vertex* v2 = get_vertex(array,i,1);
+                Vertex* v3 = get_vertex(array,i,2);
+                mesh->triangles().push_back(Triangle(v1,v2,v3));
             }
-            return &(mesh->geometry().vertices().at(indmap.at(vi)));
-        };
-
-        for (int unsigned i=0; i<nbTriangles; ++i) {
-            Vertex* v1 = get_vertex(array,i,0);
-            Vertex* v2 = get_vertex(array,i,1);
-            Vertex* v3 = get_vertex(array,i,2);
-            mesh->triangles().push_back(Triangle(v1,v2,v3));
+        } catch (...) {
+            Py_DECREF(array);
+            throw;
         }
+        Py_DECREF(array);
     }
 %}
 
@@ -357,8 +390,21 @@ namespace OpenMEEG {
 namespace OpenMEEG {
 
     // Python -> C++
+    //
+    // These conversions run as part of SWIG's argument marshaling, which
+    // happens *before* the %exception-wrapped call to the underlying C++
+    // function. Any C++ exception thrown here (e.g. wrong dtype/shape,
+    // non-Fortran-order matrix) must therefore be caught and translated
+    // into a Python exception here directly -- otherwise it escapes
+    // uncaught and aborts the whole process (see gh-584).
     %typemap(in) Vector& {
-        $1 = new_OpenMEEG_Vector($input);
+        try {
+            $1 = new_OpenMEEG_Vector($input);
+        } catch (const Error& e) {
+            SWIG_exception_fail(e.type(),e.message().c_str());
+        } catch (const std::exception& e) {
+            SWIG_exception_fail(SWIG_RuntimeError,e.what());
+        }
     }
 
     %typemap(freearg) Vector& {
@@ -366,7 +412,13 @@ namespace OpenMEEG {
     }
 
     %typemap(in) Matrix& {
-        $1 = new_OpenMEEG_Matrix($input);
+        try {
+            $1 = new_OpenMEEG_Matrix($input);
+        } catch (const Error& e) {
+            SWIG_exception_fail(e.type(),e.message().c_str());
+        } catch (const std::exception& e) {
+            SWIG_exception_fail(SWIG_RuntimeError,e.what());
+        }
     }
 
     %typemap(freearg) Matrix& {
@@ -442,11 +494,11 @@ namespace OpenMEEG {
 
     // Setters
 
-    void setvalue(const unsigned int i,const double d) { (*($self))(i) = d; }
+    void setvalue(const unsigned i,const double d) { (*($self))(i) = d; }
 
-    double value(unsigned int i) {
+    double value(unsigned i) {
         if (i>=($self)->size())
-            throw Error(SWIG_IndexError, "Index out of range");
+            throw Error(SWIG_IndexError,"Index out of range");
         return (*($self))(i);
     }
 }
@@ -485,11 +537,11 @@ namespace OpenMEEG {
         return PyArray_Return(array);
     }
 
-    void setvalue(const unsigned int i,const unsigned int j,const double d) { (*($self))(i,j) = d; }
+    void setvalue(const unsigned i,const unsigned j,const double d) { (*($self))(i,j) = d; }
 
-    double value(const unsigned int i,const unsigned int j) {
+    double value(const unsigned i,const unsigned j) {
         if ((i>=($self)->nlin()) || (j>=($self)->ncol()))
-            throw Error(SWIG_IndexError, "i or j out of range");
+            throw Error(SWIG_IndexError,"i or j out of range");
         return (*($self))(i,j);
     }
 }
@@ -511,11 +563,11 @@ namespace OpenMEEG {
         return PyArray_Return(array);
     }
 
-    void setvalue(const unsigned int i,const unsigned int j,const double d) { (*($self))(i,j) = d; }
+    void setvalue(const unsigned i,const unsigned j,const double d) { (*($self))(i,j) = d; }
 
-    double value(const unsigned int i,const unsigned int j) {
+    double value(const unsigned i,const unsigned j) {
         if ((i>=($self)->nlin()) || (j>=($self)->ncol()))
-            throw Error(SWIG_IndexError, "i or j out of range");
+            throw Error(SWIG_IndexError,"i or j out of range");
         return (*($self))(i,j);
     }
 }
@@ -545,20 +597,20 @@ namespace OpenMEEG {
     Geometry(PyObject* pylist) {
 
         if (pylist==nullptr || !PyList_Check(pylist))
-            throw Error(SWIG_TypeError, "Argument to Geometry constructor must be a list");
+            throw Error(SWIG_TypeError,"Argument to Geometry constructor must be a list");
 
         //  Add vertices of all meshes.
 
         const unsigned N = PyList_Size(pylist);
         if (N==0)
-            throw Error(SWIG_ValueError, "Argument to Geometry constructor must be a non-empty list");
+            throw Error(SWIG_ValueError,"Argument to Geometry constructor must be a non-empty list");
         OpenMEEG::Geometry* geometry = new OpenMEEG::Geometry(N);
 
         std::vector<OpenMEEG::IndexMap> indmap(N);
         for (unsigned i=0; i<N; ++i) {
             PyObject* item = PyList_GetItem(pylist,i);
             if (item==nullptr || !PyList_Check(item) || PyList_Size(item)!=3)
-                throw Error(SWIG_TypeError, "Geometry constructor argument must be a list of lists, each of length 3");
+                throw Error(SWIG_TypeError,"Geometry constructor argument must be a list of lists, each of length 3");
             PyObject* vertices = PyList_GetItem(item,1);
             indmap[i] = geom_add_vertices(geometry,vertices);
         }
@@ -569,8 +621,8 @@ namespace OpenMEEG {
             PyObject* item = PyList_GetItem(pylist,i);
             PyObject* name = PyList_GetItem(item,0);
             if (name==nullptr || !PyUnicode_Check(name))
-                throw Error(SWIG_TypeError, "Geometry constructor list of lists must each have first entry a non-empty string.");
-            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8(name));
+                throw Error(SWIG_TypeError,"Geometry constructor list of lists must each have first entry a non-empty string.");
+            Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8AndSize(name,nullptr));  // Since 3.10
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
             mesh.update(true);

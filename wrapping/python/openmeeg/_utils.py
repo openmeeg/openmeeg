@@ -20,7 +20,7 @@ def set_log_level(level):
     """
     if not isinstance(level, str) or level not in _warn_map:
         raise ValueError(
-            f"Unknown level {repr(level)}, must be one of " f"{list(_warn_map)}"
+            f"Unknown level {repr(level)}, must be one of {list(_warn_map)}"
         )
     Logger.logger().set_info_level(_warn_map[level])
 

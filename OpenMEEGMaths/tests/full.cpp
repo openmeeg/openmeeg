@@ -74,12 +74,12 @@ int main () {
 
     // SVD (wikipedia example)
     M1 = Matrix(4,5); M1.set(0.0);
-    M1(0, 0) = 1; M1(0, 4) = 2;
-    M1(1, 2) = 3; M1(3, 1) = 4;
+    M1(0,0) = 1; M1(0,4) = 2;
+    M1(1,2) = 3; M1(3,1) = 4;
 
-    Matrix U, W;
+    Matrix U,W;
     SparseMatrix S;
-    M1.svd(U, S, W);
+    M1.svd(U,S,W);
     std::cout << "SVD: M1 = U * S * W' " << std::endl;
     Matrix zero = M1 - U*S*W;
     if (zero.frobenius_norm()>eps) {
@@ -97,8 +97,8 @@ int main () {
 
     // PseudoInverse
     M1.set(0.0);
-    M1(0, 0) = 1; M1(0, 4) = 2;
-    M1(1, 2) = 3; M1(3, 1) = 4;
+    M1(0,0) = 1; M1(0,4) = 2;
+    M1(1,2) = 3; M1(3,1) = 4;
     Matrix M1pinv = M1.pinverse();
     zero.set(0.);
     zero = M1*M1pinv*M1-M1;

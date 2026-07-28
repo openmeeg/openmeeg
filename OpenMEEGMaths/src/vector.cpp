@@ -115,7 +115,7 @@ namespace OpenMEEG {
     void Vector::load(const char* filename) {
         maths::ifstream ifs(filename);
         try {
-            ifs >> maths::format(filename, maths::format::FromSuffix) >> *this;
+            ifs >> maths::format(filename,maths::format::FromSuffix) >> *this;
         }
         catch (maths::Exception&) {
             ifs >> *this;
@@ -141,8 +141,8 @@ namespace OpenMEEG {
         const BLAS_INT sz = sizet_to_int(size());
         DGER(sz,sz,1.0,data(),1,v.data(),1,A.data(),sz);
     #else
-        for(Index j=0; j<nlin(); ++j)
-            for(Index i=0; i<nlin(); ++i)
+        for (Index j=0; j<nlin(); ++j)
+            for (Index i=0; i<nlin(); ++i)
                 A(i,j) = v(i)*(*this)(j);
     #endif
         return A;

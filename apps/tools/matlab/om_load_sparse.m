@@ -32,7 +32,7 @@ switch format
         else
             data_raw = load(filename,'-mat');
         end
-        if isfield(data_raw, 'matrix')
+        if isfield(data_raw,'matrix')
             data = sparse(data_raw.matrix);
         end
         clear data_raw;
@@ -51,8 +51,8 @@ switch format
         fclose(file);
     case 'ascii'
         file = fopen(filename,'r');
-        dims = fscanf(file, '%d',2);
-        data = fscanf(file, '%f %f %f');
+        dims = fscanf(file,'%d',2);
+        data = fscanf(file,'%f %f %f');
         data = reshape(data,3,[])';
         data = sparse(data(:,1)+1,data(:,2)+1,data(:,3),dims(1),dims(2));
         fclose(file);

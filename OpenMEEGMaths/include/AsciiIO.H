@@ -72,7 +72,7 @@ namespace OpenMEEG {
                 const LinOpInfo& inforead = info(is);
 
                 if (linop.storageType()!=inforead.storageType())
-                    throw BadStorageType("AsciiIO reading of " + name());
+                    throw BadStorageType("AsciiIO reading of "+name());
 
                 if (linop.dimension()!=inforead.dimension())
                     throw BadVector(inforead.ncol());
@@ -91,7 +91,7 @@ namespace OpenMEEG {
                 }
             }
 
-            void write(std::ofstream& os, const LinOp& linop) const {
+            void write(std::ofstream& os,const LinOp& linop) const {
                 switch (linop.storageType()) {
                     case LinOp::SPARSE :
                         write_sparse(os,linop);
@@ -110,7 +110,10 @@ namespace OpenMEEG {
         private:
 
             AsciiIO(): MathsIOBase(9) {}
+            AsciiIO(const std::string& filename): MathsIOBase(filename) {}
             ~AsciiIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new AsciiIO(filename); }
 
             static unsigned length(const std::string& line) {
                 std::stringstream buffer(line);
@@ -159,7 +162,7 @@ namespace OpenMEEG {
                 std::string line;
 
                 // Start by reading dimensions
-                std::getline(is, line, '\n');
+                std::getline(is,line,'\n');
                 std::stringstream buffer(line);
 
                 SparseMatrix& m = dynamic_cast<SparseMatrix&>(linop);
@@ -167,7 +170,7 @@ namespace OpenMEEG {
                 buffer >> m.nlin();
                 buffer >> m.ncol();
 
-                while (std::getline(is, line, '\n')) {
+                while (std::getline(is,line,'\n')) {
                     std::stringstream buff(line);
                     size_t i,j;
                     buff >> i >> j;
@@ -190,7 +193,7 @@ namespace OpenMEEG {
                     Vector& v = dynamic_cast<Vector&>(linop);
                     v.alloc_data();
 
-                    for (size_t i=0;i<v.nlin();++i) {
+                    for (size_t i=0; i<v.nlin(); ++i) {
                         std::getline(is,line,'\n');
                         std::stringstream buffer(line);
                         buffer >> v(i);
@@ -201,10 +204,10 @@ namespace OpenMEEG {
                     Matrix& m = dynamic_cast<Matrix&>(linop);
                     m.alloc_data();
 
-                    for (size_t i=0;i<m.nlin();++i) {
+                    for (size_t i=0; i<m.nlin(); ++i) {
                         std::getline(is,line,'\n');
                         std::stringstream buffer(line);
-                        for (size_t j=0;j<m.ncol();++j)
+                        for (size_t j=0; j<m.ncol(); ++j)
                             buffer >> m(i,j);
                         if (buffer.fail())
                             throw BadData(identity()+" matrix");
@@ -222,44 +225,42 @@ namespace OpenMEEG {
                 is.seekg(0,std::ios::beg);
 
                 std::string line;
-                for (size_t i=0;i<m.nlin();++i) {
+                for (size_t i=0; i<m.nlin(); ++i) {
                     std::getline(is,line,'\n');
                     std::stringstream buffer(line);
-                    for (size_t j=i;j<m.ncol();++j)
+                    for (size_t j=i; j<m.ncol(); ++j)
                         buffer >> m(i,j);
                     if (buffer.fail())
                         throw BadData(identity()+" symmetric matrix");
                 }
             }
 
-            void write_sparse(std::ofstream& os, const LinOp& linop) const {
+            void write_sparse(std::ofstream& os,const LinOp& linop) const {
                 const SparseMatrix& spm = dynamic_cast<const SparseMatrix&>(linop);
-                SparseMatrix::const_iterator it;
                 os << spm.nlin() << " " << spm.ncol() << std::endl;
-                for(it = spm.begin(); it != spm.end(); ++it) {
-                    size_t i = it->first.first;
-                    size_t j = it->first.second;
-                    double val = it->second;
-                    os << i << " " << j << " " << val << std::endl;
+                for (const auto& [index,value] : spm) {
+                    const size_t i = index.first;
+                    const size_t j = index.second;
+                    os << i << " " << j << " " << value << std::endl;
                 }
             }
 
-            void write_symmetric(std::ofstream& os, const LinOp& linop) const {
+            void write_symmetric(std::ofstream& os,const LinOp& linop) const {
                 const SymMatrix& m = dynamic_cast<const SymMatrix&>(linop);
-                for (size_t i=0;i<m.nlin();++i)
-                    for (size_t j=i;j<m.ncol();++j)
+                for (size_t i=0; i<m.nlin(); ++i)
+                    for (size_t j=i; j<m.ncol(); ++j)
                         os << m(i,j) << ((j!=m.ncol()-1) ? "\t" : "\n");
             }
 
-            void write_full(std::ofstream& os, const LinOp& linop) const {
+            void write_full(std::ofstream& os,const LinOp& linop) const {
                 if (linop.dimension()==1) {
                     const Vector& v = dynamic_cast<const Vector&>(linop);
-                    for (size_t i=0;i<v.nlin();++i)
+                    for (size_t i=0; i<v.nlin(); ++i)
                         os << v(i) << std::endl;
                 } else {
                     const Matrix& m = dynamic_cast<const Matrix&>(linop);
-                    for (size_t i=0;i<m.nlin();++i)
-                        for (size_t j=0;j<m.ncol();++j)
+                    for (size_t i=0; i<m.nlin(); ++i)
+                        for (size_t j=0; j<m.ncol(); ++j)
                             os << m(i,j) << ((j!=m.ncol()-1) ? "\t" : "\n");
                 }
             }
