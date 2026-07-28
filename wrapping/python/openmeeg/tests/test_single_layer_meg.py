@@ -12,15 +12,16 @@ meshes, whose coarse/inward-normal triangulation makes the 1-layer near-field
 cancellation needlessly hard to resolve.
 """
 
+import os
+import platform
+import shutil
+import sys
+
 import numpy as np
 import pytest
 from numpy.testing import assert_array_less
 
 import openmeeg as om
-import sys
-import platform
-import os
-import shutil
 
 MAG_FACTOR = 1e-7  # mu_0 / (4 * pi)
 
@@ -184,15 +185,24 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
     rdm, mag = _rdm_mag(gain, ref)
 
     # Debugging output on macOS/arm to track down platform-specific discrepancy
-    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith("arm")
+    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith(
+        "arm"
+    )
     if IS_MAC_ARM or os.environ.get("OPENMEEG_DEBUG", ""):
         np.set_printoptions(precision=8, suppress=True, linewidth=200)
         print("=== DEBUG: test_meg_sphere_vs_sarvas ===")
         print("platform:", platform.platform(), "machine:", platform.machine())
         print("python:", sys.version.splitlines()[0])
-        print("numpy:", np.__version__, "openmeeg:", getattr(om, "__version__", "unknown"))
+        print(
+            "numpy:", np.__version__, "openmeeg:", getattr(om, "__version__", "unknown")
+        )
         print("ref.shape:", ref.shape, "gain.shape:", gain.shape)
-        print("gain.dtype:", getattr(gain, "dtype", None), "ref.dtype:", getattr(ref, "dtype", None))
+        print(
+            "gain.dtype:",
+            getattr(gain, "dtype", None),
+            "ref.dtype:",
+            getattr(ref, "dtype", None),
+        )
         print("rdm (per dipole):", rdm)
         print("mag (per dipole):", mag)
         diffs = gain - ref
@@ -201,10 +211,14 @@ def test_meg_sphere_vs_sarvas(n_layers, conductivity, tmp_path):
         worst_dip = int(np.argmax(max_abs_per_dip))
         worst_sensor = int(np.argmax(np.abs(diffs[:, worst_dip])))
         print(
-            "worst dipole index:", worst_dip,
-            "max abs:", max_abs_per_dip[worst_dip],
-            "worst sensor index:", worst_sensor,
-            "value diff:", diffs[worst_sensor, worst_dip],
+            "worst dipole index:",
+            worst_dip,
+            "max abs:",
+            max_abs_per_dip[worst_dip],
+            "worst sensor index:",
+            worst_sensor,
+            "value diff:",
+            diffs[worst_sensor, worst_dip],
         )
         # Try to get numeric HeadMat inverse if the binding exposes .array()
         try:
@@ -284,14 +298,22 @@ def test_meg_sphere_radial_dipole_is_silent(tmp_path):
     radial_norm = np.linalg.norm(gain[:, 0])
     tangential_norm = np.linalg.norm(gain[:, 1])
 
-    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith("arm")
+    IS_MAC_ARM = sys.platform == "darwin" and platform.machine().lower().startswith(
+        "arm"
+    )
     if IS_MAC_ARM or os.environ.get("OPENMEEG_DEBUG", ""):
         print("=== DEBUG: test_meg_sphere_radial_dipole_is_silent ===")
         print("platform:", platform.platform(), "machine:", platform.machine())
         print("radial_norm:", radial_norm, "tangential_norm:", tangential_norm)
         print("ratio radial/tangential:", radial_norm / (tangential_norm + 1e-30))
         dumpfile = tmp_path / "debug_meg_radial.npz"
-        np.savez_compressed(dumpfile, gain=gain, dipoles=dipoles, radial_norm=radial_norm, tangential_norm=tangential_norm)
+        np.savez_compressed(
+            dumpfile,
+            gain=gain,
+            dipoles=dipoles,
+            radial_norm=radial_norm,
+            tangential_norm=tangential_norm,
+        )
         print("Saved debug NPZ to", dumpfile)
         debug_dir = os.environ.get("OPENMEEG_DEBUG_DIR")
         if debug_dir:
