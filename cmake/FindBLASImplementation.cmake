@@ -137,7 +137,7 @@ elseif (BLA_IMPLEMENTATION STREQUAL "Accelerate")
     endif()
 
     # A lower target links fine and then dies at launch, since the $NEWLAPACK
-    # symbols FortranAlias.h binds to do not exist before macOS 13.3
+    # symbols OpenMEEGMathsAccelerateConfig.h binds do not exist before 13.3
     if (CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 13.3)
         message(FATAL_ERROR "BLA_IMPLEMENTATION=Accelerate requires CMAKE_OSX_DEPLOYMENT_TARGET >= 13.3, got ${CMAKE_OSX_DEPLOYMENT_TARGET}")
     endif()

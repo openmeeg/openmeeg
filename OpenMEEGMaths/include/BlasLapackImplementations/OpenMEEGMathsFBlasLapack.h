@@ -1,19 +1,17 @@
 #pragma once
 
-#include <BlasLapackImplementations/FortranAlias.h>
-
 #if defined(USE_LAPACK)
     extern "C" {
-        void LAPACK(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&) FC_ALIAS(dgesdd);
-        void LAPACK(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&) FC_ALIAS(dpotf2);
-        double LAPACK(dlange,DLANGE)(const char&,const int&,const int&,const double*,const int&,double*) FC_ALIAS(dlange);
-        void LAPACK(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&) FC_ALIAS(dsptrf);
-        void LAPACK(dtptri,DTPTRI)(const char&,const char&,const int&,double*,int&,int&) FC_ALIAS(dtptri);
-        void LAPACK(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&) FC_ALIAS(dsptri);
-        void LAPACK(dpptrf,DPPTRF)(const char&,const int&,double*,int&) FC_ALIAS(dpptrf);
-        void LAPACK(dpptri,DPPTRI)(const char&,const int&,double*,int&) FC_ALIAS(dpptri);
-        void LAPACK(dspevd,DSPEVD)(const char&,const char&,const int&,double*,double*,double*,const int&,double*,const int&,int*,const int&,int&) FC_ALIAS(dspevd);
-        void LAPACK(dsptrs,DSPTRS)(const char&,const int&,const int&,double*,int*,double*,const int&,int&) FC_ALIAS(dsptrs);
+        void LAPACK(dgesdd,DGESDD)(const char&,const int&,const int&,double*,const int&,double*,double*,const int&,double*,const int&,double*,const int&,int*,int&);
+        void LAPACK(dpotf2,DPOTF2)(const char&,const int&,double*,const int&,int&);
+        double LAPACK(dlange,DLANGE)(const char&,const int&,const int&,const double*,const int&,double*);
+        void LAPACK(dsptrf,DSPTRF)(const char&,const int&,double*,int*,int&);
+        void LAPACK(dtptri,DTPTRI)(const char&,const char&,const int&,double*,int&,int&);
+        void LAPACK(dsptri,DSPTRI)(const char&,const int&,double*,int*,double*,int&);
+        void LAPACK(dpptrf,DPPTRF)(const char&,const int&,double*,int&);
+        void LAPACK(dpptri,DPPTRI)(const char&,const int&,double*,int&);
+        void LAPACK(dspevd,DSPEVD)(const char&,const char&,const int&,double*,double*,double*,const int&,double*,const int&,int*,const int&,int&);
+        void LAPACK(dsptrs,DSPTRS)(const char&,const int&,const int&,double*,int*,double*,const int&,int&);
     }
 #endif
 
