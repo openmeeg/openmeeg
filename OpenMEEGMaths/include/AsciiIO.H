@@ -72,7 +72,7 @@ namespace OpenMEEG {
                 const LinOpInfo& inforead = info(is);
 
                 if (linop.storageType()!=inforead.storageType())
-                    throw BadStorageType("AsciiIO reading of " + name());
+                    throw BadStorageType("AsciiIO reading of "+name());
 
                 if (linop.dimension()!=inforead.dimension())
                     throw BadVector(inforead.ncol());
@@ -110,7 +110,10 @@ namespace OpenMEEG {
         private:
 
             AsciiIO(): MathsIOBase(9) {}
+            AsciiIO(const std::string& filename): MathsIOBase(filename) {}
             ~AsciiIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new AsciiIO(filename); }
 
             static unsigned length(const std::string& line) {
                 std::stringstream buffer(line);

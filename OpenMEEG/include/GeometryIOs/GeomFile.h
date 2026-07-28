@@ -140,7 +140,9 @@ namespace OpenMEEG::GeometryIOs {
             return res;
         }
 
-        GeomFile(const std::string& filename=""): base(filename,"geom") { }
+        GeomFile(): base(Extension("geom")) { }
+
+        GeomFile(const std::string& filename): base(filename) { }
 
         ~GeomFile() { ifs.close(); }
 

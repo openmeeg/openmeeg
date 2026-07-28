@@ -3,7 +3,7 @@ include(CheckSymbolExists)
 
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
-set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS")
+set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS" "Accelerate")
 
 # We build the wheels against scipy-openblas64, an ILP64 (64-bit integer) build.
 if (USE_SCIPY_OPENBLAS)
@@ -134,6 +134,24 @@ elseif (BLA_IMPLEMENTATION STREQUAL "OpenBLAS")
         endforeach()
     endif()
 
+elseif (BLA_IMPLEMENTATION STREQUAL "Accelerate")
+
+    message(STATUS "Using BLA_IMPLEMENTATION=Accelerate")
+    if (NOT APPLE)
+        message(FATAL_ERROR "BLA_IMPLEMENTATION=Accelerate is only available on macOS")
+    endif()
+
+    # A lower target links fine and then dies at launch, since the $NEWLAPACK
+    # symbols OpenMEEGMathsAccelerateConfig.h binds do not exist before 13.3
+    if (CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 13.3)
+        message(FATAL_ERROR "BLA_IMPLEMENTATION=Accelerate requires CMAKE_OSX_DEPLOYMENT_TARGET >= 13.3, got ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+
+    set(USE_ACCELERATE ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
+    set(BLA_VENDOR Apple)
+
 elseif (BLA_IMPLEMENTATION STREQUAL "FlexiBLAS")
     find_package(BLAS)
     message(STATUS "Using BLA_IMPLEMENTATION=FlexiBLAS")
@@ -197,24 +215,27 @@ if (NOT TARGET LAPACK::LAPACK)
 endif()
 
 # OpenBLAS may or may not include lapacke.
-# Check which version is used.
+# Check which version is used. Accelerate ships no LAPACKE at all and uses the
+# Fortran interface instead, so it is exempt.
 
-set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
-if (USE_SCIPY_OPENBLAS)
-    set(CHECK_DLANGE scipy_LAPACKE_dlange64_)  # ILP64 symbols carry a 64_ suffix
-else()
-    set(CHECK_DLANGE LAPACKE_dlange)
-endif()
-mark_as_advanced(CHECK_DLANGE)
-check_symbol_exists(${CHECK_DLANGE} "lapacke.h" HAVE_DLANGE)
-mark_as_advanced(HAVE_DLANGE)
-if (NOT HAVE_DLANGE)
-    message(STATUS "${CHECK_DLANGE} not found!")
-endif()
-check_function_exists(${CHECK_DLANGE} LAPACKE_WORKS)
-mark_as_advanced(LAPACKE_WORKS)
-if (NOT LAPACKE_WORKS)
-    find_library(LAPACKE lapacke REQUIRED)
-    list(PREPEND _lapack_libs ${LAPACKE})
-    set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")
+if (NOT USE_ACCELERATE)
+    set(CMAKE_REQUIRED_LIBRARIES LAPACK::LAPACK BLAS::BLAS)
+    if (USE_SCIPY_OPENBLAS)
+        set(CHECK_DLANGE scipy_LAPACKE_dlange64_)  # ILP64 symbols carry a 64_ suffix
+    else()
+        set(CHECK_DLANGE LAPACKE_dlange)
+    endif()
+    mark_as_advanced(CHECK_DLANGE)
+    check_symbol_exists(${CHECK_DLANGE} "lapacke.h" HAVE_DLANGE)
+    mark_as_advanced(HAVE_DLANGE)
+    if (NOT HAVE_DLANGE)
+        message(STATUS "${CHECK_DLANGE} not found!")
+    endif()
+    check_function_exists(${CHECK_DLANGE} LAPACKE_WORKS)
+    mark_as_advanced(LAPACKE_WORKS)
+    if (NOT LAPACKE_WORKS)
+        find_library(LAPACKE lapacke REQUIRED)
+        list(PREPEND _lapack_libs ${LAPACKE})
+        set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")
+    endif()
 endif()

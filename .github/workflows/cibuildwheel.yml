@@ -46,11 +46,11 @@ jobs:
             arch: arm64
     timeout-minutes: 70
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v6.3.0  # to make before-all work properly
+      - uses: actions/setup-python@v7.0.0  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2.23
@@ -97,7 +97,7 @@ jobs:
           - os: macos-latest
             arch: arm64
     steps:
-      - uses: actions/setup-python@v6.3.0
+      - uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.13'
       - uses: actions/download-artifact@v8

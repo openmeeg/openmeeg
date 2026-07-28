@@ -234,7 +234,15 @@ You can now give a try to OpenMEEG on the `sample dataset <https://github.com/op
 Supported Blas/Lapack Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 We support `OpenBLAS <http://www.openblas.net/>`_ and
-`Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ on Linux, macOS, and Windows.
+`Intel MKL <http://software.intel.com/en-us/intel-mkl/>`_ on Linux, macOS, and Windows,
+selected with ``-DBLA_IMPLEMENTATION=OpenBLAS`` (the default) or ``mkl``.
+
+On macOS you can also use Apple's `Accelerate
+<https://developer.apple.com/documentation/accelerate>`_ framework with
+``-DBLA_IMPLEMENTATION=Accelerate``, which needs no external BLAS at all. It
+requires ``-DCMAKE_OSX_DEPLOYMENT_TARGET=13.3`` or newer, since it binds
+Accelerate's modern BLAS/LAPACK rather than the deprecated legacy interface.
+This is what the arm64 wheels and binary installers ship.
 
 Using OpenMEEG
 --------------

@@ -9,6 +9,8 @@
 
 #include <matio.h>
 
+#include <mutex>
+
 #include <OMMathExceptions.H>
 #include "MathsIO.H"
 #include "sparse_matrix.h"
@@ -132,6 +134,8 @@ namespace OpenMEEG {
                 if (is.is_open())
                     is.close();
 
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
                 LinOpInfo linop;
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (mat) {
@@ -151,6 +155,9 @@ namespace OpenMEEG {
                 if (is.is_open()) {
                     is.close();
                 }
+
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
                 mat_t* mat = Mat_Open(name().c_str(),MAT_ACC_RDONLY);
                 if (!mat)
                     throw BadFileOpening(name(),maths::BadFileOpening::READ);
@@ -183,6 +190,9 @@ namespace OpenMEEG {
                     os.close();
                     std::remove(name().c_str());
                 }
+
+                const std::lock_guard<std::mutex> lock(matio_mutex());
+
                 mat_t* mat = Mat_CreateVer(name().c_str(),NULL,MAT_FT_MAT73);
                 if (!mat)
                     throw BadFileOpening(name(),maths::BadFileOpening::WRITE);
@@ -209,6 +219,16 @@ namespace OpenMEEG {
             }
 
         private:
+
+            //  matio and HDF5 keep non-reentrant global state and are not built
+            //  thread-safe, so serialise every entry point. Also covers the static
+            //  scratch in details::helper<>.
+
+            static std::mutex& matio_mutex() {
+                static std::mutex m;
+                return m;
+            }
+
             #if MATIO_VERSION>=1527
             static void matiologfunc(int log_level,const char* message) {
             #else
@@ -235,9 +255,14 @@ namespace OpenMEEG {
                 std::cerr << error << message << std::endl;
             }
 
+            //  Only the prototype touches matio's global log hook.
+
             MatlabIO(): MathsIOBase(5) { Mat_LogInitFunc("OpenMEEG",matiologfunc); }
+            MatlabIO(const std::string& filename): MathsIOBase(filename) { }
 
             ~MatlabIO() {};
+
+            MathsIOBase* clone(const std::string& filename) const { return new MatlabIO(filename); }
 
             template <typename TYPE>
             matvar_t* read_header(mat_t* mat,LinOpInfo& linop) const {
