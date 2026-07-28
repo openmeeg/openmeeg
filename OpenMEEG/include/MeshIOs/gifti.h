@@ -136,7 +136,7 @@ namespace OpenMEEG::MeshIOs {
 
         MeshIO* clone(const std::string& filename) const override { return new Gifti(filename); }
 
-        Gifti(): base(Prototype{},"gii") { }
+        Gifti(): base(Extension("gii")) { }
 
         Gifti(const std::string& filename): base(filename) { }
 

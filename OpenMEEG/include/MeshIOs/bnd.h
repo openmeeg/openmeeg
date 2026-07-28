@@ -100,7 +100,7 @@ namespace OpenMEEG::MeshIOs {
 
     private:
 
-        Bnd(): base(Prototype{},"bnd") { }
+        Bnd(): base(Extension("bnd")) { }
 
         Bnd(const std::string& filename): base(filename) { }
 
