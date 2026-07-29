@@ -74,9 +74,10 @@ def load(dirs):
 def overview(runs):
     """Print the per-run table of CPU, OpenBLAS kernel and 3-layer result."""
     print(
-        f"{'run':<28} {'cpu':<34} {'openblas kernel':<16} {'3L maxRDM':>10} {'ok':>4}"
+        f"{'run':<28} {'cpu':<34} {'openblas kernel':<16} {'3L maxRDM':>10} {'ok':>5}"
+        f" {'invResid':>9}"
     )
-    print("-" * 98)
+    print("-" * 108)
     for r in runs:
         env = r["report"].get("environment", {})
         cpu = (env.get("cpu_model") or "?").split(":")[-1].strip()[:33]
@@ -97,10 +98,18 @@ def overview(runs):
         s3 = r["report"].get("3layer") or {}
         rdm = s3.get("max_rdm")
         ok = s3.get("passes_0.02")
+        # A large inverse residual would mean OpenBLAS's DSPTRF/DSPTRI returned
+        # a silently wrong factorization (Info==0 but garbage) -- the arch- and
+        # thread-specific wrong-result class of OpenBLAS#3044.  Since RDM
+        # responds to HeadMatInv linearly with gain 1.0, an inverse wrong by
+        # ~4x is exactly what would take 0.0061 to 0.0245.
+        resid = s3.get("inverse_residual")
         print(
             f"{r['name']:<28} {cpu:<34} {kernel:<16} "
             f"{rdm if rdm is None else format(rdm, '10.6f')} "
-            f"{'PASS' if ok else 'FAIL':>4}"
+            f"{'PASS' if ok else 'FAIL':>5}"
+            f" {'' if resid is None else format(resid, '9.2e')}"
+            f"{'  <-- INVERSE IS WRONG' if (resid or 0) > 1e-10 else ''}"
         )
         # A re-assembly spread far above rounding would mean a race in the
         # OpenMP assembly; DipSourceMat is known to vary by ~1 ULP benignly.
