@@ -233,8 +233,23 @@ def environment():
         "cpu_model": _run("grep -m1 'model name' /proc/cpuinfo"),
         "cpu_flags": _run("grep -m1 '^flags' /proc/cpuinfo"),
         "gcc_version": _run("gcc --version | head -1"),
+        "cpu_count": os.cpu_count(),
+        "nproc": _run("nproc"),
         "ldd_openmeeg": "",
     }
+    # OpenMEEG's assembly is OpenMP-parallel (libgomp), which is a different
+    # thread pool from OpenBLAS's -- record it separately.
+    try:
+        # This probe runs before openmeeg is imported, so libgomp may not be
+        # mapped yet -- fall back to the soname, which loads it either way.
+        gomp = [
+            line.split()[-1] for line in open("/proc/self/maps") if "libgomp" in line
+        ]
+        lib = ctypes.CDLL(gomp[0] if gomp else "libgomp.so.1")
+        lib.omp_get_max_threads.restype = ctypes.c_int
+        env["omp_get_max_threads"] = int(lib.omp_get_max_threads())
+    except Exception as exc:
+        env["omp_get_max_threads"] = f"<unavailable: {exc}>"
     env["openblas"] = openblas_details(env["loaded_blas_libs"])
     try:
         import openmeeg
@@ -333,6 +348,44 @@ def compute(n_layers, out, tag):
         arrays[f"mesh{i}_verts"] = v
         arrays[f"mesh{i}_tris"] = t.astype(np.int64)
 
+    # Read the geometry and sensors back out of OpenMEEG rather than trusting
+    # what we handed in.  HeadMat and Head2MEGMat have so far been bit-identical
+    # on every runner, so if a failing one diverges it must do so either in the
+    # assembly or in the inputs as OpenMEEG actually resolved them -- domain
+    # ordering, conductivity assignment, vertex ordering, sensor parsing.
+    # NB geom.meshes() is an opaque SwigPyObject and Domain.name() hands back a
+    # raw std::string*, so go via the accessors that actually work: the known
+    # mesh names, the global vertex list, and conductivities in domain order.
+    geom_info = {}
+    try:
+        arrays["geom_vertices"] = np.array(
+            [v.array() for v in geom.vertices()], np.float64
+        )
+        names = ["Cortex"] if n_layers == 1 else ["Cortex", "Skull", "Head"]
+        for i, name in enumerate(names):
+            mesh = geom.mesh(name)
+            gt = np.array(
+                [mesh.triangle(t).array() for t in mesh.triangles()], np.int64
+            )
+            arrays[f"geom_{name}_tris"] = gt
+            geom_info[name] = {"n_tris": int(gt.shape[0])}
+        geom_info["domain_conductivities"] = [
+            float(d.conductivity()) for d in geom.domains()
+        ]
+        geom_info["n_domains"] = int(len(geom.domains()))
+        geom_info["n_vertices"] = int(len(geom.vertices()))
+        geom_info["is_nested"] = bool(geom.is_nested())
+        geom_info["nb_current_barrier_triangles"] = int(
+            geom.nb_current_barrier_triangles()
+        )
+    except Exception as exc:
+        geom_info["error"] = f"{type(exc).__name__}: {exc}"
+    try:
+        arrays["sensors_pos_readback"] = sensors.getPositions().array()
+        arrays["sensors_ori_readback"] = sensors.getOrientations().array()
+    except Exception as exc:
+        geom_info["sensor_readback_error"] = f"{type(exc).__name__}: {exc}"
+
     # Split into the physically meaningful pieces.  For radially oriented
     # sensors on a sphere the true secondary field is exactly zero, so RDM is
     # nothing but the spurious BEM secondary term.
@@ -358,11 +411,46 @@ def compute(n_layers, out, tag):
             np.linalg.norm(secondary) / np.linalg.norm(primary)
         ),
         "cond_HeadMat": float(ev.max() / ev.min()),
+        "eig_min": float(ev.min()),
+        "eig_max": float(ev.max()),
         "inverse_residual": float(
             np.linalg.norm(A @ Ainv - np.eye(A.shape[0])) / A.shape[0]
         ),
+        "geometry": geom_info,
         "digests": {k: digest(v) for k, v in arrays.items()},
     }
+
+    # Re-assemble the operators from scratch a few times in the same process.
+    # These are OpenMP-parallel and use no BLAS, so they must be bit-identical;
+    # anything else means a race or uninitialized memory in the assembly, which
+    # is now one of the few hypotheses still standing.
+    # Record the *magnitude* of any spread, not just a boolean: DipSourceMat is
+    # already known to vary by 1 ULP (~1.2e-16 relative, a few dozen entries)
+    # because its OpenMP accumulation is not associative, and that is benign.
+    # Only a spread far above rounding would be a real race worth chasing.
+    builders = {
+        "HeadMat": lambda: np.asarray(om.HeadMat(geom, integrator).array_flat()),
+        "Head2MEGMat": lambda: om.Head2MEGMat(geom, sensors).array(),
+        "DipSourceMat": lambda: om.DipSourceMat(geom, dip, integrator, "Brain").array(),
+    }
+    reassembly = {}
+    for name, build in builders.items():
+        first = build()
+        scale = np.abs(first).max() or 1.0
+        worst, n_diff = 0.0, 0
+        for _ in range(2):
+            other = build()
+            d = np.abs(other - first)
+            worst = max(worst, float(d.max()))
+            n_diff = max(n_diff, int((d > 0).sum()))
+        reassembly[name] = {
+            "max_abs_dev": worst,
+            "max_rel_dev": worst / scale,
+            "n_entries_differing": n_diff,
+            "size": int(first.size),
+            "beyond_rounding": bool(worst / scale > 1e-12),
+        }
+    summary["reassembly"] = reassembly
 
     # Repeat in-process: catches run-to-run nondeterminism (threads, ASLR).
     repeats = []
@@ -432,6 +520,21 @@ def main():
         )
         print(f"      HeadMat sha  = {s['digests']['HeadMat_flat'][:32]}")
         print(f"      gain    sha  = {s['digests']['gain'][:32]}")
+        for name, r in (s.get("reassembly") or {}).items():
+            flag = "  *** BEYOND ROUNDING ***" if r["beyond_rounding"] else ""
+            print(
+                f"      re-assembly {name:<16} max_rel_dev={r['max_rel_dev']:.3e} "
+                f"({r['n_entries_differing']}/{r['size']} entries){flag}"
+            )
+        g = s.get("geometry") or {}
+        if g.get("domain_conductivities"):
+            print(
+                f"      sigma={g['domain_conductivities']} "
+                f"nverts={g.get('n_vertices')} nested={g.get('is_nested')} "
+                f"barrier_tris={g.get('nb_current_barrier_triangles')}"
+            )
+        elif g.get("error"):
+            print(f"      geometry readback FAILED: {g['error']}")
     print(f"  wrote {path}")
 
 

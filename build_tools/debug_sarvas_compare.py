@@ -31,6 +31,13 @@ PIPELINE = [
     "sensor_ori",
     "dipoles",
     "ref",
+    # what OpenMEEG actually resolved the inputs to, before any assembly
+    "geom_vertices",
+    "geom_Cortex_tris",
+    "geom_Skull_tris",
+    "geom_Head_tris",
+    "sensors_pos_readback",
+    "sensors_ori_readback",
     "HeadMat_flat",
     "HeadMatInv_flat",
     "DipSourceMat",
@@ -86,6 +93,17 @@ def overview(runs):
             f"{rdm if rdm is None else format(rdm, '10.6f')} "
             f"{'PASS' if ok else 'FAIL':>4}"
         )
+        # A re-assembly spread far above rounding would mean a race in the
+        # OpenMP assembly; DipSourceMat is known to vary by ~1 ULP benignly.
+        for name, ra in (s3.get("reassembly") or {}).items():
+            if ra.get("beyond_rounding"):
+                print(
+                    f"    !! {name} re-assembly spread {ra['max_rel_dev']:.3e} "
+                    f"({ra['n_entries_differing']}/{ra['size']} entries)"
+                )
+        sig = (s3.get("geometry") or {}).get("domain_conductivities")
+        if sig is not None and sorted(sig) != sorted([0.0, 0.006, 0.3, 0.3]):
+            print(f"    !! unexpected domain conductivities: {sig}")
     print()
 
 
