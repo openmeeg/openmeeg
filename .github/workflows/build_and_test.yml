@@ -50,8 +50,18 @@ jobs:
         # if this will really help anything. NumPy/SciPy's OpenBLAS (which
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
+        #
+        # Jobs that link Ubuntu's own OpenBLAS use 24.04, not 22.04: the
+        # OpenBLAS 0.3.20 in 22.04 returns wrong results from DSYMM on its
+        # Cooperlake kernel, which we hit through
+        # Matrix::operator*(const SymMatrix&) in GainMEG. It only bites on the
+        # subset of Azure runners whose CPU dispatches to that kernel, which is
+        # why it showed up as an intermittent
+        # test_meg_sphere_vs_sarvas[3-conductivity1] failure. 24.04 ships
+        # 0.3.26, where it is fixed. Details and a standalone reproducer:
+        # https://github.com/openmeeg/openmeeg/pull/872#issuecomment-5119089104
         include:
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
+        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -91,7 +101,7 @@ jobs:
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
           python-version: 'pypy-3.11'
         # One with latest numpy, plus VTK
@@ -115,8 +125,8 @@ jobs:
         - os: windows-latest
           blas: OpenBLAS
           blas_linking: static
-        # Setuptools
-        - os: ubuntu-22.04
+        # Setuptools (defaults to OpenBLAS, so 24.04 -- see the note above)
+        - os: ubuntu-24.04
           python: setuptools
         - os: macos-latest
           python: setuptools
