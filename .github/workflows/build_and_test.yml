@@ -451,15 +451,6 @@ jobs:
           echo "No Python wrapping found"
         fi
 
-    - name: Check OpenMP got enabled
-      run: |
-        # FindOpenMP failing is only a STATUS message, so without this a job can
-        # silently go single-threaded and still pass.
-        OM=$(find build/apps -name 'om_assemble' -o -name 'om_assemble.exe' | head -1)
-        test -n "$OM"
-        "$OM" -h | head -2
-        "$OM" -h | grep -q 'using OpenMP'
-
     - name: Install
       run: |
         cmake --build build --target install --config Release
@@ -528,8 +519,12 @@ jobs:
         #   echo "::endgroup::"
         # fi
         echo "::group::om_minverser --help"
-        ./install/bin/om_minverser --help
+        OM_HELP=$(./install/bin/om_minverser --help)
+        echo "$OM_HELP"
         echo "::endgroup::"
+        # FindOpenMP failing is only a STATUS message, so without this a job can
+        # silently go single-threaded and still pass.
+        echo "$OM_HELP" | grep -q 'using OpenMP'
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
