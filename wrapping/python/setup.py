@@ -69,14 +69,23 @@ if __name__ == "__main__":
             # "-Werror",
         ]
         library_dirs = []
+        # Read from the installed config header rather than re-deriving the
+        # per-platform rules here, so this tracks whatever cmake actually built
+        use_accelerate = False
         openmeeg_include = os.getenv("OPENMEEG_INCLUDE")
         if openmeeg_include is not None:
             openmeeg_include = Path(openmeeg_include).resolve(strict=True)
             print(f"Adding OpenMEEG include directory: {openmeeg_include}")
             include_dirs.append(str(openmeeg_include))
             swig_opts.append(f"-I{openmeeg_include}")
+            config_h = openmeeg_include / "OpenMEEGConfigure.h"
+            if config_h.is_file():
+                use_accelerate = "#define USE_ACCELERATE" in config_h.read_text()
+            print(f"Building against Accelerate: {use_accelerate}")
         msvc = os.getenv("SWIG_FLAGS", "") == "msvc"
-        openblas_include = os.getenv("OPENBLAS_INCLUDE")
+        # Empty means "not applicable" (Accelerate builds have no OpenBLAS tree),
+        # since cibuildwheel's per-arch overrides can only override, not unset.
+        openblas_include = os.getenv("OPENBLAS_INCLUDE") or None
         if openblas_include is not None:
             openblas_include = Path(openblas_include).resolve(strict=True)
             print(f"Adding OpenBLAS include directory: {openblas_include}")
@@ -94,8 +103,18 @@ if __name__ == "__main__":
         else:
             extra_compile_opts.extend(["-v", "-std=c++17"])
         if sys.platform == "darwin":
-            version_min = "11" if "arm64" in platform.platform() else "10.15"
+            if use_accelerate:
+                version_min = "13.3"  # first release with Accelerate's new BLAS/LAPACK
+            elif "arm64" in platform.platform():
+                version_min = "11"
+            else:
+                version_min = "10.15"
             extra_compile_opts.extend([f"-mmacosx-version-min={version_min}"])
+            if use_accelerate:
+                # The inline BLAS calls in matrix.h land in this extension too, so
+                # don't leave them to flat-namespace lookup via libOpenMEEG
+                extra_link_opts.append("-framework")
+                extra_link_opts.append("Accelerate")
         # An example cmake command that works is:
         #   C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\link.exe
         #     /ERRORREPORT:QUEUE /INCREMENTAL:NO /NOLOGO

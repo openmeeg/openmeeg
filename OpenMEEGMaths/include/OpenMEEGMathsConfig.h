@@ -37,7 +37,9 @@
 
 //  Blas/Lapack configuration
 
-#if defined(USE_LAPACK)
+#if defined(USE_ACCELERATE)
+#include <BlasLapackImplementations/OpenMEEGMathsAccelerateConfig.h>
+#elif defined(USE_LAPACK)
 #include <BlasLapackImplementations/OpenMEEGMathsBlasLapackConfig.h>
 #elif defined(USE_MKL)
 #include <BlasLapackImplementations/OpenMEEGMathsMKLConfig.h>

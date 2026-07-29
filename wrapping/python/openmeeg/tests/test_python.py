@@ -8,89 +8,7 @@ from numpy.testing import assert_allclose
 
 import openmeeg as om
 import openmeeg._openmeeg_wrapper as _omc
-
-
-def read_geom(geom_file):
-    """ReadGeom : provides paths to meshes present in .geom file."""
-    f = open(geom_file, "r")
-    lines = f.readlines()
-    mesh_files = []
-    for line in lines:
-        words = line.split()
-        if len(words) > 1:
-            if words[0] == "Interfaces":
-                nb_mesh = int(words[1])
-                print("Nb mesh files : %d" % nb_mesh)
-                continue
-
-        if len(words) == 1:
-            mesh_file = words[0]
-            if mesh_file.endswith(".tri"):
-                mesh_files.append(mesh_file)
-            if not os.path.exists(mesh_file):
-                print("Could not find mesh : " + mesh_file)
-            continue
-
-        if (len(words) > 1) and words[0].startswith("Interface"):
-            mesh_file = words[-1][1:-1]
-            if mesh_file.endswith(".tri"):
-                mesh_files.append(mesh_file)
-            if not os.path.exists(mesh_file):
-                print("Could not find mesh : " + mesh_file)
-            continue
-
-    for k, fname in enumerate(mesh_files):
-        if not os.path.isabs(fname):
-            mesh_files[k] = os.path.join(os.path.dirname(geom_file), fname)
-
-    print("Found : %s" % mesh_files)
-    return mesh_files
-
-
-def read_tri(fname):
-    """Read .tri file.
-
-    Parameters
-    ----------
-    fname : str
-        The file to read.
-
-    Returns
-    -------
-    points : ndarray, shape (n_points, 3)
-        The vertices
-    normals : ndarray, shape (n_points, 3)
-        The normals at the vertices
-    faces : ndarray, shape (n_faces, 3)
-        The faces
-    """
-    assert fname.endswith(".tri")
-    fid = open(fname, "r")
-    # read the number of vertices
-    npoints = int(fid.readline().split()[1])
-
-    points = []
-    faces = []
-    normals = []
-
-    # fills the vertices arrays
-    for _ in range(npoints):
-        vals = fid.readline().split()
-        points.append(vals[:3])
-        normals.append(vals[3:])
-
-    # Read the number of triangles
-    n_faces = int(fid.readline().split()[1])
-    # create the list of triangles
-    for _ in range(n_faces):
-        vals = fid.readline().split()
-        faces.append(vals[:3])
-
-    # Convert to numpy arrays
-    points = np.array(points, np.float64)
-    normals = np.array(normals, np.float64)
-    faces = np.array(faces, np.int64)
-    return points, normals, faces
+from openmeeg._utils import read_geom_meshes, read_mesh
 
 
 @pytest.mark.parametrize(
@@ -111,11 +29,8 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
     patches_file = op.join(data_path, subject, subject + ".patches")
 
     if load_from_numpy:
-        mesh_files = read_geom(geom_file)
-        meshes = []
-        for fname in mesh_files:  # we assume the order is form inner to outer
-            points, _, tris = read_tri(fname)
-            meshes.append((points, tris))
+        # we assume the order is from inner to outer
+        meshes = [read_mesh(fname) for fname in read_geom_meshes(geom_file)]
         geom = om.make_nested_geometry(meshes, conductivity=(1, 0.0125, 1))
         dipoles = np.loadtxt(dipole_file)
         dipoles = om.Matrix(np.asfortranarray(dipoles))

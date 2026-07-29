@@ -1,9 +1,9 @@
 """Adapted from SciPy."""
 
 import os
-import platform
-import sys
 
+# arm64 macOS needed OPENBLAS_THREAD_TIMEOUT=1 here (scipy#15050) until those
+# wheels moved to Accelerate and stopped shipping an OpenBLAS to clash with
 if os.name == "nt":
     import glob
     from ctypes import WinDLL
@@ -16,9 +16,3 @@ if os.name == "nt":
             WinDLL(os.path.abspath(filename))
     finally:
         os.chdir(owd)
-elif sys.platform == "darwin" and platform.machine() == "arm64":
-    # On arm64 macOS the OpenBLAS runtimes of NumPy and SciPy don't seem to work
-    # well together unless this timeout limit is set - it results in very slow
-    # performance for some linalg functionality.
-    # See https://github.com/scipy/scipy/issues/15050 for details.
-    os.environ["OPENBLAS_THREAD_TIMEOUT"] = "1"
