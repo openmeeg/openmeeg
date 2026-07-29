@@ -52,10 +52,10 @@ namespace OpenMEEG {
                 const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(monopder,triangle);
-                #pragma omp critical
+
                 for (unsigned j=0; j<3; ++j) {
                     double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic update
+                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
                     r += v(j)*coeff;
                 }
             });
@@ -104,7 +104,7 @@ namespace OpenMEEG {
 
                 for (unsigned j=0; j<3; ++j) {
                     double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic update
+                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
                     r += v(j)*coeff;
                 }
             });
