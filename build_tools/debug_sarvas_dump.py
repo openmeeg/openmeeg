@@ -213,6 +213,79 @@ def openblas_details(libs):
     return out
 
 
+def openmeeg_openblas():
+    """Ctypes handle for the OpenBLAS OpenMEEG links (not numpy's bundled one)."""
+    for lib in loaded_blas_libs():
+        base = os.path.basename(lib)
+        if "openblas" in base.lower() and "scipy_openblas" not in base:
+            try:
+                return ctypes.CDLL(lib), lib
+            except OSError:
+                pass
+    return None, None
+
+
+def inverse_thread_sweep(headmat, A, cond):
+    """Re-invert HeadMat at several OpenBLAS thread counts.
+
+    OpenBLAS#3044 was a *wrong result* (failed convergence) specific to both an
+    architecture and a thread count.  The analogue here is DSPTRF/DSPTRI
+    returning Info==0 with a silently wrong factorization.  Because RDM depends
+    on HeadMatInv linearly with gain 1.0, an inverse wrong by ~4x is exactly
+    what would take max RDM from 0.0061 to 0.0245 -- so this is the one story
+    that survives everything else we have excluded.
+
+    Sweeping the thread count inside every job probes that failure mode
+    deterministically, instead of waiting for a rare scheduling coincidence.
+    """
+    dll, path = openmeeg_openblas()
+    out = {"library": path}
+    if dll is None:
+        out["error"] = "OpenMEEG's libopenblas not found among loaded libraries"
+        return out
+    try:
+        setter = dll.openblas_set_num_threads
+        getter = dll.openblas_get_num_threads
+    except AttributeError as exc:
+        out["error"] = f"no openblas_set_num_threads: {exc}"
+        return out
+    setter.argtypes = [ctypes.c_int]
+    getter.restype = ctypes.c_int
+    original = int(getter())
+    n = A.shape[0]
+    eye = np.eye(n)
+    try:
+        for nthread in (1, 2, 4, 8):
+            setter(nthread)
+            inv = unpack_sym(headmat.inverse())
+            out[str(nthread)] = {
+                "requested": nthread,
+                "effective": int(getter()),
+                "residual": float(np.linalg.norm(A @ inv - eye) / n),
+                "digest": digest(inv),
+            }
+    except Exception as exc:
+        out["error"] = f"{type(exc).__name__}: {exc}"
+    finally:
+        setter(original)
+    resids = [
+        v["residual"] for v in out.values() if isinstance(v, dict) and "residual" in v
+    ]
+    if resids:
+        out["worst_residual"] = max(resids)
+        out["residual_spread"] = max(resids) / (min(resids) or 1.0)
+        # Do NOT flag purely on a large residual: the 1-layer HeadMat is
+        # singular by construction (deflated current barrier, cond ~1e15), so
+        # its inverse is meaningless and its residual is ~0.1 on every machine.
+        # A real DSPTRF/DSPTRI failure shows up either as a bad residual on a
+        # well-conditioned matrix, or as a residual that depends on the thread
+        # count -- the OpenBLAS#3044 signature.
+        out["any_broken"] = bool(
+            (cond < 1e8 and max(resids) > 1e-10) or out["residual_spread"] > 1e3
+        )
+    return out
+
+
 def environment():
     """Collect everything identifying about this runner and its BLAS."""
     # Import openmeeg FIRST.  Otherwise the system libopenblas that OpenMEEG
@@ -408,6 +481,7 @@ def compute(n_layers, out, tag):
 
     rdm, mag = rdm_mag(gain, ref)
     ev = np.abs(np.linalg.eigvalsh(A))
+    cond = float(ev.max() / ev.min())
     summary = {
         "n_layers": n_layers,
         "rdm": rdm.tolist(),
@@ -420,13 +494,14 @@ def compute(n_layers, out, tag):
         "secondary_over_primary": float(
             np.linalg.norm(secondary) / np.linalg.norm(primary)
         ),
-        "cond_HeadMat": float(ev.max() / ev.min()),
+        "cond_HeadMat": cond,
         "eig_min": float(ev.min()),
         "eig_max": float(ev.max()),
         "inverse_residual": float(
             np.linalg.norm(A @ Ainv - np.eye(A.shape[0])) / A.shape[0]
         ),
         "geometry": geom_info,
+        "inverse_thread_sweep": inverse_thread_sweep(headmat, A, cond),
         "digests": {k: digest(v) for k, v in arrays.items()},
     }
 
@@ -539,6 +614,17 @@ def main():
                 f"      re-assembly {name:<16} max_rel_dev={r['max_rel_dev']:.3e} "
                 f"({r['n_entries_differing']}/{r['size']} entries){flag}"
             )
+        sweep = s.get("inverse_thread_sweep") or {}
+        cells = [
+            f"{k}thr:{v['residual']:.1e}"
+            for k, v in sweep.items()
+            if isinstance(v, dict) and "residual" in v
+        ]
+        if cells:
+            flag = "  *** WRONG INVERSE ***" if sweep.get("any_broken") else ""
+            print(f"      inverse vs threads: {'  '.join(cells)}{flag}")
+        elif sweep.get("error"):
+            print(f"      inverse thread sweep unavailable: {sweep['error']}")
         g = s.get("geometry") or {}
         if g.get("domain_conductivities"):
             print(
