@@ -24,6 +24,7 @@ function(TESTHEAD HEADNUM)
     set(COND                   ${MODELBASE}.cond)
     set(SRCMESH                ${MODELBASE}.tri)
     set(POINTS                 ${CMAKE_CURRENT_SOURCE_DIR}/analytic/eeg_internal_points.txt)
+    set(MONOPPOS               ${MODELBASE}.monop)
     set(DIPPOS                 ${MODELBASE}.dip)
     set(DIPPOS-SKULLSCALP      ${MODELBASE}-skullscalp.dip)
     set(PATCHES                ${MODELBASE}.patches)
@@ -55,6 +56,7 @@ function(TESTHEAD HEADNUM)
     set(SS2MMMAT               ${SUBJECT}.ss2mm)
     set(SGMMMAT                ${SUBJECT}.sgmm)
     set(DS2IPMAT               ${SUBJECT}.ds2ip)
+    set(MSMMAT                 ${SUBJECT}.msm)
     set(DSMMAT                 ${SUBJECT}.dsm)
     set(DSM-SKULLSCALPMAT      ${SUBJECT}-skullscalp.dsm)
     set(DS2MMMAT               ${SUBJECT}.ds2mm)
@@ -135,7 +137,11 @@ function(TESTHEAD HEADNUM)
         OPENMEEG_TEST(H2ECOGM-${SUBJECT} ${ASSEMBLE} -H2ECOGM ${GEOM} ${COND} ${ECOG-ELECTRODES} "1" ${ECOGMMAT} DEPENDS CLEAN-TESTS)
     endif()
 
-    ############ TEST DIPOLE FORWARD RESULTS (Regression test) ##############
+    # TEST DIPOLE FORWARD RESULTS (Regression test)
+
+    # om_assemble -MSM geometry.geom conductivity.cond monooples.monop msm.bin
+
+    OPENMEEG_TEST(MSM-${SUBJECT} ${ASSEMBLE} -MSM ${GEOM} ${COND} ${MONOPPOS} ${MSMMAT} DEPENDS CLEAN-TESTS)
 
     # om_assemble -DSM geometry.geom conductivity.cond dipoles.dip dsm.bin
 

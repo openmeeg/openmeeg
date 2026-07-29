@@ -35,6 +35,57 @@ namespace OpenMEEG {
         e.Rethrow();
     }
 
+    void operatorMonopolePotDer(const Monopole& monopole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+        ThreadException e;
+        #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+        for (const auto& triangle : m.triangles()) {
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
+            const Triangle& triangle = *tit;
+        #else
+        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #endif
+            e.Run([&](){
+                const analyticMonopolePotDer anaDPD(monopole,triangle);
+                const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
+
+                const Vect3& v = integrator.integrate(monopder,triangle);
+                // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
+                #ifndef __APPLE__
+                #pragma omp critical
+                #endif
+                {
+                    for (unsigned j=0; j<3; ++j)
+                        rhs(triangle.vertex(j).index()) += v(j)*coeff;
+                }
+            });
+        }
+        e.Rethrow();
+    }
+
+    void operatorMonopolePot(const Monopole& monopole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+        const auto& monoppot = [&monopole](const Vect3& r) { return monopole.potential(r); };
+        ThreadException e;
+        #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+        for (const auto& triangle : m.triangles()) {
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
+            const Triangle& triangle = *tit;
+        #else
+        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #endif
+            e.Run([&](){
+                const double d = integrator.integrate(monoppot,triangle);
+                rhs(triangle.index()) += d*coeff;
+            });
+        }
+        e.Rethrow();
+    }
+
     void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
         ThreadException e;
         #pragma omp parallel for
