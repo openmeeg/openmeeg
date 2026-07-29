@@ -12,6 +12,7 @@ vcpkg/
 b/
 vcpkg_installed/
 openblas/
+libomp/
 install/
 *.orig
 coverage.info
