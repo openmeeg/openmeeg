@@ -213,6 +213,40 @@ def openblas_details(libs):
     return out
 
 
+def binary_hashes(ldd_output, ext_paths):
+    """SHA-256 of the OpenMEEG binaries actually loaded.
+
+    HeadMat has now come back bit-identical on 20 runners across three
+    different OpenBLAS 0.3.20 kernels (Zen, SkylakeX, Prescott), and the
+    inverse is clean at every thread count.  Since the assembly uses no BLAS
+    at all, a run that produces a different HeadMat would have to be running a
+    *different binary* -- which is plausible because the workflow restores a
+    ccache keyed only on job name and OS, shared across the whole matrix.  A
+    stale or mismatched cache entry yielding a subtly different libOpenMEEG
+    would be per-run rather than per-runner, and would explain values that are
+    bit-identical across unrelated PRs yet come and go over time.
+    """
+    out = {}
+    paths = list(ext_paths)
+    for line in (ldd_output or "").splitlines():
+        # "libOpenMEEG.so.1 => /path/to/libOpenMEEG.so.1.1.0 (0x...)"
+        if "=>" in line and ("OpenMEEG" in line or "openblas" in line.lower()):
+            target = line.split("=>", 1)[1].strip().split(" (")[0].strip()
+            if target and os.path.isfile(target):
+                paths.append(target)
+    for path in paths:
+        try:
+            with open(path, "rb") as fid:
+                out[os.path.basename(path)] = {
+                    "sha256": hashlib.sha256(fid.read()).hexdigest(),
+                    "size": os.path.getsize(path),
+                    "path": path,
+                }
+        except OSError as exc:
+            out[os.path.basename(path)] = {"error": str(exc)}
+    return out
+
+
 def openmeeg_openblas():
     """Ctypes handle for the OpenBLAS OpenMEEG links (not numpy's bundled one)."""
     for lib in loaded_blas_libs():
@@ -347,6 +381,9 @@ def environment():
         env["openmeeg_ext"] = so
         if so:
             env["ldd_openmeeg"] = _run(f"ldd {so[0]}")
+        env["binary_hashes"] = binary_hashes(env["ldd_openmeeg"], so)
+        env["ccache_version"] = _run("ccache --version 2>/dev/null | head -1")
+        env["ccache_stats"] = _run("ccache -s 2>/dev/null")
     except Exception as exc:
         env["openmeeg_error"] = str(exc)
     try:

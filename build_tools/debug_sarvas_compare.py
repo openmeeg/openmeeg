@@ -132,10 +132,12 @@ def overview(runs):
 # kernel is what would actually differ numerically -- cf.
 # https://github.com/OpenMathLib/OpenBLAS/issues/3044
 OPENBLAS_0320_X86_KERNELS = [
-    "Haswell",
-    "Zen",
-    "SkylakeX",
-    "CooperLake",
+    "Zen",  # AMD EPYC 7763 (Milan) and 9V74 (Genoa)
+    "SkylakeX",  # Xeon Platinum 8370C (Ice Lake)
+    "Prescott",  # generic SSE2 fallback -- 0.3.20 predates and so does not
+    # recognise the Xeon Platinum 8573C (Emerald Rapids)
+    "Haswell",  # not yet seen on any runner
+    "CooperLake",  # not yet seen on any runner
 ]
 
 
@@ -170,6 +172,20 @@ def coverage(runs):
             print(f"  [ ] {k:<12} not yet sampled")
     for k in sorted(set(om_kernels) - set(OPENBLAS_0320_X86_KERNELS)):
         print(f"  [x] {k:<12} (unexpected for 0.3.20)")
+    # A differing libOpenMEEG between runs of the same commit would mean the
+    # ccache restore produced a different binary -- see binary_hashes().
+    bins = {}
+    for r in runs:
+        for name, info in (
+            (r["report"].get("environment") or {}).get("binary_hashes") or {}
+        ).items():
+            if isinstance(info, dict) and info.get("sha256"):
+                bins.setdefault(name, set()).add(info["sha256"][:12])
+    if bins:
+        print("\nOpenMEEG binaries (same commit => should be one hash each):")
+        for name, hashes in sorted(bins.items()):
+            flag = "  *** DIFFERING BINARIES ***" if len(hashes) > 1 else ""
+            print(f"  {name:<44} {len(hashes)} distinct{flag}")
     if np_kernels:
         print(
             f"\n(numpy's bundled scipy-openblas dispatched: {sorted(np_kernels)} "
