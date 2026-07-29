@@ -53,7 +53,7 @@ jobs:
         # DEBUG BRANCH: trimmed to the single job that exhibits the flaky
         # 3-layer Sarvas RDM, repeated N times so that one workflow run samples
         # several different runners.  See build_tools/debug_sarvas_dump.py.
-        repeat: [1, 2, 3, 4, 5, 6, 7, 8]
+        repeat: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
         include:
         - os: ubuntu-22.04
           blas: OpenBLAS
