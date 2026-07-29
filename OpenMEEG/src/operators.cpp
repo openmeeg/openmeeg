@@ -53,8 +53,11 @@ namespace OpenMEEG {
 
                 const Vect3& v = integrator.integrate(monopder,triangle);
                 #pragma omp critical
-                for (unsigned j=0; j<3; ++j)
-                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
+                for (unsigned j=0; j<3; ++j) {
+                    double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
+                    #pragma omp atomic update
+                    r += v(j)*coeff;
+                }
             });
         }
         e.Rethrow();
@@ -99,9 +102,11 @@ namespace OpenMEEG {
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
 
-                #pragma omp critical
-                for (unsigned j=0; j<3; ++j)
-                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
+                for (unsigned j=0; j<3; ++j) {
+                    double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
+                    #pragma omp atomic update
+                    r += v(j)*coeff;
+                }
             });
         }
         e.Rethrow();
