@@ -50,76 +50,14 @@ jobs:
         # if this will really help anything. NumPy/SciPy's OpenBLAS (which
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
+        # DEBUG BRANCH: trimmed to the single job that exhibits the flaky
+        # 3-layer Sarvas RDM, repeated N times so that one workflow run samples
+        # several different runners.  See build_tools/debug_sarvas_dump.py.
+        repeat: [1, 2, 3, 4, 5, 6, 7, 8]
         include:
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          numpy: numpyold
-          testing: fast
-        - os: windows-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
-        - os: macos-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
-        # One with FlexiBLAS
-        - os: macos-latest
-          blas: FlexiBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
-        # Accelerate, which is what the macOS arm64 wheels and app ship.
-        # Thorough because mne_sample_ico3 is the only realistic-size numerical
-        # check we have, and this is the one backend with no upstream coverage.
-        - os: macos-latest
-          blas: Accelerate
-          blas_linking: dynamic
-          python: cmake
-          testing: thorough
-        - os: macos-15-intel
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
-        # Latest OpenBLAS release
-        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
-          blas: OpenBLAS-latest
-          python-version: '3.12'
-        # PyPy build
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+        - os: ubuntu-22.04
           blas: OpenBLAS
           python-version: 'pypy-3.11'
-        # One with latest numpy, plus VTK
-        - os: ubuntu-24.04
-          blas: OpenBLAS
-          numpy: numpydev
-          testing: thorough
-          python-version: '3.13'
-        # MKL on Linux and Windows (static unless it has to be dynamic)
-        - os: windows-latest
-          blas: mkl-findblas
-          blas_linking: static
-        - os: ubuntu-22.04
-          blas: mkl-findblas
-        # One without Python but with VTK
-        - os: ubuntu-24.04
-          python: no-python
-          vtk: vtk9
-          testing: thorough
-        # Windows static
-        - os: windows-latest
-          blas: OpenBLAS
-          blas_linking: static
-        # Setuptools
-        - os: ubuntu-22.04
-          python: setuptools
-        - os: macos-latest
-          python: setuptools
 
     runs-on: ${{ matrix.os }}
 
@@ -625,8 +563,49 @@ jobs:
       if: startswith(steps.env-vars.outputs.python, 'python') && (success() || failure())
       uses: actions/upload-artifact@v7
       with:
-        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}
+        name: wrapping_${{ steps.env-vars.outputs.os }}_${{ steps.env-vars.outputs.python_type }}_${{ steps.env-vars.outputs.blas }}_${{ steps.env-vars.outputs.blas_linking }}_${{ steps.env-vars.outputs.python_version }}_${{ steps.env-vars.outputs.numpy_version }}_${{ matrix.repeat }}
         path: ${{ steps.wheel.outputs.path }}
+
+    # DEBUG BRANCH ONLY. Dumps every intermediate of the Sarvas forward plus
+    # the runner's CPU/OpenBLAS identity, once against the pip-installed wheel
+    # (what the failing pytest actually imports) and once against the cmake
+    # install tree. Diffing the two locates a wheel-specific problem; diffing
+    # across repeats locates a runner-specific one.
+    - name: Debug - dump Sarvas intermediates
+      if: always()
+      run: |
+        set -x
+        pip install -q threadpoolctl || true
+        mkdir -p "$GITHUB_WORKSPACE/sarvas_dump"
+        DUMP="$GITHUB_WORKSPACE/sarvas_dump"
+        SCRIPT="$GITHUB_WORKSPACE/build_tools/debug_sarvas_dump.py"
+        lscpu > "$DUMP/lscpu.txt" 2>&1 || true
+        cat /proc/cpuinfo > "$DUMP/cpuinfo.txt" 2>&1 || true
+
+        # 1) the wheel -- this is what the failing pytest imports
+        WHL=$(ls "$GITHUB_WORKSPACE"/build/wrapping/python/dist/*.whl 2>/dev/null | head -1)
+        if [[ -n "$WHL" ]]; then
+          pip install -q --force-reinstall "$WHL" || true
+          (cd ~ && python "$SCRIPT" "$DUMP" wheel) || true
+          pip uninstall -yq openmeeg || true
+        else
+          echo "no wheel found" | tee "$DUMP/wheel_missing.txt"
+        fi
+
+        # 2) the cmake install tree, same machine, same build
+        PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
+        PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")
+        export PYTHONPATH="$GITHUB_WORKSPACE/install/lib/${PYNAME}${PYVER}/site-packages"
+        (cd ~ && python "$SCRIPT" "$DUMP" cmake) || true
+
+        ls -alR "$DUMP"
+
+    - name: Debug - upload Sarvas dump
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: sarvas-dump-${{ matrix.repeat }}
+        path: sarvas_dump
 
     - name: Test
       working-directory: ${{github.workspace}}/build
