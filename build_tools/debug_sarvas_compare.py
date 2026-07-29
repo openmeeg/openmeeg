@@ -80,10 +80,19 @@ def overview(runs):
     for r in runs:
         env = r["report"].get("environment", {})
         cpu = (env.get("cpu_model") or "?").split(":")[-1].strip()[:33]
+        # Report the kernel of the OpenBLAS *OpenMEEG* links, not numpy's
+        # bundled scipy-openblas: different version, possibly different
+        # dispatch on the same CPU, and irrelevant to the BEM assembly.
         kernel = "?"
-        for info in (env.get("openblas") or {}).values():
-            if isinstance(info, dict) and info.get("openblas_get_corename"):
-                kernel = info["openblas_get_corename"]
+        for lib, info in (env.get("openblas") or {}).items():
+            if not isinstance(info, dict) or not info.get("openblas_get_corename"):
+                continue
+            core = info["openblas_get_corename"]
+            if "scipy_openblas" in os.path.basename(lib):
+                if kernel == "?":
+                    kernel = f"({core})"  # parenthesised = numpy's, a fallback
+            else:
+                kernel = core
                 break
         s3 = r["report"].get("3layer") or {}
         rdm = s3.get("max_rdm")
@@ -104,6 +113,59 @@ def overview(runs):
         sig = (s3.get("geometry") or {}).get("domain_conductivities")
         if sig is not None and sorted(sig) != sorted([0.0, 0.006, 0.3, 0.3]):
             print(f"    !! unexpected domain conductivities: {sig}")
+    print()
+
+
+# OpenBLAS 0.3.20 (what ubuntu-22.04 ships, and what OpenMEEG links in CI) can
+# dispatch x86_64 to these, per DYNAMIC_CORE in its Makefile.system.  Only the
+# last four are plausible on Azure's server fleet; the rest are pre-2013 parts.
+# Tracking kernels rather than CPU model numbers is what matters, because the
+# kernel is what would actually differ numerically -- cf.
+# https://github.com/OpenMathLib/OpenBLAS/issues/3044
+OPENBLAS_0320_X86_KERNELS = [
+    "Haswell",
+    "Zen",
+    "SkylakeX",
+    "CooperLake",
+]
+
+
+def coverage(runs):
+    """Report which CPUs and which OpenBLAS kernels have been sampled so far."""
+    cpus, om_kernels, np_kernels = {}, {}, {}
+    for r in runs:
+        env = r["report"].get("environment", {})
+        cpu = (env.get("cpu_model") or "?").split(":")[-1].strip()
+        s3 = r["report"].get("3layer") or {}
+        verdict = "pass" if s3.get("passes_0.02") else "FAIL"
+        cpus.setdefault(cpu, set()).add(verdict)
+        for lib, info in (env.get("openblas") or {}).items():
+            if not isinstance(info, dict) or not info.get("openblas_get_corename"):
+                continue
+            target = (
+                np_kernels if "scipy_openblas" in os.path.basename(lib) else om_kernels
+            )
+            target.setdefault(info["openblas_get_corename"], set()).add(verdict)
+
+    print("=== coverage ===")
+    print(f"CPU models seen ({len(cpus)}):")
+    for cpu, v in sorted(cpus.items()):
+        print(f"  {'FAIL' if 'FAIL' in v else 'pass':<5} {cpu}")
+    print("\nOpenBLAS kernels dispatched, as linked by OpenMEEG:")
+    if not om_kernels:
+        print("  (none recorded -- dump predates probing OpenMEEG's own libopenblas)")
+    for k in OPENBLAS_0320_X86_KERNELS:
+        if k in om_kernels:
+            print(f"  [x] {k:<12} {'FAIL' if 'FAIL' in om_kernels[k] else 'pass'}")
+        else:
+            print(f"  [ ] {k:<12} not yet sampled")
+    for k in sorted(set(om_kernels) - set(OPENBLAS_0320_X86_KERNELS)):
+        print(f"  [x] {k:<12} (unexpected for 0.3.20)")
+    if np_kernels:
+        print(
+            f"\n(numpy's bundled scipy-openblas dispatched: {sorted(np_kernels)} "
+            f"-- different version, not the one under investigation)"
+        )
     print()
 
 
@@ -148,6 +210,7 @@ def main():
         print("no *_summary.json found")
         raise SystemExit(1)
     overview(runs)
+    coverage(runs)
 
     def maxrdm(r):
         return (r["report"].get("3layer") or {}).get("max_rdm")

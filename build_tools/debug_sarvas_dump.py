@@ -215,6 +215,16 @@ def openblas_details(libs):
 
 def environment():
     """Collect everything identifying about this runner and its BLAS."""
+    # Import openmeeg FIRST.  Otherwise the system libopenblas that OpenMEEG
+    # actually links is not yet mapped, and we would only ever see numpy's
+    # bundled libscipy_openblas -- which is the wrong library for the question
+    # we are asking (numpy's is a different OpenBLAS version and may dispatch
+    # to a different kernel on the same CPU).
+    try:
+        import openmeeg  # noqa: F401
+    except Exception:
+        pass
+
     env = {
         "python_version": sys.version,
         "python_implementation": sys.implementation.name,
@@ -499,7 +509,10 @@ def main():
     )
     print(f"  cpu        : {env.get('cpu_model')}")
     for lib, info in (env.get("openblas") or {}).items():
-        print(f"  openblas   : {os.path.basename(lib)}")
+        # "scipy_openblas" is numpy's bundled copy; anything else is the one
+        # OpenMEEG links, which is the one this investigation is about.
+        whose = "numpy" if "scipy_openblas" in os.path.basename(lib) else "OpenMEEG"
+        print(f"  openblas   : {os.path.basename(lib)}  [{whose}]")
         for k, v in info.items():
             print(f"      {k}: {v}")
     for n_layers in (1, 3):
