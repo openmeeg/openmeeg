@@ -52,14 +52,9 @@ namespace OpenMEEG {
                 const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(monopder,triangle);
-                // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
-                #ifndef __APPLE__
                 #pragma omp critical
-                #endif
-                {
-                    for (unsigned j=0; j<3; ++j)
-                        rhs(triangle.vertex(j).index()) += v(j)*coeff;
-                }
+                for (unsigned j=0; j<3; ++j)
+                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
             });
         }
         e.Rethrow();
@@ -103,14 +98,10 @@ namespace OpenMEEG {
                 const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
-                // On clang/macOS we hit https://stackoverflow.com/questions/66362932/re-throwing-exception-from-openmp-block-with-the-main-thread-with-rcpp
-                #ifndef __APPLE__
+
                 #pragma omp critical
-                #endif
-                {
-                    for (unsigned j=0; j<3; ++j)
-                        rhs(triangle.vertex(j).index()) += v(j)*coeff;
-                }
+                for (unsigned j=0; j<3; ++j)
+                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
             });
         }
         e.Rethrow();
