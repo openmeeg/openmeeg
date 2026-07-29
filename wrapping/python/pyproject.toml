@@ -33,6 +33,15 @@ dependencies = [
     "numpy",
 ]
 
+[project.optional-dependencies]
+viz = [
+    "pyvista",
+    "pyvistaqt",
+]
+
+[project.scripts]
+om_viz = "openmeeg._viz:main"
+
 [project.urls]
 Homepage = "http://openmeeg.github.io"
 Download = "http://github.com/openmeeg/openmeeg"
@@ -105,6 +114,17 @@ OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
 OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
 OPENMEEG_USE_SWIG = "1"
 MACOSX_DEPLOYMENT_TARGET = "10.15"
+
+# arm64 links the system Accelerate framework instead of vendoring OpenBLAS
+# (see BLAS_BACKEND in build_tools/cibw_before_all.sh). Accelerate's modern
+# BLAS/LAPACK entry points require macOS >= 13.3, which sets the wheel tag.
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_arm64"
+inherit.environment = "append"
+
+[tool.cibuildwheel.overrides.environment]
+MACOSX_DEPLOYMENT_TARGET = "13.3"
+OPENBLAS_INCLUDE = ""
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = [

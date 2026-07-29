@@ -73,6 +73,14 @@ jobs:
           blas_linking: dynamic
           python: cmake
           testing: fast
+        # Accelerate, which is what the macOS arm64 wheels and app ship.
+        # Thorough because mne_sample_ico3 is the only realistic-size numerical
+        # check we have, and this is the one backend with no upstream coverage.
+        - os: macos-latest
+          blas: Accelerate
+          blas_linking: dynamic
+          python: cmake
+          testing: thorough
         - os: macos-15-intel
           blas: OpenBLAS
           blas_linking: dynamic
@@ -165,7 +173,7 @@ jobs:
         if [[ "${{matrix.testing}}" == "thorough" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
         fi
-        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == 'FlexiBLAS' ]]; then
+        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == 'FlexiBLAS' ]] || [[ "${{matrix.blas}}" == 'Accelerate' ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" | tee -a $GITHUB_ENV
           echo "blas=${{matrix.blas}}" | tee -a $GITHUB_OUTPUT
@@ -373,7 +381,9 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" | tee -a $GITHUB_ENV
         fi
         # Set our version min
-        if [[ $(uname -m) == 'arm64' ]]; then
+        if [[ "${{steps.env-vars.outputs.blas}}" == "Accelerate" ]]; then
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=13.3" | tee -a $GITHUB_ENV
+        elif [[ $(uname -m) == 'arm64' ]]; then
           echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
         else
           echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" | tee -a $GITHUB_ENV

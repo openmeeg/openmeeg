@@ -1,8 +1,6 @@
 # Build a geometry with given interfaces and domains.
 from pathlib import Path
 
-import numpy as np
-
 from ._openmeeg_wrapper import (
     Domain,
     Geometry,
@@ -11,17 +9,7 @@ from ._openmeeg_wrapper import (
     OrientedMesh,
     SimpleDomain,
 )
-
-
-def _mesh_vertices_and_triangles(mesh):
-    mesh_vertices = mesh.geometry().vertices()
-    vertices = np.array([vertex.array() for vertex in mesh_vertices], np.float64)
-    mesh_triangles = mesh.triangles()
-    triangles = np.array(
-        [mesh.triangle(triangle).array() for triangle in mesh_triangles],
-        dtype=np.int64,
-    )
-    return vertices, triangles
+from ._utils import mesh_vertices_and_triangles
 
 
 def make_geometry(meshes, interfaces, domains):
@@ -64,7 +52,7 @@ def make_geometry(meshes, interfaces, domains):
 
     for name, mesh in meshes.items():
         if isinstance(mesh, Mesh):
-            meshes[name] = _mesh_vertices_and_triangles(mesh)
+            meshes[name] = mesh_vertices_and_triangles(mesh)
         elif isinstance(mesh, (list, tuple)):
             pass
         else:
