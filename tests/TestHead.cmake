@@ -166,7 +166,8 @@ function(TESTHEAD HEADNUM)
     # for Head1 and Head2, test EIT
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2)
         # EIT InternalPot
-        OPENMEEG_TEST(EITSM-${SUBJECT} ${ASSEMBLE} -EITSM ${GEOM} ${COND} ${EITPATCHES} ${EITSMAT})
+        # DEPENDS CLEAN-TESTS or `ctest -j` can let CLEAN-TESTS glob away ${EITSMAT} after this produces it.
+        OPENMEEG_TEST(EITSM-${SUBJECT} ${ASSEMBLE} -EITSM ${GEOM} ${COND} ${EITPATCHES} ${EITSMAT} DEPENDS CLEAN-TESTS)
 
         OPENMEEG_TEST(GainEITInternalPot-${SUBJECT} ${GAIN} -EITIP ${HMINVMAT} ${EITSMAT} ${H2IPMAT} ${GSIPMAT}
                       DEPENDS HMInv-${SUBJECT} EITSM-${SUBJECT} H2IPM-${SUBJECT})

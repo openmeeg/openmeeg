@@ -200,10 +200,6 @@ jobs:
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
-        # OpenMP doesn't work well on macOS
-        if [[ "${{matrix.os}}" == 'macos'* ]]; then
-          OPENMP_OPT="-DUSE_OPENMP=OFF"
-        fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
           echo "vtk_version=${{matrix.vtk}}" | tee -a $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON -DENABLE_VTK_BUG_WORKAROUND=ON"
@@ -214,7 +210,9 @@ jobs:
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
-          echo "OMP_NUM_THREADS=1" | tee -a $GITHUB_ENV
+          # >1 so the OpenMP paths actually get exercised, but low enough to stay
+          # well inside the runner's memory budget.
+          echo "OMP_NUM_THREADS=3" | tee -a $GITHUB_ENV
         fi
         echo "Using WERROR_OPT=$WERROR_OPT"
         echo "SLOW_OPT=$SLOW_OPT" | tee -a $GITHUB_ENV
@@ -364,6 +362,8 @@ jobs:
         echo "Installing dependencies with brew"
         HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
         echo "brew install complete"
+        # libomp is keg-only, so FindOpenMP won't see it without a hint.
+        echo "OpenMP_ROOT=$(brew --prefix libomp)" | tee -a $GITHUB_ENV
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
             BLAS_DIR=/opt/homebrew/opt/openblas
@@ -387,10 +387,8 @@ jobs:
         # Set our version min
         if [[ "${{steps.env-vars.outputs.blas}}" == "Accelerate" ]]; then
           echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=13.3" | tee -a $GITHUB_ENV
-        elif [[ $(uname -m) == 'arm64' ]]; then
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
         else
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" | tee -a $GITHUB_ENV
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
         fi
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
@@ -521,8 +519,12 @@ jobs:
         #   echo "::endgroup::"
         # fi
         echo "::group::om_minverser --help"
-        ./install/bin/om_minverser --help
+        OM_HELP=$(./install/bin/om_minverser --help)
+        echo "$OM_HELP"
         echo "::endgroup::"
+        # FindOpenMP failing is only a STATUS message, so without this a job can
+        # silently go single-threaded and still pass.
+        echo "$OM_HELP" | grep -q 'using OpenMP'
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")

@@ -113,7 +113,8 @@ OPENMEEG_LIB = "../../install/lib"
 OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
 OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
 OPENMEEG_USE_SWIG = "1"
-MACOSX_DEPLOYMENT_TARGET = "10.15"
+# Floor set by the vendored libomp, see build_tools/setup_libomp_macos.sh.
+MACOSX_DEPLOYMENT_TARGET = "11.0"
 
 # arm64 links the system Accelerate framework instead of vendoring OpenBLAS
 # (see BLAS_BACKEND in build_tools/cibw_before_all.sh). Accelerate's modern
