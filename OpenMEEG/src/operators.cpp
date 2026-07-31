@@ -47,20 +47,20 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const analyticMonopolePotDer anaDPD(monopole,triangle);
                 const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
 
                 const Vect3& v = integrator.integrate(monopder,triangle);
-
+                #pragma omp critical
                 for (unsigned j=0; j<3; ++j) {
                     double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
+                    #pragma omp atomic update
                     r += v(j)*coeff;
                 }
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
     void operatorMonopolePot(const Monopole& monopole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
@@ -76,12 +76,12 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const double d = integrator.integrate(monoppot,triangle);
                 rhs(triangle.index()) += d*coeff;
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
     void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
@@ -101,12 +101,9 @@ namespace OpenMEEG {
                 const auto dipder = [&](const Vect3& r) { return anaDPD(r); };
 
                 const Vect3& v = integrator.integrate(dipder,triangle);
-
-                for (unsigned j=0; j<3; ++j) {
-                    double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
-                    r += v(j)*coeff;
-                }
+                #pragma omp critical
+                for (unsigned j=0; j<3; ++j)
+                    rhs(triangle.vertex(j).index()) += v(j)*coeff;
             });
         }
         e.rethrow();

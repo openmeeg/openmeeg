@@ -9,7 +9,9 @@
 
 #include <cmath>
 #include <triangle.h>
+#include <monopole.h>
 #include <dipole.h>
+#include <BarycentricCoordinates.h>
 
 namespace OpenMEEG {
 
@@ -126,38 +128,56 @@ namespace OpenMEEG {
         const Vect3     U[3];
     };
 
+    //
+
+    class OPENMEEG_EXPORT analyticMonopolePotDer {
+    public:
+
+        analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
+            triangle(T),barycentric_coords(T),monopole(monop)
+        { }
+
+        Vect3 f(const Vect3& r) const {
+
+            // In this case, r is a point in triangle;
+            // Barycentric coordinates of r in the triangle.
+            // These are exactly the P1 coordinates of the point in the triangle.
+
+            const Vect3& P1coordinates = barycentric_coords(r);
+
+            // gradPotn = dotprod(normal,grad(q/|r-p|^3)) = dotprod(normal,grad(V)) with grad(V) = -q (r-p)/|r-p|^3.
+
+            const Vect3& x        = r-monopole.position();
+            const double xnrm2    = x.norm2();
+            const double gradPotn = monopole.charge()*dotprod(triangle.normal(),x)/(xnrm2*sqrt(xnrm2));
+
+            return gradPotn*P1coordinates; // why not - sign ?
+        }
+
+    private:
+
+        const BarycentricCoordinates barycentric_coords;
+
+        const Triangle& triangle;
+        const Monopole& monopole;
+    };
+
     // P1 integral of the normal component of the gradient of the potential.
 
     class OPENMEEG_EXPORT analyticDipPotDer {
     public:
 
-        analyticDipPotDer(const Dipole& dip,const Triangle& T): triangle(T),dipole(dip) {
-
-            edge10 = triangle.vertex(1)-triangle.vertex(0);
-            edge20 = triangle.vertex(2)-triangle.vertex(0);
-
-            d00 = dotprod(edge10,edge10);
-            d01 = dotprod(edge10,edge20);
-            d11 = dotprod(edge20,edge20);
-
-            inv_denom = 1.0/(d00*d11-d01*d01);
-        }
+        analyticDipPotDer(const Dipole& dip,const Triangle& T):
+            triangle(T),barycentric_coords(T),dipole(dip)
+        { }
 
         Vect3 operator()(const Vect3& r) const {
 
+            // In this case, r is a point in triangle;
             // Barycentric coordinates of r in the triangle.
+            // These are exactly the P1 coordinates of the point in the triangle.
 
-            const Vect3& v   = r-triangle.vertex(0);
-            const double d0 = dotprod(v,edge10);
-            const double d1 = dotprod(v,edge20);
-
-            // Solve the 2x2 system [[d00,d01],[d01,d11]] [lambda1,lambda2]^T = [d0,d1]^T
-            // to obtain the barycentric coordinates of r in the triangle.
-
-            const double lambda1 = (d11*d0-d01*d1)*inv_denom;
-            const double lambda2 = (d00*d1-d01*d0)*inv_denom;
-
-            const Vect3 barycentric_coordinates(1.0-lambda1-lambda2,lambda1,lambda2);
+            const Vect3& P1coordinates = barycentric_coords(r);
             
             // gradPotn = dotprod(normal,grad(q.(r-p)/|r-p|^3)) = dotprod(normal,grad(V)) with grad(V) = q/|r-p|^3-3 q.(r-p) (r-p)/|r-p|^5
 
@@ -166,17 +186,13 @@ namespace OpenMEEG {
             const double inv_xnrm2 = 1.0/x.norm2();
             const double gradPotn  = dotprod(triangle.normal(),moment-3*dotprod(moment,x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
 
-            return -gradPotn*barycentric_coordinates; // RK: why - sign ?
+            return -gradPotn*P1coordinates; // RK: why - sign ?
         }
 
     private:
 
-        const Triangle& triangle; // Triangle.
-        const Dipole&   dipole;   // Source.
-
-        Vect3 edge10,edge20;
-
-        double d00,d01,d11; // Coefficients of the symmetric matrix used to find the barycentric coordinates.
-        double inv_denom;   // Inverse of the determinant of the symmetric matrix.
+        const Triangle&              triangle; // Triangle.
+        const BarycentricCoordinates barycentric_coords;
+        const Dipole&                dipole;   // Source.
     };
 }

@@ -39,8 +39,6 @@ namespace OpenMEEG {
         double norm(const double a) const { return fabs(a);  }
         double norm(const Vect3& a) const { return a.norm(); }
 
-        // TODO: T can be deduced from Function.
-
         #ifndef SWIGPYTHON  // SWIG sees the integrate def as a syntax error
         template <typename Function>
         decltype(auto) integrate(const Function& function,const Triangle& triangle) const {
