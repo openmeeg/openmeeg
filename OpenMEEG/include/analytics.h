@@ -134,7 +134,7 @@ namespace OpenMEEG {
     public:
 
         analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
-            triangle(T),barycentric_coords(T),monopole(monop)
+            barycentric_coords(T),triangle(T),monopole(monop)
         { }
 
         Vect3 f(const Vect3& r) const {
@@ -168,7 +168,7 @@ namespace OpenMEEG {
     public:
 
         analyticDipPotDer(const Dipole& dip,const Triangle& T):
-            triangle(T),barycentric_coords(T),dipole(dip)
+            barycentric_coords(T),triangle(T),dipole(dip)
         { }
 
         Vect3 operator()(const Vect3& r) const {
@@ -191,8 +191,9 @@ namespace OpenMEEG {
 
     private:
 
-        const Triangle&              triangle; // Triangle.
         const BarycentricCoordinates barycentric_coords;
+
+        const Triangle&              triangle; // Triangle.
         const Dipole&                dipole;   // Source.
     };
 }
