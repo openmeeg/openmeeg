@@ -24,8 +24,7 @@ namespace OpenMEEG {
     SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
 
     template <typename Source>
-    OPENMEEG_EXPORT Matrix
-    SourceMatrix(const Geometry& geo,const Matrix& sources,const std::string& domain_name) {
+    Matrix SourceMatrix(const Geometry& geo,const Matrix& sources,const std::string& domain_name) {
         return SourceMatrix<Source>(geo,sources,Integrator(3,10,0.001),domain_name);
     }
 
