@@ -12,10 +12,10 @@ meshes, whose coarse/inward-normal triangulation makes the 1-layer near-field
 cancellation needlessly hard to resolve.
 """
 
-import numpy as np
-import pytest
 import platform
 
+import numpy as np
+import pytest
 from numpy.testing import assert_array_less
 
 import openmeeg as om
