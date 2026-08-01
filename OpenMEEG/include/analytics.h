@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <triangle.h>
+#include <monopole.h>
 #include <dipole.h>
 
 namespace OpenMEEG {
@@ -25,7 +26,13 @@ namespace OpenMEEG {
         return (std::isnormal(arg) && arg>0.0) ? log(arg) : fabs(log(norm2p1x/norm2p0x));
     }
 
+    // TODO: There is some common code in analyticS and analyticD3 (compute distances of the point to the triangle vertices),
+    // even though it takes a somewhat different form.
+    // Factorize this ?
+
     class OPENMEEG_EXPORT analyticS {
+
+        // TODO: Instead of storing the individual points and the normal, store the triangle instead.
 
         void initialize(const Vect3& v0,const Vect3& v1,const Vect3& v2) {
             // All computations needed when the first triangle of integration is changed
@@ -162,56 +169,116 @@ namespace OpenMEEG {
         const Vect3     U3;
     };
 
-    class OPENMEEG_EXPORT analyticDipPotDer {
+    // This class basically recomputes the barycentric coordinates of a point r in the triangle.
+    // This just solves with a least squares approach the linear system
+    //                 r = l*r0+m*r1+(1-l-m)*r2
+    // Least squares is needed because if we select a subset of equations, we may run in a
+    // singular case. This leads to the 2x2 system:
+    //
+    //              |r0-r2]^2       * l + (r0-r2).(r1-r1) * m = (r0-r2).(r-r2)
+    //              (r0-r2).(r1-r1) * l + |r1-r2]^2       * m = (r1-r2).(r-r2)
+    //
+    //  which is solved using the Kramer formualas.             
+    //
+    // TODO: It is a little bit silly to do this. The points that are passed by the integrator
+    // are computed from their barycentric coordinates and we now do the opposite computation.
+    // A more clever way would be to pass the barycentric coordinates directly and to compute
+    // the point in the analytic functions. This will totally suppress the need for this class.
+
+    class OPENMEEG_EXPORT BarycentricCoordinates {
     public:
 
-        analyticDipPotDer(const Dipole& dip,const Triangle& T): dipole(dip) {
+        BarycentricCoordinates(const Triangle& T) {
 
             const Vect3& p0 = T.vertex(0);
             const Vect3& p1 = T.vertex(1);
             const Vect3& p2 = T.vertex(2);
 
-            const Vect3& p1p0 = p0-p1;
-            const Vect3& p2p1 = p1-p2;
-            const Vect3& p0p2 = p2-p0;
-            const Vect3& p1p0n = p1p0/p1p0.norm();
-            const Vect3& p2p1n = p2p1/p2p1.norm();
-            const Vect3& p0p2n = p0p2/p0p2.norm();
+            r20 = p0-p2;
+            r21 = p1-p2;
+            r2  = p2;
 
-            const Vect3& p1H0 = dotprod(p1p0,p2p1n)*p2p1n;
-            H0 = p1H0+p1;
-            H0p0DivNorm2 = p0-H0;
-            H0p0DivNorm2 = H0p0DivNorm2/H0p0DivNorm2.norm2();
-            const Vect3& p2H1 = dotprod(p2p1,p0p2n)*p0p2n;
-            H1 = p2H1+p2;
-            H1p1DivNorm2 = p1-H1;
-            H1p1DivNorm2 = H1p1DivNorm2/H1p1DivNorm2.norm2();
-            const Vect3& p0H2 = dotprod(p0p2,p1p0n)*p1p0n;
-            H2 = p0H2+p0;
-            H2p2DivNorm2 = p2-H2;
-            H2p2DivNorm2 = H2p2DivNorm2/H2p2DivNorm2.norm2();
+            const double norm_r20_squared = r20.norm2();
+            const double norm_r21_squared = r21.norm2();
+            const double prod_r20_r21     = dotprod(r20,r21);
 
-            n = -crossprod(p1p0,p0p2);
-            n.normalize();
+            const double det = norm_r20_squared*norm_r21_squared-sqr(prod_r20_r21);
+            const double invdet = 1.0/det;
+
+            c11 = norm_r20_squared*invdet;
+            c22 = norm_r21_squared*invdet;
+            c12 = prod_r20_r21*invdet;
         }
 
-        Vect3 f(const Vect3& r) const {
-            Vect3 P1part(dotprod(H0p0DivNorm2,r-H0),dotprod(H1p1DivNorm2,r-H1),dotprod(H2p2DivNorm2,r-H2));
+        Vect3 operator()(const Vect3& r) const {
 
-            // B = n.grad_x(A) with grad_x(A)= q/||^3 - 3r(q.r)/||^5
-
-            const Vect3& x         = r-dipole.position();
-            const double inv_xnrm2 = 1.0/x.norm2();
-            const double EMpart = dotprod(n,dipole.moment()-3*dotprod(dipole.moment(),x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
-
-            return -EMpart*P1part; // RK: why - sign ?
+            const Vect3& u = r-r2;
+            const double b1 = dotprod(r20,u);
+            const double b2 = dotprod(r21,u);
+            const double l = b1*c22-b2*c12;
+            const double m = b2*c11-b1*c12;
+            return Vect3(l,m,1-l-m);
         }
 
     private:
 
-        const Dipole& dipole;
+        double c11,c12,c22;
+        Vect3  r20,r21,r2;
+    };
 
-        Vect3 H0, H1, H2;
-        Vect3 H0p0DivNorm2, H1p1DivNorm2, H2p2DivNorm2, n;
+    class OPENMEEG_EXPORT analyticMonopolePotDer {
+    public:
+
+        analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
+            barycentric_coords(T),triangle(T),monopole(monop)
+        { }
+
+        Vect3 f(const Vect3& r) const {
+
+            // B = n.grad_x(A) with grad_x(A)= -q x/|x|^3, with x = r-r0
+
+            const Vect3& x      = r-monopole.position();
+            const double xnrm2  = x.norm2();
+            const Vect3& n      = triangle.normal();
+			const double EMpart = monopole.charge()*dotprod(n,x)/(xnrm2*sqrt(xnrm2));
+            const Vect3& P1term = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
+
+            return EMpart*P1term; // RK: why not - sign ?
+        }
+
+    private:
+
+        const BarycentricCoordinates barycentric_coords;
+
+        const Triangle& triangle;
+        const Monopole& monopole;
+    };
+
+    class OPENMEEG_EXPORT analyticDipPotDer {
+    public:
+
+        analyticDipPotDer(const Dipole& dip,const Triangle& T):
+            barycentric_coords(T),triangle(T),dipole(dip)
+        { }
+
+        Vect3 f(const Vect3& r) const {
+
+            // B = n.grad_x(A) with grad_x(A)= q/|x|^3 - 3r(q.x)/|x|^5 with x = r-r0
+
+            const Vect3& x         = r-dipole.position();
+            const double inv_xnrm2 = 1.0/x.norm2();
+            const Vect3& n         = triangle.normal();
+            const double EMpart    = dotprod(n,dipole.moment()-(3*dotprod(dipole.moment(),x)*inv_xnrm2)*x)*(inv_xnrm2*sqrt(inv_xnrm2));
+            const Vect3& P1term    = barycentric_coords(r); // P1 function values are just the barycentric coordinates of r.
+
+            return -EMpart*P1term; // RK: why - sign ?
+        }
+
+    private:
+
+        const BarycentricCoordinates barycentric_coords;
+
+        const Triangle& triangle;
+        const Dipole&   dipole;
     };
 }

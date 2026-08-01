@@ -58,9 +58,9 @@ case "$PLATFORM" in
         ;;
     Darwin-x86_64)
         OS=macos
-        VCPKG_TRIPLET="x64-osx-release-1015"
+        VCPKG_TRIPLET="x64-osx-release-110"
         LIB_OUTPUT_DIR="$ROOT/install/lib"
-        MACOS_MIN_VER="10.15"
+        MACOS_MIN_VER="11.0"  # lowest target the vendored libomp supports
         PACKAGE_ARCH_SUFFIX="_Intel"
         ;;
     Darwin-arm64)
@@ -157,8 +157,14 @@ elif [[ "$OS" == "macos" ]]; then
     export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
     export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOS_MIN_VER}"
     source ./build_tools/setup_vcpkg_compilation.sh
-    # libomp can cause segfaults on macos... maybe from version conflicts with OpenBLAS, or from being too recent?
-    export OPENMP_OPT="-DUSE_OPENMP=OFF"
+    # Neither BLAS backend here brings an OpenMP runtime of its own (Accelerate
+    # has none, scipy-openblas32 is a pthreads build), so libomp ends up the only
+    # one in the process -- the mixed-runtime crashes that got OpenMP turned off
+    # here don't apply.
+    source ./build_tools/setup_libomp_macos.sh
+    if [[ "$KIND" == "app" ]]; then
+        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${LIBOMP_LIB_DIR}/libomp.dylib"
+    fi
 else  # windows
     export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
     source ./build_tools/setup_vcpkg_compilation.sh
@@ -221,6 +227,9 @@ elif [[ "$OS" == "macos" ]]; then
         otool -L $LIB_OUTPUT_DIR/libOpenMEEG.*.dylib
         if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
             cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
+        fi
+        if [[ "$LIBOMP_LIB_DIR" != "" ]]; then
+            cp -av "$LIBOMP_LIB_DIR"/libomp.dylib $LIB_OUTPUT_DIR/
         fi
     else
         otool -L $ROOT/build/OpenMEEG/libOpenMEEG.*.dylib
