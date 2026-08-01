@@ -61,7 +61,7 @@ main(int argc,char* argv[]) {
         Matrix mat;
         mat.load(transfmat);
 
-        if ((mat.nlin()!=4) || (mat.ncol()!=4)) {
+        if (mat.nlin()!=4 || mat.ncol()!=4) {
             std::cerr << "Transformation matrix are 4x4 matrices, the one provided is " << mat.nlin() << 'x' << mat.ncol() << std::endl;
             return 2;
         }

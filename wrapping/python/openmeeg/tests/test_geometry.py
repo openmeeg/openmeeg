@@ -80,6 +80,6 @@ def test_make_geometry_head(data_path):
     g1 = om.make_nested_geometry(meshes[:1], conductivity=(1,))
     g2 = om.read_geometry(
         op.join(dirpath, subject + "_1_layer.geom"),
-        op.join(dirpath, subject + "_1_layer.cond"),
+        op.join(dirpath, subject + ".cond"),
     )
     _assert_geometry(g1, g2, n_domains=2)

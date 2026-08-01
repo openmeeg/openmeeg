@@ -32,38 +32,41 @@ namespace OpenMEEG {
 
         private:
 
-            static IO DefaultIO;
+            //  thread_local, so a one-shot format override cannot leak across threads.
+            //  Kept behind functions defined in MathsIO.C rather than as static data
+            //  members: MSVC rejects thread storage duration on a dll-exported class
+            //  (C2492), and one definition keeps every module sharing one instance.
+
+            static IO&   current_format();
+            static bool& current_format_is_permanent();
 
         public:
 
             MathsIO(const unsigned pr): priority(pr) { };
             MathsIO(const char* file): file_name(file),priority(0) { }
+            MathsIO(const std::string& file): file_name(file),priority(0) { }
             virtual ~MathsIO() {};
 
             static IOs& ios() { static IOs* ios = new IOs; return *ios; }
 
-            static IO default_io() { return DefaultIO; }
-
-            static bool permanent;
+            static IO default_io() { return current_format(); }
 
             const std::string& name() const { return file_name; }
-
-            void setName(const std::string& n) { file_name = n; }
 
             //  This is very similar with ImageIO, how to commonize it ?
 
             //  Handle the default io.
 
             static IO GetCurrentFormat() {
-                IO tmp = DefaultIO;
-                if (!permanent)
-                    DefaultIO = 0;
+                IO tmp = current_format();
+                if (!current_format_is_permanent())
+                    current_format() = 0;
                 return tmp;
             }
 
             static void SetCurrentFormat(IO io,const bool perm=false) {
-                DefaultIO = io;
-                permanent = perm;
+                current_format() = io;
+                current_format_is_permanent() = perm;
             }
 
             static const IO& format(const std::string&);
@@ -107,17 +110,21 @@ namespace OpenMEEG {
             virtual bool identify(const std::string&) const = 0;
             virtual bool known(const LinOp&) const = 0;
 
+            //  The registered ios() are prototypes shared by the whole process, so an
+            //  operation runs on a clone owning its own file name rather than mutating
+            //  the prototype, which would race as soon as two threads do i/o.
+
+            virtual MathsIOBase* clone(const std::string& filename) const = 0;
+
             virtual LinOpInfo info(std::ifstream&) const = 0;
 
             virtual void read(std::ifstream&,LinOp&) const = 0;
             virtual void write(std::ofstream&,const LinOp&) const = 0;
 
             virtual bool known_suffix(const char* suffix)  const noexcept {
-                const Suffixes& suffs = suffixes();
-                for (Suffixes::const_iterator i=suffs.begin();i!=suffs.end();++i) {
-                    if (!strcmp(suffix,i->c_str()))
+                for (const std::string& str : suffixes())
+                    if (!strcmp(suffix,str.c_str()))
                         return true;
-                }
                 return false;
             }
 
@@ -125,7 +132,10 @@ namespace OpenMEEG {
 
         protected:
 
+            //  Only the prototypes register; clones are made per operation by clone().
+
             MathsIOBase(const unsigned pr): MathsIO(pr) { base::ios().insert(this); }
+            MathsIOBase(const std::string& filename): MathsIO(filename) { }
             ~MathsIOBase() {};
         };
 

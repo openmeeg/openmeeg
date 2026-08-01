@@ -11,7 +11,7 @@
 
 using namespace OpenMEEG;
 
-int main(int argc, char **argv) {
+int main(int argc,char **argv) {
     command_usage("Create a BEM mesh from either an implicit function: sphere, hemisphere, ...:");
     const double sphere_radius     = command_option("-r", 0.0, "radius of the sphere");
     const double hemisphere_radius = command_option("-hr",0.0, "radius of the hemisphere");

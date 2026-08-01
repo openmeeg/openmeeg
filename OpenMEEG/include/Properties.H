@@ -30,7 +30,8 @@ namespace Utils {
         template <typename ID>
         class UnknownProperty: public std::runtime_error {
         public:
-            UnknownProperty(const ID& i): std::runtime_error("Unknown property"), id(i) { }
+
+            UnknownProperty(const ID& i): std::runtime_error("Unknown property"),id(i) { }
             ~UnknownProperty() noexcept { }
             ID id;
         };
@@ -38,7 +39,7 @@ namespace Utils {
         template <typename ID>
         class MultiplyDefinedProperty: public std::runtime_error {
         public:
-            MultiplyDefinedProperty(const ID& i): std::runtime_error("Property defined multiple times"), id(i) { }
+            MultiplyDefinedProperty(const ID& i): std::runtime_error("Property defined multiple times"),id(i) { }
             ~MultiplyDefinedProperty() noexcept { }
             ID id;
         };

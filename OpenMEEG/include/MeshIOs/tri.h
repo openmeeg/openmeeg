@@ -72,7 +72,9 @@ namespace OpenMEEG::MeshIOs {
 
         MeshIO* clone(const std::string& filename) const override { return new Tri(filename); }
 
-        Tri(const std::string& filename=""): base(filename,"tri") { }
+        Tri(): base(Extension("tri")) { }
+
+        Tri(const std::string& filename): base(filename) { }
 
         static const Tri prototype;
 

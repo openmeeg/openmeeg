@@ -50,8 +50,18 @@ jobs:
         # if this will really help anything. NumPy/SciPy's OpenBLAS (which
         # we use currently) should be well tested already though, so there is
         # perhaps no need to switch.
+        #
+        # Jobs that link Ubuntu's own OpenBLAS use 24.04, not 22.04: the
+        # OpenBLAS 0.3.20 in 22.04 returns wrong results from DSYMM on its
+        # Cooperlake kernel, which we hit through
+        # Matrix::operator*(const SymMatrix&) in GainMEG. It only bites on the
+        # subset of Azure runners whose CPU dispatches to that kernel, which is
+        # why it showed up as an intermittent
+        # test_meg_sphere_vs_sarvas[3-conductivity1] failure. 24.04 ships
+        # 0.3.26, where it is fixed. Details and a standalone reproducer:
+        # https://github.com/openmeeg/openmeeg/pull/872#issuecomment-5119089104
         include:
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
+        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.10_oldest
           blas: OpenBLAS
           blas_linking: dynamic
           python: cmake
@@ -73,6 +83,14 @@ jobs:
           blas_linking: dynamic
           python: cmake
           testing: fast
+        # Accelerate, which is what the macOS arm64 wheels and app ship.
+        # Thorough because mne_sample_ico3 is the only realistic-size numerical
+        # check we have, and this is the one backend with no upstream coverage.
+        - os: macos-latest
+          blas: Accelerate
+          blas_linking: dynamic
+          python: cmake
+          testing: thorough
         - os: macos-15-intel
           blas: OpenBLAS
           blas_linking: dynamic
@@ -83,7 +101,7 @@ jobs:
           blas: OpenBLAS-latest
           python-version: '3.12'
         # PyPy build
-        - os: ubuntu-22.04  # wrapping_ubuntu-22.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
+        - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
           python-version: 'pypy-3.11'
         # One with latest numpy, plus VTK
@@ -107,8 +125,8 @@ jobs:
         - os: windows-latest
           blas: OpenBLAS
           blas_linking: static
-        # Setuptools
-        - os: ubuntu-22.04
+        # Setuptools (defaults to OpenBLAS, so 24.04 -- see the note above)
+        - os: ubuntu-24.04
           python: setuptools
         - os: macos-latest
           python: setuptools
@@ -116,7 +134,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
 
@@ -126,9 +144,9 @@ jobs:
       id: env-vars
       run: |
         echo "os=${{matrix.os}}" | tee -a $GITHUB_OUTPUT
-        if [[ "${{matrix.numpy}}" == *'dev' ]]; then
+        if [[ "${{matrix.numpy}}" == 'numpydev' ]]; then
           echo "numpy_version=dev" | tee -a $GITHUB_OUTPUT
-        elif [[ "${{matrix.numpy}}" == *'old' ]]; then
+        elif [[ "${{matrix.numpy}}" == 'numpyold' ]]; then
           echo "numpy_version=oldest" | tee -a $GITHUB_OUTPUT
         else
           echo "numpy_version=latest" | tee -a $GITHUB_OUTPUT
@@ -165,7 +183,7 @@ jobs:
         if [[ "${{matrix.testing}}" == "thorough" ]]; then
           SLOW_OPT="-DTEST_SLOW_PYTHON=ON"
         fi
-        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == 'FlexiBLAS' ]]; then
+        if [[ "${{matrix.blas}}" == 'mkl'* ]] || [[ "${{matrix.blas}}" == 'FlexiBLAS' ]] || [[ "${{matrix.blas}}" == 'Accelerate' ]]; then
           echo "Setting BLA_IMPLEMENTATION=${{matrix.blas}}"
           echo "BLA_IMPL=-DBLA_IMPLEMENTATION=${{matrix.blas}}" | tee -a $GITHUB_ENV
           echo "blas=${{matrix.blas}}" | tee -a $GITHUB_OUTPUT
@@ -182,10 +200,6 @@ jobs:
         else
           DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
         fi
-        # OpenMP doesn't work well on macOS
-        if [[ "${{matrix.os}}" == 'macos'* ]]; then
-          OPENMP_OPT="-DUSE_OPENMP=OFF"
-        fi
         if [[ "${{matrix.vtk}}" == 'vtk'* ]]; then
           echo "vtk_version=${{matrix.vtk}}" | tee -a $GITHUB_OUTPUT
           VTK_OPT="-DUSE_VTK=ON -DENABLE_VTK_BUG_WORKAROUND=ON"
@@ -196,7 +210,9 @@ jobs:
         # On windows, copy the runtime DLLs
         if [[ "${{matrix.os}}" == 'windows'* ]]; then
           PYTHON_COPY_RUNTIME_DLLS_OPT="-DPYTHON_COPY_RUNTIME_DLLS=ON"
-          echo "OMP_NUM_THREADS=1" | tee -a $GITHUB_ENV
+          # >1 so the OpenMP paths actually get exercised, but low enough to stay
+          # well inside the runner's memory budget.
+          echo "OMP_NUM_THREADS=3" | tee -a $GITHUB_ENV
         fi
         echo "Using WERROR_OPT=$WERROR_OPT"
         echo "SLOW_OPT=$SLOW_OPT" | tee -a $GITHUB_ENV
@@ -231,7 +247,7 @@ jobs:
         channels: conda-forge
         channel-priority: strict
     - name: Python via setup-python
-      uses: actions/setup-python@v6.3.0
+      uses: actions/setup-python@v7.0.0
       if: startswith(steps.env-vars.outputs.python, 'python') && startswith(steps.env-vars.outputs.python_version, 'pypy')
       with:
         python-version: "${{ steps.env-vars.outputs.python_version }}"
@@ -308,7 +324,7 @@ jobs:
         path: |
           vcpkg
           build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}
+        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}
 
     - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(steps.env-vars.outputs.os,'windows')
@@ -346,6 +362,8 @@ jobs:
         echo "Installing dependencies with brew"
         HOMEBREW_NO_AUTO_UPDATE=1 brew install hdf5 libmatio libomp swig zlib $BREW_EXTRA
         echo "brew install complete"
+        # libomp is keg-only, so FindOpenMP won't see it without a hint.
+        echo "OpenMP_ROOT=$(brew --prefix libomp)" | tee -a $GITHUB_ENV
         if [[ "${{steps.env-vars.outputs.blas}}" == "OpenBLAS" ]]; then
           if [[ "$(arch)" == "arm64" ]]; then
             BLAS_DIR=/opt/homebrew/opt/openblas
@@ -367,10 +385,10 @@ jobs:
           echo "CMAKE_PREFIX_PATH=$BLAS_DIR" | tee -a $GITHUB_ENV
         fi
         # Set our version min
-        if [[ $(uname -m) == 'arm64' ]]; then
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
+        if [[ "${{steps.env-vars.outputs.blas}}" == "Accelerate" ]]; then
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=13.3" | tee -a $GITHUB_ENV
         else
-          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" | tee -a $GITHUB_ENV
+          echo "SYSTEM_VERSION_OPT=-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0" | tee -a $GITHUB_ENV
         fi
 
     - name: Linux - hdf5, libmatio, doxygen, (optionally) vtk, and (optionally) OpenBLAS via apt
@@ -501,8 +519,12 @@ jobs:
         #   echo "::endgroup::"
         # fi
         echo "::group::om_minverser --help"
-        ./install/bin/om_minverser --help
+        OM_HELP=$(./install/bin/om_minverser --help)
+        echo "$OM_HELP"
         echo "::endgroup::"
+        # FindOpenMP failing is only a STATUS message, so without this a job can
+        # silently go single-threaded and still pass.
+        echo "$OM_HELP" | grep -q 'using OpenMP'
         if [[ "${{steps.env-vars.outputs.python_type}}" == 'cmake' ]]; then
           PYVER=$(python -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
           PYNAME=$(python -c "import sys; print('pypy' if 'pypy' in sys.implementation.name else 'python')")

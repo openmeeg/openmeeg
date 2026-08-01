@@ -14,6 +14,10 @@
 
 namespace OpenMEEG {
 
+    // A class to have a specific type for extensions.
+
+    using Extension = std::string_view;
+
     inline std::string
     getFilenameExtension(const std::string& name) {
         const std::string ext = std::filesystem::path(name).extension().string();

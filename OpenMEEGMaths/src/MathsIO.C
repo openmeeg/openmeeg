@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "MathsIO.H"
 
 namespace OpenMEEG {
@@ -13,12 +15,12 @@ namespace OpenMEEG {
             static std::string
             ReadTag(std::istream& is) {
 
-                static char buffer[maxtagsize+1];
+                char buffer[maxtagsize+1]; // Not static: shared would corrupt concurrent readers.
 
                 try {
                     is.read(buffer,maxtagsize);
 
-                    for(int i=maxtagsize-1;i>=0;--i)
+                    for (int i=maxtagsize-1; i>=0; --i)
                         is.putback(buffer[i]);
 
                     buffer[maxtagsize] = '\0'; // Add an end of string.
@@ -29,16 +31,40 @@ namespace OpenMEEG {
 
                 return std::string(buffer);
             }
+
+            //  Owns the clone an io prototype makes for one operation. Ownership is
+            //  held as a MathsIO*, whose destructor is public and virtual, because
+            //  ~MathsIOBase() is protected.
+
+            class Operation {
+            public:
+
+                Operation(const MathsIO::IO proto,const std::string& filename):
+                    io(proto->clone(filename)),owner(io) { }
+
+                MathsIOBase* operator->() const { return io; }
+
+            private:
+
+                MathsIOBase* const             io;
+                const std::unique_ptr<MathsIO> owner;
+            };
         }
 
-        MathsIO::IO MathsIO::DefaultIO = 0;
-        bool MathsIO::permanent = false;
+        MathsIO::IO& MathsIO::current_format() {
+            static thread_local IO io = 0;
+            return io;
+        }
+
+        bool& MathsIO::current_format_is_permanent() {
+            static thread_local bool perm = false;
+            return perm;
+        }
 
         const MathsIO::IO& MathsIO::format(const std::string& fmt) {
-            for (IOs::const_iterator i=ios().begin();i!=ios().end();++i) {
-                if (fmt==(*i)->identity())
-                    return *i;
-            }
+            for (const IO& io : ios())
+                if (fmt==io->identity())
+                    return io;
             throw UnknownFileFormat(fmt);
         }
 
@@ -48,9 +74,9 @@ namespace OpenMEEG {
                 throw NoSuffix(name);
 
             const std::string suffix = name.substr(pos+1);
-            for (IOs::const_iterator i=ios().begin();i!=ios().end();++i)
-                if ((*i)->known_suffix(suffix.c_str()))
-                    return *i;
+            for (const IO& io : ios())
+                if (io->known_suffix(suffix.c_str()))
+                    return io;
             throw UnknownFileSuffix(suffix);
         }
 
@@ -61,22 +87,24 @@ namespace OpenMEEG {
 
             const std::string& buffer = Internal::ReadTag(is);
 
+            //  linop.default_io() keeps the prototype, which outlives the operation:
+            //  the clone below is gone by the time anyone looks at it.
+
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->identify(buffer)) {
-                    dio->setName(mio.name());
-                    dio->read(is,linop);
+                    Internal::Operation io(dio,mio.name());
+                    io->read(is,linop);
                     linop.default_io() = dio;
                     return mio;
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(buffer)) {
-                        (*io)->setName(mio.name());
-                        (*io)->read(is,linop);
-                        linop.default_io() = *io;
+                for (const maths::MathsIO::IO& proto : MathsIO::ios())
+                    if (proto->identify(buffer)) {
+                        Internal::Operation io(proto,mio.name());
+                        io->read(is,linop);
+                        linop.default_io() = proto;
                         return mio;
                     }
-                }
             }
             throw NoIO(mio.name(),NoIO::READ);
         }
@@ -89,41 +117,39 @@ namespace OpenMEEG {
 
             if (maths::MathsIO::IO dio = maths::MathsIO::GetCurrentFormat()) {
                 if (dio->known(linop)) {
-                    dio->setName(mio.name());
-                    dio->write(os,linop);
+                    Internal::Operation io(dio,mio.name());
+                    io->write(os,linop);
                     return mio;
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->known(linop)) {
-                        (*io)->setName(mio.name());
-                        (*io)->write(os,linop);
+                for (const maths::MathsIO::IO& proto : MathsIO::ios())
+                    if (proto->known(linop)) {
+                        Internal::Operation io(proto,mio.name());
+                        io->write(os,linop);
                         return mio;
                     }
-                }
             }
             throw NoIO(mio.name(),NoIO::WRITE);
         }
 
         LinOpInfo info(const char* name) {
             std::ifstream is(name,std::ios::binary);
-            if(is.fail())
+            if (is.fail())
                 throw BadFileOpening(name,BadFileOpening::READ);
 
             const std::string& buffer = Internal::ReadTag(is);
 
             if (maths::MathsIO::IO dio = maths::MathsIO::default_io()) {
                 if (dio->identify(buffer)) {
-                    dio->setName(name);
-                    return dio->info(is);
+                    Internal::Operation io(dio,name);
+                    return io->info(is);
                 }
             } else {
-                for (maths::MathsIO::IOs::const_iterator io=maths::MathsIO::ios().begin();io!=maths::MathsIO::ios().end();++io) {
-                    if ((*io)->identify(buffer)) {
-                        (*io)->setName(name);
-                        return (*io)->info(is);
+                for (const maths::MathsIO::IO& proto : MathsIO::ios())
+                    if (proto->identify(buffer)) {
+                        Internal::Operation io(proto,name);
+                        return io->info(is);
                     }
-                }
             }
             throw NoIO(name,NoIO::READ);
         }

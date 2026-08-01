@@ -136,7 +136,7 @@ namespace OpenMEEG {
         DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         om_assert(Info==0);
         // Inverse
-        for(int i=0; i<nbvect; ++i) {
+        for (int i=0; i<nbvect; ++i) {
             DSPTRS('U',sizet_to_int(invA.nlin()),1,invA.data(),pivots,B[i].data(),sizet_to_int(invA.nlin()),Info);
             om_assert(Info==0);
         }
@@ -149,7 +149,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator+=(const SymMatrix& B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), 1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2),1.0,B.data(),1,data(),1);
     #else
         const size_t sz = size();
         for (size_t i=0; i<sz; ++i)
@@ -160,7 +160,7 @@ namespace OpenMEEG {
     inline void SymMatrix::operator-=(const SymMatrix& B) {
         om_assert(nlin()==B.nlin());
     #ifdef HAVE_BLAS
-        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2), -1.0, B.data(), 1, data() , 1);
+        BLAS(daxpy,DAXPY)(sizet_to_int(nlin()*(nlin()+1)/2),-1.0,B.data(),1,data(),1);
     #else
         const size_t sz = size();
         for (size_t i=0; i<sz; ++i)
@@ -174,9 +174,9 @@ namespace OpenMEEG {
     #ifdef HAVE_LAPACK
         // U'U factorization then inverse
         int Info = 0;
-        DPPTRF('U', sizet_to_int(nlin()),invA.data(),Info);
+        DPPTRF('U',sizet_to_int(nlin()),invA.data(),Info);
         om_assert(Info==0);
-        DPPTRI('U', sizet_to_int(nlin()),invA.data(),Info);
+        DPPTRI('U',sizet_to_int(nlin()),invA.data(),Info);
         om_assert(Info==0);
     #else
         std::cerr << "Positive definite inverse not defined" << std::endl;
@@ -192,12 +192,12 @@ namespace OpenMEEG {
         BLAS_INT *pivots=new BLAS_INT[nlin()];
         int Info = 0;
         // TUDUtTt
-        DSPTRF('U', sizet_to_int(invA.nlin()), invA.data(), pivots,Info);
+        DSPTRF('U',sizet_to_int(invA.nlin()),invA.data(),pivots,Info);
         if (Info<0) {
             std::cout << "Big problem in det (DSPTRF)" << std::endl;
             om_assert(Info==0);
         }
-        for (size_t i = 0; i< nlin(); i++){
+        for (size_t i=0; i<nlin(); ++i){
             if (pivots[i] >= 0) {
                 d *= invA(i,i);
             } else { // pivots[i] < 0
@@ -258,7 +258,7 @@ namespace OpenMEEG {
 
     inline SymMatrix SymMatrix::inverse() const {
     #ifdef HAVE_LAPACK
-        SymMatrix invA(*this, DEEP_COPY);
+        SymMatrix invA(*this,DEEP_COPY);
         // LU
         BLAS_INT* pivots = new BLAS_INT[nlin()];
         int Info = 0;

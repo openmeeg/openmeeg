@@ -46,17 +46,21 @@ jobs:
             arch: arm64
     timeout-minutes: 70
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v6.3.0  # to make before-all work properly
+      - uses: actions/setup-python@v7.0.0  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2.23
         if: runner.os != 'Linux'
         with:
           key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}
+      # Stays Linux-gated: wheel builds get hdf5 from the h5py manylinux image
+      # and build matio from source, so Linux never creates a vcpkg tree here.
+      # Caching it would only warn about non-existent paths. (The app workflow
+      # does use vcpkg on Linux, and caches it there.)
       - name: Cache vcpkg
         if: runner.os != 'Linux'
         uses: actions/cache@v6.1.0
@@ -64,7 +68,7 @@ jobs:
           path: |
             vcpkg
             build/vcpkg_installed
-          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt') }}-${{ matrix.os }}-${{ matrix.arch }}-0
+          key: ${{ github.job }}-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}-${{ matrix.os }}-${{ matrix.arch }}-0
       - uses: pypa/cibuildwheel@v4.1.0
         with:
           package-dir: ./wrapping/python
@@ -93,7 +97,7 @@ jobs:
           - os: macos-latest
             arch: arm64
     steps:
-      - uses: actions/setup-python@v6.3.0
+      - uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.13'
       - uses: actions/download-artifact@v8
@@ -119,7 +123,16 @@ jobs:
         shell: bash
       - run: pip install -v pytest dist/*.whl
         shell: bash
+      # Only exercise the om_viz plotting path on one runner, it is heavy
+      - name: Install viz dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: pip install pyvista pyvistaqt PyQt6
+      - uses: pyvista/setup-headless-display-action@v4
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          qt: true
       - run: pytest -m "not slow" --pyargs openmeeg
+      - run: om_viz --help
 
   upload_pypi:
     name: Upload to PyPI

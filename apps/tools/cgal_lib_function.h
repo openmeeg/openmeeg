@@ -31,5 +31,5 @@ namespace OpenMEEG {
         Mesh CGAL_to_OM(C3t3 c3t3);
     }
 
-    Mesh cgal_mesh_function(double sphere_radius, double hemisphere, double radius_bound, double distance_bound);
+    Mesh cgal_mesh_function(const double sphere_radius,const double hemisphere,const double radius_bound,const double distance_bound);
 }

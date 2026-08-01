@@ -140,7 +140,9 @@ namespace OpenMEEG::GeometryIOs {
             return res;
         }
 
-        GeomFile(const std::string& filename=""): base(filename,"geom") { }
+        GeomFile(): base(Extension("geom")) { }
+
+        GeomFile(const std::string& filename): base(filename) { }
 
         ~GeomFile() { ifs.close(); }
 
@@ -212,7 +214,7 @@ namespace OpenMEEG::GeometryIOs {
 
         bool trash; // backward compatibility, catch "Mesh" optionally.
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh", trash);
+            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh",trash);
 
         if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
