@@ -13,6 +13,8 @@
 
 namespace OpenMEEG {
 
+    // The factor 1/(4 Pi) is applied after integrating, so not implemented here.
+
     class OPENMEEG_EXPORT Monopole {
     public:
 
@@ -21,17 +23,28 @@ namespace OpenMEEG {
 
         Monopole(const unsigned i,const Matrix& M): r0(M(i,0),M(i,1),M(i,2)),q(M(i,3)) { }
 
+        const Vect3& position() const { return r0; }
+        double charge()         const { return q;  }
+
         double potential(const Vect3& r) const {
 
-            // V = q/||r-r0||
+            // V = q/|r-r0|
 
             const Vect3& x    = r-r0;
             const double nrm2 = x.norm2();
+
             return q/nrm2;
         }
 
-        const Vect3& position() const { return r0; }
-        double charge()         const { return q;  }
+        double gradient(const Vect3& r,const Vect3& n) const {
+
+            // grad(V) = -q (r-r0)/|r-r0|^3
+
+            const Vect3& x    = r-r0;
+            const double nrm2 = x.norm2();
+
+            return -q*dotprod(x,n)/(nrm2*sqrt(nrm2));
+        }
 
     private:
 

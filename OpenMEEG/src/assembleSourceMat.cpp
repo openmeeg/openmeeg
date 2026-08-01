@@ -11,6 +11,8 @@
 #include <operators.h>
 #include <assemble.h>
 #include <sensors.h>
+#include <monopole.h>
+#include <dipole.h>
 #include <OMExceptions.H>
 
 #include <constants.h>
@@ -60,37 +62,38 @@ namespace OpenMEEG {
         return mat;
     }
 
+    template <typename Source>
     Matrix
-    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const Integrator& integrator,const std::string& domain_name) {
+    SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name) {
 
         const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
-        const size_t n_monopoles = monopoles.nlin();
+        const size_t n_sources = sources.nlin();
 
-        Matrix rhs(size,n_monopoles);
+        Matrix rhs(size,n_sources);
         rhs.set(0.0);
 
-        ProgressBar pb(n_monopoles);
+        ProgressBar pb(n_sources);
         Vector rhs_col(rhs.nlin());
-        for (unsigned s=0; s<n_monopoles; ++s,++pb) {
-            const Monopole monopole(s,monopoles);
-            const Domain domain = (domain_name=="") ? geo.domain(monopole.position()) : geo.domain(domain_name);
+        for (unsigned s=0; s<n_sources; ++s,++pb) {
+            const Source source(s,sources);
+            const Domain domain = (domain_name=="") ? geo.domain(source.position()) : geo.domain(domain_name);
 
-            //  Only consider monopoles in non-zero conductivity domain.
+            //  Only consider sources in non-zero conductivity domains.
 
             const double cond = domain.conductivity();
             if (cond!=0.0) {
                 rhs_col.set(0.0);
                 for (const auto& boundary : domain.boundaries()) {
-                    const double factorD = (boundary.inside()) ? K : -K;
+                    const double factorD = (boundary.inside()) ? -K : K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                         //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
-                        operatorMonopolePotDer(monopole,mesh,rhs_col,coeffD,integrator);
+                        operatorPotentialDerivative(source,mesh,rhs_col,coeffD,integrator);
 
                         if (!oriented_mesh.mesh().current_barrier()) {
-                            const double coeff = -coeffD/cond;;
-                            operatorMonopolePot(monopole,mesh,rhs_col,coeff,integrator);
+                            const double coeff = coeffD/cond;;
+                            operatorPotential(source,mesh,rhs_col,coeff,integrator);
                         }
                     }
                 }
@@ -100,55 +103,8 @@ namespace OpenMEEG {
         return rhs;
     }
 
-    Matrix
-    MonopoleSourceMat(const Geometry& geo,const Matrix& monopoles,const std::string& domain_name) {
-        return MonopoleSourceMat(geo,monopoles,Integrator(3,10,0.001),domain_name);
-    }
-
-    Matrix
-    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const Integrator& integrator,const std::string& domain_name) {
-
-        const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
-        const size_t n_dipoles = dipoles.nlin();
-
-        Matrix rhs(size,n_dipoles);
-        rhs.set(0.0);
-
-        ProgressBar pb(n_dipoles);
-        Vector rhs_col(rhs.nlin());
-        for (unsigned s=0; s<n_dipoles; ++s,++pb) {
-            const Dipole dipole(s,dipoles);
-            const Domain domain = (domain_name=="") ? geo.domain(dipole.position()) : geo.domain(domain_name);
-
-            //  Only consider dipoles in non-zero conductivity domain.
-
-            const double cond = domain.conductivity();
-            if (cond!=0.0) {
-                rhs_col.set(0.0);
-                for (const auto& boundary : domain.boundaries()) {
-                    const double factorD = (boundary.inside()) ? K : -K;
-                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        //  Process the mesh.
-                        const double coeffD = factorD*oriented_mesh.orientation();
-                        const Mesh&  mesh   = oriented_mesh.mesh();
-                        operatorDipolePotDer(dipole,mesh,rhs_col,coeffD,integrator);
-
-                        if (!oriented_mesh.mesh().current_barrier()) {
-                            const double coeff = -coeffD/cond;;
-                            operatorDipolePot(dipole,mesh,rhs_col,coeff,integrator);
-                        }
-                    }
-                }
-                rhs.setcol(s,rhs_col);
-            }
-        }
-        return rhs;
-    }
-
-    Matrix
-    DipSourceMat(const Geometry& geo,const Matrix& dipoles,const std::string& domain_name) {
-        return DipSourceMat(geo,dipoles,Integrator(3,10,0.001),domain_name);
-    }
+    template Matrix SourceMatrix<Monopole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    template Matrix SourceMatrix<Dipole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
 
     Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator) {
 

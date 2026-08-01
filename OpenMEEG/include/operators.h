@@ -28,10 +28,12 @@
 namespace OpenMEEG {
 
     void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double);
-    void operatorMonopolePotDer(const Monopole&,const Mesh&,Vector&,const double,const Integrator&);
-    void operatorMonopolePot(const Monopole&,const Mesh&,Vector&,const double,const Integrator&);
-    void operatorDipolePotDer(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
-    void operatorDipolePot(const Dipole&,const Mesh&,Vector&,const double,const Integrator&);
+
+    template <typename Source>
+    void operatorPotential(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+
+    template <typename Source>
+    void operatorPotentialDerivative(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
 
     namespace Details {
 
@@ -99,9 +101,9 @@ namespace OpenMEEG {
             #endif
                 e.run([&](){
                     for (const auto& triangle2 : triangles2) {
-                        const analyticD3 analyD(triangle2);
-                        const auto&  Dfunc = [&analyD](const Vect3& r) { return analyD(r); };
-                        const Vect3& total = integrator.integrate(Dfunc,triangle1);
+                        const P1SingleLayerPotential P1_single_layer_potential(triangle2);
+                        const auto&  P1SLP = [&P1_single_layer_potential](const Vect3& r) { return P1_single_layer_potential(r); };
+                        const Vect3& total = integrator.integrate(P1SLP,triangle1);
 
                         for (unsigned i=0; i<3; ++i)
                             mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
@@ -305,9 +307,9 @@ namespace OpenMEEG {
         void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
             log_stream(INFORMATION) << "PARTAL OPERATOR D..." << std::endl;
             for (const auto& triangle : mesh.triangles()) {
-                const analyticD3 analyD(triangle);
+                const P1SingleLayerPotential P1_single_layer_potential(triangle);
                 for (const auto& vertex : points) {
-                    const Vect3& integrals = analyD(vertex);
+                    const Vect3& integrals = P1_single_layer_potential(vertex);
                     for (unsigned i=0;i<3;++i)
                         matrix(vertex.index(),triangle.vertex(i).index()) += integrals(i)*coeff;
                 }

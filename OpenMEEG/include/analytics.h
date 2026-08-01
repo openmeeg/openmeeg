@@ -9,8 +9,6 @@
 
 #include <cmath>
 #include <triangle.h>
-#include <monopole.h>
-#include <dipole.h>
 #include <BarycentricCoordinates.h>
 
 namespace OpenMEEG {
@@ -68,18 +66,19 @@ namespace OpenMEEG {
         Vect3  normals[3]; ///< These are the normals in the triangle plane to the edges of the triangle.
     };
 
-    // Analytical computation of the integral over a triangle T of .
+    // Analytical computation of the integral over a triangle T of the P1 single-layer potential (integral of lambda_i(y)/|y-x| over y).
+    // The implementation follows a formula obtained in Graglia 1993.
     // Used in non-optimized version of operator D.
     // Returns a vector of the inner integrals of operator D on a triangle w.r.t. its three P1 functions.
     // See DeMunck article for further details.
 
-    class OPENMEEG_EXPORT analyticD3 {
+    class OPENMEEG_EXPORT P1SingleLayerPotential {
 
         Vect3 diff(const unsigned i,const unsigned j) const { return triangle.vertex(i)-triangle.vertex(j); }
 
     public:
 
-        analyticD3(const Triangle& T):
+        P1SingleLayerPotential(const Triangle& T):
             triangle(T),
             D{ diff(1,0), diff(2,1), diff(0,2)},
             U{ D[0].unit_vector(), D[1].unit_vector(), D[2].unit_vector() }
@@ -128,47 +127,14 @@ namespace OpenMEEG {
         const Vect3     U[3];
     };
 
-    //
-
-    class OPENMEEG_EXPORT analyticMonopolePotDer {
-    public:
-
-        analyticMonopolePotDer(const Monopole& monop,const Triangle& T):
-            barycentric_coords(T),triangle(T),monopole(monop)
-        { }
-
-        Vect3 f(const Vect3& r) const {
-
-            // In this case, r is a point in triangle;
-            // Barycentric coordinates of r in the triangle.
-            // These are exactly the P1 coordinates of the point in the triangle.
-
-            const Vect3& P1coordinates = barycentric_coords(r);
-
-            // gradPotn = dotprod(normal,grad(q/|r-p|^3)) = dotprod(normal,grad(V)) with grad(V) = -q (r-p)/|r-p|^3.
-
-            const Vect3& x        = r-monopole.position();
-            const double xnrm2    = x.norm2();
-            const double gradPotn = monopole.charge()*dotprod(triangle.normal(),x)/(xnrm2*sqrt(xnrm2));
-
-            return gradPotn*P1coordinates; // why not - sign ?
-        }
-
-    private:
-
-        const BarycentricCoordinates barycentric_coords;
-
-        const Triangle& triangle;
-        const Monopole& monopole;
-    };
-
     // P1 integral of the normal component of the gradient of the potential.
 
-    class OPENMEEG_EXPORT analyticDipPotDer {
+    template <typename Source>
+    class OPENMEEG_EXPORT PotentialDerivative {
     public:
 
-        analyticDipPotDer(const Dipole& dip,const Triangle& T):
-            barycentric_coords(T),triangle(T),dipole(dip)
+        PotentialDerivative(const Source& src,const Triangle& T):
+            barycentric_coords(T),triangle(T),source(src)
         { }
 
         Vect3 operator()(const Vect3& r) const {
@@ -178,22 +144,16 @@ namespace OpenMEEG {
             // These are exactly the P1 coordinates of the point in the triangle.
 
             const Vect3& P1coordinates = barycentric_coords(r);
-            
-            // gradPotn = dotprod(normal,grad(q.(r-p)/|r-p|^3)) = dotprod(normal,grad(V)) with grad(V) = q/|r-p|^3-3 q.(r-p) (r-p)/|r-p|^5
+            const double pot_grad_n    = source.gradient(r,triangle.normal());
 
-            const Vect3& x         = r-dipole.position();
-            const Vect3& moment    = dipole.moment();
-            const double inv_xnrm2 = 1.0/x.norm2();
-            const double gradPotn  = dotprod(triangle.normal(),moment-3*dotprod(moment,x)*x*inv_xnrm2)*(inv_xnrm2*sqrt(inv_xnrm2));
-
-            return -gradPotn*P1coordinates; // RK: why - sign ?
+            return pot_grad_n*P1coordinates;
         }
 
     private:
 
         const BarycentricCoordinates barycentric_coords;
 
-        const Triangle&              triangle; // Triangle.
-        const Dipole&                dipole;   // Source.
+        const Triangle& triangle;
+        const Source&   source;
     };
 }
