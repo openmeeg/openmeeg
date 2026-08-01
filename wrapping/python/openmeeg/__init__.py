@@ -39,6 +39,7 @@ from ._openmeeg_wrapper import (
 )
 from ._misc import Head2ECoGMat
 from ._make_geometry import make_geometry, make_nested_geometry, read_geometry
+from ._make_sensors import make_sensors
 from ._utils import get_log_level, set_log_level, use_log_level
 
 try:

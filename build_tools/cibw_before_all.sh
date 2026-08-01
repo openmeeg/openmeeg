@@ -85,14 +85,17 @@ esac
 echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" PLATFORM=\"${PLATFORM}\" to set up KIND=\"$KIND\""
 
 if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
-    echo "::group::scipy-openblas32"
+    echo "::group::scipy-openblas64"
     # >=0.3.31 is required: 0.3.30.x and earlier shipped a lapacke.h whose symbols
     # were not SYMBOLPREFIX-mangled (OpenMathLib/OpenBLAS#5493, fixed upstream),
     # which used to have to be patched up with sed here.
-    python -m pip install "scipy-openblas32>=0.3.31"
-    OPENBLAS_INCLUDE=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_include_dir())")
-    OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas32/lib"
-    OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas32; print(scipy_openblas32.get_library())")  # typically, "libscipy_openblas32"
+    #
+    # scipy-openblas64 is the ILP64 (64-bit integer) build; see
+    # OpenMEEGMathsOpenBLASConfig.h and USE_SCIPY_OPENBLAS for the consuming side.
+    python -m pip install "scipy-openblas64>=0.3.31"
+    OPENBLAS_INCLUDE=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_include_dir())")
+    OPENBLAS_LIB_DIR=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_lib_dir())")  # somewhere like "/absolute/path/to/site-packages/scipy_openblas64/lib"
+    OPENBLAS_LIB_NAME=$(python -c "import scipy_openblas64; print(scipy_openblas64.get_library())")  # typically, "libscipy_openblas64_"
     echo "OPENBLAS_INCLUDE=\"$OPENBLAS_INCLUDE\""
     echo "OPENBLAS_LIB_DIR=\"$OPENBLAS_LIB_DIR\""
     ls -al "$OPENBLAS_INCLUDE" "$OPENBLAS_LIB_DIR"

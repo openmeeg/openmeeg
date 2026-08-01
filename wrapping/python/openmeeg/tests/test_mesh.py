@@ -58,21 +58,21 @@ def test_mesh_full(data_path):
     mesh_X.load(data_file)
     mesh_X.info()
 
-    # test Y -> redo with np.array()
-    V_X = mesh_X.vertices()
-    T_X = mesh_X.triangles()
-    assert V_X is not None and T_X is not None
-    # V_X.torray() should be possible
-    # mesh_Y = _omc.Mesh(V_X, T_X)  # XXX fails for now
-    # mesh_Y.info()
+    # Round-trip the loaded mesh through numpy arrays (gh-584). Mesh does not
+    # accept the vector_pvertex / vector_triangle objects that vertices() and
+    # triangles() return, so extract plain arrays first (same as the geometry
+    # helper does).
+    V_X = np.array([vertex.array() for vertex in mesh_X.vertices()], dtype=np.float64)
+    T_X = np.array(
+        [mesh_X.triangle(tri).array() for tri in mesh_X.triangles()], dtype=np.int64
+    )
+    mesh_Y = _omc.Mesh(V_X, T_X)
+    mesh_Y.info()
 
-    # TODO
-    # assert mesh_X.nb_vertices()  == mesh_Y.nb_vertices()
-    # assert mesh_X.nb_triangles() == mesh_Y.nb_triangles()
-    # V_Y = mesh_Y.vertices()
-    # T_Y = mesh_Y.triangles()
-    # assert_allclose(V_X, V_Y)
-    # assert_allclose(T_X, T_Y)
+    assert mesh_Y.vertices().size() == mesh_X.vertices().size()
+    assert mesh_Y.triangles().size() == mesh_X.triangles().size()
+    V_Y = np.array([vertex.array() for vertex in mesh_Y.vertices()], dtype=np.float64)
+    np.testing.assert_allclose(V_Y, V_X)
 
 
 def _triangle_vertex_sets(mesh):
