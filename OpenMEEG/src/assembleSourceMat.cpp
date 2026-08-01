@@ -103,8 +103,8 @@ namespace OpenMEEG {
         return rhs;
     }
 
-    template Matrix SourceMatrix<Monopole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
-    template Matrix SourceMatrix<Dipole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Monopole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Dipole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
 
     Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator) {
 
