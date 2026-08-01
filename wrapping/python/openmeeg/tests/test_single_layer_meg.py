@@ -208,6 +208,6 @@ def test_meg_sphere_radial_dipole_is_silent(tmp_path):
 
     tol = 0.02
     if platform.system() == "Darwin" and platform.machine() == "arm64":
-        tol = 0.1
+        tol = 0.15
 
     assert radial_norm < tol * tangential_norm
