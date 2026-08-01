@@ -545,12 +545,6 @@ jobs:
           pip show openmeeg
         fi
 
-    - name: Set numerics env
-      run: |
-        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-
     - name: Create, delocate, check, install, and test wheel
       if: startswith(steps.env-vars.outputs.python, 'python')
       id: wheel
