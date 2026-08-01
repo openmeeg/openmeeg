@@ -61,7 +61,6 @@ namespace OpenMEEG {
 
     template <typename Source>
     void operatorPotentialDerivative(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
-        std::cerr << "Coefficient: " << coeff << std::endl;
         ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -77,8 +76,6 @@ namespace OpenMEEG {
                 const PotentialDerivative<Source> potential_derivative(source,triangle);
                 const auto pot_derivative = [&](const Vect3& r) { return potential_derivative(r); };
                 const Vect3& v = integrator.integrate(pot_derivative,triangle);
-                #pragma omp critical
-                std::cerr << triangle.index() << ": " << v*coeff << std::endl;
 
                 for (unsigned j=0; j<3; ++j) {
                     double& r = rhs(triangle.vertex(j).index());
