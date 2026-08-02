@@ -5,6 +5,10 @@
 // - provide also LICENSE.txt and modify this header to refer to it.
 // - replace this header by the LICENSE.txt content.
 
+#include <set>
+#include <vector>
+#include <queue>
+
 #include <geometry.h>
 #include <MeshIO.h>
 #include <GeometryIO.h>
@@ -479,29 +483,39 @@ namespace OpenMEEG {
 
         // Figure out the connectivity of meshes
 
-        std::set<const Mesh*> mesh_indices;
+        std::set<const Mesh*> mesh_candidates;
         for (const auto& mesh : meshes())
-            mesh_indices.insert(&mesh);
+            mesh_candidates.insert(&mesh);
 
-        std::set<const Mesh*> connected_meshes;
+        while (!mesh_candidates.empty()) {
 
-        while (!mesh_indices.empty()) {
-            std::vector<const Mesh*> conn;
-            const Mesh* se = *(mesh_indices.begin());
-            mesh_indices.erase(se);
-            conn.push_back(se);
-            connected_meshes.insert(se);
-            for (unsigned iit = 0;iit<conn.size();++iit)
-                for (auto& mesh : meshes())
-                    if (common_domains(*conn[iit],mesh).size()!=0 && connected_meshes.insert(&mesh).second) {
-                        conn.push_back(&mesh);
-                        mesh_indices.erase(&mesh);
+            const Mesh* candidate = *mesh_candidates.begin();
+            mesh_candidates.erase(candidate);
+
+            std::vector<const Mesh*> connected_meshes{candidate};
+            std::queue<const Mesh*>  pending;
+            pending.push(candidate);
+
+            while (!pending.empty()) {
+
+                const Mesh* current = pending.front();
+                pending.pop();
+
+                for (auto it=mesh_candidates.begin(); it!=mesh_candidates.end(); )
+                    if (common_domains(*current,**it).empty()) {
+                        ++it;
+                    } else {
+                        connected_meshes.push_back(*it);
+                        pending.push(*it);
+                        it = mesh_candidates.erase(it);
                     }
+            }
 
-            //  Each connected conductor needs one deflation (potential defined up to a constant); a lone isolated mesh has no unknowns.
+            // Each connected conductor needs one deflation (potential defined up to a constant).
+            // A lone isolated mesh has no unknowns.
 
-            if (conn.size()>1 || !conn.front()->isolated())
-                independant_parts.push_back(conn);
+            if (connected_meshes.size()>1 || !connected_meshes.front()->isolated())
+                independant_parts.push_back(std::move(connected_meshes));
         }
 
         //  Report isolated geometries
