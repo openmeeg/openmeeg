@@ -119,7 +119,7 @@ main(int argc,char* argv[]) {
 
     if (!flag){
         std::cerr << std::endl << "ERROR : Matrices are different at the precision : eps = " << epsilon << std::endl;
-        exit(1);
+        return 1;
     }
     std::cout << "OK" << std::endl;
     std::cout.flush();
@@ -127,7 +127,7 @@ main(int argc,char* argv[]) {
     return 0;
 }
 
-template<class T>
+template <typename T>
 double normInf(const T& mat){ // compute the max of the norm 1 of each line
     double max = 0.0;
     for (unsigned i=0; i<mat.nlin(); ++i){
@@ -147,7 +147,7 @@ double normInf(const Vector& V) { // compute the norm 1 of a vector
     return sum;
 }
 
-template<class T>
+template <typename T>
 bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
                     const double eps,const bool rdm,const bool mag,const size_t col) {
     bool flag;
@@ -156,7 +156,7 @@ bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
         ifs2 >> mat2;
     } catch (std::string s) {
         std::cerr << s << std::endl;
-        exit(1);
+        return 1;
     }
     
     if (rdm) {
@@ -169,19 +169,19 @@ bool compare_matrix(maths::ifstream& ifs1,T& mat1,maths::ifstream& ifs2,T& mat2,
     return flag;
 }
 
-template<class T>
-bool compare(const T& mat1,const T& mat2,const double eps,const size_t col){
+template <typename T>
+bool compare(const T& mat1,const T& mat2,const double eps,const size_t col) {
     // T is a Matrix or a SymMatrix
 
     if (col) {
         if (mat1.ncol()<col || mat2.ncol()<col) {
             std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
-            exit(1);
+            return 1;
         }
     } else {
         if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
-            exit(1);
+            return 1;
         }
     }
 
@@ -213,7 +213,7 @@ bool compare(const T& mat1,const T& mat2,const double eps,const size_t col){
                     std::cout.flush();
                 }
                 if (count>=100) {
-                    std::cout << "values from 1 to 100.... stopping display..." << std::endl;
+                    std::cout << "values from 1 to 100.... Stopping the display..." << std::endl;
                     return false;
                 }
             }
@@ -229,7 +229,7 @@ bool compare(const T& mat1,const T& mat2,const double eps,const size_t col){
                         std::cout.flush();
                     }
                     if (count>=100) {
-                        std::cout << "values from 1 to 100.... stopping display..." << std::endl;
+                        std::cout << "values from 1 to 100.... Stopping the display..." << std::endl;
                         return false;
                     }
                 } else {
@@ -257,12 +257,12 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
         ifs2 >> V2;
     } catch (std::string s) {
         std::cerr << s << std::endl;
-        exit(1);
+        return 1;
     }
 
     if (V1.size()!=V2.size()) {
         std::cerr << "ERROR : Dimension mismatch !" << std::endl;
-        exit(1);
+        return 1;
     }
 
     bool flag = true;
@@ -301,19 +301,19 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
     return flag;
 }
 
-template<class T>
+template <typename T>
 bool compare_rdm(const T& mat1,const T& mat2,const double eps,const size_t col){
     // T is a Matrix
 
     if (col) {
         if ((mat1.ncol()<col) || (mat2.ncol()<col)) {
             std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
-            exit(1);
+            return 1;
         }
     } else {
         if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
-            exit(1);
+            return 1;
         }
     }
 
@@ -331,34 +331,32 @@ bool compare_rdm(const T& mat1,const T& mat2,const double eps,const size_t col){
     for (unsigned j=jmin; j<jmax; ++j) {
         Vector col1 = mat1.getcol(j);
         Vector col2 = mat2.getcol(j);
-        col1 = col1 - col1.mean();
-        col2 = col2 - col2.mean();
-        col1 = col1 / col1.norm();
-        col2 = col2 / col2.norm();
-        const double diff = (col1 - col2).norm();
+        col1 = col1-col1.mean();
+        col2 = col2-col2.mean();
+        col1 = col1/col1.norm();
+        col2 = col2/col2.norm();
+        const double RDM = (col1-col2).norm();
 
-        flag = flag && (diff<eps);
-        if (diff>=eps) {
-            std::cout << "ERROR RDM (column " << j << " ) " << diff << std::endl;
-            std::cout.flush();
-        }
+        flag = flag && RDM<eps;
+        if (RDM>=eps)
+            std::cout << "ERROR RDM (column " << j+1 << " ) " << RDM << std::endl;
     }
     return flag;
 }
 
-template<class T>
+template <typename T>
 bool compare_mag(const T& mat1,const T& mat2,const double eps,const size_t col){
     // T is a Matrix
 
     if (col) {
         if (mat1.ncol()<col || mat2.ncol()<col) {
             std::cerr << "ERROR : Bad Column Id for matrices dimensions !" << std::endl;
-            exit(1);
+            return 1;
         }
     } else {
         if (mat1.ncol()!=mat2.ncol() || mat1.nlin()!=mat2.nlin()) {
             std::cerr << "ERROR : Dimension mismatch !" << std::endl;
-            exit(1);
+            return 1;
         }
     }
 
@@ -375,15 +373,14 @@ bool compare_mag(const T& mat1,const T& mat2,const double eps,const size_t col){
     for (unsigned j=jmin; j<jmax; ++j) {
         Vector col1 = mat1.getcol(j);
         Vector col2 = mat2.getcol(j);
-        col1 = col1 - col1.mean();
-        col2 = col2 - col2.mean();
-        const double diff = std::abs(1-col1.norm()/col2.norm()); //distance to 1
+        col1 = col1-col1.mean();
+        col2 = col2-col2.mean();
+        const double MAG    = col1.norm()/col2.norm();
+        const double relMAG = std::abs(1-MAG); //distance to 1
 
-        flag = flag && (diff<eps);
-        if (diff>=eps) {
-            std::cout << "ERROR MAG (column " << j << " ) = " << col1.norm()/col2.norm() << "\trelMAG = "<< diff << std::endl;
-            std::cout.flush();
-        }
+        flag = flag && relMAG<eps;
+        if (relMAG>=eps)
+            std::cout << "ERROR MAG (column " << j+1 << " ) = " << MAG << "\trelMAG = "<< relMAG << std::endl;
     }
     return flag;
 }

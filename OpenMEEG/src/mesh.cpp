@@ -66,7 +66,7 @@ namespace OpenMEEG {
     }
 
     Triangle& Mesh::add_triangle(const TriangleIndices inds) {
-        Vertex* vptrs[3];
+        const Vertex* vptrs[3];
         for (unsigned i=0; i<3; ++i)
             vptrs[i] = &geometry().vertices().at(inds[i]);
         triangles().push_back(vptrs);
@@ -88,23 +88,13 @@ namespace OpenMEEG {
 
     /// Update triangles area/normal, update vertex triangles and vertices normals if needed
 
-    void Mesh::update(const bool topology_changed) {
+    void Mesh::update() {
 
         // If indices are not set, we generate them for sorting edge and testing orientation
 
-        if (topology_changed) {
-            make_adjacencies();
-            generate_indices();
-            correct_local_orientation();
-        }
-
-        // Compute triangles' normals and areas (after having the mesh locally reoriented)
-
-        for (auto& triangle : triangles()) {
-            Vect3 normaldir   = crossprod(triangle.vertex(0)-triangle.vertex(1),triangle.vertex(0)-triangle.vertex(2));
-            triangle.area()   = normaldir.norm()/2.0;
-            triangle.normal() = normaldir.normalize();
-        }
+        make_adjacencies();
+        generate_indices();
+        correct_local_orientation();
     }
 
     /// Compute normals at vertices.
@@ -135,7 +125,7 @@ namespace OpenMEEG {
         geom->vertices().reserve(m1.vertices().size()+m2.vertices().size());
         add_mesh(m1);
         add_mesh(m2);
-        update(true);
+        update();
     }
 
     /// Smooth Mesh
@@ -150,7 +140,6 @@ namespace OpenMEEG {
                     if (&triangle->vertex(k)!=vertex)
                         neighbors[vertex].insert(triangle->vertex(k));
 
-
         for (unsigned n=0; n<niter; ++n) {
             Vertices new_pts(vertices().size());
             for (const auto& vertex : vertices()) {
@@ -164,7 +153,6 @@ namespace OpenMEEG {
             for (auto& vertex : vertices())
                 *vertex = new_pts[i++];
         }
-        update(false); // Updating triangles (areas + normals)
     }
 
     /// Sq. Norm Surface Gradient: square norm of the surfacic gradient of the P1 and P0 elements
@@ -251,7 +239,7 @@ namespace OpenMEEG {
     double Mesh::solid_angle(const Vect3& p) const {
         double solangle = 0.0;
         for (const auto& triangle : triangles())
-            solangle += p.solid_angle(triangle.vertex(0),triangle.vertex(1),triangle.vertex(2));
+            solangle += triangle.solid_angle(p);
         return solangle;
     }
 
@@ -272,7 +260,7 @@ namespace OpenMEEG {
         delete io;
         if (verbose)
             info();
-        update(true);
+        update();
     }
 
     void Mesh::generate_indices() {

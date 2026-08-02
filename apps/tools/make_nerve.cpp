@@ -266,7 +266,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
     for (const auto& triangle : triangles)
         surf.add_triangle(triangle);
 
-    surf.update(true);
+    surf.update();
         
     surf.save(namesurf);
 

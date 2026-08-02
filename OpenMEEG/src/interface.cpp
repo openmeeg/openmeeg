@@ -63,17 +63,15 @@ namespace OpenMEEG {
 
         const Vect3& bbcenter = bb.center();
 
-        double solangle = solid_angle(bbcenter);
-
         //  If the bounding box center is not inside the interface,
         //  try to test another point chosen randomly inside the bounding box, until
         //  its solid angle is significantly non zero.
 
-        if (almost_equal(solangle,0.0))
-            while (almost_equal(solangle,0.)) {
-                const Vertex& V = bb.random_point();
-                solangle = solid_angle(V);
-            }
+        double solangle = solid_angle(bbcenter);
+        while (almost_equal(solangle,0.0)) {
+            const Vertex& V = bb.random_point();
+            solangle = solid_angle(V);
+        }
 
         if (almost_equal(solangle,4*Pi)) {
             // Reorient the interface.

@@ -74,6 +74,8 @@
     #include <integrator.h>
     #include <interface.h>
     #include <domain.h>
+    #include <monopole.h>
+    #include <dipole.h>
     #include <assemble.h>
     #include <gain.h>
     #include <forward.h>
@@ -144,8 +146,10 @@ namespace std {
 }
 
 namespace OpenMEEG {
+
     // The OpenMEEG:: prefix seems required...
     // Otherwise some wrapping tests are failing.
+
     %typedef std::vector<OpenMEEG::Vertex>   Vertices;
     %typedef std::vector<OpenMEEG::Vertex*>  PVertices;
     %typedef std::vector<OpenMEEG::Triangle> Triangles;
@@ -192,6 +196,9 @@ namespace OpenMEEG {
 
     %naturalvar OrientedMeshes;
     class OrientedMeshes;
+
+    %naturalvar Interface;
+    class Interface;
 }
 
 %inline %{
@@ -381,6 +388,22 @@ namespace OpenMEEG {
         }
         Py_DECREF(array);
     }
+
+    OpenMEEG::Matrix MonopoleSourceMat(const OpenMEEG::Geometry& geo,const OpenMEEG::Matrix& sources,const std::string& domain_name) {
+        return OpenMEEG::SourceMatrix<Monopole>(geo,sources,domain_name);
+    }
+
+    OpenMEEG::Matrix DipSourceMat(const OpenMEEG::Geometry& geo,const OpenMEEG::Matrix& sources,const std::string& domain_name) {
+        return OpenMEEG::SourceMatrix<Dipole>(geo,sources,domain_name);
+    }
+
+    OpenMEEG::Matrix MonopoleSourceMat(const OpenMEEG::Geometry& geo,const OpenMEEG::Matrix& sources,const OpenMEEG::Integrator& integrator,const std::string& domain_name) {
+        return OpenMEEG::SourceMatrix<Monopole>(geo,sources,integrator,domain_name);
+    }
+
+    OpenMEEG::Matrix DipSourceMat(const OpenMEEG::Geometry& geo,const OpenMEEG::Matrix& sources,const OpenMEEG::Integrator& integrator,const std::string& domain_name) {
+        return OpenMEEG::SourceMatrix<Dipole>(geo,sources,integrator,domain_name);
+    }
 %}
 
 // /////////////////////////////////////////////////////////////////
@@ -397,6 +420,7 @@ namespace OpenMEEG {
     // non-Fortran-order matrix) must therefore be caught and translated
     // into a Python exception here directly -- otherwise it escapes
     // uncaught and aborts the whole process (see gh-584).
+
     %typemap(in) Vector& {
         try {
             $1 = new_OpenMEEG_Vector($input);
@@ -442,6 +466,7 @@ namespace OpenMEEG {
 
 %ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
+%rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
 
 %extend OpenMEEG::Geometry {
 
@@ -585,7 +610,7 @@ namespace OpenMEEG {
         mesh->name() = name;
         const OpenMEEG::IndexMap& indmap = geom_add_vertices(&(mesh->geometry()),vertices);
         mesh_add_triangles(mesh,triangles,indmap);
-        mesh->update(true);
+        mesh->update();
         return mesh;
     }
 
@@ -625,7 +650,7 @@ namespace OpenMEEG {
             Mesh& mesh = geometry->add_mesh(PyUnicode_AsUTF8AndSize(name,nullptr));  // Since 3.10
             PyObject* triangles = PyList_GetItem(item,2);
             mesh_add_triangles(&mesh,triangles,indmap[i]);
-            mesh.update(true);
+            mesh.update();
             #ifdef DEBUG
             std::ostringstream oss;
             oss << "SWIG Geometry update of meshes(" << i << ")=\"" << mesh.name() << "\"";
@@ -658,6 +683,7 @@ namespace OpenMEEG {
 %include <interface.h>
 %include <domain.h>
 %include <assemble.h>
+%include <assembleSourceMat.h>
 %include <gain.h>
 %include <forward.h>
 

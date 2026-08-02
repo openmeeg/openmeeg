@@ -13,6 +13,8 @@
 
 namespace OpenMEEG {
 
+    // The factor 1/(4 Pi) is applied after integrating, so not implemented here.
+
     class OPENMEEG_EXPORT Dipole {
     public:
 
@@ -21,17 +23,27 @@ namespace OpenMEEG {
 
         Dipole(const unsigned i,const Matrix& M): r0(M(i,0),M(i,1),M(i,2)),q(M(i,3),M(i,4),M(i,5)) { }
 
+        const Vect3& position() const { return r0; }
+        const Vect3& moment()   const { return q;  }
+
         double potential(const Vect3& r) const {
 
-            // V = q.(r-r0)/||r-r0||^3
+            // V = q.(r-r0)/|r-r0|^3.
 
             const Vect3& x    = r-r0;
             const double nrm2 = x.norm2();
             return dotprod(q,x)/(nrm2*sqrt(nrm2));
         }
 
-        const Vect3& position() const { return r0; }
-        const Vect3& moment()   const { return q;  }
+        double gradient(const Vect3& r,const Vect3& n) const {
+
+            // grad(V) = q/|r-r0|^3-3 q.(r-r0) (r-r0)/|r-r0|^5.
+
+            const Vect3& x        = r-r0;
+            const double inv_nrm2 = 1.0/x.norm2();
+            const Vect3& gradient = q-3*dotprod(q,x)*x*inv_nrm2;
+            return dotprod(gradient,n)*(inv_nrm2*sqrt(inv_nrm2));
+        }
 
     private:
 

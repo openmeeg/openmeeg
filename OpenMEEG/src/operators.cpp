@@ -5,7 +5,9 @@
 // - provide also LICENSE.txt and modify this header to refer to it.
 // - replace this header by the LICENSE.txt content.
 
-#include <operators.h>
+#include "operators.h"
+#include "monopole.h"
+#include "dipole.h"
 
 namespace OpenMEEG {
 
@@ -24,7 +26,7 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.vertices().size()); ++i) {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
-            e.Run([&](){
+            e.run([&](){
                 const unsigned vindex = vertexp->index();
                 Vect3 v = Details::operatorFerguson(x,*vertexp,m);
                 mat(offsetI+0,vindex) += v.x()*coeff;
@@ -32,10 +34,12 @@ namespace OpenMEEG {
                 mat(offsetI+2,vindex) += v.z()*coeff;
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
-    void operatorMonopolePotDer(const Monopole& monopole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+    template <typename Source>
+    void operatorPotential(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+        const auto& potential = [&source](const Vect3& r) { return source.potential(r); };
         ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -47,89 +51,44 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
-            e.Run([&](){
-                const analyticMonopolePotDer anaDPD(monopole,triangle);
-                const auto monopder = [&](const Vect3& r) { return anaDPD.f(r); };
+            e.run([&](){
+                const double d = integrator.integrate(potential,triangle);
+                rhs(triangle.index()) += d*coeff;
+            });
+        }
+        e.rethrow();
+    }
 
-                const Vect3& v = integrator.integrate(monopder,triangle);
+    template <typename Source>
+    void operatorPotentialDerivative(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+        ThreadException e;
+        #pragma omp parallel for
+        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+        for (const auto& triangle : m.triangles()) {
+        #elif defined OPENMP_ITERATOR
+        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
+            const Triangle& triangle = *tit;
+        #else
+        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
+            const Triangle& triangle = *(m.triangles().begin()+i);
+        #endif
+            e.run([&](){
+                const PotentialDerivative<Source> potential_derivative(source,triangle);
+                const auto pot_derivative = [&](const Vect3& r) { return potential_derivative(r); };
+                const Vect3& v = integrator.integrate(pot_derivative,triangle);
 
                 for (unsigned j=0; j<3; ++j) {
-                    double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
+                    double& r = rhs(triangle.vertex(j).index());
+                    #pragma omp atomic
                     r += v(j)*coeff;
                 }
             });
         }
-        e.Rethrow();
+        e.rethrow();
     }
 
-    void operatorMonopolePot(const Monopole& monopole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
-        const auto& monoppot = [&monopole](const Vect3& r) { return monopole.potential(r); };
-        ThreadException e;
-        #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            e.Run([&](){
-                const double d = integrator.integrate(monoppot,triangle);
-                rhs(triangle.index()) += d*coeff;
-            });
-        }
-        e.Rethrow();
-    }
-
-    void operatorDipolePotDer(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
-        ThreadException e;
-        #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            e.Run([&](){
-                const analyticDipPotDer anaDPD(dipole,triangle);
-                const auto dipder = [&](const Vect3& r) { return anaDPD.f(r); };
-
-                const Vect3& v = integrator.integrate(dipder,triangle);
-
-                for (unsigned j=0; j<3; ++j) {
-                    double& r = rhs(triangle.vertex(j).index());   // assert stays outside the atomic.
-                    #pragma omp atomic  // no `update` clause: MSVC's /openmp is OpenMP 2.0 and rejects it (C7660).
-                    r += v(j)*coeff;
-                }
-            });
-        }
-        e.Rethrow();
-    }
-
-    void operatorDipolePot(const Dipole& dipole,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
-        const auto& dippot = [&dipole](const Vect3& r) { return dipole.potential(r); };
-        ThreadException e;
-        #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            e.Run([&](){
-                const double d = integrator.integrate(dippot,triangle);
-                rhs(triangle.index()) += d*coeff;
-            });
-        }
-        e.Rethrow();
-    }
+    template void operatorPotential<Monopole>(const Monopole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    template void operatorPotential<Dipole>(const Dipole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    template void operatorPotentialDerivative<Monopole>(const Monopole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    template void operatorPotentialDerivative<Dipole>(const Dipole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
 }

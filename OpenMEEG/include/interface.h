@@ -104,7 +104,7 @@ namespace OpenMEEG {
 
     private:
 
-        double solid_angle(const Vect3& p) const; ///< Given a point p, it computes the solid angle \return should return +/- 4 PI or 0.
+        double solid_angle(const Vect3& p) const; ///< Given a point p, compute the solid angle of the interface w.r.t. p. \return +/- 4 PI or 0.
 
         std::string    interface_name      = "";    ///< interface name is "" by default
         bool           outermost_interface = false; ///< whether or not the interface touches the Air (outermost) domain.
