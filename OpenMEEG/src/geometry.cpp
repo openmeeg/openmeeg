@@ -498,9 +498,9 @@ namespace OpenMEEG {
                         mesh_indices.erase(&mesh);
                     }
 
-            //  Only consider connected sets with more than one component and that are not isolated.
+            //  Each connected conductor needs one deflation (potential defined up to a constant); a lone isolated mesh has no unknowns.
 
-            if (conn.size()>1 && !conn.front()->isolated())
+            if (conn.size()>1 || !conn.front()->isolated())
                 independant_parts.push_back(conn);
         }
 

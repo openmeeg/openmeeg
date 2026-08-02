@@ -12,8 +12,6 @@ meshes, whose coarse/inward-normal triangulation makes the 1-layer near-field
 cancellation needlessly hard to resolve.
 """
 
-import platform
-
 import numpy as np
 import pytest
 from numpy.testing import assert_array_less
@@ -203,11 +201,21 @@ def test_meg_sphere_radial_dipole_is_silent(tmp_path):
     radial_norm = np.linalg.norm(gain[:, 0])
     tangential_norm = np.linalg.norm(gain[:, 1])
 
-    # Make a less strict tolerance for MacOS on arm.
-    # TODO: understand this loss of precision.
+    assert radial_norm < 0.02 * tangential_norm
 
-    tol = 0.02
-    if platform.system() == "Darwin" and platform.machine() == "arm64":
-        tol = 0.15
 
-    assert radial_norm < tol * tangential_norm
+def test_single_layer_head_matrix_is_deflated():
+    """Deflation must remove the constant null space of a 1-layer head matrix.
+
+    Regression test for gh-395. Undeflated, ``M @ 1`` is zero to machine
+    precision, ``inverse()`` returns ~1e17 garbage, and the leadfield checks
+    above degrade into roundoff -- thread- and platform-dependent, so they only
+    fail some of the time. This check is deterministic everywhere.
+    """
+    geom = om.make_nested_geometry([_icosphere(1, 0.1)], conductivity=(0.3,))
+    hm = om.HeadMat(geom, om.Integrator(3, 0, 0.005))
+    n = hm.nlin()
+    mat = np.array([[hm.value(i, j) for j in range(n)] for i in range(n)])
+
+    deflation = np.linalg.norm(mat @ np.ones(n)) / np.linalg.norm(mat)
+    assert deflation > 0.1, f"head matrix is not deflated ({deflation:.2e})"
