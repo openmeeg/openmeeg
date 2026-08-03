@@ -61,7 +61,7 @@ jobs:
             vcpkg
             build/vcpkg_installed
           key: ${{ github.job }}-vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}-${{ matrix.os }}-0
-      - uses: pypa/cibuildwheel@v4.1.0
+      - uses: pypa/cibuildwheel@v4.1.1
         with:
           package-dir: ./wrapping/python
           output-dir: installers
