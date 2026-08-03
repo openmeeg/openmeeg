@@ -49,43 +49,36 @@ add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
 if (USE_CGAL)
-    set(OM_CGAL_TARGETS cgal_mesh_function)
-    set(OM_CGAL_SOURCES cgal_lib_function.cpp)
+
+    find_package(CGAL REQUIRED)
+
+    set(OM_CGAL_TARGETS cgal_mesh_function cgal_decimate cgal_remesh)
+    set(OM_CGAL_SOURCES cgal_lib_decimate.cpp)
     include_directories(.)
 
     if (CGAL_ImageIO_FOUND) # these are tools handling images (.inr format only for the moment!)
-        list(APPEND OM_CGAL_TARGETS "cgal_mesh_3Dlabeled_image" "cgal_mesh_3Dlevelset_image")
-        list(APPEND OM_CGAL_EXEC om_${target})
+        list(APPEND OM_CGAL_TARGETS cgal_mesh_3Dlabeled_image cgal_mesh_3Dlevelset_image)
         list(APPEND OM_CGAL_SOURCES cgal_lib_image.cpp)
-    endif()
-
-    if (CGAL_VERSION VERSION_GREATER 4.6)
-        # edge collapse feature is stabilized in version ? not 4.2
-        list(APPEND OM_CGAL_TARGETS "cgal_decimate" "cgal_remesh")
-        list(APPEND OM_CGAL_SOURCES cgal_lib_decimate.cpp)
     endif()
 
     # compile the OpenMEEGCgal library
     add_library(OpenMEEGCgal ${OM_CGAL_SOURCES})
 
-    set_target_properties(OpenMEEGCgal PROPERTIES
-                          VERSION 1.1.0
-                          SOVERSION 1
-                          CLEAN_DIRECT_OUTPUT 1)
-
-    target_link_libraries(OpenMEEGCgal OpenMEEG ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
-    target_include_directories(OpenMEEGCgal PUBLIC ${CGAL_INCLUDE_DIRS})
-    target_compile_options(OpenMEEGCgal PUBLIC ${CGAL_CXX_FLAGS})
-    install(TARGETS OpenMEEGCgal DESTINATION lib)
+    set_target_properties(OpenMEEGCgal PROPERTIES VERSION 1.1.0 SOVERSION 1 CLEAN_DIRECT_OUTPUT 1)
+    target_link_libraries(OpenMEEGCgal OpenMEEG CGAL::CGAL ${VTK_LIBRARIES})
+    #target_include_directories(OpenMEEGCgal PUBLIC ${CGAL_INCLUDE_DIRS})
+    #target_compile_options(OpenMEEGCgal PUBLIC ${CGAL_CXX_FLAGS})
+    #install(TARGETS OpenMEEGCgal DESTINATION lib)
 
     # compile each target
+
     set(OM_CGAL_EXEC)
     foreach(target ${OM_CGAL_TARGETS})
         add_executable(om_${target} ${target}.cpp)
         list(APPEND OM_CGAL_EXEC om_${target})
-        target_link_libraries(om_${target} OpenMEEG OpenMEEGCgal ${CGAL_LIBRARIES} ${VTK_LIBRARIES})
-        target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
-        target_compile_options(om_${target} PUBLIC ${CGAL_CXX_FLAGS})
+        target_link_libraries(om_${target} OpenMEEG OpenMEEGCgal CGAL::CGAL ${VTK_LIBRARIES})
+        #target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
+        #target_compile_options(om_${target} PUBLIC ${CGAL_CXX_FLAGS})
     endforeach()
     install(TARGETS ${OM_CGAL_EXEC} DESTINATION bin)
 

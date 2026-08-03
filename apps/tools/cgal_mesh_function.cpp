@@ -6,31 +6,60 @@
 // - replace this header by the LICENSE.txt content.
 
 #include <mesh.h>
-#include "options.h"
 #include <cgal_lib.h>
+
+#include "commandline.h"
 
 using namespace OpenMEEG;
 
 int main(int argc,char **argv) {
-    command_usage("Create a BEM mesh from either an implicit function: sphere, hemisphere, ...:");
-    const double sphere_radius     = command_option("-r", 0.0, "radius of the sphere");
-    const double hemisphere_radius = command_option("-hr",0.0, "radius of the hemisphere");
-    const double radius_bound      = command_option("-fs",1e-1,"facet radius bound of elements");
-    const double distance_bound    = command_option("-fd",1e-1,"facet distance bound to the input surface");
-    // const unsigned init_points  = command_option("-ip", 10, "initial number of points (for the hemisphere)");
-    const char * output_filename   = command_option("-o",nullptr,"Output Mesh");
 
-    if (command_option("-h",nullptr,nullptr))
+    const CommandLine cmd(argc,argv,"Create a BEM mesh from either an implicit function: sphere, hemisphere, ...:");
+    const double       sphere_radius     = cmd.option("-r", 0.0, "radius of the sphere");
+    const double       hemisphere_radius = cmd.option("-hr",0.0, "radius of the hemisphere");
+    const double       radius_bound      = cmd.option("-fs",1e-1,"facet radius bound of elements");
+    const double       distance_bound    = cmd.option("-fd",1e-1,"facet distance bound to the input surface");
+    // const unsigned init_points  = cmd.option("-ip", 10, "initial number of points (for the hemisphere)");
+    const std::string& filename          = cmd.option("-o",std::string(),"Output Mesh");
+
+    if (cmd.help_mode())
         return 0;
 
-    if (output_filename==nullptr) {
-        std::cerr << "Set an output filename" << std::endl;
-        return 0;
+    if (filename.empty()) {
+        std::cerr << argv[0] << " needs an output filename" << std::endl;
+        return 1;
     }
 
-    Mesh m_out = cgal_mesh_function(sphere_radius,hemisphere_radius,radius_bound,distance_bound);
-    m_out.save(output_filename);
-    m_out.info();
+    if (sphere_radius!=0.0 && hemisphere_radius!=0.0) {
+        std::cerr << "Only one of -r and -hr can be given" << std::endl;
+        return 2;
+    }
+
+    if (sphere_radius==0.0 && hemisphere_radius==0.0) {
+        std::cerr << "At least one of -r and -hr must be given" << std::endl;
+        return 3;
+    }
+
+    auto make_mesh = [&radius_bound,&distance_bound,&filename]<typename Function>(const Function& function,const K::Sphere_3& bound) {
+        const Mesh& mesh = cgal_mesh_function(function,bound,radius_bound,distance_bound);
+        mesh.save(filename);
+        mesh.info();
+    };
+
+    if (sphere_radius!=0) { // Sphere case.
+
+        const SphereFunction spherefunction(CGAL::square(sphere_radius));
+        const K::Sphere_3    bounding_sphere(CGAL::ORIGIN,CGAL::square(FT(1.1)*sphere_radius));
+
+        make_mesh(spherefunction,bounding_sphere);
+
+    } else { // Hemisphere case.
+
+        const HemiSphereFunction hemispherefunction(CGAL::square(hemisphere_radius));
+        const K::Sphere_3        bounding_sphere(K::Point_3(0,0,hemisphere_radius/2.),CGAL::square(FT(1.1)*sphere_radius));
+
+        make_mesh(hemispherefunction,bounding_sphere);
+    }
 
     return 0;
 }
