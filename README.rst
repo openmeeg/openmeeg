@@ -100,7 +100,7 @@ On Debian/Ubuntu you will need to install the dependencies with (Fedora flavors 
 
 *optionally*::
 
-    $ sudo apt install python3-numpy swig libvtk6-dev doxygen graphviz libcgal-dev
+    $ sudo apt install python3-numpy swig libvtk6-dev doxygen graphviz
 
 then::
 
@@ -207,8 +207,6 @@ You will need to define more CMake variables if you want the support for:
     Enable Python wrapping (automatically enabled by cmake_configure.sh)
 `-DUSE_VTK=ON`
     VTK file format support.
-`-DUSE_CGAL=ON`
-    CGAL meshing tools.
 `-DBUILD_DOCUMENTATION=ON`
     Reference documentation. Make sure to have `doxygen` with `dot` support.
 `-DENABLE_WERROR=ON`
