@@ -75,7 +75,6 @@ skip = ["*-musllinux*"]
 # cp310 covers 3.10+ via abi3; the free-threaded build has no stable ABI (CPython
 # gh-111506) so it needs its own version-specific wheel.
 build = ["cp310-*", "cp314t-*"]
-enable = ["cpython-freethreading"]
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
