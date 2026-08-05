@@ -15,6 +15,18 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
 endif()
 
 if (PYTHON_USE_SABI)
+    # Python.h #errors out on Py_LIMITED_API + Py_GIL_DISABLED (CPython gh-111506)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    execute_process(COMMAND ${Python3_EXECUTABLE} -c
+                    "import sysconfig; print(bool(sysconfig.get_config_var('Py_GIL_DISABLED')))"
+                    OUTPUT_VARIABLE PYTHON_FREE_THREADED OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if (PYTHON_FREE_THREADED STREQUAL "True")
+        message(WARNING "PYTHON_USE_SABI is not supported on free-threaded Python, disabling it")
+        set(PYTHON_USE_SABI OFF)
+    endif()
+endif()
+
+if (PYTHON_USE_SABI)
     find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development.SABIModule)
 else()
     find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development)
@@ -48,7 +60,20 @@ else()
     include(${SWIG_USE_FILE})
 endif()
 
+# "-O" without its other two flags: -fastproxy emits PyCFunctionObject and
+# PyInstanceMethod_New, neither in the limited API, and -fvirtual measured ~6.5% slower
+# here (it routes the 8 LinOp-derived size()/info() through a base-class ConvertPtr).
+# -fastdispatch is only an optimization now that the typecheck typemaps in _openmeeg.i
+# make overload resolution work without it, so it is safe to drop if it ever conflicts.
 list(APPEND CMAKE_SWIG_FLAGS -v -fastdispatch)
+# Declares Py_MOD_GIL_NOT_USED, which the i/o layer earned in gh-866; without it CPython
+# silently re-enables the GIL on free-threaded builds. Not a hard requirement, so keep
+# the SWIG floor at 4.2 for distro builds rather than requiring 4.4 everywhere.
+if (SWIG_VERSION VERSION_GREATER_EQUAL "4.4")
+    list(APPEND CMAKE_SWIG_FLAGS -nogil)
+else()
+    message(STATUS "SWIG ${SWIG_VERSION} < 4.4: no -nogil, free-threaded Python will re-enable the GIL")
+endif()
 set(SWIG_MODULE_openmeeg_EXTRA_DEPS openmeeg/numpy.i ${SWIG_MODULE_openmeeg_EXTRA_DEPS})
 set_source_files_properties(openmeeg/_openmeeg.i PROPERTIES CPLUSPLUS ON GENERATED_COMPILE_DEFINITIONS SWIG_PYTHON_SILENT_MEMLEAK SWIG_MODULE_NAME _openmeeg_wrapper)
 # This puts _openmeeg.py in openmeeg/

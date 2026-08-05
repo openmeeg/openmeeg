@@ -7,30 +7,31 @@ from pathlib import Path
 import os
 import platform
 import sys
+import sysconfig
 
 from setuptools import setup, Extension  # noqa
 from setuptools.command import build_py
-from wheel.bdist_wheel import bdist_wheel
+from setuptools.dist import Distribution
 
 
-abi3 = (platform.python_implementation() == "CPython")
+# Oldest interpreter the stable ABI wheel targets, as a version hex and as the
+# matching wheel tag. The free-threaded build has no limited API at all --
+# Python.h #errors out if Py_LIMITED_API is defined alongside Py_GIL_DISABLED,
+# and setuptools raises on py_limited_api there too (CPython gh-111506).
+PY_LIMITED_API = "0x030A0000"
+PY_LIMITED_API_TAG = "cp310"
+abi3 = (
+    platform.python_implementation() == "CPython"
+    and not sysconfig.get_config_var("Py_GIL_DISABLED")
+)
 
 
-# Adapted from Apache-2.0 licensed code at:
-# https://github.com/joerick/python-abi3-package-sample/blob/main/setup.py
-
-class bdist_wheel_abi3(bdist_wheel):
-    def get_tag(self):
-        python, abi, plat = super().get_tag()
-        if abi3:
-            python, abi = "cp310", "abi3"
-        return python, abi, plat
-
-    # In cases where we don't SWIG, we still want to mark the wheel as impure
-    # (to make things nicer for app building)
-    def finalize_options(self):
-        super().finalize_options()
-        self.root_is_pure = False
+# CMake-driven builds hand us a prebuilt extension rather than an ext_module, so
+# setuptools would otherwise call the wheel pure -- which loses the platform tag
+# (nicer for app building) and suppresses the abi3 tag entirely.
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self):
+        return True
 
 
 # Subclass the build command so that build_ext is called before build_py
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     import numpy as np
 
     # SWIG
-    cmdclass = dict(build_py=BuildExtFirst, bdist_wheel=bdist_wheel_abi3)
+    cmdclass = dict(build_py=BuildExtFirst)
     ext_modules = []
     if os.getenv("OPENMEEG_USE_SWIG", "0").lower() in ("1", "true"):
         include_dirs = [np.get_include()]
@@ -55,11 +56,18 @@ if __name__ == "__main__":
             "_openmeeg_wrapper",
             "-interface",
             "_openmeeg",
-            # -O is problematic for abi3 because it enables "-fastproxy" which leads to
-            # linking errors. However, "-fastdispatch" is needed to create our
-            # typemaps, which seems like a bug (?) but doesn't create any ABI3 compat
-            # issues.
+            # "-O" without its other two flags: -fastproxy emits PyCFunctionObject and
+            # PyInstanceMethod_New, neither in the limited API, and -fvirtual measured
+            # ~6.5% slower here (it routes the 8 LinOp-derived size()/info() through a
+            # base-class ConvertPtr). -fastdispatch is purely an optimization now that
+            # the typecheck typemaps in _openmeeg.i make overload resolution work
+            # without it, so it can be dropped if upstream ever stops supporting it
+            # alongside abi3 (swig/swig#3089).
             "-fastdispatch",
+            # Declares Py_MOD_GIL_NOT_USED (SWIG >= 4.4, hence the build-system pin),
+            # which the i/o layer earned in gh-866. Without it CPython silently
+            # re-enables the GIL on free-threaded builds.
+            "-nogil",
             # Someday we could look at other options like:
             # "-extranative",  # Return extra native wrappers for C++ std containers wherever possible
             # "-castmode",  # Enable the casting mode, which allows implicit cast between types in Python
@@ -130,10 +138,9 @@ if __name__ == "__main__":
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
         define_macros = [("SWIG_PYTHON_SILENT_MEMLEAK", None)]
-        abi3_kwargs = dict()
         if abi3:
             define_macros += [
-                ("Py_LIMITED_API", "0x030A0000"),  # 3.10
+                ("Py_LIMITED_API", PY_LIMITED_API),
             ]
         swig_openmeeg = Extension(
             "openmeeg._openmeeg",
@@ -151,5 +158,9 @@ if __name__ == "__main__":
 
     setup(
         cmdclass=cmdclass,
+        distclass=BinaryDistribution,
         ext_modules=ext_modules,
+        options=(
+            {"bdist_wheel": {"py_limited_api": PY_LIMITED_API_TAG}} if abi3 else {}
+        ),
     )

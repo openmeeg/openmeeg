@@ -51,11 +51,10 @@ Documentation = "https://openmeeg.github.io"
 
 [build-system]
 requires = [
-    "setuptools>=68.0.0",
+    "setuptools>=70.1",  # integrated bdist_wheel, so no separate "wheel" dep
     "setuptools_scm>=6.2",
-    "wheel>=0.37.0",
     "numpy>=2.0.0rc1,<3",
-    "swig>=4.2",
+    "swig>=4.4",  # -nogil
 ]
 
 [tool.setuptools.packages.find]
@@ -73,7 +72,10 @@ local_scheme = "no-local-version"  # to allow TestPyPI uploads
 [tool.cibuildwheel]
 # pp310 should in principle work but in practice it doesn't
 skip = ["*-musllinux*"]
-build = ["cp310-*"]  # abi3
+# cp310 covers 3.10+ via abi3; the free-threaded build has no stable ABI (CPython
+# gh-111506) so it needs its own version-specific wheel.
+build = ["cp310-*", "cp314t-*"]
+enable = ["cpython-freethreading"]
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for
