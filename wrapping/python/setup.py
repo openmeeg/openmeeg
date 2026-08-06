@@ -129,7 +129,7 @@ if __name__ == "__main__":
         #     /c /nologo /O2 /W3 /GL /DNDEBUG /MD
         #     /EHsc /Tpopenmeeg/openmeeg_wrap.cpp /Fobuild\temp.win-amd64-cpython-310\Release\openmeeg/openmeeg_wrap.obj
 
-        define_macros = [("SWIG_PYTHON_SILENT_MEMLEAK", None)]
+        define_macros = []
         abi3_kwargs = dict()
         if abi3:
             define_macros += [
