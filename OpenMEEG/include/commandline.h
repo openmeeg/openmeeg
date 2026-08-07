@@ -48,7 +48,9 @@ namespace OpenMEEG {
 
     public:
 
-        CommandLine(const int argc,char* argv[],const std::string& usage=""): n(argc),args(argv) {
+        CommandLine(const int argc,char* argv[],const std::string& usage=""):
+            args(const_cast<const char**>(argv)),help(false),used(argc,false)
+        {
             help = find_argument("-h")!=end() || find_argument("--help")!=end();
             if (help) {
                 std::cerr << red << std::filesystem::path(args[0]).filename() << normal;
@@ -61,30 +63,40 @@ namespace OpenMEEG {
         bool help_mode() const { return help; }
 
         template <typename T>
-        T option(const std::string& name,const T defaultvalue,const std::string usage) const {
-            char** arg = find_argument(name);
-            const T result = (arg==end()) ?  defaultvalue : parse_value(arg+1,defaultvalue);
+        T option(const std::string& name,const T defaultvalue,const std::string usage) {
+            const char** arg = find_argument(name);
+            const T result = (arg==end()) ? defaultvalue : parse_value(arg+1,defaultvalue);
+            if (arg!=end()) {
+                used[arg-args]   = true;
+                used[arg-args+1] = true;
+            }
             if (help)
                 std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
                           << " = " << std::left << std::setw(12) << value(result) << purple << usage << normal << std::endl;
             return result;
         }
 
-        bool option(const std::string& name,const bool defaultvalue,const std::string usage) const {
-            char** arg = find_argument(name);
-            const bool result = (arg==end()) ?  defaultvalue : !defaultvalue;
+        bool option(const std::string& name,const bool defaultvalue,const std::string& usage) {
+            const char** arg = find_argument(name);
+            const bool result = (arg==end()) ? defaultvalue : !defaultvalue;
+            if (arg!=end())
+                used[arg-args] = true;
             if (help)
                 std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
                           << " = " << std::left << std::setw(12) << value(result)  << purple << usage << normal << std::endl;
             return result;
         }
 
-        char** option(const std::string& option,const Strings& parms,const std::size_t num_mandatory_parms) const {
-            char** arg = find_argument(option);
+        const char** option(const std::string& option,const Strings& parms,const std::size_t num_mandatory_parms) {
+            const char** arg = find_argument(option);
             if (arg==end())
                 return nullptr;
 
             const std::size_t num_parms = num_args(arg);
+            used[arg-args] = true;
+            for (unsigned i=1; i<=num_parms; ++i)
+                used[arg-args+i] = true;
+
             if (num_parms<num_mandatory_parms) {
                 std::cerr << "\'" << args[0] << "\' option \'" << option << "\' expects at least "
                           << num_mandatory_parms << " arguments (";
@@ -99,17 +111,17 @@ namespace OpenMEEG {
             return arg;
         }
 
-        char** option(const std::string& name,const Strings& parms) const { return option(name,parms,parms.size()); }
+        const char** option(const std::string& name,const Strings& parms) { return option(name,parms,parms.size()); }
 
-        char** option(const Strings& options,const Strings& parms) const {
+        const char** option(const Strings& options,const Strings& parms) {
             std::size_t num_mandatory_parms = parms.size();
             for (const auto& parm : parms)
                 if (parm[0]=='[')
                     --num_mandatory_parms;
 
-            char** mandatory_args = nullptr;
+            const char** mandatory_args = nullptr;
             for (const char* opt : options) {
-                char** arg = option(opt,parms,num_mandatory_parms);
+                const char** arg = option(opt,parms,num_mandatory_parms);
                 if (arg!=nullptr) {
                     if (mandatory_args!=nullptr) {
                         std::cerr << "Warning: option " << *(options.begin()) << " provided multiple times!" << std::endl;
@@ -124,24 +136,57 @@ namespace OpenMEEG {
         // Workaround a bug in old gcc compilers which does not allow the conversion of
         // const std::initializer_list<const char* const> to const Strings.
 
-        char** option(const std::string& name,const List& parms) const { return option(name,build_strings(parms));                   }
-        char** option(const List& options,const List& parms)     const { return option(build_strings(options),build_strings(parms)); }
+        const char** option(const std::string& name,const List& parms) { return option(name,build_strings(parms));                   }
+        const char** option(const List& options,const List& parms)     { return option(build_strings(options),build_strings(parms)); }
 
         // End of workaround.
 
-        unsigned num_args(char** argument) const {
-            unsigned res = 0;
-            for (char** arg=argument+1; arg!=end(); ++arg,++res)
-                if ((*arg)[0]=='-')
+        // Positional arguments. Must be at end of all options.
+
+        template <typename T>
+        T positional(const std::string& name,const T& default_value,const std::string& usage) {
+            const char** arg = nullptr;
+            for (unsigned i=1; i<used.size(); ++i)
+                if (used[i]==false) {
+                    used[i] = true;
+                    arg = args+i;
                     break;
-            return res;
+                }
+            std::string parameter;
+            if (arg==nullptr) {
+                if (name[0]!='[') {
+                    std::cerr << "Missing positional parameter " << name << " !" << std::endl;
+                    exit(1);
+                } else {
+                    parameter = default_value;
+                }
+            } else {
+                std::istringstream iss(*arg);
+                iss >> parameter;
+                if (iss.fail()) {
+                    std::cerr << "Cannot parse positional parameter " << *arg << " !" << std::endl;
+                    exit(1);
+                }
+            }
+            if (help)
+                std::cerr << "    " << bold << std::left << std::setw(8) << name << normal
+                          << " = " << std::left << std::setw(12) << parameter  << purple << usage << normal << std::endl;
+            return parameter;
         }
 
         void print() const {
             std::cout << std::endl << "| ------ " << args[0] << std::endl;
-            for (unsigned i=1; i<n; ++i)
+            for (unsigned i=1; i<used.size(); ++i)
                 std::cout << "| " << args[i] << std::endl;
             std::cout << "| -----------------------" << std::endl;
+        }
+
+        unsigned num_args(const char** argument) const {
+            unsigned res = 0;
+            for (const char** arg=argument+1; arg!=end(); ++arg,++res)
+                if ((*arg)[0]=='-')
+                    break;
+            return res;
         }
 
     private:
@@ -153,9 +198,9 @@ namespace OpenMEEG {
 
         static std::string value(const std::string& val) { return '"'+val+'"'; }
 
-        char** end() const { return args+n; }
+        const char** end() const { return args+used.size(); }
 
-        char** find_argument(const std::string& name) const {
+        const char** find_argument(const std::string& name) const {
             for (auto arg = args; arg!=end(); ++arg)
                 if (name==*arg)
                     return arg;
@@ -163,7 +208,7 @@ namespace OpenMEEG {
         }
 
         template <typename T>
-        T parse_value(char* arg[],const T defaultvalue) const {
+        T parse_value(const char* arg[],const T defaultvalue) const {
             if (arg==end())
                 return defaultvalue;
             std::istringstream iss(*arg);
@@ -186,9 +231,11 @@ namespace OpenMEEG {
         static constexpr char path_delimiter = '\\';
         #endif
 
-        unsigned n;
-        char**   args;
-        bool     help;
+        using Used = std::vector<bool>;
+
+        const char** args;
+        bool         help;
+        Used         used;
     };
 
     inline void print_version(const char* cmd) {

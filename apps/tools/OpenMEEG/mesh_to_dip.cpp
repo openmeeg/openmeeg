@@ -7,6 +7,7 @@
 
 #include "mesh.h"
 #include "commandline.h"
+#include "matrix.h"
 
 using namespace OpenMEEG;
 
@@ -15,11 +16,9 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Get info about a Mesh");
-    const std::string& input_filename      = cmd.option("-i",std::string(),"Input Mesh");
-    const std::string& output_filename     = cmd.option("-o",std::string(),"Output Mesh");
-    const double       smoothing_intensity = cmd.option("-s",0.1,          "Smoothing Intensity");
-    const size_t       niter               = cmd.option("-n",1000,         "Number of iterations");
+    CommandLine cmd(argc,argv,"Convert mesh file to a dipole file");
+    const std::string& input_filename  = cmd.option("-i",std::string(),"Input Mesh");
+    const std::string& output_filename = cmd.option("-o",std::string(),"Output .dip file");
 
     if (cmd.help_mode())
         return 0;
@@ -29,11 +28,22 @@ main(int argc,char* argv[]) {
         return 1;
     }
 
-    Mesh m(input_filename);
-    m.smooth(smoothing_intensity,niter);
-    std::cout << "Smoothing done !" << std::endl;
-    m.info();
-    m.save(output_filename);
+    Mesh m(input_filename,false);
+
+    Matrix mat(m.vertices().size(),6);
+
+    unsigned i = 0;
+    for (const auto& vertex : m.vertices()) {
+        mat(i,0) = vertex->x();
+        mat(i,1) = vertex->y();
+        mat(i,2) = vertex->z();
+        const Normal& n = m.normal(*vertex);
+        mat(i,3)   = n.x();
+        mat(i,4)   = n.y();
+        mat(i++,5) = n.z();
+    }
+
+    mat.save(output_filename);
 
     return 0;
 }

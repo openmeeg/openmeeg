@@ -23,7 +23,7 @@ error(const char* command,const bool unknown_option=false) {
 int
 main(int argc,char** argv) {
 
-    const CommandLine cmd(argc,argv);
+    CommandLine cmd(argc,argv);
 
     if (cmd.help_mode()) {
         help(argv[0]);
@@ -62,7 +62,7 @@ main(int argc,char** argv) {
         invHMfileopt, sourcematfileopt, h2eegfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option("-EEG",EEGparms)) {
+    if (const char** opt_parms = cmd.option("-EEG",EEGparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -83,7 +83,7 @@ main(int argc,char** argv) {
         geomfileopt, condfileopt, dipolefileopt, HMfileopt, h2eegfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option("-EEGadjoint",EEGAdjointparms)) {
+    if (const char** opt_parms = cmd.option("-EEGadjoint",EEGAdjointparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -102,7 +102,7 @@ main(int argc,char** argv) {
         invHMfileopt, sourcematfileopt, h2megfileopt, source2megfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option("-MEG",MEGparms)) {
+    if (const char** opt_parms = cmd.option("-MEG",MEGparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -125,7 +125,7 @@ main(int argc,char** argv) {
         geomfileopt, condfileopt, dipolefileopt, HMfileopt, h2megfileopt, source2megfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option("-MEGadjoint",MEGAdjointparms)) {
+    if (const char** opt_parms = cmd.option("-MEGadjoint",MEGAdjointparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -146,7 +146,7 @@ main(int argc,char** argv) {
         "EEG output file", "MEG output file"
     };
 
-    if (char** opt_parms = cmd.option("-EEGMEGadjoint",EEGMEGAdjointparms)) {
+    if (const char** opt_parms = cmd.option("-EEGMEGadjoint",EEGMEGAdjointparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -168,7 +168,7 @@ main(int argc,char** argv) {
         invHMfileopt, sourcematfileopt, h2ipfileopt, source2ipfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option({ "-InternalPotential", "-IP", "-ip" },IPparms)) {
+    if (const char** opt_parms = cmd.option({ "-InternalPotential", "-IP", "-ip" },IPparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -188,7 +188,7 @@ main(int argc,char** argv) {
         invHMfileopt, sourcematfileopt, h2ipfileopt, outputfileopt
     };
 
-    if (char** opt_parms = cmd.option({ "-EITInternalPotential", "-EITIP", "-eitip" },EITIPparms)) {
+    if (const char** opt_parms = cmd.option({ "-EITInternalPotential", "-EITIP", "-eitip" },EITIPparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 

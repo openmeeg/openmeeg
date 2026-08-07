@@ -19,7 +19,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert a single VTK/VTP into meshes.");
+    CommandLine cmd(argc,argv,"Convert a single VTK/VTP into meshes.");
     const std::string& input  = cmd.option("-i",std::string(),"Input VTK/VTP file");
     const std::string& output = cmd.option("-o",std::string(),"Output mesh base name");
 
@@ -33,7 +33,7 @@ main(int argc,char* argv[]) {
 
     Geometry geom(input);
 
-    const std::string basename = std::filesystem::path(output).stem();
+    const std::string& basename  = std::filesystem::path(output).stem();
     const std::string& extension = getFilenameExtension(output);
 
     for (const auto& mesh : geom.meshes())

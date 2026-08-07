@@ -24,7 +24,7 @@ int
 main(int argc,char **argv) {
 
     print_version(argv[0]);
-    const CommandLine cmd(argc,argv);
+    CommandLine cmd(argc,argv);
 
     if (cmd.help_mode()) {
         help(argv[0]);

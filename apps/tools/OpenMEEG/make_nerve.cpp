@@ -322,7 +322,7 @@ cylindre(const std::string& namesurf,const char namepatches[],const char namepat
 
 int main(int argc,char** argv) {
 
-    const CommandLine cmd(argc,argv,"Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
+    CommandLine cmd(argc,argv,"Make nerve geometry from existing parameters or make nerve geometry and parameter file from commandline user interface.");
 
     if (cmd.help_mode()) {
         getHelp(argv);

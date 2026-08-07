@@ -58,15 +58,15 @@ namespace OpenMEEG::GeometryIOs {
 
             //  Add vertices.
 
-            int trash;
-            vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices",trash));
+            int has_indices;
+            vtkSmartPointer<vtkUnsignedIntArray> v_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetAbstractArray("Indices",has_indices));
 
             geometry.vertices().reserve(npts);
 
             IndexMap indmap;
             for (unsigned i=0; i<npts; ++i) {
                 Vertex vertex(vtkMesh->GetPoint(i)[0],vtkMesh->GetPoint(i)[1],vtkMesh->GetPoint(i)[2]);
-                if (trash!=-1) // index provided
+                if (has_indices!=-1) // index provided
                     vertex.index() = v_indices->GetValue(i);
                 indmap.insert({ i, geometry.add_vertex(vertex) });
             }
@@ -85,7 +85,7 @@ namespace OpenMEEG::GeometryIOs {
             // Insert the triangle and mesh vertices addresses into the right mesh
 
             int indices;
-            vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",indices));
+            vtkSmartPointer<vtkUnsignedIntArray> c_indices = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Indices",indices));
             for (unsigned i=0; i<ntrgs; ++i) {
                 const std::string& mesh_name = cell_id->GetValue(i);
                 Mesh& mesh = geometry.mesh(mesh_name);
@@ -95,6 +95,8 @@ namespace OpenMEEG::GeometryIOs {
                 if (indices!=-1) // index provided
                     triangle.index() = c_indices->GetValue(i);
             }
+
+            // Insert Points into the mesh.
 
             for (auto& mesh : geometry.meshes()) {
                 // Sets do not preserve the order, and we would like to preserve it so we push_back in the vector as soon as the element is unique.
@@ -124,16 +126,16 @@ namespace OpenMEEG::GeometryIOs {
                 sic << j;
                 int trash;
                 const std::string& pot_array_name = "Potentials-"+sic.str();
-                const unsigned potsz = vtkMesh->GetPointData()->GetArray(pot_array_name.c_str(),trash)->GetSize();
+                const unsigned potsz = vtkMesh->GetPointData()->GetAbstractArray(pot_array_name.c_str(),trash)->GetSize();
                 for (unsigned i=0; i<potsz; ++i) {
-                    const unsigned ind = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetArray("Indices",trash))->GetValue(i);
-                    data(ind,j) = vtkDoubleArray::SafeDownCast(vtkMesh->GetPointData()->GetArray(pot_array_name.c_str(),trash))->GetValue(i);
+                    const unsigned ind = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetPointData()->GetAbstractArray("Indices",trash))->GetValue(i);
+                    data(ind,j) = vtkDoubleArray::SafeDownCast(vtkMesh->GetPointData()->GetAbstractArray(pot_array_name.c_str(),trash))->GetValue(i);
                 }
                 const std::string& curr_array_name = "Currents-"+sic.str();
-                const unsigned currsz = vtkMesh->GetCellData()->GetArray(curr_array_name.c_str(),trash)->GetSize();
+                const unsigned currsz = vtkMesh->GetCellData()->GetAbstractArray(curr_array_name.c_str(),trash)->GetSize();
                 for (unsigned i=0; i<currsz; ++i) {
-                    const unsigned ind = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetArray("Indices",trash))->GetValue(i);
-                    data(ind,j) = vtkDoubleArray::SafeDownCast(vtkMesh->GetCellData()->GetArray(curr_array_name.c_str(),trash))->GetValue(i);
+                    const unsigned ind = vtkUnsignedIntArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray("Indices",trash))->GetValue(i);
+                    data(ind,j) = vtkDoubleArray::SafeDownCast(vtkMesh->GetCellData()->GetAbstractArray(curr_array_name.c_str(),trash))->GetValue(i);
                 }
             }
             return data;
@@ -230,12 +232,7 @@ namespace OpenMEEG::GeometryIOs {
         void write() const override {
             vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
             writer->SetFileName(fname.c_str());
-
-            #if VTK_MAJOR_VERSION <= 5
-            writer->SetInput(vtkMesh);
-            #else
             writer->SetInputData(vtkMesh);
-            #endif
             writer->Write();
         }
 

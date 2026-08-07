@@ -34,7 +34,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
+    CommandLine cmd(argc,argv,"Convert squids positions from the CTF MEG coordinate system to the MRI coordinate system");
     const std::string& squids_filename        = cmd.option("-i",std::string(),"Squids positions in CTF coordinate system");
     const std::string& fiducials_filename     = cmd.option("-f",std::string(),"Fiducial points in the MRI coordinate system (mm in txt format)");
     const std::string& rotation_filename      = cmd.option("-r",std::string(),"Output Rotation Matrix");

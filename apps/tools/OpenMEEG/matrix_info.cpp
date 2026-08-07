@@ -29,7 +29,7 @@ main(int argc,char* argv[]) {
 
     //TODO doesn't say txt, if you don't specify it
 
-    const CommandLine cmd(argc,argv,"Provides informations on a Matrix generated with OpenMEEG");
+    CommandLine cmd(argc,argv,"Provides informations on a Matrix generated with OpenMEEG");
 
     const std::string& filename = cmd.option("-i",     std::string(),"Matrix file");
     const bool         sym      = cmd.option("-sym",   false,        "Data are symmetric matrices");
