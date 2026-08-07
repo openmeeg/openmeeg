@@ -40,8 +40,6 @@
     }
 }
 
-#define SWIG_PYTHON_SILENT_MEMLEAK
-
 #ifdef SWIGWIN
 %include <windows.i>
 #endif
@@ -54,12 +52,15 @@
 
 %include <std_string.i>
 %include <std_vector.i>
+%include <std_map.i>
 
 %{
     #include <logger.h>
     #include <vect3.h>
     #include <vertex.h>
     #include <triangle.h>
+    #include <range.h>
+    #include <ranges.h>
     #include <linop.h>
     #include <vector.h>
     #include <matrix.h>
@@ -143,6 +144,12 @@ namespace std {
     %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
     %template(vector_domain) vector<OpenMEEG::Domain>;
     %template(vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
+
+    // OpenMEEG::IndexMap. Without this swig has no destructor for the type, so every
+    // IndexMap returned by Geometry::add_vertices() was heap-allocated and never freed
+    // (~48 bytes per vertex, per call). Every wrapped type needs one, which is why
+    // SWIG_PYTHON_SILENT_MEMLEAK is no longer defined -- it hid exactly this.
+    %template(IndexMap) map<unsigned,unsigned>;
 }
 
 namespace OpenMEEG {
@@ -729,6 +736,14 @@ namespace OpenMEEG {
 %include <vect3.h>
 %include <vertex.h>
 %include <triangle.h>
+// Mesh::triangles_range()/vertices_ranges() return these by value, so swig needs the
+// definitions to generate destructors -- otherwise every call leaks (same as IndexMap).
+// The unqualified %ignore operator<< above does not reach into OpenMEEG::maths, and
+// wrapping it there collides with the existing __lshift__ dispatcher.
+%ignore OpenMEEG::maths::operator<<;
+%include <range.h>
+%template(vector_range) std::vector<OpenMEEG::maths::Range>;
+%include <ranges.h>
 %include <linop.h>
 %include <vector.h>
 %include <matrix.h>
