@@ -49,7 +49,7 @@ namespace OpenMEEG {
     public:
 
         CommandLine(const int argc,char* argv[],const std::string& usage=""):
-            n(argc),args(const_cast<const char**>(argv)),used(n,false)
+            args(const_cast<const char**>(argv)),help(false),used(argc,false)
         {
             help = find_argument("-h")!=end() || find_argument("--help")!=end();
             if (help) {
@@ -146,7 +146,7 @@ namespace OpenMEEG {
         template <typename T>
         T positional(const std::string& name,const T& default_value,const std::string& usage) {
             const char** arg = nullptr;
-            for (unsigned i=1; i<n; ++i)
+            for (unsigned i=1; i<used.size(); ++i)
                 if (used[i]==false) {
                     used[i] = true;
                     arg = args+i;
@@ -176,7 +176,7 @@ namespace OpenMEEG {
 
         void print() const {
             std::cout << std::endl << "| ------ " << args[0] << std::endl;
-            for (unsigned i=1; i<n; ++i)
+            for (unsigned i=1; i<used.size(); ++i)
                 std::cout << "| " << args[i] << std::endl;
             std::cout << "| -----------------------" << std::endl;
         }
@@ -198,7 +198,7 @@ namespace OpenMEEG {
 
         static std::string value(const std::string& val) { return '"'+val+'"'; }
 
-        const char** end() const { return args+n; }
+        const char** end() const { return args+used.size(); }
 
         const char** find_argument(const std::string& name) const {
             for (auto arg = args; arg!=end(); ++arg)
@@ -233,10 +233,9 @@ namespace OpenMEEG {
 
         using Used = std::vector<bool>;
 
-        unsigned n;
-        Used     used;
-        const char**   args;
-        bool     help;
+        const char** args;
+        bool         help;
+        Used         used;
     };
 
     inline void print_version(const char* cmd) {
