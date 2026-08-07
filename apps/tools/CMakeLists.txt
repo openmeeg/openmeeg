@@ -48,68 +48,8 @@ endif()
 add_executable(om_mesh_to_dip mesh_to_dip.cpp)
 target_link_libraries(om_mesh_to_dip OpenMEEG ${VTK_LIBRARIES})
 
-if (USE_CGAL)
-
-    find_package(CGAL REQUIRED)
-
-    set(OM_CGAL_TARGETS cgal_mesh_function cgal_decimate cgal_remesh)
-    set(OM_CGAL_SOURCES cgal_lib_decimate.cpp)
-    include_directories(.)
-
-    if (CGAL_ImageIO_FOUND) # these are tools handling images (.inr format only for the moment!)
-        list(APPEND OM_CGAL_TARGETS cgal_mesh_3Dlabeled_image cgal_mesh_3Dlevelset_image)
-        list(APPEND OM_CGAL_SOURCES cgal_lib_image.cpp)
-    endif()
-
-    # compile the OpenMEEGCgal library
-    add_library(OpenMEEGCgal ${OM_CGAL_SOURCES})
-
-    set_target_properties(OpenMEEGCgal PROPERTIES VERSION 1.1.0 SOVERSION 1 CLEAN_DIRECT_OUTPUT 1)
-    target_link_libraries(OpenMEEGCgal OpenMEEG CGAL::CGAL ${VTK_LIBRARIES})
-    #target_include_directories(OpenMEEGCgal PUBLIC ${CGAL_INCLUDE_DIRS})
-    #target_compile_options(OpenMEEGCgal PUBLIC ${CGAL_CXX_FLAGS})
-    #install(TARGETS OpenMEEGCgal DESTINATION lib)
-
-    # compile each target
-
-    set(OM_CGAL_EXEC)
-    foreach(target ${OM_CGAL_TARGETS})
-        add_executable(om_${target} ${target}.cpp)
-        list(APPEND OM_CGAL_EXEC om_${target})
-        target_link_libraries(om_${target} OpenMEEG OpenMEEGCgal CGAL::CGAL ${VTK_LIBRARIES})
-        #target_include_directories(om_${target} PUBLIC ${CGAL_INCLUDE_DIRS})
-        #target_compile_options(om_${target} PUBLIC ${CGAL_CXX_FLAGS})
-    endforeach()
-    install(TARGETS ${OM_CGAL_EXEC} DESTINATION bin)
-
-    # tests
-    if (BUILD_TESTING)
-        OPENMEEG_TEST(cgal_mesh_function om_cgal_mesh_function -r 1.0 -fs 10 -fd 1 -o ${OpenMEEG_BINARY_DIR}/tests/remeshed.tri)
-        if (CGAL_VERSION VERSION_GREATER 4.6)
-            OPENMEEG_TEST(cgal_remesh om_cgal_remesh -i ${CMAKE_SOURCE_DIR}/data/Head1/cortex.1.tri -o ${OpenMEEG_BINARY_DIR}/tests/remeshed.tri)
-            OPENMEEG_TEST(cgal_decimate om_cgal_decimate -i ${CMAKE_SOURCE_DIR}/data/Head3/cortex.3.tri -n 100 -o ${OpenMEEG_BINARY_DIR}/tests/decimated.tri)
-        endif()
-    endif()
-endif()
-
-if (USE_VTK)
-    add_executable(om_vtp_to_meshes vtp_to_meshes.cpp)
-    target_link_libraries(om_vtp_to_meshes OpenMEEG ${VTK_LIBRARIES})
-
-    add_executable(om_meshes_to_vtp meshes_to_vtp.cpp)
-    target_link_libraries(om_meshes_to_vtp OpenMEEG ${VTK_LIBRARIES})
-
-    add_executable(om_add_dataset_to_vtk add_dataset_to_vtk.cpp)
-    target_link_libraries(om_add_dataset_to_vtk OpenMEEG ${VTK_LIBRARIES})
-
-    install(TARGETS om_vtp_to_meshes om_meshes_to_vtp om_add_dataset_to_vtk 
-            DESTINATION bin)
-
-    if (BUILD_TESTING)
-        OPENMEEG_TEST(meshes_to_vtp om_meshes_to_vtp -g ${CMAKE_SOURCE_DIR}/data/Head1/Head1.geom -o ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp)
-        OPENMEEG_TEST(vtp_to_meshes om_vtp_to_meshes -i ${OpenMEEG_BINARY_DIR}/tests/Head1.vtp -o ${OpenMEEG_BINARY_DIR}/tests/meshes.tri DEPENDS meshes_to_vtp)
-    endif()
-endif()
+add_subdirectory(CGAL)
+add_subdirectory(vtk)
 
 # tests
 if (BUILD_TESTING)
