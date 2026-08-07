@@ -28,7 +28,7 @@ int
 main(int argc,char* argv[]) {
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert mesh between different formats");
+    CommandLine cmd(argc,argv,"Convert mesh between different formats");
     const std::string& input_filename  = cmd.option("-i",     std::string(),"Input Mesh");
     const std::string& output_filename = cmd.option("-o",     std::string(),"Output Mesh");
     const double       tx              = cmd.option("-tx",    0.0,          "Translation along the x axis");

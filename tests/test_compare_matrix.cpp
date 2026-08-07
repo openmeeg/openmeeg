@@ -27,7 +27,7 @@ bool compare(maths::ifstream& ifs1,Vector& V1,maths::ifstream& ifs2,Vector& V2,c
 int
 main(int argc,char* argv[]) {
 
-    const CommandLine cmd(argc,argv,"Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
+    CommandLine cmd(argc,argv,"Compare two matrices with a certain numerical precision\ncompare_matrix mat1 mat2 [options]");
     // const char *input_format1 = command_option("-if1",(const char *) NULL,
     //         "Input file format for Matrix 1 : ascii, binary, tex, matlab");
     // const char *input_format2 = command_option("-if2",(const char *) NULL,

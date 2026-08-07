@@ -37,7 +37,7 @@ int main(int argc,char** argv)
 {
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Compute various head matrices [options] geometry");
+    CommandLine cmd(argc,argv,"Compute various head matrices [options] geometry");
     const bool use_old_ordering = cmd.option("-old-ordering",false,"Using old ordering i.e using (V1, p1, V2, p2, V3) instead of (V1, V2, V3, p1, p2)");
 
     if (argc<2 || cmd.help_mode()) {
@@ -67,7 +67,7 @@ int main(int argc,char** argv)
 
 
     const auto& HMparms = { geomfileopt, condfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({ "-HeadMat", "-HM", "-hm" },HMparms)) {
+    if (const char** opt_parms = cmd.option({ "-HeadMat", "-HM", "-hm" },HMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -81,7 +81,7 @@ int main(int argc,char** argv)
     }
 
     const auto& CMparms = { geomfileopt, condfileopt, "sensors file", "domain name", outputfileopt };
-    if (char** opt_parms = cmd.option({ "-CorticalMat", "-CM", "-cm" },CMparms)) {
+    if (const char** opt_parms = cmd.option({ "-CorticalMat", "-CM", "-cm" },CMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -139,7 +139,7 @@ int main(int argc,char** argv)
     }
 
     const auto& SSMparms = { geomfileopt, condfileopt, sourcemeshfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-SurfSourceMat", "-SSM", "-ssm"},SSMparms)) {
+    if (const char** opt_parms = cmd.option({"-SurfSourceMat", "-SSM", "-ssm"},SSMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -153,7 +153,7 @@ int main(int argc,char** argv)
     }
 
     const auto& MSMparms = { geomfileopt, condfileopt, monopolefileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-MonopoleSourceMat", "-MSM", "-msm", "-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"},MSMparms)) {
+    if (const char** opt_parms = cmd.option({"-MonopoleSourceMat", "-MSM", "-msm", "-MonopoleSourceMatNoAdapt", "-MSMNA", "-msmna"},MSMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -182,7 +182,7 @@ int main(int argc,char** argv)
     }
 
     const auto& DSMparms = { geomfileopt, condfileopt, dipolefileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},DSMparms)) {
+    if (const char** opt_parms = cmd.option({"-DipSourceMat", "-DSM", "-dsm", "-DipSourceMatNoAdapt", "-DSMNA", "-dsmna"},DSMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -211,7 +211,7 @@ int main(int argc,char** argv)
     }
 
     const auto& EITSMparms = { geomfileopt, condfileopt, electrodesfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-EITSourceMat", "-EITSM", "-EITsm"},EITSMparms)) {
+    if (const char** opt_parms = cmd.option({"-EITSourceMat", "-EITSM", "-EITsm"},EITSMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -226,7 +226,7 @@ int main(int argc,char** argv)
     }
 
     const auto& H2EMparms = { geomfileopt, condfileopt, electrodesfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-Head2EEGMat", "-H2EM", "-h2em"},H2EMparms)) {
+    if (const char** opt_parms = cmd.option({"-Head2EEGMat", "-H2EM", "-h2em"},H2EMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -246,7 +246,7 @@ int main(int argc,char** argv)
     const auto& H2ECOGMparms = {
         geomfileopt, condfileopt, "ECoG electrodes positions file", "[name of the interface for EcoG]", outputfileopt
     };
-    if (char** opt_parms = cmd.option({"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},H2ECOGMparms)) {
+    if (const char** opt_parms = cmd.option({"-Head2ECoGMat", "-H2ECogM", "-H2ECOGM", "-h2ecogm"},H2ECOGMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -274,7 +274,7 @@ int main(int argc,char** argv)
     }
 
     const auto& H2MMparms = { geomfileopt, condfileopt, squidsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-Head2MEGMat", "-H2MM", "-h2mm"},H2MMparms)) {
+    if (const char** opt_parms = cmd.option({"-Head2MEGMat", "-H2MM", "-h2mm"},H2MMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -290,7 +290,7 @@ int main(int argc,char** argv)
     }
 
     const auto& SS2MMparms = { sourcemeshfileopt, squidsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},SS2MMparms)) {
+    if (const char** opt_parms = cmd.option({"-SurfSource2MEGMat", "-SS2MM", "-ss2mm"},SS2MMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -305,7 +305,7 @@ int main(int argc,char** argv)
     }
 
     const auto& DS2MMparms = { dipolefileopt, squidsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},DS2MMparms)) {
+    if (const char** opt_parms = cmd.option({"-DipSource2MEGMat", "-DS2MM", "-ds2mm"},DS2MMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -322,7 +322,7 @@ int main(int argc,char** argv)
     }
 
     const auto& H2IPMparms = { geomfileopt, condfileopt, pointsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},H2IPMparms)) {
+    if (const char** opt_parms = cmd.option({"-Head2InternalPotMat", "-H2IPM", "-h2ipm"},H2IPMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 
@@ -336,7 +336,7 @@ int main(int argc,char** argv)
     }
 
     const auto& DS2IPMparms = { geomfileopt, condfileopt, dipolefileopt, pointsfileopt, outputfileopt };
-    if (char** opt_parms = cmd.option({ "-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm" },DS2IPMparms)) {
+    if (const char** opt_parms = cmd.option({ "-DipSource2InternalPotMat", "-DS2IPM", "-ds2ipm" },DS2IPMparms)) {
 
         assert_non_conflicting_options(argv[0],++num_options);
 

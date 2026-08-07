@@ -18,7 +18,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Check mesh intersections in geometry file");
+    CommandLine cmd(argc,argv,"Check mesh intersections in geometry file");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
     const std::string& mesh_filename = cmd.option("-m",std::string(),"Mesh file (ex: to test .geom with cortex mesh)");
     const std::string& dip_filename  = cmd.option("-d",std::string(),"The dipole .dip file (ex: to test .geom with cortical dipoles");
