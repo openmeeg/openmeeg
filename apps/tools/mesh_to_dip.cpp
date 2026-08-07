@@ -16,7 +16,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert mesh file to a dipole file");
+    CommandLine cmd(argc,argv,"Convert mesh file to a dipole file");
     const std::string& input_filename  = cmd.option("-i",std::string(),"Input Mesh");
     const std::string& output_filename = cmd.option("-o",std::string(),"Output .dip file");
 
