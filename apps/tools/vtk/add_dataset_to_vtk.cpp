@@ -42,7 +42,7 @@ int main(int argc,char *argv[]) try {
     }
 
     if (input_mesh.empty()) {
-        std:cerr << "A vtk input mesh must be given with -m !" << std::endl;
+        std::cerr << "A vtk input mesh must be given with -m !" << std::endl;
         return 1;
     }
 
