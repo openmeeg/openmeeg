@@ -4,7 +4,9 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.31")
     cmake_policy(SET CMP0174 NEW)  # empty values different from not defined
 endif()
 
-project (OpenMEEG VERSION 2.5.16 LANGUAGES C CXX)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/Version.cmake)  # must precede project()
+
+project (OpenMEEG VERSION ${OPENMEEG_VERSION_NUMERIC} LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)  # use c++23 so that #warning remains portable
 

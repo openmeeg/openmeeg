@@ -1,6 +1,6 @@
 #pragma once
 
-static const char version[] = "@OpenMEEG_VERSION@";
+static const char version[] = "@OPENMEEG_VERSION@";
 
 #if defined USE_OMP && defined _OPENMP
     //  Values of _OPENMP
