@@ -212,6 +212,22 @@ namespace OpenMEEG {
 
     typedef std::shared_ptr<double[]> SharedData;
 
+    // Owns the new reference returned by PyArray_FROM_OTF/PyArray_FromObject. Those
+    // return a new array whenever the input needs converting, so dropping the
+    // reference on every path (including the throws below) matters: leaking it pinned
+    // a full converted copy of the input per call. The helpers here all copy out of
+    // the array before returning, so nothing outlives the guard.
+    class PyArrayRef {
+    public:
+        explicit PyArrayRef(PyObject* obj): arr(reinterpret_cast<PyArrayObject*>(obj)) { }
+        ~PyArrayRef() { Py_XDECREF(reinterpret_cast<PyObject*>(arr)); }
+        PyArrayRef(const PyArrayRef&) = delete;
+        PyArrayRef& operator=(const PyArrayRef&) = delete;
+        operator PyArrayObject*() const { return arr; }
+    private:
+        PyArrayObject* arr;
+    };
+
     // Creator of Vector from PyArrayObject or Vector
 
     OpenMEEG::Vector* new_OpenMEEG_Vector(PyObject* pyobj) {
@@ -220,9 +236,8 @@ namespace OpenMEEG {
             // Vector below references the raw buffer directly (no
             // element-wise copy), so a non-contiguous input (e.g. a
             // strided slice) would otherwise be silently misread.
-            PyArrayObject* vect = reinterpret_cast<PyArrayObject*>(
-                PyArray_FROM_OTF(pyobj,NPY_DOUBLE,NPY_ARRAY_IN_ARRAY));
-            if (vect==nullptr)
+            PyArrayRef vect(PyArray_FROM_OTF(pyobj,NPY_DOUBLE,NPY_ARRAY_IN_ARRAY));
+            if (static_cast<PyArrayObject*>(vect)==nullptr)
                 throw Error(SWIG_ValueError,"Vector cannot be converted into an array of double.");
             if (PyArray_NDIM(vect)!=1)
                 throw Error(SWIG_ValueError,"Vector must be a 1 dimensional array.");
@@ -250,8 +265,8 @@ namespace OpenMEEG {
             if (nbdims!=2)
                 throw Error(SWIG_TypeError,"Matrix can only have 2 dimensions.");
 
-            PyArrayObject* mat = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,2,2));
-            if (mat==nullptr)
+            PyArrayRef mat(PyArray_FromObject(pyobj,NPY_DOUBLE,2,2));
+            if (static_cast<PyArrayObject*>(mat)==nullptr)
                 throw Error(SWIG_ValueError,"Matrix cannot be converted into an array of double.");
 
             if (!PyArray_ISFARRAY(mat))
@@ -280,8 +295,8 @@ namespace OpenMEEG {
             if (nbdims!=1)
                 throw Error(SWIG_TypeError,"SymMatrix are stored as 1 dimensional arrays.");
 
-            PyArrayObject* mat = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
-            if (mat==nullptr)
+            PyArrayRef mat(PyArray_FromObject(pyobj,NPY_DOUBLE,1,1));
+            if (static_cast<PyArrayObject*>(mat)==nullptr)
                 throw Error(SWIG_ValueError,"SymMatrix cannot be converted into an array of double.");
 
             if (!PyArray_ISFARRAY(mat))
@@ -310,8 +325,8 @@ namespace OpenMEEG {
         if (pyobj==nullptr || !PyArray_Check(pyobj))
             throw Error(SWIG_TypeError,"Vertices matrix should be an array.");
 
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_FromObject(pyobj,NPY_DOUBLE,0,0));
-        if (array==nullptr)
+        PyArrayRef array(PyArray_FromObject(pyobj,NPY_DOUBLE,0,0));
+        if (static_cast<PyArrayObject*>(array)==nullptr)
             throw Error(SWIG_ValueError,"Vertices matrix cannot be converted into a matrix of double.");
 
         if (PyArray_NDIM(array)!=2 || PyArray_DIM(array,1)!=3)
@@ -365,35 +380,28 @@ namespace OpenMEEG {
         // cast (not a reinterpretation), so byte-swapped inputs are handled
         // correctly; it returns the same object (refcounted) when the input
         // already satisfies these requirements.
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(
-            PyArray_FROM_OTF(pyobj,NPY_INT64,NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST));
-        if (array==nullptr)
+        PyArrayRef array(PyArray_FROM_OTF(pyobj,NPY_INT64,NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST));
+        if (static_cast<PyArrayObject*>(array)==nullptr)
             throw Error(SWIG_ValueError,"Matrix of triangles cannot be converted to a matrix of int64.");
 
-        try {
-            mesh->reference_vertices(indmap);
+        mesh->reference_vertices(indmap);
 
-            auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
-                const npy_int64 vi = *reinterpret_cast<npy_int64*>(PyArray_GETPTR2(mat,i,j));
-                if (vi<0 || static_cast<size_t>(vi)>=indmap.size()) {
-                    std::ostringstream oss;
-                    oss << "Vertex index " << vi << " in triangle " << i << " out of range";
-                    throw Error(SWIG_ValueError,oss.str().c_str());
-                }
-                return &(mesh->geometry().vertices().at(indmap.at(vi)));
-            };
-
-            for (int unsigned i=0; i<nbTriangles; ++i) {
-                Vertex* v1 = get_vertex(array,i,0);
-                Vertex* v2 = get_vertex(array,i,1);
-                Vertex* v3 = get_vertex(array,i,2);
-                mesh->triangles().push_back(Triangle(v1,v2,v3));
+        auto get_vertex = [&](PyArrayObject* mat,const int i,const int j) {
+            const npy_int64 vi = *reinterpret_cast<npy_int64*>(PyArray_GETPTR2(mat,i,j));
+            if (vi<0 || static_cast<size_t>(vi)>=indmap.size()) {
+                std::ostringstream oss;
+                oss << "Vertex index " << vi << " in triangle " << i << " out of range";
+                throw Error(SWIG_ValueError,oss.str().c_str());
             }
-        } catch (...) {
-            Py_DECREF(array);
-            throw;
+            return &(mesh->geometry().vertices().at(indmap.at(vi)));
+        };
+
+        for (int unsigned i=0; i<nbTriangles; ++i) {
+            Vertex* v1 = get_vertex(array,i,0);
+            Vertex* v2 = get_vertex(array,i,1);
+            Vertex* v3 = get_vertex(array,i,2);
+            mesh->triangles().push_back(Triangle(v1,v2,v3));
         }
-        Py_DECREF(array);
     }
 
     OpenMEEG::Matrix MonopoleSourceMat(const OpenMEEG::Geometry& geo,const OpenMEEG::Matrix& sources,const std::string& domain_name) {
@@ -442,6 +450,18 @@ namespace OpenMEEG {
         if ($1) delete $1;
     }
 
+    // Overload dispatch uses the typecheck typemaps, so without these the
+    // default (SWIG_ConvertPtr-based) checks reject arrays and every
+    // overloaded signature taking a Vector&/Matrix& becomes unreachable from
+    // numpy. Any array is accepted here -- shape/order/dtype validation stays
+    // in the 'in' typemaps above so that bad input keeps its specific error
+    // message instead of a generic "wrong number or type of arguments".
+    %typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Vector& {
+        void* vptr = 0;
+        $1 = PyArray_Check($input) ||
+             SWIG_IsOK(SWIG_ConvertPtr($input,&vptr,SWIGTYPE_p_OpenMEEG__Vector,0));
+    }
+
     %typemap(in) Matrix& {
         try {
             $1 = new_OpenMEEG_Matrix($input);
@@ -456,10 +476,19 @@ namespace OpenMEEG {
         if ($1) delete $1;
     }
 
+    // Unlike Vector& above this is restricted to 2D arrays, so that a 1D array
+    // passed to an overload set containing both (e.g. Vector(Matrix&) vs the
+    // Vector(PyObject*) added by %extend) still reaches the PyObject* variant.
+    %typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Matrix& {
+        void* vptr = 0;
+        $1 = (PyArray_Check($input) && PyArray_NDIM(reinterpret_cast<PyArrayObject*>($input))==2) ||
+             SWIG_IsOK(SWIG_ConvertPtr($input,&vptr,SWIGTYPE_p_OpenMEEG__Matrix,0));
+    }
+
     // C++ -> Python
 
     %typemap(out) unsigned& {
-        $result = PyInt_FromLong(*($1));
+        $result = PyLong_FromLong(*($1));
     }
 }
 
@@ -517,10 +546,36 @@ namespace OpenMEEG {
 %extend OpenMEEG::Vector {
     Vector(PyObject* pyobj) { return new_OpenMEEG_Vector(pyobj); }
 
+    static void Free(PyObject* capsule) {
+        SharedData* shared_data = reinterpret_cast<SharedData*>(PyCapsule_GetPointer(capsule,PyCapsule_GetName(capsule)));
+        delete shared_data;
+    }
+
     PyObject* array() {
         const npy_intp ndims = 1;
-        npy_intp ar_dim[] = { static_cast<npy_intp>(($self)->size()) };
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(ndims,ar_dim,NPY_DOUBLE,static_cast<void*>(($self)->data())));
+        npy_intp dims[] = { static_cast<npy_intp>(($self)->size()) };
+
+        // The returned array is a live view, so it has to keep the data alive on its
+        // own: without a base object it dangles as soon as the Vector goes away (a
+        // plain `Vector(x).array()` was enough to read freed memory). Same shared_ptr
+        // + capsule scheme as Matrix::array() below.
+        SharedData* shared_data = new SharedData(($self)->get_shared_data_ptr());
+        void* data = static_cast<void*>(shared_data->get());
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(
+            PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,data,0,
+                        NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_WRITEABLE,NULL));
+        if (array==nullptr) {
+            delete shared_data;
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG vector.");
+        }
+
+        PyObject* capsule = PyCapsule_New(shared_data,"wrapped vector",static_cast<PyCapsule_Destructor>(&OpenMEEG_Vector_Free));
+        if (capsule==nullptr || PyArray_SetBaseObject(array,capsule)==-1) {
+            Py_XDECREF(capsule);
+            Py_DECREF(array);
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG vector.");
+        }
+
         return PyArray_Return(array);
     }
 
@@ -547,21 +602,22 @@ namespace OpenMEEG {
     PyObject* array() {
 
         const npy_intp ndims = 2;
-        npy_intp* dims = new npy_intp[ndims];
-        dims[0] = ($self)->nlin();
-        dims[1] = ($self)->ncol();
+        npy_intp dims[] = { static_cast<npy_intp>(($self)->nlin()), static_cast<npy_intp>(($self)->ncol()) };
 
         SharedData* shared_data = new SharedData(($self)->get_shared_data_ptr());
         void* data = static_cast<void*>(shared_data->get());
-        PyObject* obj = PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                    data,0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL);
-
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(obj);
-        if (array==nullptr)
+        // No NPY_ARRAY_OWNDATA: the capsule below owns the data, and PyArray_New drops
+        // the flag for caller-supplied data anyway.
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(
+            PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,data,0,NPY_ARRAY_F_CONTIGUOUS,NULL));
+        if (array==nullptr) {
+            delete shared_data;
             throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
+        }
 
         PyObject* capsule = PyCapsule_New(shared_data,"wrapped matrix",static_cast<PyCapsule_Destructor>(&OpenMEEG_Matrix_Free));
-        if (PyArray_SetBaseObject(array,capsule)==-1) {
+        if (capsule==nullptr || PyArray_SetBaseObject(array,capsule)==-1) {
+            Py_XDECREF(capsule);
             Py_DECREF(array);
             throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG matrix.");
         }
@@ -583,15 +639,19 @@ namespace OpenMEEG {
 
     PyObject* array_flat() {
         const npy_intp ndims = 1;
-        npy_intp* dims = new npy_intp[ndims];
-        dims[0] = ($self)->size();
+        npy_intp dims[] = { static_cast<npy_intp>(($self)->size()) };
 
-        // make a copy of the data
-        double* data = new double[dims[0]];
-        double* start = (*($self)).data();
-        std::copy(start,start+dims[0],data);
-        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_New(&PyArray_Type,ndims,dims,NPY_DOUBLE,NULL,
-                                                                            static_cast<void*>(data),0,NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_OWNDATA,NULL));
+        // Let numpy own the copy. Passing our own buffer with NPY_ARRAY_OWNDATA did
+        // not work: PyArray_New drops OWNDATA when it is handed existing data, so
+        // nothing ever freed it and every call leaked the whole array. (It could not
+        // have freed it correctly anyway -- the buffer came from new[], numpy frees.)
+        PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNew(ndims,dims,NPY_DOUBLE));
+        if (array==nullptr)
+            throw Error(SWIG_RuntimeError,"Cannot create numpy array from OpenMEEG symmetric matrix.");
+
+        const double* start = (*($self)).data();
+        std::copy(start,start+dims[0],static_cast<double*>(PyArray_DATA(array)));
+        PyArray_CLEARFLAGS(array,NPY_ARRAY_WRITEABLE);  // as before: this is a snapshot
         return PyArray_Return(array);
     }
 

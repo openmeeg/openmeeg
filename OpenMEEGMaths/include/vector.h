@@ -43,6 +43,14 @@ namespace OpenMEEG {
 
         double* data() const { return value.get(); }
 
+    #if defined(SWIGPYTHON) || defined(WIN32)
+
+        // Only needed for swig wrapping, so that array() can keep the data alive
+        // behind the numpy view it hands out. See Matrix for the same method.
+
+        std::shared_ptr<double[]> get_shared_data_ptr() { return value; }
+    #endif
+
         double operator()(const Index i) const {
             om_assert(i<nlin());
             return value[i];

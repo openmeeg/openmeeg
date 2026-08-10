@@ -87,6 +87,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # 3.13 exercises the abi3 wheel on an interpreter it was not built for;
+        # 3.14t exercises the separate free-threaded wheel.
+        python-version: ['3.13', '3.14t']
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
         include:
           - os: ubuntu-latest
             arch: x86_64
@@ -99,7 +103,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v7.0.0
         with:
-          python-version: '3.13'
+          python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v8
         with:
           path: dist
@@ -121,14 +125,23 @@ jobs:
           echo "OPENMEEG_DATA_PATH=$OPENMEEG_DATA_PATH" | tee -a $GITHUB_ENV
       - run: ls -alt dist/
         shell: bash
-      - run: pip install -v pytest dist/*.whl
+      # numpy is openmeeg's only runtime dep; installing it here lets the next
+      # step stay --no-index so it can never silently pull openmeeg from PyPI.
+      - run: pip install -v pytest numpy
         shell: bash
+      # Let pip pick the wheel matching this interpreter: dist/ holds both the
+      # abi3 wheel and the free-threaded one, and only one is installable here.
+      - run: pip install -v --no-index --no-deps --find-links dist openmeeg
+        shell: bash
+      - name: Check the GIL stays disabled on free-threaded builds
+        if: endsWith(matrix.python-version, 't')
+        run: python -c "import sys, openmeeg; assert not sys._is_gil_enabled()"
       # Only exercise the om_viz plotting path on one runner, it is heavy
       - name: Install viz dependencies
-        if: startsWith(matrix.os, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu') && matrix.python-version == '3.13'
         run: pip install pyvista pyvistaqt PyQt6
       - uses: pyvista/setup-headless-display-action@v4
-        if: startsWith(matrix.os, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu') && matrix.python-version == '3.13'
         with:
           qt: true
       - run: pytest -m "not slow" --pyargs openmeeg
