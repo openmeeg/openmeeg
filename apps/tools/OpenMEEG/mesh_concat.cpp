@@ -15,7 +15,7 @@ main( int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Concat 2 mesh and save the result");
+    CommandLine cmd(argc,argv,"Concat 2 mesh and save the result");
     
     const std::string& input_filename1 = cmd.option("-i1",std::string(),"Input Mesh 1");
     const std::string& input_filename2 = cmd.option("-i2",std::string(),"Input Mesh 2");

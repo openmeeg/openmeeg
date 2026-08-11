@@ -18,11 +18,11 @@ param(const char* base,const unsigned n) {
     return res.str();
 }
 
-int main( int argc,char **argv) {
+int main(int argc,char **argv) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert meshes OR geometry into a single VTK/VTP file.");
+    CommandLine cmd(argc,argv,"Convert meshes OR geometry into a single VTK/VTP file.");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input geometry");
 
     Geometry::MeshList meshes;

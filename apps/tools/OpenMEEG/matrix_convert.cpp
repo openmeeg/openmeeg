@@ -36,7 +36,7 @@ main(int argc,char* argv[]) try {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert full/sparse/symmetric vectors/matrices between different formats");
+    CommandLine cmd(argc,argv,"Convert full/sparse/symmetric vectors/matrices between different formats");
     const std::string& input_filename  = cmd.option("-i", std::string(),"Input matrix/vector");
     const std::string& output_filename = cmd.option("-o", std::string(),"Output matrix/vector");
     const std::string& input_format    = cmd.option("-if",std::string(),"Input file format : ascii, binary, tex, matlab");
@@ -106,5 +106,5 @@ main(int argc,char* argv[]) try {
     return e.code();
 } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
-    return -1;
+    return 1;
 }

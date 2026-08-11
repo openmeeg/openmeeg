@@ -18,7 +18,7 @@ main(int argc,char** argv) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Convert squids in text file to a vtk file for vizualisation");
+    CommandLine cmd(argc,argv,"Convert squids in text file to a vtk file for vizualisation");
     const std::string& input_filename  = cmd.option("-i",std::string(),"Squids positions in original coordinate system");
     const std::string& output_filename = cmd.option("-o",std::string(),"Squids positions with orientations in vtk format");
     if (cmd.help_mode())

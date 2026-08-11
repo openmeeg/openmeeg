@@ -20,7 +20,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Project the sensors onto the given mesh:");
+    CommandLine cmd(argc,argv,"Project the sensors onto the given mesh:");
     const std::string& sensors_filename = cmd.option("-i",std::string(),"Sensors positions");
     const std::string& mesh_filename    = cmd.option("-m",std::string(),"Mesh on which to project the sensors");
     const std::string& output_filename  = cmd.option("-o",std::string(),"Output sensors positions");

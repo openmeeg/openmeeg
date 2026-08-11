@@ -18,7 +18,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Print Geometry information");
+    CommandLine cmd(argc,argv,"Print Geometry information");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
     const std::string& cond_filename = cmd.option("-c",std::string(),"Input .cond file");
 

@@ -16,7 +16,7 @@ main(int argc,char* argv[]) {
 
     print_version(argv[0]);
 
-    const CommandLine cmd(argc,argv,"Get info about a Mesh");
+    CommandLine cmd(argc,argv,"Get info about a Mesh");
     const std::string& input_filename = cmd.option("-i",std::string(),"Input Mesh");
 
     if (cmd.help_mode())

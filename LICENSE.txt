@@ -7,15 +7,19 @@ Web : http://openmeeg.github.io
 The OpenMEEG software is a C++ package for solving the forward
 problems of electroencephalography (EEG) and magnetoencephalography (MEG).
 
-OpenMEEG is distributed under the French opensource license CeCILL-B. It is
-intended to give users the freedom to modify and redistribute the software.
-It is therefore compatible with popular opensource licenses such as the GPL
-and BSD licenses. The CeCILL-B license imposes to anybody distributing a
-software incorporating OpenMEEG the obligation to give credits (by citing the
-appropriate publications), in order for all contributions to be properly
-identified and acknowledged.
+- OpenMEEG is distributed under the French open source license CeCILL-B. It is
+  intended to give users the freedom to modify and redistribute the software.
+  It is therefore compatible with popular open source licenses such as the GPL
+  and BSD licenses. The CeCILL-B license imposes to anybody distributing a
+  software incorporating OpenMEEG the obligation to give credits (by citing the
+  appropriate publications), in order for all contributions to be properly
+  identified and acknowledged.
 
-The references to be acknowledged are :
+- As an exception, the CGAL tools available in the apps/tools/CGAL are
+  distributed under the GPL license and does not require to cite the given
+  references.
+
+The references to be acknowledged for the CeCILL-B license are:
 
 Gramfort et al. OpenMEEG: opensource software for quasistatic
 bioelectromagnetics. Biomedical engineering online (2010) vol. 9 (1) pp. 45
