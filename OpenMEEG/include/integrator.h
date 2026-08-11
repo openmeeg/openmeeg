@@ -39,7 +39,7 @@ namespace OpenMEEG {
         double norm(const double a) const { return fabs(a);  }
         double norm(const Vect3& a) const { return a.norm(); }
 
-        #ifndef SWIGPYTHON  // SWIG sees the integrate def as a syntax error
+        #ifndef SWIG  // SWIG sees the integrate def as a syntax error
         template <typename Function>
         decltype(auto) integrate(const Function& function,const Triangle& triangle) const {
             const TrianglePoints tripts = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
@@ -50,7 +50,7 @@ namespace OpenMEEG {
 
     private:
 
-        #ifndef SWIGPYTHON  // SWIG sees the triangle_integration def as a syntax error
+        #ifndef SWIG  // SWIG sees the triangle_integration def as a syntax error
         template <typename Function>
         decltype(auto) triangle_integration(const Function& function,const TrianglePoints& triangle,const double area) const {
             using T = decltype(function(Vect3()));

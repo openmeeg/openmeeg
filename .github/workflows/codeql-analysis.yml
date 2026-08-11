@@ -37,15 +37,15 @@ jobs:
         gcc --version
     - name: Install NumPy
       run: |
-        pip install --upgrade --user "setuptools>=68.0.0" "setuptools_scm>=6.2" "wheel>=0.37.0" "numpy>=2.0.0b1,<3" "swig>=4.2" "packaging>=24.2"
+        pip install --upgrade --user "setuptools>=70.1" "setuptools_scm>=6.2" "numpy>=2.0.0b1,<3" "swig>=4.2" "packaging>=24.2"
     - name: Configure
       run: |
         export DISABLE_CCACHE=1
         source ./build_tools/cmake_configure.sh -DENABLE_WERROR=ON  # --trace-expand
-    - uses: github/codeql-action/init@v4.37.3
+    - uses: github/codeql-action/init@v4.37.5
       with:
         languages: cpp, python
     - name: Build
       run: |
         cmake --build build --config Release
-    - uses: github/codeql-action/analyze@v4.37.3
+    - uses: github/codeql-action/analyze@v4.37.5
