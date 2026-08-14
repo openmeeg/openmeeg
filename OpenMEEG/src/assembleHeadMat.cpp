@@ -149,17 +149,17 @@ namespace OpenMEEG {
         log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
-        matrix.set(0.0);
+        matrix = 0.0;
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
                 log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
-                    matrix.setlin(iNl++,symmatrix.getlin(vertex->index()));
+                    matrix.row(iNl++) = symmatrix.row(vertex->index());
                 if (!mesh.current_barrier()) {
                     log_stream(INFORMATION) << " : triangles";
                     for (const auto& triangle : mesh.triangles())
-                        matrix.setlin(iNl++,symmatrix.getlin(triangle.index()));
+                        matrix.row(iNl++) = symmatrix.row(triangle.index());
                 }
                 log_stream(INFORMATION) << " done." << std::endl;
             }
@@ -207,7 +207,7 @@ namespace OpenMEEG {
 
         const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
         SymMatrix RR(Nc,Nc);
-        RR.set(0.0);
+        RR = 0.0;
         for (const auto& mesh : geo.meshes())
             mesh.gradient_norm2(RR);
 
@@ -220,7 +220,6 @@ namespace OpenMEEG {
         double beta1  = beta;
         if (alpha1<0) { // try an automatic method... TODO find better estimation
             const double nRR_v = RR.submat(0,geo.vertices().size(),0,geo.vertices().size()).frobenius_norm();
-            alphas.set(0.);
             alpha1 = MM.frobenius_norm()/(1.e3*nRR_v);
             beta1  = alpha1*50000.;
             log_stream(INFORMATION) << "AUTOMATIC alphas = " << alpha1 << "\tbeta = " << beta1 << std::endl;
@@ -304,7 +303,7 @@ namespace OpenMEEG {
         // Get the gradient of P1&P0 elements on the meshes.
 
         SymMatrix G(Nc);
-        G.set(0.0);
+        G = 0.0;
         for (const auto& mesh : geo.meshes())
             mesh.gradient_norm2(G);
 
@@ -333,7 +332,7 @@ namespace OpenMEEG {
             const Vect3 point(points(i,0),points(i,1),points(i,2));
             const Domain& domain = geo.domain(point);
             if (domain.conductivity()==0.0) {
-                log_stream(INFORMATION) << " Surf2Vol: Point [ " << points.getlin(i) << "]"
+                log_stream(INFORMATION) << " Surf2Vol: Point [ " << points.row(i) << "]"
                                         << " is inside a non-conductive domain. Point is dropped." << std::endl;
             } else {
                 m_points[&domain].push_back(Vertex(point,index++));
@@ -345,7 +344,7 @@ namespace OpenMEEG {
         const unsigned size = index; // total number of inside points
 
         Matrix mat(size,geo.nb_parameters()-geo.nb_current_barrier_triangles());
-        mat.set(0.0);
+        mat = 0.0;
 
         for (const auto& [domainptr,pts] : m_points) {
             for (const auto& boundary : domainptr->boundaries())

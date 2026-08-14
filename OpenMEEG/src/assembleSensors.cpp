@@ -74,12 +74,12 @@ namespace OpenMEEG {
         unsigned p0_p1_size = geo.nb_parameters()-geo.nb_current_barrier_triangles();
 
         Matrix FergusonMat(3*nbIntegrationPoints,geo.vertices().size());
-        FergusonMat.set(0.0);
+        FergusonMat = 0.0;
 
         assemble_ferguson(geo,FergusonMat,positions);
 
         Matrix mat(nbIntegrationPoints,p0_p1_size);
-        mat.set(0.0);
+        mat = 0.0;
 
         ProgressBar pb(nbIntegrationPoints);
         for (unsigned i=0; i<nbIntegrationPoints; ++i,++pb) {
@@ -106,13 +106,13 @@ namespace OpenMEEG {
         const unsigned nsquids     = positions.nlin();
 
         Matrix mat(nsquids,sources_mesh.vertices().size());
-        mat.set(0.0);
+        mat = 0.0;
 
         ProgressBar pb(nsquids);
         for (unsigned i=0; i<nsquids; ++i,++pb) {
             Vect3 p(positions(i,0),positions(i,1),positions(i,2));
             Matrix FergusonMat(3,mat.ncol());
-            FergusonMat.set(0.0);
+            FergusonMat = 0.0;
             operatorFerguson(p,sources_mesh,FergusonMat,0,1.);
             for (unsigned j=0;j<mat.ncol();++j) {
                 const Vect3 fergusonField(FergusonMat(0,j),FergusonMat(1,j),FergusonMat(2,j));

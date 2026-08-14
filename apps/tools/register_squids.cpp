@@ -60,9 +60,9 @@ main(int argc,char* argv[]) {
         (fiducials.ncol()!=3))
         throw std::invalid_argument("OpenMEEG only handles 3 3D fiducial points.");
 
-    const Vector nas = fiducials.getlin(0); // Nasion
-    const Vector lpa = fiducials.getlin(1); // Left preauricular
-    const Vector rpa = fiducials.getlin(2); // Right preauricular
+    const Vector nas = fiducials.row(0); // Nasion
+    const Vector lpa = fiducials.row(1); // Left preauricular
+    const Vector rpa = fiducials.row(2); // Right preauricular
 
     const Vector origin = (lpa+rpa)/2.0;
     Vector vx = (nas-origin);
@@ -74,9 +74,9 @@ main(int argc,char* argv[]) {
     vz = vz/vz.norm();
 
     Matrix R(3,3);
-    R.setlin(0,vx);
-    R.setlin(1,vy);
-    R.setlin(2,vz);
+    R.row(0) = vx;
+    R.row(1) = vy;
+    R.row(2) = vz;
 
     const Vector& T = -(R*origin);
 

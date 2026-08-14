@@ -30,10 +30,10 @@ namespace OpenMEEG {
     void operatorFerguson(const Vect3&,const Mesh&,Matrix&,const unsigned&,const double);
 
     template <typename Source>
-    void operatorPotential(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    Vector operatorPotential(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator);
 
     template <typename Source>
-    void operatorPotentialDerivative(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    Vector operatorPotentialDerivative(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator);
 
     namespace Details {
 
@@ -492,7 +492,7 @@ namespace OpenMEEG {
 
         // SymMatrix is initialized at once, and there is nothing to for blockwise matrix.
 
-        static void init(SymMatrix& matrix) { matrix.set(0.0); }
+        static void init(SymMatrix& matrix) { matrix = 0.0; }
         void set_blocks(SymMatrix&) const   { }
 
         // SymmetricBlockMatrix is initialized blockwise.

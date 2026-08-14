@@ -73,10 +73,14 @@ main(int argc,char* argv[]) {
         for (const auto& vertex : m.vertices()) {
             Vertex& v = *vertex;
             Vector point(4);
-            point.set(1.0);
-            point(0) = v(0); point(1) = v(1); point(2) = v(2);
+            point(0) = v(0);
+            point(1) = v(1);
+            point(2) = v(2);
+            point(3) = 1.0;
             Vector out_point = mat*point;
-            v(0) = out_point(0); v(1) = out_point(1); v(2) = out_point(2);
+            v(0) = out_point(0);
+            v(1) = out_point(1);
+            v(2) = out_point(2);
         }
     }
 

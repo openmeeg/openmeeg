@@ -74,15 +74,17 @@ namespace OpenMEEG {
             x += v[j]*y(j);
     }
 
-    // Code taken from http://www.netlib.org/templates/cpp/gmres.h and modified
+    // Code taken from http://www.netlib.org/templates/cpp/gmres.h and modified.
 
     template <typename T,typename P> // T should be a linear operator, and P a preconditionner
-    unsigned GMRes(const T& A,const P& M,Vector &x,const Vector& b,int max_iter,double tol,unsigned m) {
+    std::pair<Vector,bool>
+    GMRes(const T& A,const P& M,const Vector& b,int max_iter,double tol,const unsigned m) {
 
         // m is the size of the Krylov subspace, if m<A.nlin(), it is a restarted GMRes (for saving memory)
 
         Matrix H(m+1,m);
-        x.set(0.0);
+        Vector x(A.ncol());
+        x = 0.0;
 
         Vector r = M(b-A*x); // M.solve(b-A*x);
         double beta = r.norm();
@@ -91,19 +93,19 @@ namespace OpenMEEG {
         if (normb==0.0)
             normb = 1;
 
-        double resid;
-        if ((resid = r.norm()/normb)<=tol) {
+        if ((double resid = r.norm()/normb)<=tol) {
             tol = resid;
             max_iter = 0;
-            return 0;
+            return { x, true };
         }
 
-        Vector* v = new Vector[m+1];
+        Vector v[m+1];
         Vector s(m+1),cs(m+1),sn(m+1),w;
 
+        double resid;
         for (int j=1; j<=max_iter; ) {
             v[0] = r*(1.0/beta);
-            s.set(0.0);
+            s = 0.0;
             s(0) = beta;
 
             for (int i=0; i<m && j<=max_iter; ++i, ++j) {
@@ -126,8 +128,7 @@ namespace OpenMEEG {
                     Update(x,i,H,s,v);
                     tol = resid;
                     max_iter = j;
-                    delete [] v;
-                    return 0;
+                    return { x, true };
                 }
             }
             Update(x,i-1,H,s,v);
@@ -136,13 +137,11 @@ namespace OpenMEEG {
             if ((resid = beta/normb)<tol) {
                 tol = resid;
                 max_iter = j;
-                delete [] v;
-                return 0;
+                return { x, true };
             }
         }
 
         tol = resid;
-        delete [] v;
-        return 1;
+        return { x , false };
     }
 }

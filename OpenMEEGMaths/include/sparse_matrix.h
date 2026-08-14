@@ -30,10 +30,10 @@ namespace OpenMEEG {
         typedef Tank::const_iterator                      const_iterator;
         typedef Tank::iterator                            iterator;
 
-        SparseMatrix(): LinOp(0,0,SPARSE,2) {};
-        SparseMatrix(const char* fname): LinOp(0,0,SPARSE,2) { this->load(fname); }
-        SparseMatrix(const size_t N,const size_t M): LinOp(N,M,SPARSE,2) {};
-        ~SparseMatrix() {};
+        SparseMatrix(): LinOp(0,0,SPARSE,2) { }
+        SparseMatrix(const char* fname): LinOp(0,0,SPARSE,2) { load(fname); }
+        SparseMatrix(const size_t N,const size_t M): LinOp(N,M,SPARSE,2) { }
+        ~SparseMatrix() {}
 
         double operator()(const size_t i,const size_t j) const {
             om_assert(i<nlin());
@@ -59,12 +59,7 @@ namespace OpenMEEG {
 
         const Tank& tank() const { return m_tank; }
 
-        void set(const double d) {
-            for (auto& tkelmt : m_tank)
-                tkelmt.second = d;
-        }
-
-        Vector getlin(const size_t i) const {
+        Vector row(const size_t i) const {
             om_assert(i<nlin());
             Vector v(ncol());
             for (size_t j=0; j<ncol(); ++j) {

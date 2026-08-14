@@ -87,7 +87,7 @@ namespace OpenMEEG {
         Sensors(const Matrix& positions,const Geometry& g):
             m_nb(positions.nlin()),m_positions(positions),m_radii(m_nb),geometry(&g)
         {
-            m_radii.set(0.0);
+            m_radii = 0.0;
             findInjectionTriangles();
         }
 
@@ -146,11 +146,11 @@ namespace OpenMEEG {
 
         /// Return the position (3D point) of the integration point idx.
 
-        Vector getPosition(const size_t idx) const { return m_positions.getlin(idx); }
+        Vector getPosition(const size_t idx) const { return m_positions.row(idx); }
 
         /// Return the orientations (3D point) of the integration point idx.
 
-        Vector getOrientation(const size_t idx) const { return m_orientations.getlin(idx); }
+        Vector getOrientation(const size_t idx) const { return m_orientations.row(idx); }
 
         /// Return the name of the idx_th sensor.
 
@@ -161,11 +161,11 @@ namespace OpenMEEG {
 
         /// Set the position (3D point) of the integration point i.
 
-        void setPosition(const size_t idx,const Vector& pos) { return m_positions.setlin(idx,pos); }
+        void setPosition(const size_t idx,const Vector& pos) { m_positions.row(idx) = pos; }
 
         /// Set the orientation (3D point) of the integration point i.
 
-        void setOrientation(const size_t idx,const Vector& orient) { return m_orientations.setlin(idx,orient); }
+        void setOrientation(const size_t idx,const Vector& orient) { m_orientations.row(idx) = orient; }
 
         bool hasSensor(const std::string& name) const {
             return std::find(m_names.begin(),m_names.end(),name)!=m_names.end();

@@ -22,6 +22,11 @@ namespace OpenMEEG {
     class SymMatrix;
     class Vector;
 
+    namespace Details {
+        class ColReference;
+        class RowReference;
+    }
+
     /// \brief  Matrix class
     /// Matrix class
 
@@ -94,13 +99,41 @@ namespace OpenMEEG {
         Matrix submat(const Index istart,const Index isize,const Index jstart,const Index jsize) const;
         void   insertmat(const Index istart,const Index jstart,const Matrix& B);
 
-        Vector getcol(const Index j) const;
-        void   setcol(const Index j,const Vector& v);
+        Details::RowReference row(const Index j);
+        Details::ColReference column(const Index j);
 
-        Vector getlin(const Index i) const;
-        void   setlin(const Index i,const Vector& v);
+        void operator=(const double d) {
+            const size_t sz = size();
+            for (size_t i=0; i<sz; i++)
+                data()[i] = d;
+        }
 
-        const Matrix& set(const double d);
+        Vector row(const Index i) const {
+            om_assert(i<nlin());
+            Vector res(ncol());
+        #ifdef HAVE_BLAS
+            const BLAS_INT M = sizet_to_int(nlin());
+            const BLAS_INT N = sizet_to_int(ncol());
+            BLAS(dcopy,DCOPY)(N,data()+i,M,res.data(),1);
+        #else
+            for (Index j=0; j<ncol(); ++j)
+                res(j) = (*this)(i,j);
+        #endif
+            return res;
+        }
+
+        Vector column(const Index j) const {
+            om_assert(j<ncol( ));
+            Vector res(nlin());
+        #ifdef HAVE_BLAS
+            const BLAS_INT M = sizet_to_int(nlin());
+            BLAS(dcopy,DCOPY)(M,data()+nlin()*j,1,res.data(),1);
+        #else
+            for (Index i=0; i<nlin(); ++i)
+                res(i) = (*this)(i,j);
+        #endif
+            return res;
+        }
 
         Matrix operator*(const Matrix& B) const;
         Matrix operator*(const SymMatrix& B) const;
@@ -161,6 +194,82 @@ namespace OpenMEEG {
         friend class SymMatrix;
     };
 
+    namespace Details {
+        
+        class ColReference {
+        public:
+
+            ColReference(Matrix& M,const Index ind): mat(M),colind(ind) { om_assert(ind<mat.ncol()); }
+
+            operator Vector() {
+                Vector res(mat.nlin());
+                for (unsigned i=0; i<mat.nlin(); ++i)
+                    res(i) = mat(i,colind);
+                return res;
+            }
+
+            void operator=(const Vector& V) {
+                om_assert(V.size()==mat.nlin());
+                for (unsigned i=0; i<V.size(); ++i)
+                    mat(i,colind) = V(i);
+            }
+
+            void operator+=(const Vector& V) {
+                om_assert(V.size()==mat.nlin());
+                for (unsigned i=0; i<V.size(); ++i)
+                    mat(i,colind) += V(i);
+            }
+
+            void operator+=(const double d) {
+                for (unsigned i=0; i<mat.nlin(); ++i)
+                    mat(i,colind) += d;
+            }
+
+        private:
+
+            Matrix& mat;
+            Index   colind;
+        };
+        
+        class RowReference {
+        public:
+
+            RowReference(Matrix& M,const Index ind): mat(M),rowind(ind) { om_assert(ind<mat.nlin()); }
+
+            operator Vector() {
+                Vector res(mat.ncol());
+                for (unsigned i=0; i<mat.ncol(); ++i)
+                    res(i) = mat(rowind,i);
+                return res;
+            }
+
+            void operator=(const Vector& V) {
+                om_assert(V.size()==mat.ncol());
+                for (unsigned i=0; i<V.size(); ++i)
+                    mat(rowind,i) = V(i);
+            }
+
+            void operator+=(const Vector& V) {
+                om_assert(V.size()==mat.ncol());
+                for (unsigned i=0; i<V.size(); ++i)
+                    mat(rowind,i) += V(i);
+            }
+
+            void operator+=(const double d) {
+                for (unsigned i=0; i<mat.ncol(); ++i)
+                    mat(rowind,i) += d;
+            }
+
+        private:
+
+            Matrix& mat;
+            Index   rowind;
+        };
+    }
+
+    inline Details::ColReference Matrix::column(const Index i) { return Details::ColReference(*this,i); }
+    inline Details::RowReference Matrix::row(const Index i)    { return Details::RowReference(*this,i); }
+
     inline std::ostream& operator<<(std::ostream& os,const Matrix& M) {
         for (unsigned i=0; i<M.nlin(); ++i) {
             for (unsigned j=0; j<M.ncol(); ++j)
@@ -196,7 +305,7 @@ namespace OpenMEEG {
         const BLAS_INT N = sizet_to_int(ncol());
         DGEMV(CblasNoTrans,M,N,1.0,data(),M,v.data(),1,0.0,res.data(),1);
     #else
-        res.set(0.0);
+        res = 0.0;
         for (Index j=0; j<ncol(); ++j)
             for (Index i=0; i<nlin(); ++i)
                 res(i) += (*this)(i,j)*v(j);
@@ -228,57 +337,6 @@ namespace OpenMEEG {
         for (Index j=0; j<B.ncol(); ++j)
             for (Index i=0; i<B.nlin(); ++i)
                 (*this)(istart+i,jstart+j) = B(i,j);
-    }
-
-    inline Vector Matrix::getcol(const Index j) const {
-        om_assert(j<ncol( ));
-        Vector res(nlin());
-    #ifdef HAVE_BLAS
-        const BLAS_INT M = sizet_to_int(nlin());
-        BLAS(dcopy,DCOPY)(M,data()+nlin()*j,1,res.data(),1);
-    #else
-        for (Index i=0; i<nlin(); ++i)
-            res(i) = (*this)(i,j);
-    #endif
-        return res;
-    }
-
-    inline Vector Matrix::getlin(const Index i) const {
-        om_assert(i<nlin());
-        Vector res(ncol());
-    #ifdef HAVE_BLAS
-        const BLAS_INT M = sizet_to_int(nlin());
-        const BLAS_INT N = sizet_to_int(ncol());
-        BLAS(dcopy,DCOPY)(N,data()+i,M,res.data(),1);
-    #else
-        for (Index j=0; j<ncol(); ++j)
-            res(j) = (*this)(i,j);
-    #endif
-        return res;
-    }
-
-    inline void Matrix::setcol(const Index j,const Vector& v) {
-        om_assert(v.size()==nlin() && j<ncol());
-    #ifdef HAVE_BLAS
-        const BLAS_INT M = sizet_to_int(nlin());
-        BLAS(dcopy,DCOPY)(M,v.data(),1,data()+nlin()*j,1);
-    #else
-        for (Index i=0; i<nlin(); ++i)
-            (*this)(i,j) = v(i);
-    #endif
-    }
-
-    inline void Matrix::setlin(const Index i,const Vector& v) {
-        om_assert(v.size()==ncol());
-        om_assert(i<nlin());
-    #ifdef HAVE_BLAS
-        const BLAS_INT M = sizet_to_int(nlin());
-        const BLAS_INT N = sizet_to_int(ncol());
-        BLAS(dcopy,DCOPY)(N,v.data(),1,data()+i,M);
-    #else
-        for (Index j=0; j<ncol(); ++j)
-            (*this)(i,j) = v(j);
-    #endif
     }
 
     inline Vector Matrix::tmult(const Vector& v) const {

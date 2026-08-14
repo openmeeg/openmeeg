@@ -33,7 +33,13 @@ namespace OpenMEEG {
         SymMatrix(Dimension M,Dimension N): LinOp(N,N,SYMMETRIC,2),value(size()) { om_assert(N==M); }
         SymMatrix(const SymMatrix& S,const DeepCopy): LinOp(S.nlin(),S.nlin(),SYMMETRIC,2),value(S.size(),S.data()) { }
 
-        explicit SymMatrix(const Vector& v);
+        explicit SymMatrix(const Vector& v) {
+            const size_t sz = v.size();
+            nlin() = std::round((sqrt(1+8*sz)-1)/2);
+            om_assert(size()==sz);
+            value = v.value;
+        }
+
         explicit SymMatrix(const Matrix& A);
 
         size_t size() const { return nlin()*(nlin()+1)/2; };
@@ -46,7 +52,14 @@ namespace OpenMEEG {
         void reference_data(const double* array) { value = LinOpValue(size(),array); }
 
         bool empty() const { return value.empty(); }
-        void set(double x) ;
+
+        SymMatrix& operator=(const double x) {
+            const size_t sz = size();
+            for (size_t i=0; i<sz; ++i)
+                data()[i] = x;
+            return *this;
+        }
+
         double* data() const { return value.get(); }
 
         double  operator()(const Index i,const Index j) const {
@@ -64,25 +77,44 @@ namespace OpenMEEG {
         Matrix    operator()(const Index i_start,const Index i_end,const Index j_start,const Index j_end) const;
         Matrix    submat(const Index istart,const Index isize,const Index jstart,const Index jsize) const;
         SymMatrix submat(const Index istart,const Index iend) const;
-        Vector    getlin(const Index i) const;
-        void      setlin(const Index i,const Vector& v);
+
+        Vector row(const Index i) const {
+            om_assert(i<nlin());
+            Vector v(ncol());
+            for (Index j=0; j<ncol(); ++j)
+                v(j) = (*this)(i,j);
+            return v;
+        }
+
         Vector    solveLin(const Vector& B) const;
         void      solveLin(Vector* B,const int nbvect);
         Matrix    solveLin(Matrix& B) const;
-
-        const SymMatrix& operator=(const double d);
 
         SymMatrix operator+(const SymMatrix& B) const;
         SymMatrix operator-(const SymMatrix& B) const;
         Matrix    operator*(const SymMatrix& B) const;
         Matrix    operator*(const Matrix& B) const;
         Vector    operator*(const Vector& v) const;
-        SymMatrix operator*(const double x) const;
+
+        SymMatrix operator*(const double x) const {
+            SymMatrix res(nlin());
+            const size_t sz = size();
+            for (size_t i=0; i<sz; ++i)
+                res.data()[i] = data()[i]*x;
+            return res;
+        }
+
         SymMatrix operator/(const double x) const { return (*this)*(1/x); }
 
         void operator +=(const SymMatrix& B);
         void operator -=(const SymMatrix& B);
-        void operator *=(const double x);
+
+        void operator *=(const double x) {
+            const size_t sz = size();
+            for (size_t i=0; i<sz; ++i)
+                data()[i] *= x;
+        }
+
         void operator /=(const double x) { (*this)*=(1/x); }
 
         SymMatrix inverse() const;
@@ -313,20 +345,5 @@ namespace OpenMEEG {
         }
     #endif
         return y;
-    }
-
-    inline Vector SymMatrix::getlin(const Index i) const {
-        om_assert(i<nlin());
-        Vector v(ncol());
-        for (Index j=0; j<ncol(); ++j)
-            v(j) = (*this)(i,j);
-        return v;
-    }
-
-    inline void SymMatrix::setlin(const Index i,const Vector& v) {
-        om_assert(v.size()==nlin());
-        om_assert(i<nlin());
-        for (Index j=0; j<ncol(); ++j)
-            (*this)(i,j) = v(j);
     }
 }

@@ -581,6 +581,8 @@ namespace OpenMEEG {
 
     // Setters
 
+    void set(const double d) { (*($self)) = d; }
+
     void setvalue(const unsigned i,const double d) { (*($self))(i) = d; }
 
     double value(unsigned i) {
@@ -589,6 +591,9 @@ namespace OpenMEEG {
         return (*($self))(i);
     }
 }
+
+%ignore Matrix::row(const Index);
+%ignore Matrix::column(const Index);
 
 %extend OpenMEEG::Matrix {
 
@@ -625,6 +630,11 @@ namespace OpenMEEG {
         return PyArray_Return(array);
     }
 
+    void set(const double d) { (*($self)) = d; }
+
+    void setlin(const unsigned i,const Vector& V) { (*($self)).row(i) = V;    }
+    void setcol(const unsigned i,const Vector& V) { (*($self)).column(i) = V; }
+
     void setvalue(const unsigned i,const unsigned j,const double d) { (*($self))(i,j) = d; }
 
     double value(const unsigned i,const unsigned j) {
@@ -635,6 +645,7 @@ namespace OpenMEEG {
 }
 
 %extend OpenMEEG::SymMatrix {
+
     SymMatrix(PyObject* pyobj) { return new_OpenMEEG_SymMatrix(pyobj); }
 
     PyObject* array_flat() {

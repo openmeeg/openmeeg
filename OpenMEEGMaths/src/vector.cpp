@@ -23,45 +23,13 @@ namespace OpenMEEG {
         value  = A.value;
     }
 
-    Vector Vector::kmult(const Vector& v) const { // Kronecker multiplication
-        om_assert(nlin()==v.nlin());
-        Vector p(nlin());
-        for (Index i=0; i<nlin(); i++ )
-            p(i) = v(i)*(*this)(i);
-        return p;
-    }
-
-    Vector Vector::operator+(const double x) const {
-        Vector p(*this,DEEP_COPY);
-        for (Index i=0; i<nlin(); ++i)
-            p(i) += x;
-        return p;
-    }
-
-    Vector Vector::operator-(double x) const {
-        Vector p(*this,DEEP_COPY);
-        for (Index i=0; i<nlin(); ++i)
-            p(i) -= x;
-        return p;
-    }
-
     Vector Vector::operator*(const Matrix& m) const {
         om_assert(nlin()==m.nlin());
-        Vector c(m.ncol());
-        return m.transpose()*(*this);
-    }
-
-    void Vector::set(const double x) {
-        om_assert(nlin()>0);
-        for (Index i=0; i<nlin(); ++i)
-            (*this)(i) = x;
-    }
-
-    double Vector::sum() const {
-        double s=0;
-        for (Index i=0; i<nlin(); ++i)
-            s += (*this)(i);
-        return s;
+        Vector res(m.ncol());
+        for (Index i=0; i<m.nlin(); ++i)
+            for (Index j=0; j<m.ncol(); ++j)
+                res(i) += m(i,j)*(*this)(i);
+        return res;
     }
 
     void Vector::info() const {
@@ -136,7 +104,7 @@ namespace OpenMEEG {
     {
         om_assert(size()==v.size());
         Matrix A(size(),v.size());
-        A.set(0.0);
+        A = 0.0;
     #ifdef HAVE_BLAS
         const BLAS_INT sz = sizet_to_int(size());
         DGER(sz,sz,1.0,data(),1,v.data(),1,A.data(),sz);

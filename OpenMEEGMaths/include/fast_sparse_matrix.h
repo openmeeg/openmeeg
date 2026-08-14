@@ -109,7 +109,7 @@ namespace OpenMEEG {
 
         Vector operator*(const Vector& v) const {
             Vector result(m_nlin);
-            result.set(0.0);
+            result = 0.0;
             double* pt_result = result.data();
             double* pt_vect   = v.data();
 
