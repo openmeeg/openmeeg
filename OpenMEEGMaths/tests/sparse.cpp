@@ -30,12 +30,12 @@ int main () {
     genericTest("sparse",spM);
 
     Matrix U(10,10);
-    U.set(1.0);
+    U = 1.0;
     U(2,3)=0.12;
     U(1,9)=12.01;
     U(4,8)=-2.1;
     Vector v(10);
-    v.set(2.);
+    v = 2.0;
     v(3)=v(8)=0.11;
     // Mat & Sparse
     Matrix Mzero = spM*U - Matrix(spM)*U - Matrix(spM)*U + spM*U;

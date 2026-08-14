@@ -36,7 +36,7 @@ Vector
 VR(const Geometry& geo,const Matrix& points,const SymMatrix& HeadMatInv,const Matrix& rhsEIT) {
     const Matrix& matdx         = Surf2VolMat(geo,points);
     const Matrix& EEGGainMatrix = matdx*HeadMatInv;
-    return (EEGGainMatrix*rhsEIT).getcol(0);
+    return (EEGGainMatrix*rhsEIT).column(0);
 }
 
 int
@@ -105,11 +105,11 @@ main(const int argc,const char* argv[]) {
 
     // Potential at the electrodes positions
 
-    const Vector& VRi = (matH2E*PotExt).getlin(0);
-    const Vector& VRe = (matH2E*PotExt).getlin(1);
+    const Vector& VRi = (matH2E*PotExt).row(0);
+    const Vector& VRe = (matH2E*PotExt).row(1);
 
     Matrix diffVf(1,ndip);
-    diffVf.setlin(0,VRi-VRe);
+    diffVf.row(0) = VRi-VRe;
     diffVf.save(argv[7]);
 
     constexpr double dirac = 1.0; // The injection current
@@ -128,10 +128,10 @@ main(const int argc,const char* argv[]) {
     constexpr double delta = 1e-6;
     Matrix gradVj(ndip,3);
     for (unsigned i=0; i<3; ++i) {
-        points.setcol(i,points.getcol(i)+delta);
+        points.column(i) += delta;
         const Vector& VRd = VR(geo,points,HeadMatInv,rhsEIT);
-        gradVj.setcol(i,(VRd-VR0)/delta);
-        points.setcol(i,dipoles.getcol(i));
+        gradVj.column(i) = (VRd-VR0)/delta;
+        points.column(i) = dipoles.column(i);
     }
 
     Matrix qgradVj(1,ndip);

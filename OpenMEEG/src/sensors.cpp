@@ -92,7 +92,7 @@ namespace OpenMEEG {
             }
             Vector v(ncol);
             iss >> v;
-            mat.setlin(i,v);
+            mat.row(i) = v;
         }
 
         // Initialize private members
@@ -102,20 +102,20 @@ namespace OpenMEEG {
         // weights
         if (geometry!=nullptr) { // EIT
             if (ncol==4) { // if radii were specified
-                m_radii = mat.getcol(mat.ncol()-1);
+                m_radii = mat.column(mat.ncol()-1);
             } else {
                 m_radii = Vector(nlin);
-                m_radii.set(0.0);
+                m_radii = 0.0;
             }
             // find triangles on which to inject the currents and compute weights
             findInjectionTriangles();
         } else if (ncol==4) {
             throw OpenMEEG::GenericError("Sensors:: please specify at constructor stage the geometry on which to apply the spatially extended EIT sensors.");
         } else if (ncol==7) { // MEG
-            m_weights = mat.getcol(mat.ncol()-1);
+            m_weights = mat.column(mat.ncol()-1);
         } else { // Others
             m_weights = Vector(nlin);
-            m_weights.set(1.);
+            m_weights = 1.0;
         }
         m_pointSensorIdx = std::vector<size_t>(nlin);
 
@@ -148,10 +148,10 @@ namespace OpenMEEG {
 
             if (hasNames())
                 outfile << m_names[m_pointSensorIdx[i]] << " ";
-            outfile << m_positions.getlin(i) << " ";
+            outfile << m_positions.row(i) << " ";
 
             if (hasOrientations())
-                outfile << m_orientations.getlin(i) << " ";
+                outfile << m_orientations.row(i) << " ";
 
             // if has weights other than 1
 
@@ -167,7 +167,7 @@ namespace OpenMEEG {
     void Sensors::findInjectionTriangles() {
         om_error(geometry!=NULL);
         m_weights = Vector(m_positions.nlin());
-        m_weights.set(1.0);
+        m_weights = 1.0;
         Strings ci_mesh_names;
         std::vector<size_t> ci_triangles; // Count of the number of points that have been mapped to each mesh.
 

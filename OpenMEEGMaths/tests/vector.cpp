@@ -21,7 +21,7 @@ int main () {
     std::cout << std::endl << "========== vectors ==========" << std::endl;
 
     Vector v(8);
-    v.set(0);
+    v= 0.0;
     v.save("tmp.bin");
 
     for (int i=0;i<8;++i)

@@ -41,7 +41,7 @@ namespace OpenMEEG {
                                 << std::endl;
 
         Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),source_mesh.vertices().size());
-        mat.set(0.0);
+        mat = 0.0;
 
         const double L  = -1.0/domain.conductivity();
         for (const auto& boundary : domain.boundaries()) {
@@ -70,10 +70,9 @@ namespace OpenMEEG {
         const size_t n_sources = sources.nlin();
 
         Matrix rhs(size,n_sources);
-        rhs.set(0.0);
+        rhs = 0.0;
 
         ProgressBar pb(n_sources);
-        Vector rhs_col(rhs.nlin());
         for (unsigned s=0; s<n_sources; ++s,++pb) {
             const Source source(s,sources);
             const Domain domain = (domain_name=="") ? geo.domain(source.position()) : geo.domain(domain_name);
@@ -82,22 +81,20 @@ namespace OpenMEEG {
 
             const double cond = domain.conductivity();
             if (cond!=0.0) {
-                rhs_col.set(0.0);
                 for (const auto& boundary : domain.boundaries()) {
                     const double factorD = (boundary.inside()) ? -K : K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                         //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
-                        operatorPotentialDerivative(source,mesh,rhs_col,coeffD,integrator);
+                        rhs.column(s) += coeffD*operatorPotentialDerivative(size,source,mesh,integrator);
 
                         if (!oriented_mesh.mesh().current_barrier()) {
                             const double coeff = coeffD/cond;;
-                            operatorPotential(source,mesh,rhs_col,coeff,integrator);
+                            rhs.column(s) += coeff*operatorPotential(size,source,mesh,integrator);
                         }
                     }
                 }
-                rhs.setcol(s,rhs_col);
             }
         }
         return rhs;
@@ -114,7 +111,7 @@ namespace OpenMEEG {
         // rhs = [0 ... 0  -D*_23  sigma_3^(-1)S_23  -I_33/2.+D*_33]
 
         SymMatrix transmat(geo.nb_parameters());
-        transmat.set(0.0);
+        transmat = 0.0;
 
         // This is an overkill. Can we limit the computation only to injection triangles ?
         // We use only the few lines that correspond to injection triangles.
@@ -138,7 +135,7 @@ namespace OpenMEEG {
 
         const size_t n_sensors = electrodes.getNumberOfSensors();
         Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),n_sensors);
-        mat.set(0.0);
+        mat = 0.0;
 
         for (size_t ielec=0; ielec<n_sensors; ++ielec)
             for (const auto& triangle : electrodes.getInjectionTriangles(ielec)) {
@@ -164,13 +161,13 @@ namespace OpenMEEG {
                 points_domain.push_back(&domain);
                 pts.push_back(point);
             } else {
-                std::cerr << " DipSource2InternalPot: Point [ " << points.getlin(i)
+                std::cerr << " DipSource2InternalPot: Point [ " << points.row(i)
                           << "] is outside the head. Point is dropped." << std::endl;
             }
         }
 
         Matrix mat(pts.size(),dipoles.nlin());
-        mat.set(0.0);
+        mat = 0.0;
 
         for (unsigned iDIP=0; iDIP<dipoles.nlin(); ++iDIP) {
             const Dipole dipole(iDIP,dipoles);

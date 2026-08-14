@@ -38,9 +38,7 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(S.nlin()); ++i) {
         #endif
             e.Run([&](){
-                Vector vtemp(H.nlin());
-                GMRes(H,M,vtemp,S.getlin(i),1000,1e-7,H.nlin()); // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
-                res.setlin(i,vtemp);
+                res.row(i) = GMRes(H,M,S.row(i),1000,1e-7,H.nlin()).first; // max number of iteration=1000, and precision=1e-7 (1e-5 for faster resolution)
                 #pragma omp critical
                 PROGRESSBAR(i,S.nlin());
             });
@@ -84,7 +82,7 @@ namespace OpenMEEG {
             const Matrix& Hinv = linsolve(HeadMat,Head2EEGMat);
             ProgressBar pb(ncol());
             for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0)); // TODO ugly
+                column(i) = Hinv*SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").column(0);
         }
     };
 
@@ -99,7 +97,7 @@ namespace OpenMEEG {
             const Matrix& Hinv = linsolve(HeadMat,Head2MEGMat);
             ProgressBar pb(ncol());
             for (unsigned i=0; i<ncol(); ++i,++pb)
-                setcol(i,Hinv*SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0)+Source2MEGMat.getcol(i)); // TODO ugly
+                column(i) = Hinv*SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").column(0)+Source2MEGMat.column(i);
         }
     };
 
@@ -110,17 +108,17 @@ namespace OpenMEEG {
         {
             Matrix RHS(Head2EEGMat.nlin()+Head2MEGMat.nlin(),HeadMat.nlin());
             for (unsigned i=0; i<Head2EEGMat.nlin(); ++i)
-                RHS.setlin(i,Head2EEGMat.getlin(i));
+                RHS.row(i) = Head2EEGMat.row(i);
             for (unsigned i=0; i<Head2MEGMat.nlin(); ++i)
-                RHS.setlin(i+Head2EEGMat.nlin(),Head2MEGMat.getlin(i));
+                RHS.row(i+Head2EEGMat.nlin()) = Head2MEGMat.row(i);
 
             const Matrix& Hinv = linsolve(HeadMat,RHS);
 
             ProgressBar pb(dipoles.nlin());
             for (unsigned i=0; i<dipoles.nlin(); ++i,++pb) {
-                const Vector& dsm = SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").getcol(0); // TODO ugly
-                EEGleadfield.setcol(i,Hinv.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm);
-                MEGleadfield.setcol(i,Hinv.submat(Head2EEGMat.nlin(),Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.getcol(i));
+                const Vector& dsm = SourceMatrix<Dipole>(geo,dipoles.submat(i,1,0,dipoles.ncol()),"").column(0); // TODO ugly
+                EEGleadfield.column(i) = Hinv.submat(0,Head2EEGMat.nlin(),0,HeadMat.nlin())*dsm;
+                MEGleadfield.column(i) = Hinv.submat(Head2EEGMat.nlin(),Head2MEGMat.nlin(),0,HeadMat.nlin())*dsm+Source2MEGMat.column(i);
             }
         }
 

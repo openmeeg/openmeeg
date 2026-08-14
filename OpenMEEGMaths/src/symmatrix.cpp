@@ -16,45 +16,12 @@
 
 namespace OpenMEEG {
 
-    const SymMatrix& SymMatrix::operator=(const double d) {
-        const size_t sz = size();
-        for (size_t i=0; i<sz; ++i)
-            data()[i] = d;
-        return *this;
-    }
-
-    SymMatrix::SymMatrix(const Vector& v) {
-        const size_t sz = v.size();
-        nlin() = std::round((sqrt(1+8*sz)-1)/2);
-        om_assert(size()==sz);
-        value = v.value;
-    }
 
     SymMatrix::SymMatrix(const Matrix& M): LinOp(M.nlin(),M.nlin(),SYMMETRIC,2),value(size()) {
         om_assert(nlin()==M.nlin());
         for (Index i=0; i<nlin(); ++i)
             for (Index j=i; j<nlin(); ++j)
                 (*this)(i,j) = M(i,j);
-    }
-
-    void SymMatrix::set(const double x) {
-        const size_t sz = size();
-        for (size_t i=0; i<sz; ++i)
-            data()[i] = x;
-    }
-
-    SymMatrix SymMatrix::operator*(const double x) const {
-        SymMatrix C(nlin());
-        const size_t sz = size();
-        for (size_t i=0; i<sz; ++i)
-            C.data()[i] = data()[i]*x;
-        return C;
-    }
-
-    void SymMatrix::operator*=(const double x) {
-        const size_t sz = size();
-        for (size_t i=0; i<sz; ++i)
-            data()[i] *= x;
     }
 
     Matrix SymMatrix::operator()(const Index i_start,const Index i_end,const Index j_start,const Index j_end) const {

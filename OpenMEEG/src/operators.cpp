@@ -38,7 +38,9 @@ namespace OpenMEEG {
     }
 
     template <typename Source>
-    void operatorPotential(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+    Vector operatorPotential(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator) {
+        Vector res(size);
+        res = 0.0;
         const auto& potential = [&source](const Vect3& r) { return source.potential(r); };
         ThreadException e;
         #pragma omp parallel for
@@ -52,15 +54,17 @@ namespace OpenMEEG {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
             e.run([&](){
-                const double d = integrator.integrate(potential,triangle);
-                rhs(triangle.index()) += d*coeff;
+                res(triangle.index()) += integrator.integrate(potential,triangle);
             });
         }
         e.rethrow();
+        return res;
     }
 
     template <typename Source>
-    void operatorPotentialDerivative(const Source& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator) {
+    Vector operatorPotentialDerivative(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator) {
+        Vector res(size);
+        res = 0.0;
         ThreadException e;
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
@@ -78,17 +82,18 @@ namespace OpenMEEG {
                 const Vect3& v = integrator.integrate(pot_derivative,triangle);
 
                 for (unsigned j=0; j<3; ++j) {
-                    double& r = rhs(triangle.vertex(j).index());
+                    double& r = res(triangle.vertex(j).index());
                     #pragma omp atomic
-                    r += v(j)*coeff;
+                    r += v(j);
                 }
             });
         }
         e.rethrow();
+        return res;
     }
 
-    template void operatorPotential<Monopole>(const Monopole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
-    template void operatorPotential<Dipole>(const Dipole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
-    template void operatorPotentialDerivative<Monopole>(const Monopole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
-    template void operatorPotentialDerivative<Dipole>(const Dipole& source,const Mesh& m,Vector& rhs,const double coeff,const Integrator& integrator);
+    template Vector operatorPotential<Monopole>(const unsigned size,const Monopole& source,const Mesh& m,const Integrator& integrator);
+    template Vector operatorPotential<Dipole>(const unsigned size,const Dipole& source,const Mesh& m,const Integrator& integrator);
+    template Vector operatorPotentialDerivative<Monopole>(const unsigned size,const Monopole& source,const Mesh& m,const Integrator& integrator);
+    template Vector operatorPotentialDerivative<Dipole>(const unsigned size,const Dipole& source,const Mesh& m,const Integrator& integrator);
 }

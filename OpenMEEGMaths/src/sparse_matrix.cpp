@@ -21,7 +21,7 @@ namespace OpenMEEG {
 
     Vector SparseMatrix::operator*(const Vector& x) const {
         Vector ret(nlin());
-        ret.set(0);
+        ret = 0.0;
 
         for (const auto& tkelmt : m_tank) {
             const size_t i = tkelmt.first.first;
@@ -37,7 +37,7 @@ namespace OpenMEEG {
     {
         om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
-        out.set(0.0);
+        out = 0.0;
 
         for (const auto& tkelmt : m_tank) {
             const size_t i = tkelmt.first.first;
@@ -53,7 +53,7 @@ namespace OpenMEEG {
     Matrix SparseMatrix::operator*(const Matrix& mat) const {
         om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
-        out.set(0.0);
+        out = 0.0;
 
         for (const auto& tkelmt : m_tank) {
             const size_t i = tkelmt.first.first;

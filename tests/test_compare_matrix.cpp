@@ -329,8 +329,8 @@ bool compare_rdm(const T& mat1,const T& mat2,const double eps,const size_t col){
 
     std::cout.precision(20); // TODO
     for (unsigned j=jmin; j<jmax; ++j) {
-        Vector col1 = mat1.getcol(j);
-        Vector col2 = mat2.getcol(j);
+        Vector col1 = mat1.column(j);
+        Vector col2 = mat2.column(j);
         col1 = col1-col1.mean();
         col2 = col2-col2.mean();
         col1 = col1/col1.norm();
@@ -371,8 +371,8 @@ bool compare_mag(const T& mat1,const T& mat2,const double eps,const size_t col){
     }
 
     for (unsigned j=jmin; j<jmax; ++j) {
-        Vector col1 = mat1.getcol(j);
-        Vector col2 = mat2.getcol(j);
+        Vector col1 = mat1.column(j);
+        Vector col2 = mat2.column(j);
         col1 = col1-col1.mean();
         col2 = col2-col2.mean();
         const double MAG    = col1.norm()/col2.norm();

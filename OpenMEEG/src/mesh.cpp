@@ -221,7 +221,7 @@ namespace OpenMEEG {
             }
 
         for (const auto& vertex : vertices())
-            A(vertex->index(),vertex->index()) = -A.getlin(vertex->index()).sum();
+            A(vertex->index(),vertex->index()) = -A.row(vertex->index()).sum();
     }
 
     bool Mesh::has_self_intersection() const {

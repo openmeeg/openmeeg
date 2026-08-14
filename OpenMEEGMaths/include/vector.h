@@ -64,12 +64,13 @@ namespace OpenMEEG {
         Vector subvect(const Index istart,const Index isize) const;
 
         Vector operator+(const Vector& v) const;
+
         Vector operator-(const Vector& v) const;
 
         Vector operator-() const {
             // No Blas implementation ?
             Vector res(nlin());
-            for (Index i=0; i<nlin(); i++ )
+            for (Index i=0; i<nlin(); i++)
                 res.data()[i] = -data()[i];
             return res;
         }
@@ -78,23 +79,65 @@ namespace OpenMEEG {
         inline void operator-=(const Vector& v);
         inline void operator*=(const double x);
         void operator/=(const double x) { (*this) *= (1.0/x); }
-        Vector operator+(const double i) const;
-        Vector operator-(const double i) const;
+
+        Vector operator+(const double d) const {
+            Vector p(*this,DEEP_COPY);
+            for (Index i=0; i<nlin(); ++i)
+                p(i) += d;
+            return p;
+        }
+
+        Vector operator-(const double d) const {
+            Vector p(*this,DEEP_COPY);
+            for (Index i=0; i<nlin(); ++i)
+                p(i) -= d;
+            return p;
+        }
+
         inline Vector operator*(const double x) const;
         Vector operator/(const double x) const { return (*this)*(1.0/x); }
         inline double operator*(const Vector& v) const;
+
         Vector operator*(const Matrix& m) const;
 
-        Vector kmult(const Vector& x) const;
+        // Kronecker multiplication
+
+        Vector kmult(const Vector& V) const {
+            om_assert(nlin()==V.nlin());
+            Vector p(nlin());
+            for (Index i=0; i<nlin(); i++ )
+                p(i) = V(i)*(*this)(i);
+            return p;
+        }
+
         // Vector conv(const Vector& v) const;
         // Vector conv_trunc(const Vector& v) const;
+
         Matrix outer_product(const Vector& v) const;
 
-        double norm() const;
-        double sum() const;
+        double norm() const {
+        #ifdef HAVE_BLAS
+            return BLAS(dnrm2,DNRM2)(sizet_to_int(nlin()),data(),1);
+        #else
+            throw OpenMEEG::maths::LinearAlgebraError("'Vector::norm' not implemented, requires BLAS");
+        #endif
+        }
+
+        double sum() const {
+            double s=0;
+            for (Index i=0; i<nlin(); ++i)
+                s += (*this)(i);
+            return s;
+        }
+
         double mean() const { return sum()/size(); }
 
-        void set(const double x);
+        Vector& operator=(const double x) {
+            om_assert(nlin()>0);
+            for (Index i=0; i<nlin(); ++i)
+                (*this)(i) = x;
+            return *this;
+        }
 
         void save(const char *filename) const;
         void load(const char *filename);
@@ -198,20 +241,12 @@ namespace OpenMEEG {
     #endif
     }
 
-    inline double Vector::norm() const {
-    #ifdef HAVE_BLAS
-        return BLAS(dnrm2,DNRM2)(sizet_to_int(nlin()),data(),1);
-    #else
-        throw OpenMEEG::maths::LinearAlgebraError("'Vector::norm' not implemented, requires BLAS");
-    #endif
-    }
-
     // inline Vector Vector::conv(const Vector& v) const {
     //     if (v.nlin()<nlin())
     //         return v.conv(*this);
     //
     //     Vector p(nlin()+v.nlin()-1);
-    //     p.set(0);
+    //     p = 0.0;
     //     for (Index i=0; i<v.nlin(); ++i) {
     // #ifdef HAVE_BLAS
     //         BLAS(daxpy,DAXPY)(sizet_to_int(nlin()),v(i),data(),1,p.data()+i,1);
@@ -225,7 +260,7 @@ namespace OpenMEEG {
     //
     // inline Vector Vector::conv_trunc(const Vector& v) const {
     //     Vector p(v.nlin());
-    //     p.set(0);
+    //     p = 0.0;
     //     for (Index i=0; i<v.nlin(); ++i)
     //     {
     //         const Index m = std::min(nlin(),v.nlin()-i);

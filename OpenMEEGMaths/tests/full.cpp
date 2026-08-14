@@ -73,7 +73,8 @@ int main () {
     M.info();
 
     // SVD (wikipedia example)
-    M1 = Matrix(4,5); M1.set(0.0);
+    M1 = Matrix(4,5);
+    M1 = 0.0;
     M1(0,0) = 1; M1(0,4) = 2;
     M1(1,2) = 3; M1(3,1) = 4;
 
@@ -96,11 +97,12 @@ int main () {
     }
 
     // PseudoInverse
-    M1.set(0.0);
+
+    M1 = 0.0;
     M1(0,0) = 1; M1(0,4) = 2;
     M1(1,2) = 3; M1(3,1) = 4;
     Matrix M1pinv = M1.pinverse();
-    zero.set(0.);
+    zero = 0.0;
     zero = M1*M1pinv*M1-M1;
     if (zero.frobenius_norm()>eps) {
         std::cout << "pinverse = M^{+} = " << std::endl;

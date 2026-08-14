@@ -17,13 +17,6 @@
 
 namespace OpenMEEG {
 
-    const Matrix& Matrix::set(const double d) {
-        const size_t sz = size();
-        for (size_t i=0; i<sz; i++)
-            data()[i] = d;
-        return *this;
-    }
-
     Matrix::Matrix(const SymMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(size()) {
         for (Index j=0; j<ncol(); ++j)
             for (Index i=0; i<nlin(); ++i)
@@ -31,7 +24,7 @@ namespace OpenMEEG {
     }
 
     Matrix::Matrix(const SparseMatrix& A): LinOp(A.nlin(),A.ncol(),FULL,2),value(size()) {
-        set(0.0);
+        *this = 0.0;
         for (SparseMatrix::const_iterator it=A.begin(); it!=A.end(); ++it)
             (*this)(it->first.first,it->first.second) = it->second;
     }
@@ -62,12 +55,12 @@ namespace OpenMEEG {
 
         if (rank==0) {
             Matrix result(ncol(),nlin());
-            result.set(0.0);
+            result = 0.0;
             return result;
         }
 
         Matrix D(rank,rank);
-        D.set(0.0);
+        D = 0.0;
         for (Index i=0; i<rank; ++i)
             D(i,i) = 1.0/S(i,i);
 
@@ -94,10 +87,10 @@ namespace OpenMEEG {
         const Index mini = std::min(nlin(),ncol());
         const Index maxi = std::max(nlin(),ncol());
         U = Matrix(nlin(),nlin());
-        U.set(0.0);
+        U = 0.0;
         S = SparseMatrix(nlin(),ncol());
         V = Matrix(ncol(),ncol());
-        V.set(0.0);
+        V = 0.0;
         double* s = new double[mini];
         // int lwork = 4 *mini*mini + maxi + 9*mini;
         // http://www.netlib.no/netlib/lapack/double/dgesdd.f :
@@ -128,7 +121,7 @@ namespace OpenMEEG {
     Matrix Matrix::operator*(const SparseMatrix& mat) const {
         om_assert(ncol()==mat.nlin());
         Matrix out(nlin(),mat.ncol());
-        out.set(0.0);
+        out = 0.0;
 
         for (SparseMatrix::const_iterator it=mat.begin(); it!=mat.end(); ++it) {
             const Index i = it->first.first;

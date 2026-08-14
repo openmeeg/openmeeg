@@ -20,7 +20,7 @@ void genericTest(const std::string& basename,T &M) {
     std::cout << "   nlin  = " << static_cast<int>(M.nlin()) << std::endl;
     std::cout << "   ncol  = " << static_cast<int>(M.ncol()) << std::endl;
     Vector v(M.ncol());
-    v.set(1);
+    v = 1.0;
     v = M*v;
 
     std::cout << std::endl << "BASE :" << std::endl;
