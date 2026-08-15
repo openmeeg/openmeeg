@@ -29,11 +29,9 @@ namespace OpenMEEG {
     /// \brief  Vect3
 
     class OPENMEEG_EXPORT Vect3 {
-
-        double m[3]; //!< Coordinates of the vector
-
     public:
 
+        Vect3(const double V[3]) { std::copy(&V[0],&V[3],&m[0]); }
         Vect3(const double x1,const double x2,const double x3) { m[0] = x1; m[1] = x2; m[2] = x3; }
         Vect3(const double a=0.0) { std::fill(&m[0],&m[3],a); }
 
@@ -84,12 +82,10 @@ namespace OpenMEEG {
         Vect3& operator*=(const double d) { m[0] *= d; m[1] *= d; m[2] *= d; return *this; }
         Vect3& operator/=(const double d) { return operator*=(1.0/d); }
 
-        void multadd(const double d,const Vect3& v) {m[0] += d*v.x(); m[1] += d*v.y(); m[2] += d*v.z();}
-
         Vect3 operator+(const Vect3& v) const { return Vect3(m[0]+v.x(),m[1]+v.y(),m[2]+v.z()); }
         Vect3 operator-(const Vect3& v) const { return Vect3(m[0]-v.x(),m[1]-v.y(),m[2]-v.z()); }
         Vect3 operator*(const double d) const { return Vect3(d*m[0],d*m[1],d*m[2]); }
-        Vect3 operator/(const double d) const { return Vect3(m[0]/d,m[1]/d,m[2]/d); }
+        Vect3 operator/(const double d) const { return operator*(1.0/d); }
 
         double operator()(const int i) const {
             om_assert(i>=0 && i<3);
@@ -105,6 +101,10 @@ namespace OpenMEEG {
 
         friend std::ostream& operator<<(std::ostream& os,const Vect3& v);
         friend std::istream& operator>>(std::istream& is,Vect3& v);
+
+    private:
+
+        double m[3]; //!< Coordinates of the vector
     };
 
     inline Vect3  operator*(const double d,const Vect3& V)   { return V*d;   }
@@ -123,4 +123,17 @@ namespace OpenMEEG {
 
     typedef Vect3                Normal;
     typedef std::vector<Normal>  Normals;
+
+    // Two different types are needed for integrator.
+    // Point3D is a classic Cartesian coordinates.
+    // TriangleCoords are barycentric coordinates in a triangle.
+
+    struct TriangleCoords: public Vect3 {
+        using Vect3::Vect3;
+    };
+
+    struct Point3D: public Vect3 {
+        using Vect3::Vect3;
+        Point3D(const Vect3& v): Vect3(v) { }
+    };
 }
