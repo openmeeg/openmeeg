@@ -22,9 +22,18 @@ list(APPEND CMAKE_MODULE_PATH
 if (NOT WIN32)
     option(USE_MEMORY_CHECKER "Use memory checker" OFF)
     if (USE_MEMORY_CHECKER)
-        set(CMAKE_CXX_FLAGS -fsanitize=address ${CMAKE_CXX_FLAGS})
-    else()
-        list(REMOVE_ITEM CMAKE_CXX_FLAGS "-fsanitize=address")
+        add_compile_options(-fsanitize=address)
+        add_link_options(-fsanitize=address)
+    endif()
+
+    option(USE_THREAD_CHECKER "Use thread checker" OFF)
+    if (USE_THREAD_CHECKER)
+        add_compile_options(-fsanitize=thread)
+        add_link_options(-fsanitize=thread)
+    endif()
+
+    if (USE_MEMORY_CHECKER AND USE_THREAD_CHECKER)
+        message(ERROR "USE_MEMORY_CHECKER and USE_THREAD_CHECKER are mutually exclusive")
     endif()
 endif()
 
