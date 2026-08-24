@@ -752,6 +752,8 @@ namespace OpenMEEG {
 // The unqualified %ignore operator<< above does not reach into OpenMEEG::maths, and
 // wrapping it there collides with the existing __lshift__ dispatcher.
 %ignore OpenMEEG::maths::operator<<;
+// swig>=4.5 wraps `using base::base` ctors including the base copy ctor, which C++ does not inherit.
+%ignore OpenMEEG::maths::Ranges::Ranges;
 %include <range.h>
 %template(vector_range) std::vector<OpenMEEG::maths::Range>;
 %include <ranges.h>
