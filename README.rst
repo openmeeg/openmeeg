@@ -91,6 +91,9 @@ On any operating system, you should get the latest OpenMEEG source the usual way
 
 Then you need to get dependencies installed and configured for your operating system.
 
+Maintainers should also see `README-dev.rst <README-dev.rst>`_, which documents how
+the version is derived from git tags and what to do to cut a new release.
+
 Building on Linux
 ^^^^^^^^^^^^^^^^^
 
