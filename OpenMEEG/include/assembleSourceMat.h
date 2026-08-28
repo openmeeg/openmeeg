@@ -11,6 +11,10 @@
 #include "geometry.h"
 #include "integrator.h"
 #include "sensors.h"
+#include "operators.h"
+#include "progressbar.h"
+
+#include <constants.h>
 
 namespace OpenMEEG {
 
@@ -20,8 +24,52 @@ namespace OpenMEEG {
     OPENMEEG_EXPORT Matrix SurfSourceMat(const Geometry& geo,Mesh& sources,const Integrator& integrator=Integrator(3,0,0.005));
 
     template <typename Source>
-    OPENMEEG_EXPORT Matrix
-    SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    Matrix
+    SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name) {
+
+        const size_t size      = geo.nb_parameters()-geo.nb_current_barrier_triangles();
+        const size_t n_sources = sources.nlin();
+
+        Matrix rhs(size,n_sources);
+        rhs = 0.0;
+
+        ProgressBar pb(n_sources);
+        for (unsigned s=0; s<n_sources; ++s,++pb) {
+            const Source source(s,sources);
+            const Domain domain = (domain_name=="") ? geo.domain(source.position()) : geo.domain(domain_name);
+
+            //  Only consider sources in non-zero conductivity domains.
+
+            const double cond = domain.conductivity();
+            if (cond!=0.0) {
+                for (const auto& boundary : domain.boundaries()) {
+                    const double factorD = (boundary.inside()) ? -K : K;
+                    for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
+                        //  Process the mesh.
+                        if (s==4)
+                            std::cerr << "Before: " << rhs.column(s) << std::endl;
+                        const double coeffD = factorD*oriented_mesh.orientation();
+                        const Mesh&  mesh   = oriented_mesh.mesh();
+                        rhs.column(s) += coeffD*operatorPotentialDerivative(size,source,mesh,integrator);
+
+                        if (s==4)
+                            std::cerr << "Middle: " << rhs.column(s) << std::endl;
+
+                        if (!oriented_mesh.mesh().current_barrier()) {
+                            const double coeff = coeffD/cond;;
+                            rhs.column(s) += coeff*operatorPotential(size,source,mesh,integrator);
+                        }
+
+                        if (s==4)
+                            std::cerr << "After: " << rhs.column(s) << std::endl;
+                        if (s==4)
+                            std::cerr << "=======================================================" << std::endl;
+                    }
+                }
+            }
+        }
+        return rhs;
+    }
 
     template <typename Source>
     Matrix SourceMatrix(const Geometry& geo,const Matrix& sources,const std::string& domain_name) {
