@@ -16,6 +16,11 @@
 
 #include <constants.h>
 
+#ifdef WIN32
+#include "dipole.h"
+#include "monopole.h"
+#endif
+
 namespace OpenMEEG {
 
     // For ADAPT_LHS change the 0 in Integrator below into 10
