@@ -46,24 +46,14 @@ namespace OpenMEEG {
                     const double factorD = (boundary.inside()) ? -K : K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                         //  Process the mesh.
-                        if (s==4)
-                            std::cerr << "Before: " << rhs.column(s) << std::endl;
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
                         rhs.column(s) += coeffD*operatorPotentialDerivative(size,source,mesh,integrator);
-
-                        if (s==4)
-                            std::cerr << "Middle: " << rhs.column(s) << std::endl;
 
                         if (!oriented_mesh.mesh().current_barrier()) {
                             const double coeff = coeffD/cond;;
                             rhs.column(s) += coeff*operatorPotential(size,source,mesh,integrator);
                         }
-
-                        if (s==4)
-                            std::cerr << "After: " << rhs.column(s) << std::endl;
-                        if (s==4)
-                            std::cerr << "=======================================================" << std::endl;
                     }
                 }
             }
