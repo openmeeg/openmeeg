@@ -63,7 +63,6 @@ namespace OpenMEEG {
 
     template <typename Source>
     Vector operatorPotentialDerivative(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator) {
-        const bool source4 = (source.position()(2)==0.8415);
         Vector res(size);
         res = 0.0;
         ThreadException e;
@@ -78,7 +77,7 @@ namespace OpenMEEG {
             const Triangle& triangle = *(m.triangles().begin()+i);
         #endif
             e.run([&]() {
-                const PotentialDerivative<Source> potential_derivative(source,triangle,source4);
+                const PotentialDerivative<Source> potential_derivative(source,triangle);
                 const auto pot_derivative = [&](const Point3D& r) { return potential_derivative(r); };
                 const Vect3& v = integrator.integrate(pot_derivative,triangle);
 
