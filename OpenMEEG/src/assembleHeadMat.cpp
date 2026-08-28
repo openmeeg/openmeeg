@@ -49,7 +49,7 @@ namespace OpenMEEG {
                             for (int i2=vit1-vertices.begin();i2<static_cast<int>(vertices.size());++i2) {
                                 const auto vit2 = vertices.begin()+i2;
                             #endif
-                                e.run([&](){
+                                e.run([&]() {
                                     M((*vit1)->index(),(*vit2)->index()) += coef;
                                 });
                             }
