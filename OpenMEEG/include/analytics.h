@@ -31,7 +31,7 @@ namespace OpenMEEG {
 
         // Analytical value of the internal integral of S operator at point x.
 
-        double operator()(const Vect3& x) const {
+        double operator()(const Point3D& x) const {
             const Vect3  rays[3]  = { triangle.vertex(0)-x, triangle.vertex(1)-x, triangle.vertex(2)-x };
             const double dists[3] = { rays[0].norm(),       rays[1].norm(),       rays[2].norm()       };
             const double R[3]     = { dists[0]+dists[1],    dists[1]+dists[2],    dists[2]+dists[0]    };
@@ -84,7 +84,7 @@ namespace OpenMEEG {
             U{ D[0].unit_vector(), D[1].unit_vector(), D[2].unit_vector() }
         { }
 
-        Vect3 operator()(const Vect3& x) const {
+        Vect3 operator()(const Point3D& x) const {
 
             const Vect3 rays[3]  = { triangle.vertex(0)-x,       triangle.vertex(1)-x,       triangle.vertex(2)-x       };
             const Vect3 dists    = { rays[0].norm(),             rays[1].norm(),             rays[2].norm()             };
@@ -137,16 +137,15 @@ namespace OpenMEEG {
             barycentric_coords(T),triangle(T),source(src)
         { }
 
-        Vect3 operator()(const Vect3& r) const {
+        Vect3 operator()(const Point3D& r) const {
 
-            // In this case, r is a point in triangle;
-            // Barycentric coordinates of r in the triangle.
+            // In this case, r is a point in triangle.
+            // We compute the barycentric coordinates of r in the triangle.
             // These are exactly the P1 coordinates of the point in the triangle.
 
-            const Vect3& P1coordinates = barycentric_coords(r);
-            const double pot_grad_n    = source.gradient(r,triangle.normal());
+            const double pot_grad_n = source.gradient(r,triangle.normal());
 
-            return pot_grad_n*P1coordinates;
+            return pot_grad_n*barycentric_coords(r);
         }
 
     private:
