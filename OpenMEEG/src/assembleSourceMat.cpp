@@ -137,4 +137,9 @@ namespace OpenMEEG {
         }
         return mat;
     }
+
+    #ifdef WIN32
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Monopole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Dipole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    #endif
 }
