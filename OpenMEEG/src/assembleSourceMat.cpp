@@ -11,8 +11,8 @@
 #include <sensors.h>
 #include <dipole.h>
 #include <OMExceptions.H>
-
 #include <constants.h>
+#include <assembleSourceMat.h>
 
 namespace OpenMEEG {
 
