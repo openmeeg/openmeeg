@@ -15,10 +15,6 @@
 #include <vector.h>
 #include <matrix.h>
 
-#ifdef WIN32
-    template class OPENMEEGMATHS_EXPORT std::map<std::pair<size_t,size_t>,double>;
-#endif
-
 namespace OpenMEEG {
 
     class SymMatrix;
@@ -26,9 +22,9 @@ namespace OpenMEEG {
     class OPENMEEGMATHS_EXPORT SparseMatrix : public LinOp {
     public:
 
-        typedef std::map<std::pair<size_t,size_t>,double> Tank;
-        typedef Tank::const_iterator                      const_iterator;
-        typedef Tank::iterator                            iterator;
+        using Tank           = std::map<std::pair<size_t,size_t>,double>;
+        using const_iterator = Tank::const_iterator;
+        using iterator       = Tank::iterator;
 
         SparseMatrix(): LinOp(0,0,SPARSE,2) { }
         SparseMatrix(const char* fname): LinOp(0,0,SPARSE,2) { load(fname); }

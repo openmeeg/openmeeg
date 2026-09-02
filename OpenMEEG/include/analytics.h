@@ -130,7 +130,7 @@ namespace OpenMEEG {
     // P1 integral of the normal component of the gradient of the potential.
 
     template <typename Source>
-    class OPENMEEG_EXPORT PotentialDerivative {
+    class PotentialDerivative {
     public:
 
         PotentialDerivative(const Source& src,const Triangle& T):
