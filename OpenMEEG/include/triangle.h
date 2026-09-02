@@ -39,6 +39,16 @@ namespace OpenMEEG {
         unsigned indices[3];
     };
 
+    using TrianglePoints = Point3D[3];
+
+    inline Point3D
+    cartesian_coordinates(const TriangleCoords& barycentric_coordinates,const TrianglePoints& tpoints) {
+        Point3D res = barycentric_coordinates[0]*tpoints[0];
+        res += barycentric_coordinates[1]*tpoints[1];
+        res += barycentric_coordinates[2]*tpoints[2];
+        return res;
+    }
+
     /// \brief  Triangle
     /// Triangle class
 
@@ -75,6 +85,10 @@ namespace OpenMEEG {
         const_iterator end()   const { return const_iterator(vertices+3); }
         iterator       begin()       { return iterator(vertices);         }
         iterator       end()         { return iterator(vertices+3);       }
+
+        Point3D cartesian_coordinates(const TriangleCoords& barycentric_coordinates) const {
+            return OpenMEEG::cartesian_coordinates(barycentric_coordinates,{ vertex(0), vertex(1), vertex(2) });
+        }
 
         /// Operators
 

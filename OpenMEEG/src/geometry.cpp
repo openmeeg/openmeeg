@@ -182,16 +182,20 @@ namespace OpenMEEG {
         try {
             io->load(*this);
         } catch (OpenMEEG::Exception& e) {
+            delete io;
             std::string& message = e.what();
             message += " in the file "+filename+'.';
             throw;
         } catch (std::invalid_argument& e) {
+            delete io;
             std::string message = e.what();
             message += " for the file "+filename+'.';
             throw std::invalid_argument(message);
         } catch (...) {
+            delete io;
             throw OpenMEEG::GenericError(std::string("Could not read the geometry file: ")+filename+'.');
         }
+        delete io;
     }
 
     void Geometry::import(const MeshList& mesh_list) {

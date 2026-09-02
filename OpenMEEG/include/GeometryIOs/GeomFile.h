@@ -199,6 +199,7 @@ namespace OpenMEEG::GeometryIOs {
             if (has_meshfile) {
                 GeometryIO* io = GeometryIO::create(filename());
                 io->load(geometry);
+                delete io;
             }
 
             ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes",has_meshsection);

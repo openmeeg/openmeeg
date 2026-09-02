@@ -100,7 +100,7 @@ namespace OpenMEEG {
     /// Compute normals at vertices.
 
     Normal Mesh::normal(const Vertex& v) const {
-        Normal N(0);
+        Normal N(0.0);
         for (const auto& triangle : triangles(v))
             N += triangle->normal();
         N.normalize();

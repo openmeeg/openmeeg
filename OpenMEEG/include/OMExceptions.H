@@ -334,8 +334,10 @@ namespace OpenMEEG {
         ThreadException(): ptr(nullptr) { }
 
         void rethrow() {
-            if (ptr)
+            if (ptr) {
+                std::unique_lock<std::mutex> guard(lock);
                 std::rethrow_exception(ptr);
+            }
         }
 
         template <typename Function,typename... Parameters>

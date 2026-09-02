@@ -26,7 +26,7 @@ namespace OpenMEEG {
         for (int i=0; i<static_cast<int>(m.vertices().size()); ++i) {
             const Vertex* vertexp = *(m.vertices().begin()+i);
         #endif
-            e.run([&](){
+            e.run([&]() {
                 const unsigned vindex = vertexp->index();
                 Vect3 v = Details::operatorFerguson(x,*vertexp,m);
                 mat(offsetI+0,vindex) += v.x()*coeff;
@@ -36,64 +36,4 @@ namespace OpenMEEG {
         }
         e.rethrow();
     }
-
-    template <typename Source>
-    Vector operatorPotential(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator) {
-        Vector res(size);
-        res = 0.0;
-        const auto& potential = [&source](const Vect3& r) { return source.potential(r); };
-        ThreadException e;
-        #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            e.run([&](){
-                res(triangle.index()) += integrator.integrate(potential,triangle);
-            });
-        }
-        e.rethrow();
-        return res;
-    }
-
-    template <typename Source>
-    Vector operatorPotentialDerivative(const unsigned size,const Source& source,const Mesh& m,const Integrator& integrator) {
-        Vector res(size);
-        res = 0.0;
-        ThreadException e;
-        #pragma omp parallel for
-        #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-        for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
-        #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
-        #endif
-            e.run([&](){
-                const PotentialDerivative<Source> potential_derivative(source,triangle);
-                const auto pot_derivative = [&](const Vect3& r) { return potential_derivative(r); };
-                const Vect3& v = integrator.integrate(pot_derivative,triangle);
-
-                for (unsigned j=0; j<3; ++j) {
-                    double& r = res(triangle.vertex(j).index());
-                    #pragma omp atomic
-                    r += v(j);
-                }
-            });
-        }
-        e.rethrow();
-        return res;
-    }
-
-    template Vector operatorPotential<Monopole>(const unsigned size,const Monopole& source,const Mesh& m,const Integrator& integrator);
-    template Vector operatorPotential<Dipole>(const unsigned size,const Dipole& source,const Mesh& m,const Integrator& integrator);
-    template Vector operatorPotentialDerivative<Monopole>(const unsigned size,const Monopole& source,const Mesh& m,const Integrator& integrator);
-    template Vector operatorPotentialDerivative<Dipole>(const unsigned size,const Dipole& source,const Mesh& m,const Integrator& integrator);
 }

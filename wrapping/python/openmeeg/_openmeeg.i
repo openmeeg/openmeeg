@@ -157,13 +157,13 @@ namespace OpenMEEG {
     // The OpenMEEG:: prefix seems required...
     // Otherwise some wrapping tests are failing.
 
-    %typedef std::vector<OpenMEEG::Vertex>   Vertices;
-    %typedef std::vector<OpenMEEG::Vertex*>  PVertices;
-    %typedef std::vector<OpenMEEG::Triangle> Triangles;
-    %typedef std::vector<OpenMEEG::Domain>   Domains;
-    %typedef std::vector<std::string>        Strings;
-    %typedef std::vector<SimpleDomain>       Boundaries;
-    %typedef std::vector<OrientedMesh>       OrientedMeshes;
+    using Vertices       = std::vector<OpenMEEG::Vertex>;
+    using PVertices      = std::vector<OpenMEEG::Vertex*>;
+    using Triangles      = std::vector<OpenMEEG::Triangle>;
+    using Domains        = std::vector<OpenMEEG::Domain>;
+    using Strings        = std::vector<std::string>;
+    using Boundaries     = std::vector<SimpleDomain>;
+    using OrientedMeshes = std::vector<OrientedMesh>;
 }
 
 namespace OpenMEEG {

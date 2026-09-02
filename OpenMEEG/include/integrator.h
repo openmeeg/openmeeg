@@ -7,19 +7,11 @@
 
 #pragma once
 
-#include <cmath>
-#include <iostream>
-
-#include <vertex.h>
 #include <triangle.h>
-#include <mesh.h>
 
 namespace OpenMEEG {
 
     class OPENMEEG_EXPORT Integrator {
-
-        typedef Vect3 Point;
-        typedef Point TrianglePoints[3];
 
         static unsigned safe_order(const unsigned n) {
             if (n>0 && n<4)
@@ -41,34 +33,27 @@ namespace OpenMEEG {
 
         #ifndef SWIG  // SWIG sees the integrate def as a syntax error
         template <typename Function>
-        decltype(auto) integrate(const Function& function,const Triangle& triangle) const {
+        auto integrate(const Function& function,const Triangle& triangle) const {
+            using ResType = decltype(function(Point3D()));
             const TrianglePoints tripts = { triangle.vertex(0), triangle.vertex(1), triangle.vertex(2) };
-            const auto& coarse = triangle_integration(function,tripts,triangle.area());
-            return (max_depth==0) ? coarse : adaptive_integration(function,tripts,triangle.area(),coarse,max_depth);
+            const ResType coarse = triangle_integration<ResType>(function,tripts,triangle.area());
+            return (max_depth==0) ? coarse : adaptive_integration<ResType>(function,tripts,triangle.area(),coarse,max_depth);
         }
         #endif
 
     private:
 
-        #ifndef SWIG  // SWIG sees the triangle_integration def as a syntax error
-        template <typename Function>
-        decltype(auto) triangle_integration(const Function& function,const TrianglePoints& triangle,const double area) const {
-            using T = decltype(function(Vect3()));
-            T result = 0.0;
-            for (unsigned i=0;i<nbPts[order];++i) {
-                Vect3 v(0.0,0.0,0.0);
-                for (unsigned j=0; j<3; ++j)
-                    v.multadd(rules[order][i].barycentric_coordinates[j],triangle[j]);
-                result += rules[order][i].weight*function(v);
-            }
-
+        template <typename ResType,typename Function>
+        ResType triangle_integration(const Function& function,const TrianglePoints& triangle,const double area) const {
+            ResType result = 0.0;
+            for (unsigned i=0;i<nbPts[order];++i)
+                result += rules[order][i].weight*function(cartesian_coordinates(TriangleCoords(rules[order][i].barycentric_coordinates),triangle));
             return area*result;
         }
-        #endif
 
-        template <typename T,typename Function>
-        T adaptive_integration(const Function& function,const TrianglePoints& triangle,const double area,const T& coarse,const unsigned level) const {
-            const Point midpoints[] = { 0.5*(triangle[1]+triangle[2]), 0.5*(triangle[2]+triangle[0]), 0.5*(triangle[0]+triangle[1]) };
+        template <typename ResType,typename Function>
+        ResType adaptive_integration(const Function& function,const TrianglePoints& triangle,const double area,const ResType& coarse,const unsigned level) const {
+            const Point3D midpoints[] = { 0.5*(triangle[1]+triangle[2]), 0.5*(triangle[2]+triangle[0]), 0.5*(triangle[0]+triangle[1]) };
             const TrianglePoints new_triangles[] = {
                 { triangle[0],  midpoints[1], midpoints[2] }, { midpoints[0], triangle[1],  midpoints[2] },
                 { midpoints[0], midpoints[1], triangle[2]  }, { midpoints[0], midpoints[1], midpoints[2] }
@@ -76,19 +61,19 @@ namespace OpenMEEG {
 
             const double subdivided_area = 0.25*area;
 
-            T refined = 0.0;
-            T integrals[4];
+            ResType refined = 0.0;
+            ResType integrals[4];
             for (unsigned i=0; i<4; ++i) {
-                integrals[i] = triangle_integration(function,new_triangles[i],subdivided_area);
+                integrals[i] = triangle_integration<ResType>(function,new_triangles[i],subdivided_area);
                 refined += integrals[i];
             }
 
             if (norm(coarse-refined)<=tolerance*norm(coarse) || level==0)
                 return refined;
 
-            T sum = 0.0;
+            ResType sum = 0.0;
             for (unsigned i=0; i<4; ++i)
-                sum += adaptive_integration(function,new_triangles[i],subdivided_area,integrals[i],level-1);
+                sum += adaptive_integration<ResType>(function,new_triangles[i],subdivided_area,integrals[i],level-1);
             return sum;
         }
 
@@ -100,12 +85,14 @@ namespace OpenMEEG {
 
         // Quadrature rules are from Marc Bonnet's book: Equations integrales..., Appendix B.3
 
-        struct QuadratureRule {
+        struct QuadraturePoint {
             double barycentric_coordinates[3];
             double weight;
         };
 
-        static constexpr QuadratureRule rules[4][16] = {
+        using QuadratureRule = QuadraturePoint[16];
+
+        static constexpr QuadratureRule rules[4] = {
             {   // Parameters for N=3
                 {{ 0.166666666666667, 0.166666666666667, 0.666666666666667 }, 0.333333333333334 },
                 {{ 0.166666666666667, 0.666666666666667, 0.166666666666667 }, 0.333333333333334 },
