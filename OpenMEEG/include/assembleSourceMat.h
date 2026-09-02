@@ -71,6 +71,11 @@ namespace OpenMEEG {
         return SourceMatrix<Source>(geo,sources,Integrator(3,10,0.001),domain_name);
     }
 
+    #ifdef WIN32
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Monopole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    template OPENMEEG_EXPORT Matrix SourceMatrix<Dipole>(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name);
+    #endif
+
     OPENMEEG_EXPORT Matrix EITSourceMat(const Geometry& geo,const Sensors& electrodes,const Integrator& integrator=Integrator(3,0,0.005));
     OPENMEEG_EXPORT Matrix DipSource2InternalPotMat(const Geometry& geo,const Matrix& dipoles,const Matrix& points,const std::string& domain_name="");
 }
