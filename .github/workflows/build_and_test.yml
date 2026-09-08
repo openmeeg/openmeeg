@@ -91,11 +91,11 @@ jobs:
           blas_linking: dynamic
           python: cmake
           testing: thorough
-        - os: macos-15-intel
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
+        # No macos-15-intel here: as of September 2026 Homebrew no longer
+        # bottles for Intel macOS, and both hdf5 and openblas depend on gcc,
+        # so `brew install` starts a from-source GCC build that outlives the
+        # job timeout. Intel x86_64 stays covered by the cibuildwheel and
+        # cibuildwheel-apps workflows, which use vcpkg rather than brew.
         # Latest OpenBLAS release
         - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_3.12_latest
           blas: OpenBLAS-latest
