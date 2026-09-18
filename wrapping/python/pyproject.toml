@@ -73,8 +73,12 @@ local_scheme = "no-local-version"  # to allow TestPyPI uploads
 # pp310 should in principle work but in practice it doesn't
 skip = ["*-musllinux*"]
 # cp310 covers 3.10+ via abi3; the free-threaded build has no stable ABI (CPython
-# gh-111506) so it needs its own version-specific wheel.
-build = ["cp310-*", "cp314t-*"]
+# gh-111506; 3.15's PEP 803 abi3t is not targeted here) so each free-threaded
+# version needs its own version-specific wheel. cp315 does not build anything:
+# cibuildwheel finds the compatible cp310-abi3 wheel and only tests it on 3.15.
+build = ["cp310-*", "cp314t-*", "cp315-*", "cp315t-*"]
+# 3.15 is still a pre-release as far as cibuildwheel is concerned
+enable = ["cpython-prerelease"]
 archs = "native"
 before-all = "bash {project}/build_tools/cibw_before_all.sh {project}"
 before-build = "pip install --only-binary=numpy \"numpy>=2,<3\""  # we don't want to build for any platform that NumPy does not provide wheels for

@@ -354,14 +354,24 @@ namespace OpenMEEG {
             oss << "Matrix of triangles for mesh \"" << mesh->name() << "\" was empty";
             throw Error(SWIG_ValueError,oss.str().c_str());
         }
-        const PyArray_Descr* descr = PyArray_DESCR(orig_array);
-        const int type_num = descr->type_num;
+        // No PyArray_Descr field access: the struct is opaque under abi3t
+        const int type_num = PyArray_TYPE(orig_array);
         if (!PyArray_EquivTypenums(type_num,NPY_INT32) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT32) &&
             !PyArray_EquivTypenums(type_num,NPY_INT64) &&
             !PyArray_EquivTypenums(type_num,NPY_UINT64)) {
+            std::string dtype_name = "unknown";
+            PyObject* dtype = PyObject_GetAttrString(pyobj,"dtype");
+            PyObject* dtype_str = dtype ? PyObject_Str(dtype) : nullptr;
+            const char* utf8 = dtype_str ? PyUnicode_AsUTF8AndSize(dtype_str,nullptr) : nullptr;
+            if (utf8)
+                dtype_name = utf8;
+            else
+                PyErr_Clear();
+            Py_XDECREF(dtype_str);
+            Py_XDECREF(dtype);
             std::ostringstream oss;
-            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got type '" << descr->kind << PyArray_ITEMSIZE(orig_array) << "'";
+            oss << "Wrong dtype for triangles array (only 32 or 64 int or uint supported), got dtype '" << dtype_name << "'";
             throw Error(SWIG_TypeError,oss.str().c_str());
         }
 
