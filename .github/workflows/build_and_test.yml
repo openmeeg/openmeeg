@@ -658,7 +658,7 @@ jobs:
         lcov --list coverage.info
 
     - name: Upload coverage to CodeCov
-      uses: codecov/codecov-action@v7.0.0
+      uses: codecov/codecov-action@v7.1.0
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       with:
         files: coverage.info
