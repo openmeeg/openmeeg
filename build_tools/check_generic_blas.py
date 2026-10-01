@@ -16,7 +16,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-GENERIC = ("blas", "cblas", "lapack", "lapacke")
+# OpenMEEG calls the C interfaces only, which in turn use blas and lapack. Those
+# show up as direct dependencies too, except on Windows, where the linker drops
+# DLLs that nothing calls into directly.
+GENERIC = ("cblas", "lapacke")
 SPECIFIC = ("openblas", "mkl", "blis", "flexiblas", "accelerate", "veclib")
 
 
@@ -82,8 +85,9 @@ def _accelerate_provides_cblas():
 
 def check_runtime(expected):
     """Assert that the expected implementation gets loaded with OpenMEEG."""
-    import openmeeg  # noqa: F401  -- importing loads the extension and its BLAS
     import threadpoolctl
+
+    import openmeeg  # noqa: F401  -- importing loads the extension and its BLAS
 
     infos = [
         info for info in threadpoolctl.threadpool_info() if info["user_api"] == "blas"
