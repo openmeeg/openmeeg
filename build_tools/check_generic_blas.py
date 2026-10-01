@@ -85,9 +85,8 @@ def _accelerate_provides_cblas():
 
 def check_runtime(expected):
     """Assert that the expected implementation gets loaded with OpenMEEG."""
-    import threadpoolctl
-
     import openmeeg  # noqa: F401  -- importing loads the extension and its BLAS
+    import threadpoolctl
 
     infos = [
         info for info in threadpoolctl.threadpool_info() if info["user_api"] == "blas"
