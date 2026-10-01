@@ -96,8 +96,9 @@ jobs:
         # (rpaths etc.) that the conda compilers set up
         export CMAKE_CXX_FLAGS="$CXXFLAGS" LINKER_OPT="$LDFLAGS"
         # Install into the env like the conda package does, which on Windows is
-        # also what lets everything find the OpenMEEG DLLs
-        ./build_tools/cmake_configure.sh $GENERATOR_OPT -DPYTHON_INSTALL_RELATIVE=OFF -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX_PATH"
+        # also what lets everything find the OpenMEEG DLLs. No packaging, which
+        # would also install (over conda's) the MSVC runtime DLLs.
+        ./build_tools/cmake_configure.sh $GENERATOR_OPT -DPYTHON_INSTALL_RELATIVE=OFF -DENABLE_PACKAGING=OFF -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX_PATH"
 
     - name: Build and install
       run: |

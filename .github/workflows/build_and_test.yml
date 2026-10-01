@@ -103,7 +103,8 @@ jobs:
         # PyPy build
         - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
-          python-version: 'pypy-3.11'
+          # PyPy 8.0 (Sep 2026) has a new ABI that NumPy has no wheels for yet
+          python-version: 'pypy-3.11-v7.3.x'
         # One with latest numpy, plus VTK
         - os: ubuntu-24.04
           blas: OpenBLAS
