@@ -226,6 +226,20 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
+    # As many build jobs and tests at once as the runner has cores (read by
+    # cmake --build and ctest), which differs by OS (e.g., 3 on macOS arm64)
+    - name: Parallelism
+      run: |
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          NPROC=$(sysctl -n hw.logicalcpu)
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          NPROC=$NUMBER_OF_PROCESSORS
+        else
+          NPROC=$(nproc)
+        fi
+        echo "CMAKE_BUILD_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+        echo "CTEST_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+
     - run: sudo apt update -q
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       timeout-minutes: 10
@@ -449,7 +463,7 @@ jobs:
 
     - name: Build
       run: |
-        cmake --build build --config ${{env.BUILD_TYPE}} --parallel 4
+        cmake --build build --config ${{env.BUILD_TYPE}}
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
           ls -alR build/wrapping/python/openmeeg
@@ -652,9 +666,11 @@ jobs:
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
           export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
-        # Parallel both for speed and to catch tests that clobber each other's
-        # files, and no rerun of failures, which would hide flaky tests
-        ctest -C $BUILD_TYPE --parallel 4 --output-on-failure
+        # Parallel (see CTEST_PARALLEL_LEVEL) both for speed and to catch tests
+        # that clobber each other's files, and no rerun of failures, which would
+        # hide flaky tests. Each test is itself multithreaded, so cap OpenMP to
+        # avoid oversubscription while still exercising it.
+        OMP_NUM_THREADS=2 ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Prepare coverage
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')

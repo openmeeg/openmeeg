@@ -54,19 +54,30 @@ def check_linkage(lib):
     assert not specific, f"Linked to a specific implementation: {specific}"
 
 
-def _accelerate_loaded():
-    # Accelerate's BLAS/LAPACK live in vecLib, which threadpoolctl does not
-    # report, so look at what dyld has loaded into this process instead
+def _accelerate_provides_cblas():
+    # threadpoolctl does not report Accelerate. Merely finding it loaded proves
+    # nothing either, since other libraries pull it in (e.g., HDF5's S3 support
+    # via system frameworks), so ask which image actually defines the cblas_dgemm
+    # that the generic libcblas OpenMEEG links to resolves to.
     import ctypes
 
+    class DlInfo(ctypes.Structure):
+        _fields_ = [
+            ("dli_fname", ctypes.c_char_p),
+            ("dli_fbase", ctypes.c_void_p),
+            ("dli_sname", ctypes.c_char_p),
+            ("dli_saddr", ctypes.c_void_p),
+        ]
+
+    cblas = ctypes.CDLL(str(Path(sys.prefix) / "lib" / "libcblas.3.dylib"))
     libc = ctypes.CDLL(None)
-    libc._dyld_image_count.restype = ctypes.c_uint32
-    libc._dyld_get_image_name.argtypes = [ctypes.c_uint32]
-    libc._dyld_get_image_name.restype = ctypes.c_char_p
-    names = [
-        libc._dyld_get_image_name(ii).decode() for ii in range(libc._dyld_image_count())
-    ]
-    return any("/vecLib.framework/" in name for name in names)
+    libc.dladdr.argtypes = [ctypes.c_void_p, ctypes.POINTER(DlInfo)]
+    info = DlInfo()
+    addr = ctypes.cast(cblas.cblas_dgemm, ctypes.c_void_p)
+    assert libc.dladdr(addr, ctypes.byref(info)), "dladdr failed"
+    fname = info.dli_fname.decode()
+    print(f"cblas_dgemm comes from {fname}")
+    return "/vecLib.framework/" in fname
 
 
 def check_runtime(expected):
@@ -85,9 +96,7 @@ def check_runtime(expected):
     want = set() if expected in ("netlib", "accelerate") else {expected}
     assert got == want, f"Expected BLAS implementation {want}, got {got}"
     if sys.platform == "darwin":
-        accelerate = _accelerate_loaded()
-        print(f"Accelerate loaded: {accelerate}")
-        assert accelerate == (expected == "accelerate")
+        assert _accelerate_provides_cblas() == (expected == "accelerate")
 
 
 if __name__ == "__main__":
