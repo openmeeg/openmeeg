@@ -1,0 +1,143 @@
+# conda-forge (and the OpenMEEG feedstock) links against the reference
+# BLAS/CBLAS/LAPACK/LAPACKE interfaces, whose implementation can then be
+# swapped at install time, e.g. conda install "libblas=*=*_mkl". So build with
+# BLA_IMPLEMENTATION=Generic against the reference (netlib) libraries, check
+# that nothing implementation-specific got linked in, and then check that the
+# *same* binaries load and pass the tests with each implementation swapped in.
+
+name: Generic BLAS
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  merge_group:
+    branches: [ main ]
+
+defaults:
+  run:
+    shell: bash -o pipefail -el {0}
+
+# Tests run in parallel (see the Parallelism step) and are each multithreaded,
+# so cap OpenMP to avoid oversubscription (OMP_NUM_THREADS=2 below)
+
+jobs:
+  generic-blas:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-latest
+          mkl: true
+        - os: macos-latest  # arm64, which has no MKL but does have Accelerate
+          mkl: false
+        - os: windows-latest
+          mkl: true
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v7.0.1
+      with:
+        fetch-depth: 0
+
+    # As many build jobs and tests at once as the runner has cores (read by
+    # cmake --build and ctest), which differs by OS (e.g., 3 on macOS arm64)
+    - name: Parallelism
+      run: |
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          NPROC=$(sysctl -n hw.logicalcpu)
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          NPROC=$NUMBER_OF_PROCESSORS
+        else
+          NPROC=$(nproc)
+        fi
+        echo "CMAKE_BUILD_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+        echo "CTEST_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+
+    - uses: conda-incubator/setup-miniconda@v4
+      timeout-minutes: 5
+      with:
+        activate-environment: "test"
+        python-version: "3.12"
+        channels: conda-forge
+        channel-priority: strict
+
+    - name: Dependencies, with the reference (netlib) BLAS
+      run: |
+        if [[ "${{ matrix.os }}" == 'windows'* ]]; then
+          EXTRA="pefile"  # MSVC comes from the runner
+        elif [[ "${{ matrix.os }}" == 'macos'* ]]; then
+          EXTRA="cxx-compiler llvm-openmp"
+        else
+          EXTRA="cxx-compiler"
+        fi
+        conda install -yq "libblas=*=*netlib" libcblas liblapack liblapacke libmatio cmake ninja "swig>=4.2" numpy pytest setuptools setuptools_scm threadpoolctl $EXTRA
+        conda list "^lib(c?blas|lapacke?)$"
+
+    - name: Configure
+      run: |
+        if [[ "${{ matrix.os }}" == 'windows'* ]]; then
+          export CMAKE_PREFIX_PATH=$(cygpath -m "$CONDA_PREFIX/Library")
+          GENERATOR_OPT=""  # Visual Studio
+        else
+          export CMAKE_PREFIX_PATH=$CONDA_PREFIX
+          GENERATOR_OPT="-GNinja"
+        fi
+        export BLA_IMPL="-DBLA_IMPLEMENTATION=Generic"
+        export WERROR_OPT="-DENABLE_WERROR=ON"
+        export DOC_OPT="-DBUILD_DOCUMENTATION=OFF"
+        export DISABLE_CCACHE=1
+        # The script always sets these, which would otherwise drop the flags
+        # (rpaths etc.) that the conda compilers set up
+        export CMAKE_CXX_FLAGS="$CXXFLAGS" LINKER_OPT="$LDFLAGS"
+        # Install into the env like the conda package does, which on Windows is
+        # also what lets everything find the OpenMEEG DLLs. No packaging, which
+        # would also install (over conda's) the MSVC runtime DLLs.
+        ./build_tools/cmake_configure.sh $GENERATOR_OPT -DPYTHON_INSTALL_RELATIVE=OFF -DENABLE_PACKAGING=OFF -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX_PATH"
+
+    - name: Build and install
+      run: |
+        cmake --build build --config Release
+        cmake --install build --config Release
+
+    - name: Check that only the generic libraries are linked
+      run: |
+        LIB=$(find build/OpenMEEGMaths -type f \( -name "libOpenMEEGMaths.so.*" -o -name "libOpenMEEGMaths.*.dylib" -o -name "OpenMEEGMaths.dll" \) | head -n 1)
+        test -n "$LIB"
+        python build_tools/check_generic_blas.py linkage "$LIB"
+
+    - name: Test with netlib
+      run: |
+        python build_tools/check_generic_blas.py runtime netlib
+        cd build && OMP_NUM_THREADS=2 ctest -C Release --output-on-failure
+
+    - name: Switch to OpenBLAS
+      run: conda install -yq "libblas=*=*openblas"
+    - name: Test with OpenBLAS
+      run: |
+        python build_tools/check_generic_blas.py runtime openblas
+        cd build && OMP_NUM_THREADS=2 ctest -C Release --output-on-failure
+
+    - name: Switch to MKL
+      if: matrix.mkl
+      run: conda install -yq "libblas=*=*mkl"
+    - name: Test with MKL
+      if: matrix.mkl
+      run: |
+        python build_tools/check_generic_blas.py runtime mkl
+        cd build && OMP_NUM_THREADS=2 ctest -C Release --output-on-failure
+
+    # Accelerate via its modern ($NEWLAPACK) interface
+    - name: Switch to Accelerate
+      if: startsWith(matrix.os, 'macos')
+      run: conda install -yq "libblas=*=*_newaccelerate"
+    - name: Test with Accelerate
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        python build_tools/check_generic_blas.py runtime accelerate
+        cd build && OMP_NUM_THREADS=2 ctest -C Release --output-on-failure

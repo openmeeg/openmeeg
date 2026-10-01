@@ -87,7 +87,7 @@ test-requires = [
     "threadpoolctl",
 ]
 test-command = "bash {project}/build_tools/cibw_test_command.sh {project}"
-environment-pass = ["CHECK_PORCELAIN", "RUNNER_OS"]  # useful to have RUNNER_OS here for app building
+environment-pass = ["CHECK_PORCELAIN", "RUNNER_OS", "CI_CACHE_DIR"]  # useful to have RUNNER_OS here for app building, CI_CACHE_DIR see cibw_before_all.sh
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = [
@@ -147,18 +147,26 @@ OPENMEEG_USE_SWIG = "1"
 SWIG_FLAGS = "msvc"
 
 [tool.ruff]
-select = ["E", "F", "W", "D", "I"]
 exclude = ["__init__.py", "setup.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "D", "I"]
 ignore = [
     "D100", # Missing docstring in public module
     "D104", # Missing docstring in public package
     "D413", # Missing blank line after last section
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.isort]
+# Otherwise this depends on the platform: ruff looks for first-party packages
+# in the repo root, where on case-insensitive filesystems (macOS) the C++
+# OpenMEEG/ directory counts as "openmeeg" but on others nothing does
+known-first-party = ["openmeeg"]
+
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "*/tests/*.py" = [
     "D103", # Missing docstring in public function
 ]

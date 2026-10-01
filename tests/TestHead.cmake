@@ -42,7 +42,6 @@ function(TESTHEAD HEADNUM)
     set(HMMAT                  ${SUBJECT}.hm)
     set(HMINVMAT               ${SUBJECT}.hm_inv)
     set(SSMMAT                 ${SUBJECT}.ssm)
-    set(CMMAT                  ${SUBJECT}.cm)
     set(ECOGMMAT               ${SUBJECT}.ecog)
     set(OLDECOGMMAT            ${SUBJECT}-old.ecog)
     set(GAINECOGMAT            ${SUBJECT}ECoGGain.mat)
@@ -91,9 +90,10 @@ function(TESTHEAD HEADNUM)
 
         # corticalMat tests
 
-        OPENMEEG_TEST(CM1-0-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(CM1-1-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
-        OPENMEEG_TEST(CM2-${SUBJECT}   ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${CMMAT} 12.4 DEPENDS CLEAN-TESTS)
+        # Each writes its own file, since these can run in parallel
+        OPENMEEG_TEST(CM1-0-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${SUBJECT}-1-0.cm DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM1-1-${SUBJECT} ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${SUBJECT}-1-1.cm 1e-4 1.58e-2 DEPENDS CLEAN-TESTS)
+        OPENMEEG_TEST(CM2-${SUBJECT}   ${ASSEMBLE} -CM ${GEOM} ${COND} ${PATCHES} "Brain" ${SUBJECT}-2.cm 12.4 DEPENDS CLEAN-TESTS)
 
     endif()
 

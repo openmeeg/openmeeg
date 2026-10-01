@@ -1,0 +1,10 @@
+// Generated from OpenMEEGVersion.cpp.in. The version changes with every commit
+// (and the build time with every build), so they live in this one translation
+// unit rather than in a header, which would force everything to recompile.
+
+#include <OpenMEEGVersion.h>
+
+namespace OpenMEEG {
+    const char version[] = "@OPENMEEG_VERSION@";
+    const char build_time[] = __DATE__ " " __TIME__;
+}

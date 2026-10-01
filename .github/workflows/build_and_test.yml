@@ -103,7 +103,8 @@ jobs:
         # PyPy build
         - os: ubuntu-24.04  # wrapping_ubuntu-24.04_cmake_OpenBLAS_dynamic_msvc_pypy-10_latest
           blas: OpenBLAS
-          python-version: 'pypy-3.11'
+          # PyPy 8.0 (Sep 2026) has a new ABI that NumPy has no wheels for yet
+          python-version: 'pypy-3.11-v7.3.x'
         # One with latest numpy, plus VTK
         - os: ubuntu-24.04
           blas: OpenBLAS
@@ -226,14 +227,33 @@ jobs:
         echo "Using PYTHON_COPY_RUNTIME_DLLS=$PYTHON_COPY_RUNTIME_DLLS_OPT"
         echo "PYTHON_COPY_RUNTIME_DLLS_OPT=$PYTHON_COPY_RUNTIME_DLLS_OPT" | tee -a $GITHUB_ENV
 
+    # As many build jobs and tests at once as the runner has cores (read by
+    # cmake --build and ctest), which differs by OS (e.g., 3 on macOS arm64)
+    - name: Parallelism
+      run: |
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          NPROC=$(sysctl -n hw.logicalcpu)
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          NPROC=$NUMBER_OF_PROCESSORS
+        else
+          NPROC=$(nproc)
+        fi
+        echo "CMAKE_BUILD_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+        echo "CTEST_PARALLEL_LEVEL=$NPROC" | tee -a $GITHUB_ENV
+
     - run: sudo apt update -q
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       timeout-minutes: 10
 
+    # One cache per configuration, since they compile different things. Not on
+    # Windows, where the Visual Studio generator ignores the compiler launcher.
+    # Saved only from main, as caches from PRs cannot be used by other branches.
     - name: Setup ccache
+      if: ${{ !startsWith(steps.env-vars.outputs.os,'windows') }}
       uses: hendrikmuhs/ccache-action@v1.2.24
       with:
-        key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
+        key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}-${{ steps.env-vars.outputs.blas }}-${{ steps.env-vars.outputs.blas_version }}-${{ steps.env-vars.outputs.blas_linking }}-${{ steps.env-vars.outputs.python_type }}-${{ steps.env-vars.outputs.python_version }}-${{ steps.env-vars.outputs.numpy_version }}-${{ steps.env-vars.outputs.vtk_version }}
+        save: ${{ github.event_name == 'push' }}
 
     # Use conda for all Python except PyPy
     # micromamba causes issues
@@ -323,13 +343,14 @@ jobs:
       with:
         path: |
           vcpkg
-          build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}
+          ${{ runner.temp }}/ci-cache/vcpkg
+        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**', 'build_tools/vcpkg_triplets/**') }}-1
 
     - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(steps.env-vars.outputs.os,'windows')
       id: runvcpkg
       run: |
+        export VCPKG_DEFAULT_BINARY_CACHE="${{ runner.temp }}/ci-cache/vcpkg"  # what gets cached
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
@@ -646,7 +667,11 @@ jobs:
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
           export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
-        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+        # Parallel (see CTEST_PARALLEL_LEVEL) both for speed and to catch tests
+        # that clobber each other's files, and no rerun of failures, which would
+        # hide flaky tests. Each test is itself multithreaded, so cap OpenMP to
+        # avoid oversubscription while still exercising it.
+        OMP_NUM_THREADS=2 ctest -C $BUILD_TYPE --output-on-failure
 
     - name: Prepare coverage
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')

@@ -60,6 +60,17 @@ fi
 export VCPKG_OVERLAY_PORTS
 echo "Using VCPKG_OVERLAY_PORTS=\"$VCPKG_OVERLAY_PORTS\""
 test -f "${PWD}/build_tools/vcpkg_overlay_ports/libaec/portfile.cmake"
+# Packages that vcpkg has built get stored here (when set), which is what CI
+# caches across runs. Caching the install tree instead does not work, as vcpkg
+# rebuilds everything anyway when it does not find them here.
+if [[ "$VCPKG_DEFAULT_BINARY_CACHE" != "" ]]; then
+    if command -v cygpath &> /dev/null; then
+        VCPKG_DEFAULT_BINARY_CACHE=$(cygpath -m "${VCPKG_DEFAULT_BINARY_CACHE}")
+    fi
+    mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+    export VCPKG_DEFAULT_BINARY_CACHE
+    echo "Using VCPKG_DEFAULT_BINARY_CACHE=\"$VCPKG_DEFAULT_BINARY_CACHE\""
+fi
 export VCPKG_INSTALLED_DIR="${PWD}/build/vcpkg_installed"
 export VCPKG_INSTALL_OPTIONS="--x-install-root=$VCPKG_INSTALLED_DIR --triplet=$VCPKG_DEFAULT_TRIPLET"
 export CMAKE_TOOLCHAIN_FILE="${PWD}/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -77,6 +88,7 @@ if [[ "$GITHUB_ENV" != "" ]]; then
     echo "VCPKG_TRIPLET_OPT=$VCPKG_TRIPLET_OPT" >> $GITHUB_ENV
     echo "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS" >> $GITHUB_ENV
     echo "VCPKG_OVERLAY_PORTS=$VCPKG_OVERLAY_PORTS" >> $GITHUB_ENV
+    echo "VCPKG_DEFAULT_BINARY_CACHE=$VCPKG_DEFAULT_BINARY_CACHE" >> $GITHUB_ENV
     echo "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" >> $GITHUB_ENV
     echo "STRIP_OPT=${STRIP_OPT}" >> $GITHUB_ENV
     echo "TOOLSET_OPT=${TOOLSET_OPT}" >> $GITHUB_ENV

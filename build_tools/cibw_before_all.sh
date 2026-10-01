@@ -82,6 +82,15 @@ case "$PLATFORM" in
         exit 1
         ;;
 esac
+# CI_CACHE_DIR is a directory on the runner that CI caches across runs (see the
+# cibuildwheel workflows). It holds the packages vcpkg builds and, on Linux, the
+# ccache directory. The Linux container sees the runner's filesystem under /host.
+if [[ "$CI_CACHE_DIR" != "" ]]; then
+    if [[ "$OS" == "linux" ]]; then
+        CI_CACHE_DIR="/host$CI_CACHE_DIR"
+    fi
+    export VCPKG_DEFAULT_BINARY_CACHE="$CI_CACHE_DIR/vcpkg"
+fi
 echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" PLATFORM=\"${PLATFORM}\" to set up KIND=\"$KIND\""
 
 if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
@@ -127,19 +136,29 @@ if [[ "$OS" == "linux" ]]; then
     yum -y install epel-release
     yum -y install curl zip unzip tar wget zlib-devel
     echo "::endgroup::"
+    if [[ "$CI_CACHE_DIR" != "" ]]; then
+        echo "::group::ccache"
+        yum -y install ccache
+        export CCACHE_DIR="$CI_CACHE_DIR/ccache"
+        ccache --max-size=500M
+        ccache --zero-stats
+        LAUNCHER_OPT="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+        echo "::endgroup::"
+    else
+        export DISABLE_CCACHE=1
+    fi
     echo "::group::matio"
     set -x
     MATIO_VERSION=1.5.30  # keep in sync with vcpkg's matio port when practical
     wget https://github.com/tbeu/matio/releases/download/v${MATIO_VERSION}/matio-${MATIO_VERSION}.tar.gz
     tar xvf matio-${MATIO_VERSION}.tar.gz
     pushd matio-${MATIO_VERSION}
-    cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON $LAUNCHER_OPT
     cmake --build build --config Release --target install
     popd
     set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
-    export DISABLE_CCACHE=1
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
     if [[ "$KIND" == "app" ]]; then
         export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
@@ -196,6 +215,9 @@ fi
 echo "::group::cmake --build"
 cmake --build build --target install --target package --config release
 echo "::endgroup::"
+if [[ "$CCACHE_DIR" != "" ]]; then
+    ccache --show-stats
+fi
 
 if [[ "$KIND" == "app" ]]; then
     echo "::group::Copying installers"

@@ -49,6 +49,8 @@ include(Uninstall)  # install setup (do it before adding targets)
 message("-- Configuring OpenMEEGConfigure.h ...")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGConfigure.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/OpenMEEGConfigure.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/OpenMEEGVersion.cpp.in
+               ${CMAKE_CURRENT_BINARY_DIR}/OpenMEEGVersion.cpp)
 
 # OpenMEEG stuff
 
