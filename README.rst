@@ -260,6 +260,11 @@ requires ``-DCMAKE_OSX_DEPLOYMENT_TARGET=13.3`` or newer, since it binds
 Accelerate's modern BLAS/LAPACK rather than the deprecated legacy interface.
 This is what the arm64 wheels and binary installers ship.
 
+``-DBLA_IMPLEMENTATION=Generic`` links against the reference (netlib)
+``blas``, ``cblas``, ``lapack`` and ``lapacke`` libraries instead of a specific
+implementation. This is what the conda-forge package uses, so that the backend
+can be switched at install time (e.g., ``conda install "libblas=*=*_mkl"``).
+
 Using OpenMEEG
 --------------
 

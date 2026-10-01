@@ -3,7 +3,7 @@ include(CheckSymbolExists)
 
 set(BLA_SIZEOF_INTEGER 4)
 set(BLA_IMPLEMENTATION "OpenBLAS" CACHE STRING "BLAS/LAPACK implementation")
-set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS" "Accelerate")
+set_property(CACHE BLA_IMPLEMENTATION PROPERTY STRINGS "OpenBLAS" "mkl" "mkl-findblas" "FlexiBLAS" "Accelerate" "Generic")
 
 # We build the wheels against scipy-openblas64, an ILP64 (64-bit integer) build.
 if (USE_SCIPY_OPENBLAS)
@@ -152,6 +152,19 @@ elseif (BLA_IMPLEMENTATION STREQUAL "Accelerate")
     set(HAVE_LAPACK ON)
     set(BLA_VENDOR Apple)
 
+elseif (BLA_IMPLEMENTATION STREQUAL "Generic")
+
+    # The reference (netlib) BLAS/CBLAS/LAPACK/LAPACKE libraries, or anything
+    # that provides them under those names (e.g., conda-forge's libblas,
+    # libcblas, liblapack and liblapacke, whose backend can be swapped at
+    # runtime between OpenBLAS, MKL, BLIS, Accelerate, ...). The C interface is
+    # the same as OpenBLAS's, so we share its configuration header.
+    message(STATUS "Using BLA_IMPLEMENTATION=Generic")
+    set(USE_OPENBLAS ON)
+    set(HAVE_BLAS ON)
+    set(HAVE_LAPACK ON)
+    set(BLA_VENDOR Generic)
+
 elseif (BLA_IMPLEMENTATION STREQUAL "FlexiBLAS")
     find_package(BLAS)
     message(STATUS "Using BLA_IMPLEMENTATION=FlexiBLAS")
@@ -214,6 +227,25 @@ if (NOT TARGET LAPACK::LAPACK)
     endif()
 endif()
 
+# The reference implementation ships CBLAS as its own library (OpenBLAS and MKL
+# bundle it into their BLAS one), and FindBLAS does not look for it.
+
+if (BLA_IMPLEMENTATION STREQUAL "Generic")
+    set(CMAKE_REQUIRED_LIBRARIES BLAS::BLAS)
+    check_function_exists(cblas_dgemm CBLAS_WORKS)
+    mark_as_advanced(CBLAS_WORKS)
+    if (NOT CBLAS_WORKS)
+        find_library(CBLAS cblas REQUIRED)
+        # CBLAS calls into BLAS, so it has to come first for static linking
+        get_target_property(_blas_libs BLAS::BLAS INTERFACE_LINK_LIBRARIES)
+        if (NOT _blas_libs)
+            set(_blas_libs)
+        endif()
+        list(PREPEND _blas_libs ${CBLAS})
+        set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${_blas_libs}")
+    endif()
+endif()
+
 # OpenBLAS may or may not include lapacke.
 # Check which version is used. Accelerate ships no LAPACKE at all and uses the
 # Fortran interface instead, so it is exempt.
@@ -235,6 +267,10 @@ if (NOT USE_ACCELERATE)
     mark_as_advanced(LAPACKE_WORKS)
     if (NOT LAPACKE_WORKS)
         find_library(LAPACKE lapacke REQUIRED)
+        get_target_property(_lapack_libs LAPACK::LAPACK INTERFACE_LINK_LIBRARIES)
+        if (NOT _lapack_libs)
+            set(_lapack_libs)
+        endif()
         list(PREPEND _lapack_libs ${LAPACKE})
         set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${_lapack_libs}")
     endif()

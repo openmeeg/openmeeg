@@ -230,10 +230,15 @@ jobs:
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
       timeout-minutes: 10
 
+    # One cache per configuration, since they compile different things. Not on
+    # Windows, where the Visual Studio generator ignores the compiler launcher.
+    # Saved only from main, as caches from PRs cannot be used by other branches.
     - name: Setup ccache
+      if: ${{ !startsWith(steps.env-vars.outputs.os,'windows') }}
       uses: hendrikmuhs/ccache-action@v1.2.24
       with:
-        key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}
+        key: ${{ github.job }}-${{ steps.env-vars.outputs.os }}-${{ steps.env-vars.outputs.blas }}-${{ steps.env-vars.outputs.blas_version }}-${{ steps.env-vars.outputs.blas_linking }}-${{ steps.env-vars.outputs.python_type }}-${{ steps.env-vars.outputs.python_version }}-${{ steps.env-vars.outputs.numpy_version }}-${{ steps.env-vars.outputs.vtk_version }}
+        save: ${{ github.event_name == 'push' }}
 
     # Use conda for all Python except PyPy
     # micromamba causes issues
@@ -323,13 +328,14 @@ jobs:
       with:
         path: |
           vcpkg
-          build/vcpkg_installed
-        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**') }}
+          ${{ runner.temp }}/ci-cache/vcpkg
+        key: vcpkg-${{ hashFiles('**/vcpkg.json', '**/vcpkg_version.txt', 'build_tools/vcpkg_overlay_ports/**', 'build_tools/vcpkg_triplets/**') }}-1
 
     - name: Windows 2 - hdf5 and libmatio via vcpkg
       if: startsWith(steps.env-vars.outputs.os,'windows')
       id: runvcpkg
       run: |
+        export VCPKG_DEFAULT_BINARY_CACHE="${{ runner.temp }}/ci-cache/vcpkg"  # what gets cached
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
         # and for tests (and Python) to find them, we need to add it to PATH
@@ -443,7 +449,7 @@ jobs:
 
     - name: Build
       run: |
-        cmake --build build --config ${{env.BUILD_TYPE}}
+        cmake --build build --config ${{env.BUILD_TYPE}} --parallel 4
         ls -al build
         if [ -d build/wrapping/python/openmeeg ]; then
           ls -alR build/wrapping/python/openmeeg
@@ -646,7 +652,9 @@ jobs:
         if [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu-24.04' ]]; then
           export LD_PRELOAD=/home/runner/work/openmeeg/openmeeg/build/libvtkXMLWorkaround.so
         fi
-        ctest -C $BUILD_TYPE || ctest -C $BUILD_TYPE --rerun-failed --output-on-failure
+        # Parallel both for speed and to catch tests that clobber each other's
+        # files, and no rerun of failures, which would hide flaky tests
+        ctest -C $BUILD_TYPE --parallel 4 --output-on-failure
 
     - name: Prepare coverage
       if: startsWith(steps.env-vars.outputs.os,'ubuntu')
@@ -663,3 +671,116 @@ jobs:
       with:
         files: coverage.info
         token: ${{ secrets.CODECOV_TOKEN }}
+
+  # conda-forge (and the OpenMEEG feedstock) links against the reference
+  # BLAS/CBLAS/LAPACK/LAPACKE interfaces, whose implementation can then be
+  # swapped at install time, e.g. conda install "libblas=*=*_mkl". So build with
+  # BLA_IMPLEMENTATION=Generic against the reference (netlib) libraries, check
+  # that nothing implementation-specific got linked in, and then check that the
+  # *same* binaries load and pass the tests with each implementation swapped in.
+  generic-blas:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-latest
+          mkl: true
+        - os: macos-latest  # arm64, which has no MKL but does have Accelerate
+          mkl: false
+        - os: windows-latest
+          mkl: true
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v7.0.1
+      with:
+        fetch-depth: 0
+
+    - uses: conda-incubator/setup-miniconda@v4
+      timeout-minutes: 5
+      with:
+        activate-environment: "test"
+        python-version: "3.12"
+        channels: conda-forge
+        channel-priority: strict
+
+    - name: Dependencies, with the reference (netlib) BLAS
+      run: |
+        if [[ "${{ matrix.os }}" == 'windows'* ]]; then
+          EXTRA="pefile"  # MSVC comes from the runner
+        elif [[ "${{ matrix.os }}" == 'macos'* ]]; then
+          EXTRA="cxx-compiler llvm-openmp"
+        else
+          EXTRA="cxx-compiler"
+        fi
+        conda install -yq "libblas=*=*netlib" libcblas liblapack liblapacke libmatio cmake ninja "swig>=4.2" numpy pytest setuptools setuptools_scm threadpoolctl $EXTRA
+        conda list "^lib(c?blas|lapacke?)$"
+
+    - name: Configure
+      run: |
+        if [[ "${{ matrix.os }}" == 'windows'* ]]; then
+          PREFIX=$(cygpath -m "$CONDA_PREFIX/Library")
+          PYTHON=$(cygpath -m "$(which python)")
+          GENERATOR_OPT=""  # Visual Studio
+        else
+          PREFIX=$CONDA_PREFIX
+          PYTHON=$(which python)
+          GENERATOR_OPT="-GNinja"
+        fi
+        # Install into the env like the conda package does, which on Windows is
+        # also what lets everything find the OpenMEEG DLLs
+        set -x
+        cmake -B build $GENERATOR_OPT \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DBLA_IMPLEMENTATION=Generic \
+              -DENABLE_PYTHON=ON \
+              -DPython3_EXECUTABLE="$PYTHON" \
+              -DPYTHON_INSTALL_RELATIVE=OFF \
+              -DENABLE_WERROR=ON \
+              -DBUILD_DOCUMENTATION=OFF \
+              -DTEST_HEAD3=ON \
+              -DCMAKE_PREFIX_PATH="$PREFIX" \
+              -DCMAKE_INSTALL_PREFIX="$PREFIX"
+
+    - name: Build and install
+      run: |
+        cmake --build build --config Release --parallel 4
+        cmake --install build --config Release
+
+    - name: Check that only the generic libraries are linked
+      run: |
+        LIB=$(find build/OpenMEEGMaths -type f \( -name "libOpenMEEGMaths.so.*" -o -name "libOpenMEEGMaths.*.dylib" -o -name "OpenMEEGMaths.dll" \) | head -n 1)
+        test -n "$LIB"
+        python build_tools/check_generic_blas.py linkage "$LIB"
+
+    - name: Test with netlib
+      run: |
+        python build_tools/check_generic_blas.py runtime netlib
+        cd build && ctest -C Release --parallel 4 --output-on-failure
+
+    - name: Switch to OpenBLAS
+      run: conda install -yq "libblas=*=*openblas"
+    - name: Test with OpenBLAS
+      run: |
+        python build_tools/check_generic_blas.py runtime openblas
+        cd build && ctest -C Release --parallel 4 --output-on-failure
+
+    - name: Switch to MKL
+      if: matrix.mkl
+      run: conda install -yq "libblas=*=*mkl"
+    - name: Test with MKL
+      if: matrix.mkl
+      run: |
+        python build_tools/check_generic_blas.py runtime mkl
+        cd build && ctest -C Release --parallel 4 --output-on-failure
+
+    # Accelerate via its modern ($NEWLAPACK) interface
+    - name: Switch to Accelerate
+      if: startsWith(matrix.os, 'macos')
+      run: conda install -yq "libblas=*=*_newaccelerate"
+    - name: Test with Accelerate
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        python build_tools/check_generic_blas.py runtime accelerate
+        cd build && ctest -C Release --parallel 4 --output-on-failure

@@ -20,6 +20,7 @@
 #endif
 
 #include "OpenMEEGConfigure.h"
+#include "OpenMEEGVersion.h"
 
 #ifdef USE_OMP
 #include <omp.h>
@@ -201,7 +202,7 @@ namespace OpenMEEG {
         std::ostringstream display_info;
         display_info << cmd;
         display_info << " version " << version;
-        display_info << " compiled at " << __DATE__ << " " << __TIME__;
+        display_info << " compiled at " << build_time;
         display_info << omp_support;
         std::cout << display_info.str() << std::endl << std::endl;
     }
