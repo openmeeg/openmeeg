@@ -16,9 +16,15 @@ if ! command -v patchelf > /dev/null; then
     pip install patchelf
 fi
 
-# glibc, the base GCC runtime and zlib, which every manylinux-compatible system
-# provides (cf. auditwheel's policies); everything else gets bundled
-SYSTEM_RE='^(linux-vdso|linux-gate|ld-linux.*|libc|libm|libdl|librt|libpthread|libutil|libresolv|libnsl|libstdc\+\+|libgcc_s|libz)\.so'
+# Libraries every manylinux_2_28 system provides, so they are not bundled (as
+# for the wheels), copied from the manylinux_2_28 "lib_whitelist" in auditwheel
+# 6.8.2's auditwheel/policy/manylinux-policy.json; keep in sync with that. The
+# dynamic loader is never bundled either.
+SYSTEM_LIBS="libGL.so.1 libICE.so.6 libSM.so.6 libX11.so.6 libXext.so.6
+    libXrender.so.1 libanl.so.1 libatomic.so.1 libc.so.6 libdl.so.2
+    libexpat.so.1 libgcc_s.so.1 libglib-2.0.so.0 libgobject-2.0.so.0
+    libgthread-2.0.so.0 libm.so.6 libmvec.so.1 libnsl.so.1 libpthread.so.0
+    libresolv.so.2 librt.so.1 libstdc++.so.6 libutil.so.1 libz.so.1"
 
 WORK=$(mktemp -d)
 tar xzf "$TARBALL" -C "$WORK"
@@ -43,7 +49,10 @@ external_deps() {
             return 1
         fi
         awk '/=> \// {print $1, $3}' <<< "$out"
-    done | sort -u | { grep -Ev "$SYSTEM_RE" || true; }
+    done | sort -u | awk -v sys="$SYSTEM_LIBS" '
+        BEGIN {n = split(sys, a); for (i = 1; i <= n; i++) skip[a[i]] = 1}
+        !($1 in skip) && $1 !~ /^ld-linux/'
+
 }
 
 DEPS=$(external_deps)
