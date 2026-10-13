@@ -16,15 +16,22 @@ if ! command -v patchelf > /dev/null; then
     pip install patchelf
 fi
 
-# Libraries every manylinux_2_28 system provides, so they are not bundled (as
-# for the wheels), copied from the manylinux_2_28 "lib_whitelist" in auditwheel
-# 6.8.2's auditwheel/policy/manylinux-policy.json; keep in sync with that. The
-# dynamic loader is never bundled either.
-SYSTEM_LIBS="libGL.so.1 libICE.so.6 libSM.so.6 libX11.so.6 libXext.so.6
-    libXrender.so.1 libanl.so.1 libatomic.so.1 libc.so.6 libdl.so.2
-    libexpat.so.1 libgcc_s.so.1 libglib-2.0.so.0 libgobject-2.0.so.0
-    libgthread-2.0.so.0 libm.so.6 libmvec.so.1 libnsl.so.1 libpthread.so.0
-    libresolv.so.2 librt.so.1 libstdc++.so.6 libutil.so.1 libz.so.1"
+# Libraries the manylinux policy lets wheels rely on are not bundled either, so
+# read that list from the auditwheel that repairs the wheels in this same image
+# (with its own Python, as auditwheel is not importable from the build's). The
+# dynamic loader is never bundled.
+: "${AUDITWHEEL_POLICY:?must be run in a manylinux image}"
+AUDITWHEEL_PYTHON=$(head -n 1 "$(readlink -f "$(command -v auditwheel)")" | sed 's/^#!//; s/ .*//')
+SYSTEM_LIBS=$("$AUDITWHEEL_PYTHON" - "$AUDITWHEEL_POLICY" << 'PYEOF'
+import json
+import sys
+from importlib.resources import files
+
+policies = json.loads(files("auditwheel.policy").joinpath("manylinux-policy.json").read_text())
+print(" ".join(next(p for p in policies if p["name"] == sys.argv[1])["lib_whitelist"]))
+PYEOF
+)
+echo "Not bundling the $AUDITWHEEL_POLICY system libraries: $SYSTEM_LIBS"
 
 WORK=$(mktemp -d)
 tar xzf "$TARBALL" -C "$WORK"
