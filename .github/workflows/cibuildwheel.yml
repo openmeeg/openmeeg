@@ -80,7 +80,7 @@ jobs:
           path: ${{ runner.temp }}/ci-cache/ccache
           key: ccache-${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}-${{ github.run_id }}
           restore-keys: ccache-${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}-
-      - uses: pypa/cibuildwheel@v4.2.1
+      - uses: pypa/cibuildwheel@v4.3.0
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
