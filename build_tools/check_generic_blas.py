@@ -94,6 +94,7 @@ def check_runtime(expected):
     ]
     for info in infos:
         print(f"{info['internal_api']}: {info['filepath']}")
+        print(f"  {info.get('threading_layer')=} {info.get('architecture')=}")
     got = {info["internal_api"] for info in infos}
     # threadpoolctl recognizes neither the reference implementation nor Accelerate
     want = set() if expected in ("netlib", "accelerate") else {expected}

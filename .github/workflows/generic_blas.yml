@@ -116,8 +116,16 @@ jobs:
         python build_tools/check_generic_blas.py runtime netlib
         cd build && OMP_NUM_THREADS=2 ctest -C Release --output-on-failure
 
+    # On Windows, use the OpenMP variant: OpenMEEG calls BLAS concurrently from
+    # its own OpenMP threads, which crashes the pthreads one there
     - name: Switch to OpenBLAS
-      run: conda install -yq "libblas=*=*openblas"
+      run: |
+        PKGS=("libblas=*=*openblas")
+        if [[ "${{ matrix.os }}" == 'windows'* ]]; then
+          PKGS+=("libopenblas=*=openmp*")
+        fi
+        conda install -yq "${PKGS[@]}"
+        conda list "^libopenblas$"
     - name: Test with OpenBLAS
       run: |
         python build_tools/check_generic_blas.py runtime openblas
