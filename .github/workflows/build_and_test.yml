@@ -353,8 +353,9 @@ jobs:
         export VCPKG_DEFAULT_BINARY_CACHE="${{ runner.temp }}/ci-cache/vcpkg"  # what gets cached
         source ./build_tools/setup_vcpkg_compilation.sh
         # On Windows, we tell cmake to copy all runtime deps to the build dir,
-        # and for tests (and Python) to find them, we need to add it to PATH
-        echo "PATH=$(cygpath -w ${PWD}/build);$PATH" | tee -a $GITHUB_ENV
+        # and for tests (and Python) to find them, we need to add it to PATH.
+        # vcpkg's own DLLs are found via PATH too (VCPKG_APPLOCAL_DEPS=OFF).
+        echo "PATH=$(cygpath -w ${PWD}/build);$(cygpath -w ${PWD}/build/vcpkg_installed/${VCPKG_DEFAULT_TRIPLET}/bin);$PATH" | tee -a $GITHUB_ENV
 
     - name: Windows 3 - OpenBLAS via MacPython download
       if: startsWith(steps.env-vars.outputs.blas,'OpenBLAS') && startsWith(steps.env-vars.outputs.os,'windows')
@@ -449,7 +450,9 @@ jobs:
     - name: Configure
       run: |
         if [[ "${{steps.env-vars.outputs.os}}" == 'windows'* ]]; then
-          export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE"
+          # Disable vcpkg's per-exe DLL copying: parallel post-build copies of
+          # the same DLL into a shared output dir race ("file in use", exit 32)
+          export EXTRA_UCRT="-DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE -DVCPKG_APPLOCAL_DEPS=OFF"
         elif [[ "${{steps.env-vars.outputs.os}}" == 'ubuntu'* ]]; then
           export EXTRA_COV="-DENABLE_COVERAGE=ON"
         fi
