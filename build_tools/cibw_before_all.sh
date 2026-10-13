@@ -148,6 +148,7 @@ if [[ "$OS" == "linux" ]]; then
     cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON $LAUNCHER_OPT
     cmake --build build --config Release --target install
     popd
+    ldconfig  # so ldd sees it too (cibw_bundle_linux_libs.sh), not just auditwheel
     set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
