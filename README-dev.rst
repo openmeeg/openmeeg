@@ -43,8 +43,8 @@ Because the version follows the tags, there is no version-bump PR before the
 release and no restore-the-dev-version PR after it.
 
 1. Check that ``main`` is in a releasable state: everything intended for the
-   release is merged, and the ``build_and_test``, ``cibuildwheel`` and
-   ``cibuildwheel-apps`` workflows are green on the commit you want to ship.
+   release is merged, and the ``build_and_test`` and ``cibuildwheel`` workflows
+   are green on the commit you want to ship.
 
 2. Visit https://github.com/openmeeg/openmeeg/releases/new to cut a new release,
    creating a new tag with the version number and using the "Generate release notes"
@@ -53,9 +53,7 @@ release and no restore-the-dev-version PR after it.
    workflows.
 
 3. Wait for the release workflows to finish. Wheels will automatically be uploaded
-   to PyPI. Wheels and app bundles will be attached to the GitHub release, which will
-   be put back in draft mode. Once they're all attached, click "Publish release" to
-   make it public. 
+   to PyPI, and the app bundles will be attached to the GitHub release.
 
 4. The `conda-forge feedstock <https://github.com/conda-forge/openmeeg-feedstock>`_
    is updated by the regro autotick bot, which opens a PR a few hours after the

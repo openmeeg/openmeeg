@@ -1,22 +1,14 @@
 #!/bin/bash
 
-# Build and install (locally) OpenMEEG to prepare for SWIG-building the Python
-# bindings separately.
-#
-# Run by cibuildwheel as CIBW_BEFORE_ALL for two different jobs:
-# - KIND=wheel (cibuildwheel.yml)      -- Python wheels, no apps
-# - KIND=app   (cibuildwheel_apps.yml) -- C++ apps and binary installers
+# Build and install (locally) OpenMEEG, run by cibuildwheel as CIBW_BEFORE_ALL
+# (cibuildwheel.yml). One build serves two purposes:
+# - Python wheels: the install is what the bindings get SWIG-built against
+# - C++ apps: the CPack tarball becomes the binary installer
 
 set -eo pipefail
 
 if [[ "$1" == "" ]]; then
-    echo "Usage: $0 <PROJECT_PATH> [wheel|app]"
-    exit 1
-fi
-KIND=${2:-wheel}
-if [[ "$KIND" != "wheel" ]] && [[ "$KIND" != "app" ]]; then
-    echo "Usage: $0 <PROJECT_PATH> [wheel|app]"
-    echo "Got KIND=\"$KIND\", should be \"wheel\" or \"app\""
+    echo "Usage: $0 <PROJECT_PATH>"
     exit 1
 fi
 cd $1
@@ -38,7 +30,7 @@ PLATFORM=$(python -c "import platform; print(f'{platform.system()}-{platform.mac
 # a simple string compare on OS rather than repeated pattern matching.
 # VCPKG_TRIPLET names a file in build_tools/vcpkg_triplets/.
 # PACKAGE_ARCH_SUFFIX keeps installer filenames distinct per arch, since the
-# release job in cibuildwheel_apps.yml merges every platform's artifacts into
+# release job in cibuildwheel.yml merges every platform's artifacts into
 # one directory (Windows builds only one arch, so it needs no suffix).
 # BLAS_BACKEND is OpenBLAS everywhere except Darwin-arm64, which uses the
 # system Accelerate framework (nothing to download, nothing to vendor).
@@ -47,13 +39,13 @@ case "$PLATFORM" in
     Linux-x86_64)
         OS=linux
         VCPKG_TRIPLET="x64-linux"
-        LIB_OUTPUT_DIR="$ROOT/install/lib64"
+        LIB_OUTPUT_DIR="$ROOT/install/lib"
         PACKAGE_ARCH_SUFFIX="_x86_64"
         ;;
     Linux-aarch64)
         OS=linux
         VCPKG_TRIPLET="arm64-linux"
-        LIB_OUTPUT_DIR="$ROOT/install/lib64"
+        LIB_OUTPUT_DIR="$ROOT/install/lib"
         PACKAGE_ARCH_SUFFIX="_aarch64"
         ;;
     Darwin-x86_64)
@@ -91,7 +83,7 @@ if [[ "$CI_CACHE_DIR" != "" ]]; then
     fi
     export VCPKG_DEFAULT_BINARY_CACHE="$CI_CACHE_DIR/vcpkg"
 fi
-echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" PLATFORM=\"${PLATFORM}\" to set up KIND=\"$KIND\""
+echo "Using project root \"$ROOT\" on RUNNER_OS=\"${RUNNER_OS}\" PLATFORM=\"${PLATFORM}\""
 
 if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
     echo "::group::scipy-openblas64"
@@ -156,22 +148,20 @@ if [[ "$OS" == "linux" ]]; then
     cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON $LAUNCHER_OPT
     cmake --build build --config Release --target install
     popd
+    ldconfig  # so ldd sees it too (cibw_bundle_linux_libs.sh), not just auditwheel
     set +x
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
-    if [[ "$KIND" == "app" ]]; then
-        export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
-        source ./build_tools/setup_vcpkg_compilation.sh
-        LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
-        SOS=($OPENBLAS_LIB_DIR/*.so*)
-        OLD_IFS=$IFS
-        IFS=';'
-        SOS=("${SOS[*]}")
-        IFS=$OLD_IFS
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
-        echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
-    fi
+    # lib rather than lib64, to match the $ORIGIN/../lib rpath (see install.cmake)
+    LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
+    SOS=($OPENBLAS_LIB_DIR/*.so*)
+    OLD_IFS=$IFS
+    IFS=';'
+    SOS=("${SOS[*]}")
+    IFS=$OLD_IFS
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${SOS}"
+    echo "LIBRARIES_INSTALL_OPT=\"$LIBRARIES_INSTALL_OPT\""
 elif [[ "$OS" == "macos" ]]; then
     export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
     export SYSTEM_VERSION_OPT="-DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOS_MIN_VER}"
@@ -181,9 +171,14 @@ elif [[ "$OS" == "macos" ]]; then
     # one in the process -- the mixed-runtime crashes that got OpenMP turned off
     # here don't apply.
     source ./build_tools/setup_libomp_macos.sh
-    if [[ "$KIND" == "app" ]]; then
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${LIBOMP_LIB_DIR}/libomp.dylib"
+    EXTRA_LIBS="${LIBOMP_LIB_DIR}/libomp.dylib"
+    if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+        # A glob, as OPENBLAS_LIB_NAME lacks the "lib" prefix on macOS
+        for DYLIB in "$OPENBLAS_LIB_DIR"/*.dylib; do
+            EXTRA_LIBS="${EXTRA_LIBS};${DYLIB}"
+        done
     fi
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${EXTRA_LIBS}"
 else  # windows
     export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
     source ./build_tools/setup_vcpkg_compilation.sh
@@ -193,9 +188,7 @@ else  # windows
     OPENBLAS_DLL="$(cygpath -u "$OPENBLAS_DLL")"
     echo "OPENBLAS_DLL=${OPENBLAS_DLL}"
     test -f "$OPENBLAS_DLL"
-    if [[ "$KIND" == "app" ]]; then
-        LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
-    fi
+    LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=$(cygpath -m ${OPENBLAS_DLL})"
 fi
 
 export PYTHON_OPT="-DENABLE_PYTHON=OFF"
@@ -204,13 +197,8 @@ if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
     export BLAS_LIBRARIES_OPT="-DUSE_SCIPY_OPENBLAS=ON"
 fi
 export WERROR_OPT="-DENABLE_WERROR=ON"
-if [[ "${KIND}" == "wheel" ]]; then
-    APP_OPT="-DENABLE_APPS=OFF"
-else
-    export BLA_STATIC_OPT="-DBLA_STATIC=ON"
-    APP_OPT="-DENABLE_APPS=ON"
-    PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
-fi
+APP_OPT="-DENABLE_APPS=ON"
+PACKAGE_ARCH_OPT="-DPACKAGE_ARCH_SUFFIX=$PACKAGE_ARCH_SUFFIX"
 ./build_tools/cmake_configure.sh -DCMAKE_WARN_DEPRECATED=FALSE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=$ROOT/install -DCMAKE_INSTALL_UCRT_LIBRARIES=TRUE ${CMAKE_PREFIX_PATH_OPT} ${SHARED_OPT} ${BLAS_LIBRARIES_OPT} ${APP_OPT} ${LIBDIR_OPT} ${LIBRARIES_INSTALL_OPT} ${PACKAGE_ARCH_OPT}
 echo "::group::cmake --build"
 cmake --build build --target install --target package --config release
@@ -219,12 +207,15 @@ if [[ "$CCACHE_DIR" != "" ]]; then
     ccache --show-stats
 fi
 
-if [[ "$KIND" == "app" ]]; then
-    echo "::group::Copying installers"
-    mkdir -p installers
-    cp -av build/OpenMEEG-*-*.* installers/
+if [[ "$OS" == "linux" ]]; then
+    echo "::group::Bundling libraries into the installer"
+    ./build_tools/cibw_bundle_linux_libs.sh build/OpenMEEG-*-*.tar.gz
     echo "::endgroup::"
 fi
+echo "::group::Copying installers"
+mkdir -p installers
+cp -av build/OpenMEEG-*-*.* installers/
+echo "::endgroup::"
 if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
     cp -av "$OPENBLAS_INCLUDE" "$ROOT/install/include/OpenBLAS"  # for build step, need it somewhere we know where it is!
     test -f "$ROOT/install/include/OpenBLAS/cblas.h"
@@ -232,42 +223,29 @@ fi
 
 # Put DLLs where they can be found
 if [[ "$OS" == "linux" ]]; then
+    ls -al $LIB_OUTPUT_DIR/*.so*
+    # For some reason, copying to LIB_OUTPUT_DIR doesn't work for vendoring
+    # into the wheel, so copy it somewhere else it will be found.
+    cp -av "$LIB_OUTPUT_DIR"/libOpenMEEG*.so* /usr/local/lib/
+    cp -av "$OPENBLAS_LIB_DIR"/*.so* /usr/local/lib/
+    # The container's /project is not copied back to the runner, but /output
+    # is (into the cibuildwheel output-dir)
     mkdir -p /output
-    if [[ "$KIND" == "wheel" ]]; then
-        ls -al $LIB_OUTPUT_DIR/*.so*
-        # For some reason, copying to LIB_OUTPUT_DIR doesn't work for vendoring
-        # into the wheel, so copy it somewhere else it will be found.
-        # TODO: Maybe someday we can/should just use the EXTRA_INSTALL_LIBRARIES
-        # mechanic for this, too
-        cp -av "$LIB_OUTPUT_DIR"/*.so* /usr/local/lib/
-        cp -av "$OPENBLAS_LIB_DIR"/*.so* /usr/local/lib/
-    else
-        cp -av build/OpenMEEG-*-*.* /output/
-    fi
+    cp -av installers/OpenMEEG-*-*.* /output/
 elif [[ "$OS" == "macos" ]]; then
-    if [[ "$KIND" == "wheel" ]]; then
-        otool -L $LIB_OUTPUT_DIR/libOpenMEEG.*.dylib
-        if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
-            cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
-        fi
-        if [[ "$LIBOMP_LIB_DIR" != "" ]]; then
-            cp -av "$LIBOMP_LIB_DIR"/libomp.dylib $LIB_OUTPUT_DIR/
-        fi
-    else
-        otool -L $ROOT/build/OpenMEEG/libOpenMEEG.*.dylib
+    otool -L $LIB_OUTPUT_DIR/libOpenMEEG.*.dylib
+    if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
+        cp -av "$OPENBLAS_LIB_DIR"/*.dylib* $LIB_OUTPUT_DIR/
+    fi
+    if [[ "$LIBOMP_LIB_DIR" != "" ]]; then
+        cp -av "$LIBOMP_LIB_DIR"/libomp.dylib $LIB_OUTPUT_DIR/
     fi
 else  # windows
-    if [[ "$KIND" == "wheel" ]]; then
-        cp -av "$OPENBLAS_DLL" $LIB_OUTPUT_DIR/
-    else
-        ./build_tools/install_dependency_walker.sh
-    fi
+    cp -av "$OPENBLAS_DLL" $LIB_OUTPUT_DIR/
 fi
 
-if [[ "$KIND" == "wheel" ]]; then
-    echo "ls -al $ROOT:"
-    ls -al "$ROOT"
-fi
+echo "ls -al $ROOT:"
+ls -al "$ROOT"
 
 echo "git status:"
 check_porcelain
