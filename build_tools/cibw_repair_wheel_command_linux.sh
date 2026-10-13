@@ -9,7 +9,7 @@ DEST_DIR=$1
 WHEEL=$2
 
 set -x
-# Pointing auditwheel at install/lib64 doesn't vendor correctly, so
+# Pointing auditwheel at install/lib doesn't vendor correctly, so
 # cibw_before_all.sh stages the libs in /usr/local/lib instead
 auditwheel show "$WHEEL"
 auditwheel repair -w "$DEST_DIR" "$WHEEL"

@@ -67,7 +67,7 @@ openmeeg = ["*.pyi", "*.cpp"]
 
 [tool.setuptools_scm]
 root = "../../"
-local_scheme = "no-local-version"  # to allow TestPyPI uploads
+local_scheme = "no-local-version"  # same version string as cmake/Version.cmake
 
 [tool.cibuildwheel]
 # pp310 should in principle work but in practice it doesn't
@@ -100,7 +100,7 @@ manylinux-aarch64-image = "ghcr.io/h5py/manylinux_2_28_aarch64-hdf5"
 
 [tool.cibuildwheel.linux.environment]
 RUNNER_OS = "Linux"
-OPENMEEG_LIB = "../../install/lib64"
+OPENMEEG_LIB = "../../install/lib"
 OPENMEEG_INCLUDE = "../../install/include/OpenMEEG"
 OPENBLAS_INCLUDE = "../../install/include/OpenBLAS"
 OPENMEEG_USE_SWIG = "1"

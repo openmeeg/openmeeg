@@ -8,6 +8,8 @@
 # - Creates wheels
 # - Delocates them
 # - Uploads them to PyPi (releases)
+# The same OpenMEEG build also produces the C++ app installers, which get
+# tested on clean runners and attached to a draft GitHub release.
 # Most of the config lives in `pyproject.toml` and build_tools/cibw_* scripts.
 
 name: cibuildwheel
@@ -95,6 +97,15 @@ jobs:
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
+      # Linux writes them to the output-dir (see cibw_before_all.sh), the others
+      # to the checkout
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OpenMEEG-installers-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            ./wheelhouse/OpenMEEG-*.tar.gz
+            ./installers/OpenMEEG-*.tar.gz
+          if-no-files-found: error
 
   test_wheels:
     needs: build_wheels
@@ -164,6 +175,87 @@ jobs:
       - run: pytest -m "not slow" --pyargs openmeeg
       - run: om_viz --help
 
+  # The installers have no auditwheel/delocate/delvewheel safety net, so check
+  # they are self-contained where none of the build dependencies are around
+  test_apps:
+    needs: build_wheels
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-15-intel
+            arch: x86_64
+          - os: macos-latest
+            arch: arm64
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: build_tools
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          name: OpenMEEG-installers-${{ matrix.os }}-${{ matrix.arch }}
+      # On Linux, a bare container (glibc >= the manylinux_2_28 build's) rather
+      # than the runner, which has things like libgomp installed
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
+        run: docker run --rm -v "$PWD:/work" -w /work ubuntu:22.04 bash build_tools/cibw_test_apps.sh dist/OpenMEEG-*.tar.gz
+      - name: Test
+        if: runner.os != 'Linux'
+        run: bash build_tools/cibw_test_apps.sh dist/OpenMEEG-*.tar.gz
+
+  # On pushes to main, refresh the "dev" draft release with the installers; on
+  # publishing a release, attach them to it (leaving it published, since
+  # changing it would trigger this workflow again)
+  release:
+    needs: [build_wheels, test_apps]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'release'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: OpenMEEG-installers-*
+          merge-multiple: true
+      - name: Development release notes
+        if: github.event_name == 'push'
+        run: |
+          set -e
+          echo "# Development release" >> body.md
+          echo "" >> body.md
+          echo "This is an unreleased draft version (only visible to maintainers)." >> body.md
+          echo "" >> body.md
+          echo "- Created: $(date +'%Y-%m-%dT%H:%M:%S%z')" >> body.md
+          echo "- Commit: \`${{ github.sha }}\`" >> body.md
+          cat body.md
+      - name: Check files
+        run: ls -alR .
+      # https://github.com/softprops/action-gh-release
+      - uses: softprops/action-gh-release@v3.0.3
+        if: github.event_name == 'push'
+        with:
+          draft: true
+          body_path: body.md
+          tag_name: dev
+          files: OpenMEEG-*
+      - uses: softprops/action-gh-release@v3.0.3
+        if: github.event_name == 'release'
+        with:
+          files: OpenMEEG-*
+
   upload_pypi:
     name: Upload to PyPI
     needs: [build_wheels, test_wheels]
@@ -178,6 +270,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: dist
+          pattern: wheels-*  # not the app installers
           merge-multiple: true
       # upload to PyPI on every tag (we assume these are releases!)
       - uses: pypa/gh-action-pypi-publish@release/v1
