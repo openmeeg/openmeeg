@@ -173,7 +173,10 @@ elif [[ "$OS" == "macos" ]]; then
     source ./build_tools/setup_libomp_macos.sh
     EXTRA_LIBS="${LIBOMP_LIB_DIR}/libomp.dylib"
     if [[ "$BLAS_BACKEND" == "OpenBLAS" ]]; then
-        EXTRA_LIBS="${EXTRA_LIBS};${OPENBLAS_LIB_DIR}/${OPENBLAS_LIB_NAME}.dylib"
+        # A glob, as OPENBLAS_LIB_NAME lacks the "lib" prefix on macOS
+        for DYLIB in "$OPENBLAS_LIB_DIR"/*.dylib; do
+            EXTRA_LIBS="${EXTRA_LIBS};${DYLIB}"
+        done
     fi
     LIBRARIES_INSTALL_OPT="-DEXTRA_INSTALL_LIBRARIES=${EXTRA_LIBS}"
 else  # windows
