@@ -72,11 +72,7 @@ jobs:
           blas_linking: dynamic
           python: cmake
           testing: fast
-        - os: macos-latest
-          blas: OpenBLAS
-          blas_linking: dynamic
-          python: cmake
-          testing: fast
+        # No macOS OpenBLAS here: generic_blas.yml swaps OpenBLAS in on macOS arm64
         # One with FlexiBLAS
         - os: macos-latest
           blas: FlexiBLAS
@@ -126,10 +122,9 @@ jobs:
         - os: windows-latest
           blas: OpenBLAS
           blas_linking: static
-        # Setuptools (defaults to OpenBLAS, so 24.04 -- see the note above)
+        # Setuptools (defaults to OpenBLAS, so 24.04 -- see the note above). macOS
+        # setuptools builds are covered by the cibuildwheel wheels.
         - os: ubuntu-24.04
-          python: setuptools
-        - os: macos-latest
           python: setuptools
 
     runs-on: ${{ matrix.os }}
