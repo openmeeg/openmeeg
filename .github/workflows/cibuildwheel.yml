@@ -98,13 +98,11 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: ./wheelhouse/*.whl
       # Linux writes them to the output-dir (see cibw_before_all.sh), the others
-      # to the checkout
+      # to the checkout. A single path, so the tarball is at the artifact's root.
       - uses: actions/upload-artifact@v7
         with:
           name: OpenMEEG-installers-${{ matrix.os }}-${{ matrix.arch }}
-          path: |
-            ./wheelhouse/OpenMEEG-*.tar.gz
-            ./installers/OpenMEEG-*.tar.gz
+          path: ${{ runner.os == 'Linux' && './wheelhouse' || './installers' }}/OpenMEEG-*.tar.gz
           if-no-files-found: error
 
   test_wheels:
