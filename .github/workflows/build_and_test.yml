@@ -504,10 +504,10 @@ jobs:
         fi
         if [[ -f "./OpenMEEGMaths/libmatio.dll" ]]; then
           cp -v ./OpenMEEGMaths/libmatio.dll .
-        elif [[ -f "./OpenMEEGMaths/Release/libmatio.dll" ]]; then
-          cp -v ./OpenMEEGMaths/Release/libmatio.dll .
-          cp -v ./OpenMEEGMaths/Release/z.dll .
-          cp -v ./OpenMEEGMaths/Release/hdf5.dll .
+        elif compgen -G "./vcpkg_installed/*/bin/*.dll" > /dev/null; then
+          # vcpkg deps (matio, zlib, hdf5, ...); with VCPKG_APPLOCAL_DEPS=OFF
+          # they are not copied next to the built binaries
+          cp -v ./vcpkg_installed/*/bin/*.dll .
         fi
         echo "After:"
         ls -al *.dll || true
