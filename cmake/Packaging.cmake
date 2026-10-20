@@ -43,10 +43,6 @@ if (ENABLE_PACKAGING)
     #     set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-vtk)
     # endif()
 
-    # if (USE_CGAL)
-    #     set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-cgal)
-    # endif()
-
     # if (ENABLE_PYTHON)
     #     set(PACKAGE_OPTIONS ${PACKAGE_OPTIONS}-python)
     # endif()
