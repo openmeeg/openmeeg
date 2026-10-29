@@ -331,32 +331,42 @@ namespace OpenMEEG {
     class ThreadException {
     public:
 
-        ThreadException(): ptr(nullptr) { }
+        ThreadException() = default;
 
-        void rethrow() {
-            if (ptr) {
-                std::unique_lock<std::mutex> guard(lock);
-                std::rethrow_exception(ptr);
-            }
-        }
+        ThreadException(const ThreadException&) = delete;
+        ThreadException& operator=(const ThreadException&) = delete;
 
-        template <typename Function,typename... Parameters>
-        void run(Function f,Parameters... params) {
+        template <typename Function>
+        void run(Function&& f) noexcept {
             try {
-                f(params...);
+                std::forward<Function>(f)();
             } catch (...) {
                 capture_exception();
             }
         }
 
-    private:
+        void rethrow() {
+            std::exception_ptr exception;
 
-        void capture_exception() {
-            std::unique_lock<std::mutex> guard(lock);
-            ptr = std::current_exception();
+            {
+                std::lock_guard<std::mutex> guard(lock);
+                exception = ptr;
+            }
+
+            if (exception)
+                std::rethrow_exception(exception);
         }
 
-        std::exception_ptr ptr;
+    private:
+
+        void capture_exception() noexcept {
+
+            std::lock_guard<std::mutex> guard(lock);
+            if (!ptr) // Keep the first exception.
+                ptr = std::current_exception();
+        }
+
+        std::exception_ptr ptr = nullptr;
         std::mutex         lock;
     };
 }
