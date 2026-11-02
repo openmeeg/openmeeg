@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v7.0.0  # to make before-all work properly
+      - uses: actions/setup-python@v7.1.0  # to make before-all work properly
         with:
           python-version: '3.10'
       - uses: hendrikmuhs/ccache-action@v1.2.24
@@ -80,7 +80,7 @@ jobs:
           path: ${{ runner.temp }}/ci-cache/ccache
           key: ccache-${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}-${{ github.run_id }}
           restore-keys: ccache-${{ github.job }}-${{ matrix.os }}-${{ matrix.arch }}-
-      - uses: pypa/cibuildwheel@v4.3.1
+      - uses: pypa/cibuildwheel@v4.3.4
         with:
           package-dir: ./wrapping/python
           output-dir: wheelhouse
@@ -126,7 +126,7 @@ jobs:
           - os: macos-latest
             arch: arm64
     steps:
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
