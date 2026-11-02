@@ -153,7 +153,7 @@ if [[ "$OS" == "linux" ]]; then
     echo "::endgroup::"
     export CMAKE_CXX_FLAGS="-I$OPENBLAS_INCLUDE"
     SHARED_OPT="-DBUILD_SHARED_LIBS=OFF"
-    # lib rather than lib64, to match the $ORIGIN/../lib rpath (see install.cmake)
+    # lib rather than lib64, as cibw_bundle_linux_libs.sh and the installers expect
     LIBDIR_OPT="-DCMAKE_INSTALL_LIBDIR=lib"
     SOS=($OPENBLAS_LIB_DIR/*.so*)
     OLD_IFS=$IFS
