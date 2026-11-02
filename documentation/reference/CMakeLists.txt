@@ -9,10 +9,6 @@ if (BUILD_DOCUMENTATION)
 
     find_package(Doxygen REQUIRED dot)
 
-    if (NOT USE_CGAL)
-        set(OpenMEEG_EXCLUDE_FROM_DOCUMENTATION
-            "${OpenMEEG_EXCLUDE_FROM_DOCUMENTATION} ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_create.cpp ${CMAKE_SOURCE_DIR}/tools/cgal_mesh_include.h")
-    endif()
     configure_file(${OpenMEEG_SOURCE_DIR}/documentation/reference/doxyfile.in
                    ${OpenMEEG_BINARY_DIR}/documentation/reference/doxyfile)
 
