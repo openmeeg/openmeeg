@@ -36,12 +36,12 @@ namespace OpenMEEG {
               Interface& interface()       { return interf;  }
         const Interface& interface() const { return interf;  }
 
-        bool inside() const { return (side==Inside); }
+        bool is_outer_boundary() const { return (side==Inside); }
 
         // omesh must belong to the interface.
 
         int mesh_orientation(const OrientedMesh& omesh) const {
-            return (inside()) ? omesh.orientation() : -omesh.orientation();
+            return (is_outer_boundary()) ? omesh.orientation() : -omesh.orientation();
         }
 
     private:

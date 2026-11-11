@@ -43,7 +43,7 @@ namespace OpenMEEG {
             const double cond = domain.conductivity();
             if (cond!=0.0) {
                 for (const auto& boundary : domain.boundaries()) {
-                    const double factorD = (boundary.inside()) ? -K : K;
+                    const double factorD = (boundary.is_outer_boundary()) ? -K : K;
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                         //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();

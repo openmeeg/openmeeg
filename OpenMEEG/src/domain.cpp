@@ -12,7 +12,7 @@ namespace OpenMEEG {
     bool Domain::contains(const Vect3& p) const {
         bool inside = true;
         for (const auto& boundary : boundaries())
-            inside = (inside && (boundary.interface().contains(p)==boundary.inside()));
+            inside = (inside && (boundary.interface().contains(p)==boundary.is_outer_boundary()));
         return inside;
     }
 
@@ -22,7 +22,7 @@ namespace OpenMEEG {
         std::cout << "\t\tConductivity : "    << conductivity() << std::endl;
         std::cout << "\t\tComposed by interfaces : ";
         for (const auto& boundary : boundaries()) {
-            std::cout << ((boundary.inside()) ? '-' : '+');
+            std::cout << ((boundary.is_outer_boundary()) ? '-' : '+');
             std::cout << boundary.interface().name() << " ";
         }
         std::cout << std::endl;

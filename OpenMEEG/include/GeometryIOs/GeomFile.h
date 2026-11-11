@@ -344,7 +344,7 @@ namespace OpenMEEG::GeometryIOs {
         for (const auto& domain : geometry.domains()) {
             ofs << "Domain " << domain.name() << ":";
             for (const auto& boundary : domain.boundaries())
-                ofs << ' ' << ((boundary.inside()) ? '-' : '+') << boundary.interface().name();
+                ofs << ' ' << ((boundary.is_outer_boundary()) ? '-' : '+') << boundary.interface().name();
             ofs << std::endl;
         }
         ofs << std::endl;

@@ -28,7 +28,7 @@ namespace OpenMEEG {
         for (auto& domain : domains()) {
             bool outer = true;
             for (auto& boundary : domain.boundaries())
-                if (boundary.inside()) {
+                if (boundary.is_outer_boundary()) {
                     outer = false;
                     break;
                 }
@@ -51,7 +51,7 @@ namespace OpenMEEG {
         for (const auto& domain : domains()) {
             bool inner = true;
             for (const auto& boundary : domain.boundaries())
-                if (!boundary.inside()) {
+                if (!boundary.is_outer_boundary()) {
                     inner = false;
                     break;
                 }
@@ -379,7 +379,7 @@ namespace OpenMEEG {
             unsigned out_interface = 0;
             if (!is_outermost(domain))
                 for (const auto& boundary : domain.boundaries())
-                    if (boundary.inside())
+                    if (boundary.is_outer_boundary())
                         out_interface++;
             if (out_interface>=2) {
                 nested = false;
@@ -462,7 +462,7 @@ namespace OpenMEEG {
         for (auto& domain : domains())
             if (almost_equal(domain.conductivity(),0.0))
                 for (auto& boundary : domain.boundaries())
-                    if (!boundary.inside())
+                    if (!boundary.is_outer_boundary())
                         for (auto& oriented_mesh : boundary.interface().oriented_meshes())
                             if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
                                 oriented_mesh.mesh().outermost() = true;
