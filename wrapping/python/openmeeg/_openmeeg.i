@@ -510,8 +510,8 @@ namespace OpenMEEG {
 // OpenMEEG
 
 %ignore OpenMEEG::Details;
-
 %ignore OpenMEEG::MeshPair;
+
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 %rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
 %rename(_Domain_Boundary) OpenMEEG::ImplementationDetails::SimpleDomain; // Wrap SimpleDomain as _Domain_Boundary (which will be later mapped to Domain.Boundary).

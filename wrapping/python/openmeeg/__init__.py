@@ -15,6 +15,7 @@ with _warnings.catch_warnings():
 # possible
 from ._openmeeg_wrapper import (
     HeadMat,
+    BlockHeadMat,
     Sensors,
     Integrator,
     Head2EEGMat,
