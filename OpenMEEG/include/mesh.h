@@ -46,7 +46,9 @@ namespace OpenMEEG {
         friend class Geometry;
         friend class MeshIO;
 
-        typedef std::map<const Vertex*,TrianglesRefs> VertexTriangles;
+        using VertexTriangles  = std::map<const Vertex*,TrianglesRefs>;
+        using VertexMapping    = std::vector<size_t>;
+        using InvVertexMapping = std::map<size_t,size_t>;
 
         /// Default constructor
         /// or constructor using a provided geometry \param geometry
@@ -86,6 +88,8 @@ namespace OpenMEEG {
 
         std::string&       name()       { return mesh_name; } ///< \return the mesh name
         const std::string& name() const { return mesh_name; } ///< \return the mesh name
+
+        size_t num_unknowns() const { return vertices().size()+triangles().size(); }
 
               VerticesRefs& vertices()       { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
         const VerticesRefs& vertices() const { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
@@ -134,14 +138,32 @@ namespace OpenMEEG {
         void check_consistency(const std::string&) const; ///< \brief Check mesh triangle/vertex consistency.
         #endif
 
+        /// \brief Get a mapping of the vertices in the mesh to the whole geometry.
+        /// \return a vector of indices.
+
+        VertexMapping vertices_mapping() const {
+            VertexMapping indices;
+            for (const auto& vertex : vertices())
+                indices.push_back(vertex->index());
+            std::sort(indices.begin(),indices.end());
+            return indices;
+        }
+
+        /// \brief Get a mapping of the vertices in the mesh to the whole geometry.
+        /// \return a map of geometry to mesh indices.
+
+        InvVertexMapping inverse_vertices_mapping(const VertexMapping& mapping) const {
+            InvVertexMapping inv_mapping;
+            for (unsigned i=0; i<mapping.size(); ++i)
+                inv_mapping[mapping[i]] = i;
+            return inv_mapping;
+        }
+
         /// \brief Get the ranges of the specific mesh in the global matrix.
         /// \return vector of Range \sa
 
         Ranges vertices_ranges() const {
-            std::vector<size_t> indices;
-            for (const auto& vertex : vertices())
-                indices.push_back(vertex->index());
-            std::sort(indices.begin(),indices.end());
+            const VertexMapping& indices = vertices_mapping();
             Ranges result;
             for (auto it=indices.begin(); it!=indices.end();) {
                 auto it1 = it;
