@@ -234,15 +234,15 @@ namespace OpenMEEG {
 
     void Geometry::read_conductivity_file(const std::string& filename) {
         try {
-            typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
+            using HeadProperties = Utils::Properties::Named<std::string,ConductivityProperty>;
             HeadProperties properties(filename.c_str());
 
             // Store the internal conductivity of the external boundary of domain i
             // and store the external conductivity of the internal boundary of domain i
 
-            for (auto& domain : domains()) try {
-                const Conductivity<double>& cond = properties.find(domain.name());
-                domain.set_conductivity(cond.sigma());
+            for (Domain& domain : domains()) try {
+                const ConductivityProperty& condprop = properties.find(domain.name());
+                domain.set_conductivity(condprop.value());
             } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
