@@ -118,8 +118,8 @@ namespace OpenMEEG::GeometryIOs {
             return name;
         }
 
-        Geometry::MeshList read_mesh_descriptions(const unsigned n,const std::string& keyword) {
-            Geometry::MeshList meshes;
+        Geometry::MeshDefinitions read_mesh_descriptions(const unsigned n,const std::string& keyword) {
+            Geometry::MeshDefinitions meshes;
             for (unsigned i=0; i<n; ++i) {
                 const std::string& name = section_name(i,keyword);
                 const std::string& path = filename();
@@ -206,7 +206,7 @@ namespace OpenMEEG::GeometryIOs {
             if (has_meshsection) {
                 unsigned num_meshes;
                 ifs >> num_meshes;
-                const Geometry::MeshList& meshes = read_mesh_descriptions(num_meshes,"Mesh");
+                const Geometry::MeshDefinitions& meshes = read_mesh_descriptions(num_meshes,"Mesh");
                 geometry.import(meshes);
             }
         }
@@ -222,7 +222,7 @@ namespace OpenMEEG::GeometryIOs {
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
         if (mesh_provided_as_interfaces) {
-            const Geometry::MeshList& meshes = read_mesh_descriptions(num_interfaces,"Interface");
+            const Geometry::MeshDefinitions& meshes = read_mesh_descriptions(num_interfaces,"Interface");
             geometry.import(meshes);
         }
         // ideally we would close here, but load_domains comes immediately afterward, so leave it open

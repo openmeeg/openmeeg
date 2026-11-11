@@ -202,7 +202,7 @@ namespace OpenMEEG {
         delete io;
     }
 
-    void Geometry::import(const MeshList& mesh_list) {
+    void Geometry::import(const MeshDefinitions& mesh_list) {
 
         struct MeshDescription {
             std::string name;

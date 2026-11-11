@@ -50,7 +50,8 @@ namespace OpenMEEG {
         typedef std::vector<const Domain*>            DomainsReference;
         typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
-        typedef std::vector<std::pair<std::string,std::string>> MeshList;
+        using MeshDefinition  = std::pair<std::string,std::string>; // First and second strings are respectively the name and the path of the mesh.
+        using MeshDefinitions = std::vector<MeshDefinition>;
 
         /// Constructors
 
@@ -208,7 +209,6 @@ namespace OpenMEEG {
             finalize(OLD_ORDERING);
         }
 
-        void import(const MeshList& meshes);
         void set_conductivity(const std::string& domain_name,const double cond_value) {
             for (auto& domain : domains())
                 if (domain.name()==domain_name) {
@@ -217,6 +217,8 @@ namespace OpenMEEG {
                 }
             throw OpenMEEG::BadDomain(domain_name);
         }
+
+        void import(const MeshDefinitions& meshes);
 
         void save(const std::string& filename) const;
 

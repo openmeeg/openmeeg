@@ -25,7 +25,7 @@ int main( int argc,char **argv) {
     const CommandLine cmd(argc,argv,"Convert meshes OR geometry into a single VTK/VTP file.");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input geometry");
 
-    Geometry::MeshList meshes;
+    Geometry::MeshDefinitions meshes;
     for (unsigned i=0; i<7; ++i) {
         const std::string& mesh_path_option_name = param("-i",i+1);
         const std::string& mesh_name_option_name = param("-n",i+1);
