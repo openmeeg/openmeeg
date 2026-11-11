@@ -220,6 +220,14 @@ namespace OpenMEEG {
         }
 
         void import(const MeshList& meshes);
+        void set_conductivity(const std::string& domain_name,const double cond_value) {
+            for (auto& domain : domains())
+                if (domain.name()==domain_name) {
+                    domain.set_conductivity(cond_value);
+                    return;
+                }
+            throw OpenMEEG::BadDomain(domain_name);
+        }
 
         void save(const std::string& filename) const;
 
