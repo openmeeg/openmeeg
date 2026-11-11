@@ -157,17 +157,6 @@ namespace OpenMEEG {
             return result;
         }
 
-        /// Returns the external domain.
-        // It is unclear whether external_domain and set_external_domain need to be in the public interface.
-
-        Domain& external_domain();
-
-        void set_external_domain(Domain& domain) {
-            outer_domain = &domain;
-            for (auto& boundary : domain.boundaries())
-                boundary.interface().set_to_external();
-        }
-
         bool is_external(const Domain& domain) const { return outer_domain==&domain; }
 
         const Interface& external_interface()  const; ///< \brief returns the external interface (only valid for nested geometries).
@@ -279,6 +268,16 @@ namespace OpenMEEG {
 
         void read_geometry_file(const std::string& filename);
         void read_conductivity_file(const std::string& filename);
+
+        /// Returns the external domain.
+
+        Domain& external_domain();
+
+        void set_external_domain(Domain& domain) {
+            outer_domain = &domain;
+            for (auto& boundary : domain.boundaries())
+                boundary.interface().set_to_external();
+        }
 
         void make_mesh_pairs();
 
