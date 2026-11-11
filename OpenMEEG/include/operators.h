@@ -38,9 +38,6 @@ namespace OpenMEEG {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
         #else
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
@@ -61,9 +58,6 @@ namespace OpenMEEG {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
         #else
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
             const Triangle& triangle = *(m.triangles().begin()+i);
@@ -141,9 +135,6 @@ namespace OpenMEEG {
             #pragma omp parallel for
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
-            #elif defined OPENMP_ITERATOR
-            for (Triangles::const_iterator tit1=triangles1.begin(); tit1<triangles1.end(); ++tit1) {
-                const Triangle& triangle1 = *tit1;
             #else
             for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
                 const Triangle& triangle1 = *(triangles1.begin()+i1);
@@ -157,8 +148,8 @@ namespace OpenMEEG {
                         for (unsigned i=0; i<3; ++i)
                             mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
                     }
-                    ++pb;
                 });
+                ++pb;
             }
             e.rethrow();
         }
