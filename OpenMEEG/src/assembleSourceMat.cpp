@@ -37,7 +37,7 @@ namespace OpenMEEG {
                                 << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
                                 << std::endl;
 
-        Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),source_mesh.vertices().size());
+        Matrix mat(geo.num_parameters()-geo.num_current_barrier_triangles(),source_mesh.vertices().size());
         mat = 0.0;
 
         const double L  = -1.0/domain.conductivity();
@@ -66,7 +66,7 @@ namespace OpenMEEG {
         // (eq.14 (do not look at eq.16 since there is a mistake: D_23 -> S_23))
         // rhs = [0 ... 0  -D*_23  sigma_3^(-1)S_23  -I_33/2.+D*_33]
 
-        SymMatrix transmat(geo.nb_parameters());
+        SymMatrix transmat(geo.num_parameters());
         transmat = 0.0;
 
         // This is an overkill. Can we limit the computation only to injection triangles ?
@@ -90,7 +90,7 @@ namespace OpenMEEG {
         }
 
         const size_t n_sensors = electrodes.getNumberOfSensors();
-        Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),n_sensors);
+        Matrix mat(geo.num_parameters()-geo.num_current_barrier_triangles(),n_sensors);
         mat = 0.0;
 
         for (size_t ielec=0; ielec<n_sensors; ++ielec)

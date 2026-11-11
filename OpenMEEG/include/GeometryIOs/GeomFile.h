@@ -152,7 +152,7 @@ namespace OpenMEEG::GeometryIOs {
         std::ifstream         ifs;
         std::filesystem::path directory;
         bool                  mesh_provided_as_interfaces;
-        unsigned              nb_interfaces;
+        unsigned              num_interfaces;
     };
 
     void GeomFile::load_meshes(Geometry& geometry) {
@@ -204,9 +204,9 @@ namespace OpenMEEG::GeometryIOs {
 
             ifs >> io_utils::skip_comments("#") >> io_utils::match_optional("Meshes",has_meshsection);
             if (has_meshsection) {
-                unsigned nb_meshes;
-                ifs >> nb_meshes;
-                const Geometry::MeshList& meshes = read_mesh_descriptions(nb_meshes,"Mesh");
+                unsigned num_meshes;
+                ifs >> num_meshes;
+                const Geometry::MeshList& meshes = read_mesh_descriptions(num_meshes,"Mesh");
                 geometry.import(meshes);
             }
         }
@@ -215,14 +215,14 @@ namespace OpenMEEG::GeometryIOs {
 
         bool trash; // backward compatibility, catch "Mesh" optionally.
         ifs >> io_utils::skip_comments('#')
-            >> io_utils::match("Interfaces") >> nb_interfaces >> io_utils::match_optional("Mesh",trash);
+            >> io_utils::match("Interfaces") >> num_interfaces >> io_utils::match_optional("Mesh",trash);
 
         if (ifs.fail())
             throw OpenMEEG::WrongFileFormat(fname);
 
         mesh_provided_as_interfaces = !has_meshfile && !has_meshsection;
         if (mesh_provided_as_interfaces) {
-            const Geometry::MeshList& meshes = read_mesh_descriptions(nb_interfaces,"Interface");
+            const Geometry::MeshList& meshes = read_mesh_descriptions(num_interfaces,"Interface");
             geometry.import(meshes);
         }
         // ideally we would close here, but load_domains comes immediately afterward, so leave it open
@@ -242,7 +242,7 @@ namespace OpenMEEG::GeometryIOs {
                 interfaces.push_back(interface);
             }
         } else {
-            for (unsigned i=0; i<nb_interfaces; ++i) {
+            for (unsigned i=0; i<num_interfaces; ++i) {
                 const std::string& interfacename = section_name(i,"Interface");
                 interfaces.push_back(interfacename);
                 for (auto& token : get_line_tokens()) {

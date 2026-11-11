@@ -75,7 +75,7 @@ namespace OpenMEEG {
 
         /// \return the total number of the interface vertices
 
-        size_t nb_vertices() const {
+        size_t num_vertices() const {
             size_t nb = 0;
             for (const auto& omesh : oriented_meshes())
                 nb += omesh.mesh().vertices().size();
@@ -84,12 +84,14 @@ namespace OpenMEEG {
 
         /// \return the total number of the interface triangles
 
-        size_t nb_triangles() const {
+        size_t num_triangles() const {
             size_t nb = 0;
             for (const auto& omesh : oriented_meshes())
                 nb += omesh.mesh().triangles().size();
             return nb;
         }
+
+        size_t num_unknowns() const { return num_vertices()+num_triangles(); }
 
         /// \return the adjacent triangles
 

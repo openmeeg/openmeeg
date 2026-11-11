@@ -157,7 +157,7 @@ namespace OpenMEEG {
             return result;
         }
 
-        size_t nb_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
+        size_t num_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
 
         /// Returns the outermost domain.
         // It is unclear whether outermost_domain and set_outermost_domain need to be in the public interface.
@@ -250,9 +250,9 @@ namespace OpenMEEG {
 
         /// Handle multiple isolated domains
 
-        size_t  nb_current_barrier_triangles() const { return nb_current_barrier_triangles_; }
-        size_t& nb_current_barrier_triangles()       { return nb_current_barrier_triangles_; }
-        size_t  nb_invalid_vertices()                { return invalid_vertices_.size();      }
+        size_t  num_current_barrier_triangles() const { return num_current_barrier_triangles_; }
+        size_t& num_current_barrier_triangles()       { return num_current_barrier_triangles_; }
+        size_t  num_invalid_vertices()                { return invalid_vertices_.size();      }
 
         const MeshParts& isolated_parts() const { return independant_parts; }
               void       mark_current_barriers();
@@ -312,7 +312,7 @@ namespace OpenMEEG {
         /// Handle multiple isolated domains.
 
         std::set<Vertex> invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t           nb_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        size_t           num_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
 
         MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.
         MeshPairs meshpairs;

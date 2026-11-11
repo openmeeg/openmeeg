@@ -57,8 +57,8 @@ main(const int argc,const char* argv[]) {
 
     Geometry geo(argv[1],argv[2]);
 
-    const unsigned totalsize  = geo.nb_parameters();
-    const unsigned sourcesize = geo.outermost_interface().nb_triangles();
+    const unsigned totalsize  = geo.num_parameters();
+    const unsigned sourcesize = geo.outermost_interface().num_triangles();
     const unsigned newsize    = totalsize-sourcesize;
 
     const Matrix    dipoles(argv[3]);

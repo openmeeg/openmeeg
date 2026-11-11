@@ -28,7 +28,7 @@ def test_concurrent_geometry_load(data_path):
     cond_file = op.join(data_path, "Head1", "Head1.cond")
 
     def load():
-        return om.read_geometry(geom_file, cond_file).nb_parameters()
+        return om.read_geometry(geom_file, cond_file).num_parameters()
 
     with cf.ThreadPoolExecutor(max_workers=8) as pool:
         results = [f.result() for f in [pool.submit(load) for _ in range(32)]]

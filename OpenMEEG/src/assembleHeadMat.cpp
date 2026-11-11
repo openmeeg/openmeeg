@@ -29,15 +29,15 @@ namespace OpenMEEG {
             //  deflate all current barriers as one
             ThreadException e;
             for (const auto& part : geo.isolated_parts()) {
-                unsigned nb_vertices = 0;
+                unsigned num_vertices = 0;
                 unsigned i_first = 0;
                 for (const auto& meshptr : part)
                     if (meshptr->outermost()){
-                        nb_vertices += meshptr->vertices().size();
+                        num_vertices += meshptr->vertices().size();
                         if (i_first==0)
                             i_first = meshptr->vertices().front()->index();
                     }
-                const double coef = M(i_first,i_first)/nb_vertices;
+                const double coef = M(i_first,i_first)/num_vertices;
                 for (const auto& meshptr : part)
                     if (meshptr->outermost()) {
                         const auto& vertices = meshptr->vertices();
@@ -74,7 +74,7 @@ namespace OpenMEEG {
         TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
 
             log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
-            TYPE symmatrix(geo.nb_parameters()-geo.nb_current_barrier_triangles());
+            TYPE symmatrix(geo.num_parameters()-geo.num_current_barrier_triangles());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
 
             // Iterate over pairs of communicating meshes (sharing a domains) to fill the
@@ -145,7 +145,7 @@ namespace OpenMEEG {
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
         log_stream(INFORMATION) << "    Copying symmatrix into the returned matrix";
-        const unsigned Nl = geo.nb_parameters()-geo.nb_current_barrier_triangles()-Cortex.nb_vertices()-Cortex.nb_triangles()+extension;
+        const unsigned Nl = geo.num_parameters()-geo.num_current_barrier_triangles()-Cortex.num_vertices()-Cortex.num_triangles()+extension;
         log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
@@ -205,7 +205,7 @@ namespace OpenMEEG {
 
         // ** Get the gradient of P1&P0 elements on the meshes **
 
-        const unsigned Nc = geo.nb_parameters()-geo.nb_current_barrier_triangles();
+        const unsigned Nc = geo.num_parameters()-geo.num_current_barrier_triangles();
         SymMatrix RR(Nc,Nc);
         RR = 0.0;
         for (const auto& mesh : geo.meshes())
@@ -343,7 +343,7 @@ namespace OpenMEEG {
 
         const unsigned size = index; // total number of inside points
 
-        Matrix mat(size,geo.nb_parameters()-geo.nb_current_barrier_triangles());
+        Matrix mat(size,geo.num_parameters()-geo.num_current_barrier_triangles());
         mat = 0.0;
 
         for (const auto& [domainptr,pts] : m_points) {

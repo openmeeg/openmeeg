@@ -17,7 +17,7 @@ main(int argc,char** argv) {
 
     Geometry geo(argv[1],argv[2]);
 
-    std::cerr << "Geometry degrees of freedom: " << geo.nb_parameters() << std::endl;
+    std::cerr << "Geometry degrees of freedom: " << geo.num_parameters() << std::endl;
 
     return 0;
 }

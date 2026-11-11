@@ -83,7 +83,7 @@ namespace OpenMEEG {
 
         void operator()(HDS& target) {
             CGAL::Polyhedron_incremental_builder_3<HDS> builder(target,true);
-            builder.begin_surface(m->nb_vertices(),m->nb_triangles(),6*m->nb_vertices()-12);
+            builder.begin_surface(m->num_vertices(),m->num_triangles(),6*m->num_vertices()-12);
             std::map<const Vertex*,unsigned> map;
             unsigned i = 0;
             for (Mesh::const_vertex_iterator vit = m->vertex_begin(); vit!=m->vertex_end(); ++vit,++i) {
@@ -137,9 +137,9 @@ namespace OpenMEEG {
 
         C3t3P c3t3;
         unsigned i = 0;
-        unsigned nb_initial_points = 5;
+        unsigned num_initial_points = 5;
         for (Polyhedron::Vertex_iterator it = polyhedron.vertices_begin(); it!=polyhedron.vertices_end(); it++,i++)
-            if (i%(m_in.nb_vertices()/(1+nb_initial_points))==0)
+            if (i%(m_in.num_vertices()/(1+num_initial_points))==0)
                 c3t3.triangulation().insert(it->point());
 
         // Meshing
@@ -152,13 +152,13 @@ namespace OpenMEEG {
     /// decimate safely a mesh
 
     namespace SMS = CGAL::Surface_mesh_simplification;
-    Mesh cgal_decimate(const Mesh& m_in,const unsigned nb_points) {
+    Mesh cgal_decimate(const Mesh& m_in,const unsigned num_points) {
         Polyhedron polyhedron = Mesh2Polyhedron(m_in);
-        const unsigned nb_edges = 3*nb_points-6;
+        const unsigned num_edges = 3*num_points-6;
 
-        std::cout << "Target: less than " << nb_points << " vertices <=> " << nb_edges << " edges.\n";
+        std::cout << "Target: less than " << num_points << " vertices <=> " << num_edges << " edges.\n";
 
-        SMS::Count_stop_predicate<Polyhedron> stop(nb_edges);
+        SMS::Count_stop_predicate<Polyhedron> stop(num_edges);
 
         int r = SMS::edge_collapse(
                 polyhedron,
@@ -197,7 +197,7 @@ namespace OpenMEEG {
         m.update();
         m.correct_global_orientation();
 
-        std::cout << "Finished...\n" << r << " edges removed.\n" << m.nb_vertices() << " final nb_points.\n";
+        std::cout << "Finished...\n" << r << " edges removed.\n" << m.num_vertices() << " final num_points.\n";
 
         return m;
     }
