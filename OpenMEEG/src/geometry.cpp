@@ -116,9 +116,12 @@ namespace OpenMEEG {
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
         }
 
+        std::cout << "Meshes:" << std::endl;
         for (const auto& mesh : meshes())
-            mesh.info();
+            mesh.info(verbose);
+        std::cout << std::endl;
 
+        std::cout << "Domains:" << std::endl;
         for (const auto& domain : domains())
             domain.info(is_external(domain));
 

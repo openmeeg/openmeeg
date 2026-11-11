@@ -33,10 +33,10 @@ namespace OpenMEEG {
     /// Print informations about the mesh
 
     void Mesh::info(const bool verbose) const {
-        std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
-        std::cout << "\t\t# vertices  : " << vertices().size() << std::endl;
-        std::cout << "\t\t# triangles : " << triangles().size() << std::endl;
-        std::cout << "\t\tEuler characteristic : " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
+        std::cout << "Info:: Mesh name/ID: "  << name() << std::endl;
+        std::cout << "\t\t# vertices : " << vertices().size() << std::endl;
+        std::cout << "\t\t# triangles: " << triangles().size() << std::endl;
+        std::cout << "\t\tEuler characteristic: " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
 
         double min_area = std::numeric_limits<double>::max();
         double max_area = 0.;
@@ -44,19 +44,23 @@ namespace OpenMEEG {
             min_area = std::min(triangle.area(),min_area);
             max_area = std::max(triangle.area(),max_area);
         }
-        std::cout << "\t\tMin Area : " << min_area << std::endl;
-        std::cout << "\t\tMax Area : " << max_area << std::endl;
+        std::cout << "\t\tMin Area: " << min_area << std::endl;
+        std::cout << "\t\tMax Area: " << max_area << std::endl;
         if (is_current_barrier())
             std::cout << "\t\tCurrent barrier" << std::endl;
         if (verbose) {
-            std::cout << "Indices :" << std::endl;
+            std::cout << "Vertices:" << std::endl;
             for (const auto& vertex : vertices())
-                std::cout << "[" << *vertex << "] = " << vertex->index() << std::endl;
+                std::cout << vertex->index() << "\t = [" << *vertex << "]" << std::endl;
+            std::cout << std::endl;
+
+            std::cout << "Triangles:" << std::endl;
             for (const auto& triangle : triangles())
-                std::cout << "[[" << triangle.vertex(0)
-                          << "] , [" << triangle.vertex(1)
-                          << "] , ["<< triangle.vertex(2)
-                          << "]] \t = " << triangle.index() << std::endl;
+                std::cout << triangle.index() << "\t = [" << triangle.vertex(0).index()
+                          << ", " << triangle.vertex(1).index()
+                          << ", "<< triangle.vertex(2).index()
+                          << "]" << std::endl;
+            std::cout << std::endl;
         }
     }
 
