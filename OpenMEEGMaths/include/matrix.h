@@ -52,6 +52,12 @@ namespace OpenMEEG {
 
         Matrix(const Vector& v,const Dimension M,const Dimension N);
 
+        void resize(const Dimension M,const Dimension N) {
+            nlin() = M;
+            ncol() = N;
+            alloc_data();
+        }
+
         void alloc_data()                       { value = LinOpValue(size());      }
         void reference_data(const double* vals) { value = LinOpValue(size(),vals); }
 
@@ -63,7 +69,7 @@ namespace OpenMEEG {
         /// \brief Get Matrix size
         /// \return number of values (nb lines x nb columns)
 
-        size_t size() const { return static_cast<std::streamoff>(nlin())*static_cast<std::streamoff>(ncol()); };
+        size_t size() const { return nlin()*ncol(); };
 
         /// \brief Get Matrix data
         /// \return pointer to Matrix values
