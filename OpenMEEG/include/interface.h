@@ -30,8 +30,8 @@ namespace OpenMEEG {
 
         OrientedMesh(Mesh& m,const Orientation o): meshptr(&m),orient(o) { }
 
-              Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
-        const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
+              Mesh& mesh()       { return *meshptr; } ///< \brief access mesh
+        const Mesh& mesh() const { return *meshptr; } ///< \brief access mesh
 
         int orientation() const { return orient; } ///< \brief orientation is +1 or -1 ?
 
@@ -49,9 +49,7 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Interface {
     public:
 
-        //        using OrientedMesh::Orientation;
-
-        typedef std::vector<OrientedMesh> OrientedMeshes;
+        using OrientedMeshes = std::vector<OrientedMesh>;
 
         /// Default Constructor
 
