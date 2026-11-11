@@ -107,6 +107,17 @@ namespace OpenMEEG {
             return 0;
         }
 
+        /// \return a vector of the unnecessary meshes of a domain.
+
+        MeshRefs unnecessary_meshes() {
+            MeshRefs mesh_to_remove;
+            for (auto& boundary : boundaries()) {
+                const MeshRefs& meshes = boundary.interface().unnecessary_meshes();
+                mesh_to_remove.insert(mesh_to_remove.end(),meshes.begin(),meshes.end());
+            }
+            return mesh_to_remove;
+        }
+
     private:
 
         Boundaries  bounds;             ///< Interfaces (with side) delimiting the domain.

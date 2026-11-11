@@ -104,6 +104,23 @@ namespace OpenMEEG {
             return triangles;
         }
 
+        MeshRefs unnecessary_meshes() {
+            MeshRefs mesh_to_remove;
+            for (auto& oriented_mesh : oriented_meshes()) {
+                Mesh& mesh = oriented_mesh.mesh();
+                // If the mesh is already a current barrier, this means that null conductivity is on both its sides.
+                // The mesh is thus unnecessary to the computations.
+                const bool fully_immersed = (mesh.is_current_barrier()==true);
+                mesh.set_current_barrier_property(true);
+                if (fully_immersed) {
+                    mesh.set_isolated_property(true);
+                    mesh.set_external_property(false);
+                    mesh_to_remove.push_back(&mesh);
+                }
+            }
+            return mesh_to_remove;
+        }
+
     private:
 
         double solid_angle(const Vect3& p) const; ///< Given a point p, compute the solid angle of the interface w.r.t. p. \return +/- 4 PI or 0.

@@ -223,13 +223,14 @@ namespace OpenMEEG {
 
         void finalize(const bool OLD_ORDERING=false) {
             // TODO: We should check the correct decomposition of the geometry into domains here.
-            // In a correct decomposition, each interface is used exactly once ?? Unsure...
-            // Search for the external domain and set boolean OUTERMOST on the domain in the vector domains.
-            // An external domain is defined as the only domain which has no inside. It is supposed to be
-            // unique.
+            // In a correct decomposition, each interface is used exactly twice with two opposite
+            // Search for the external interface/meshes and set boolean external on each such mesh.
+            // An external interface is defined as delimiting a maximal outside domain with null
+            // conductivity. It is supposed to be unique. Typically it is the most outward mesh
+            // delimiting a domain with a non-zero conductivity
 
             if (has_conductivities())
-                mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
+                set_mesh_properties(); // Mark meshes that touch the domains of null conductivity.
 
             if (domains().size()!=0) {
                 set_external_domain(external_domain());
@@ -253,8 +254,10 @@ namespace OpenMEEG {
         size_t num_unknowns()   const { return num_parameters()-num_current_barrier_triangles(); } ///< \brief the total number of unknowns
 
         const MeshParts& isolated_parts() const { return independant_parts; }
-        void mark_current_barriers();
-        const Mesh&      mesh(const std::string& id) const; //  Is this useful ?? TODO.
+
+        void set_mesh_properties();
+
+        const Mesh& mesh(const std::string& id) const; //  Is this useful ?? TODO.
 
     private:
 
@@ -324,7 +327,7 @@ namespace OpenMEEG {
 
         /// Handle multiple isolated domains.
 
-        std::set<Vertex> invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
+        std::set<Vertex> invalid_vertices;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
         size_t           nb_current_barrier_triangles = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
 
         MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.

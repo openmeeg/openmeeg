@@ -272,8 +272,8 @@ namespace OpenMEEG {
 
         unsigned index = 0;
         if (!OLD_ORDERING)
-            for (auto& vertex : vertices())
-                vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
+            for (Vertex& vertex : vertices())
+                vertex.index() = (invalid_vertices.count(vertex)==0) ? index++ : unsigned(-1);
 
         // We first index non current barrier triangles.
         // This allows for contiguous indices even when the current barrier triangles are not needed.
@@ -445,62 +445,77 @@ namespace OpenMEEG {
 
     // Mark all meshes which touch domains with 0 conductivity
 
-    void Geometry::mark_current_barriers() {
+    void Geometry::set_mesh_properties() {
 
         // Find meshes that are current_barriers (that touch a zero-conductivity domain).
         // TODO: Should we also remove meshes for which there is no conductivity jump...
         // TODO: Instead of marking meshes and vertices, remove them from the model ?
         // TODO: isolated is not the proper name. immersed, redundant, unnecessary ?
 
-        for (auto& domain : domains()) {
+        MeshRefs unnecessary_meshes;
+        for (Domain& domain : domains())
             if (almost_equal(domain.conductivity(),0.0)) {
-                for (auto& boundary : domain.boundaries()) {
-                    for (auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        const bool fully_immersed = (oriented_mesh.mesh().is_current_barrier()==true);
-                        oriented_mesh.mesh().set_current_barrier_property(true);
-                        if (fully_immersed) {
-                            oriented_mesh.mesh().set_isolated_property(true);
-                            oriented_mesh.mesh().set_external_property(false);
-                            log_stream(INFORMATION) << "Mesh \"" << oriented_mesh.mesh().name() << "\""
-                                                    << " will be excluded from computation because it touches non-conductive domains on both sides."
-                                                    << std::endl;
-
-                            //  Add all of its vertices to invalid_vertices
-
-                            for (const auto& vertex : oriented_mesh.mesh().vertices())
-                                invalid_vertices_.insert(*vertex);
-                        }
-                    }
-                }
+                const MeshRefs& meshes = domain.unnecessary_meshes();
+                unnecessary_meshes.insert(unnecessary_meshes.end(),meshes.begin(),meshes.end());
             }
+        std::sort(unnecessary_meshes.begin(),unnecessary_meshes.end());
+
+        std::set<Vertex*> invalid_vertices;
+        for (Mesh* meshptr : unnecessary_meshes) {
+            Mesh& mesh = *meshptr;
+
+            log_stream(INFORMATION) << "Mesh \"" << mesh.name() << "\""
+                                    << " will be excluded from computation because it touches non-conductive domains on both sides."
+                                    << std::endl;
+
+            //  Add all of its vertices to invalid_vertices
+
+            for (const auto& vertex : mesh.vertices())
+                invalid_vertices.insert(vertex);
         }
 
-        //  Redefine outermost interface.
-        //  The inside of a 0-cond domain is considered as a new outermost
-        //  TODO: Can we merge this loop in the previous one ?
+        // Remove unnecessary meshes and their unneeded vertices.
 
-        for (auto& domain : domains())
-            if (almost_equal(domain.conductivity(),0.0))
-                for (auto& boundary : domain.boundaries())
-                    if (!boundary.is_outer_boundary())
-                        for (auto& oriented_mesh : boundary.interface().oriented_meshes())
-                            if (oriented_mesh.mesh().is_current_barrier() && !oriented_mesh.mesh().is_isolated())
-                                oriented_mesh.mesh().set_external_property(true);
+        Meshes& all_meshes = meshes();
+        for (unsigned i=0,j=0,k=0; i<all_meshes.size() && j<unnecessary_meshes.size(); ++i) {
+            if (&all_meshes[i]!=unnecessary_meshes[j]) {
+                std::cerr << "Mesh " << all_meshes[i].name() << " because it is unnecessary (separates domains with equal conductivities)." << std::endl;
+                j += 1;
+                continue;
+            }
+            if (k!=i)
+                all_meshes[k] = all_meshes[i];
+            k += 1;
+        }
+        all_meshes.resize(all_meshes.size()-unnecessary_meshes.size());
 
-        //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
+        //  Do not invalidate vertices of unnecessary meshes if they are shared by necessary meshes.
 
-        std::set<Vertex> shared_vertices;
-        for (const auto& vertex : invalid_vertices_)
+        std::set<Vertex*> shared_vertices;
+        for (const auto& vertex : invalid_vertices)
             for (const auto& mesh : meshes())
                 if (!mesh.is_isolated()) {
-                    const auto comp = [vertex](const Vertex* v) { return *v==vertex; };
+                    const auto comp = [vertex](const Vertex* v) { return v==vertex; };
                     const auto& vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
                     if (vfind!=mesh.vertices().end())
-                        shared_vertices.insert(**vfind); //a shared vertex is found
+                        shared_vertices.insert(*vfind); // An invalid vertex is found on a necessary mesh. We need to keep it.
                 }
 
         for (const auto& vertex : shared_vertices)
-            invalid_vertices_.erase(vertex);
+            invalid_vertices.erase(vertex);
+
+        //  Redefine external interface.
+        //  The inside of a 0-cond domain is considered as a new outermost
+        //  TODO: Can we merge this loop with the first loop of this function ?
+        //        We definitely need to know/remove unnecessary meshes to determine external meshes.
+
+        for (Domain& domain : domains())
+            if (almost_equal(domain.conductivity(),0.0))
+                for (Domain::Boundary& boundary : domain.boundaries())
+                    if (boundary.is_inner_boundary())
+                        for (OrientedMesh& oriented_mesh : boundary.interface().oriented_meshes())
+                            if (oriented_mesh.mesh().is_current_barrier() && !oriented_mesh.mesh().is_isolated())
+                                oriented_mesh.mesh().set_external_property(true);
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.
