@@ -13,8 +13,7 @@
 #include "sensors.h"
 #include "operators.h"
 #include "progressbar.h"
-
-#include <constants.h>
+#include "ConductivityCoefficients.h"
 
 namespace OpenMEEG {
 

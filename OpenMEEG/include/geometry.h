@@ -31,23 +31,6 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
     public:
 
-        struct MeshPair {
-
-            MeshPair(const Mesh& m1,const Mesh& m2,const int o): meshes{&m1,&m2},orientation(o) { }
-
-            const Mesh& operator()(const unsigned i) const { return *meshes[i]; }
-
-            int relative_orientation() const { return orientation; }
-
-        private:
-
-            const Mesh* meshes[2];
-            int         orientation;
-        };
-
-        typedef std::vector<MeshPair>                 MeshPairs;
-
-
         using MeshParts       = std::vector<MeshList>;
         using MeshDefinition  = std::pair<std::string,std::string>; // First and second strings are respectively the name and the path of the mesh.
         using MeshDefinitions = std::vector<MeshDefinition>;
@@ -131,7 +114,8 @@ namespace OpenMEEG {
               Meshes& meshes()       { return geom_meshes; }
         const Meshes& meshes() const { return geom_meshes; }
 
-        const MeshPairs& communicating_mesh_pairs() const { return meshpairs; }
+        const MeshList&  interacting_meshes() const { return non_isolated_meshes; }
+        const MeshPairs& adjacent_meshes()    const { return meshpairs;           }
 
         /// \brief returns the Mesh called \param name .
 
@@ -164,12 +148,6 @@ namespace OpenMEEG {
 
         const Interface& interface(const std::string& name) const; ///< \brief returns the Interface called \param name
 
-        //  TODO: Find better names for the next two methods.
-
-        double sigma    (const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<IDENTITY>(m1,m2);  } // return the (sum) conductivity(ies) of the shared domain(s).
-        double sigma_inv(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INVERSE>(m1,m2);   } // return the (sum) inverse of conductivity(ies) of the shared domain(s).
-        double indicator(const Mesh& m1,const Mesh& m2) const { return eval_on_common_domains<INDICATOR>(m1,m2); } // return the (sum) indicator function of the shared domain(s).
-
         /// \brief Return the conductivity jump across a mesh (i.e. between the 2 domains it separates).
 
         double conductivity_jump(const Mesh& m) const {
@@ -179,19 +157,6 @@ namespace OpenMEEG {
                 res += domainptr->conductivity()*domainptr->mesh_orientation(m);
             return res;
         }
-
-        /// \brief Give the relative orientation of two meshes:
-        /// \return  0, if they don't have any domains in common
-        ///          1, if they are both oriented toward the same domain
-        ///         -1, if they are not
-
-        int relative_orientation(const Mesh& m1,const Mesh& m2) const {
-            if (&m1==&m2) // Fast path for identical meshes.
-                return 1;
-            const DomainsRefs& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
-            return (doms.size()==0) ? 0 : ((doms[0]->mesh_orientation(m1)==doms[0]->mesh_orientation(m2)) ? 1 : -1);
-        }
-
 
         //  Calling this method read induces failures due do wrong conversions when read is passed with one or two arguments...
 
@@ -310,27 +275,13 @@ namespace OpenMEEG {
             return doms;
         }
 
-        //  Accumulate a function over the domain common to two meshes.
-
-        static double IDENTITY(const Domain& domain) { return domain.conductivity();     }
-        static double INVERSE(const Domain& domain)  { return 1.0/domain.conductivity(); }
-        static double INDICATOR(const Domain&)       { return 1.0;                       }
-
-        template <double Function(const Domain&)>
-        double eval_on_common_domains(const Mesh& m1,const Mesh& m2) const {
-            const DomainsRefs& doms = common_domains(m1,m2);
-            double result = 0.0;
-            for (const Domain* domainptr : doms)
-                result += Function(*domainptr);
-            return result;
-        }
-
         /// Handle multiple isolated domains.
 
-        std::set<Vertex> invalid_vertices;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t           nb_current_barrier_triangles = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        std::set<Vertex> invalid_vertices;                 ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
+        size_t           nb_current_barrier_triangles = 0; ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
 
-        MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.
-        MeshPairs meshpairs;
+        MeshParts independant_parts;   ///< \brief Mesh names that belong to different isolated groups.
+        MeshList  non_isolated_meshes; ///< \brief List of non isolated sub-meshes of the head.
+        MeshPairs meshpairs;           ///< \brief Pairs of different and non isolated meshes.
     };
 }

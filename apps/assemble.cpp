@@ -6,6 +6,7 @@
 // - replace this header by the LICENSE.txt content.
 
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -14,12 +15,15 @@
 #include <mesh.h>
 #include <integrator.h>
 #include <om_utils.h>
+#include <matop.h>
 #include <commandline.h>
 #include <assemble.h>
 #include <monopole.h>
 #include <dipole.h>
 #include <sensors.h>
 #include <geometry.h>
+
+namespace fs = std::filesystem;
 
 using namespace OpenMEEG;
 
@@ -209,19 +213,20 @@ int main(int argc,char** argv)
 
         assert_non_conflicting_options(argv[0],++num_options);
 
-        //  Computation of Cortical Matrix for BEM Symmetric formulation
+        // Computation of Cortical Matrix for BEM Symmetric formulation
+        // Decide between the two CM variants.
 
         double alpha = -1.0;
         double beta  = -1.0;
         double gamma = -1.0;
 
-        std::string filename;
+        std::string intermediate_result_filename;
 
         switch (cmd.num_args(opt_parms)) {
             case 6: { // case gamma or filename
                 std::stringstream ss(opt_parms[6]);
                 if (!(ss >> gamma))
-                    filename = opt_parms[6];
+                    intermediate_result_filename = opt_parms[6];
                 break;
             }
             case 7: { // case alpha+beta or gamma+filename
@@ -231,7 +236,7 @@ int main(int argc,char** argv)
                 ss.str(opt_parms[7]);
                 ss.clear();
                 if (!(ss >> beta)) {
-                    filename = opt_parms[7];
+                    intermediate_result_filename = opt_parms[7];
                     gamma = alpha;
                 }
                 break;
@@ -244,22 +249,79 @@ int main(int argc,char** argv)
                 ss.clear();
                 if (!(ss >> beta))
                     throw std::runtime_error("given parameter is not a number");
-                filename = opt_parms[8];
+                intermediate_result_filename = opt_parms[8];
                 break;
             }
         }
 
-        const Geometry geo(opt_parms[1],opt_parms[2],use_old_ordering);
+        const char* geom_file          = opt_parms[1];
+        const char* cond_file          = opt_parms[2];
+        const char* sensor_file        = opt_parms[3];
+        const char* source_domain_name = opt_parms[4];
+        const char* output_filename    = opt_parms[5];
+
+        const Geometry geo(geom_file,cond_file,use_old_ordering);
 
         if (!geo.selfCheck()) // Check for intersecting meshes
             exit(1);
 
-        const Sensors electrodes(opt_parms[3]);
+        const Sensors electrodes(sensor_file);
         const SparseMatrix& M = Head2EEGMat(geo,electrodes);
 
-        const Matrix& CM = (gamma>0.0) ? CorticalMat2(geo,M,opt_parms[4],gamma,filename) :
-                                         CorticalMat(geo,M,opt_parms[4],alpha,beta,filename);
-        CM.save(opt_parms[5]);
+        // Assumptions:
+        // - The domain containing the sources is an innermost domain (defined as the interior of
+        //   only one interface (called Cortex))
+        // - Cortex interface is composed of one mesh only (no shared vertices).
+
+        const Domain& SourceDomain = geo.domain(source_domain_name);
+        om_error(SourceDomain.boundaries().size()==1);
+        om_error(SourceDomain.boundaries().front().interface().oriented_meshes().size()==1);
+
+        const Mesh& Cortex = SourceDomain.boundaries().front().interface().oriented_meshes().front().mesh();
+
+        const bool filename_is_readable = !intermediate_result_filename.empty() && fs::is_regular_file(intermediate_result_filename);
+
+        // Compute matrix intermediate matrix (H or P depending on the options) and eventually save it,
+        // or load it from file if it exists. This is for computational efficiency.
+
+        if (gamma==-1.0) { // First variant that uses the first CorticalMat variant.
+            Matrix P;
+            if (filename_is_readable) {
+
+                log_stream(INFORMATION) << "Loading projector P (" << intermediate_result_filename << ")." << std::endl;
+                P.load(intermediate_result_filename);
+
+            } else {
+
+                const Matrix& mat = PartialHeadMat(geo,Cortex);
+
+                //  Construct P: the projector on the null-space of mat.
+                //  P is a projector: P^2 = P and mat*P*X = 0.
+
+                P = nullspace_projector(mat);
+                if (!intermediate_result_filename.empty()) {
+                    log_stream(INFORMATION) << "Saving projector P (" << intermediate_result_filename << ")." << std::endl;
+                    P.save(intermediate_result_filename);
+                }
+            }
+            const Matrix& CM = CorticalMat(geo,M,P,alpha,beta);
+            CM.save(output_filename);
+                
+        } else { // Second variant hat uses the second CorticalMat variant.
+            Matrix H;
+            if (filename_is_readable) {
+                log_stream(INFORMATION) << "Loading matrix H (" << intermediate_result_filename << ")." << std::endl;
+                H.load(intermediate_result_filename);
+            } else {
+                H = PartialHeadMat(geo,Cortex);
+                if (!intermediate_result_filename.empty()) {
+                    log_stream(INFORMATION) << "Saving matrix H (" << intermediate_result_filename << ")." << std::endl;
+                    H.save(intermediate_result_filename);
+                }
+            }
+            const Matrix& CM = CorticalMat(geo,M,H,gamma);
+            CM.save(output_filename);
+        }
     }
 
     const auto& SSMparms = { geomfileopt, condfileopt, sourcemeshfileopt, outputfileopt };

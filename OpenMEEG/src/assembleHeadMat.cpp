@@ -17,6 +17,7 @@
 #include <geometry.h>
 #include <operators.h>
 #include <assemble.h>
+#include <HeadMatrix.h>
 
 #include <constants.h>
 
@@ -24,142 +25,107 @@ namespace OpenMEEG {
 
     namespace Details {
 
-        template <typename T>
-        void deflate(T& M,const Geometry& geo) {
-            //  deflate all current barriers as one
-            ThreadException e;
-            for (const auto& part : geo.isolated_parts()) {
-                unsigned num_vertices = 0;
-                unsigned i_first = 0;
-                for (const auto& meshptr : part)
-                    if (meshptr->is_external()){
-                        num_vertices += meshptr->vertices().size();
-                        if (i_first==0)
-                            i_first = meshptr->vertices().front()->index();
-                    }
-                const double coef = M(i_first,i_first)/num_vertices;
-                for (const auto& meshptr : part)
-                    if (meshptr->is_external()) {
-                        const auto& vertices = meshptr->vertices();
-                        for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
-                            #pragma omp parallel for
-                            #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                            for (auto vit2=vit1; vit2<vertices.end(); ++vit2) {
-                            #else
-                            for (int i2=vit1-vertices.begin();i2<static_cast<int>(vertices.size());++i2) {
-                                const auto vit2 = vertices.begin()+i2;
-                            #endif
-                                e.run([&]() {
-                                    M((*vit1)->index(),(*vit2)->index()) += coef;
-                                });
-                            }
-                            e.rethrow();
-                        }
-                    }
-            }
-        }
-
         struct AllBlocks {
             AllBlocks() { }
-            bool operator()(const Mesh&,const Mesh&) const { return false; }
+            bool operator()(const Mesh&) const { return false; }
         };
 
         struct AllButBlock {
             AllButBlock(const Mesh& m): mesh(m) { }
-            bool operator()(const Mesh& mesh1,const Mesh& mesh2) const { return mesh1==mesh2 && mesh1==mesh; }
+            bool operator()(const Mesh& mesh1) const { return mesh1==mesh; }
             const Mesh& mesh;
         };
 
-        template <typename TYPE,typename Selector>
-        TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
+        template <typename Selector=AllBlocks()>
+        HeadMatrix make_head_matrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock=Selector()) {
 
             log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
-            TYPE symmatrix(geo.num_unknowns());
-            HeadMatrixBlocks<TYPE>::init(symmatrix);
 
-            // Iterate over pairs of communicating meshes (sharing a domains) to fill the
-            // lower half of the HeadMat (since it is symmetric).
+            HeadMatrix headmat(geo);
+            for (const Mesh* mp : geo.interacting_meshes()) {
+                const Mesh& mesh = *mp;
 
-            for (const auto& mp : geo.communicating_mesh_pairs()) {
-                const Mesh& mesh1 = mp(0);
-                const Mesh& mesh2 = mp(1);
-                log_stream(INFORMATION) << "Assembling " << mesh1.name() << " x " << mesh2.name();
-
-                if (disableBlock(mesh1,mesh2)) {
+                log_stream(INFORMATION) << "Assembling " << mesh.name() << " x " << mesh.name();
+                if (disableBlock(mesh)) {
                     log_stream(INFORMATION) << " (skipped)" << std::endl;
                     continue;
                 }
-                const double factor     =  mp.relative_orientation()*K;
-                const double SCondCoeff =  factor*geo.sigma_inv(mesh1,mesh2);
-                const double NCondCoeff =  factor*geo.sigma(mesh1,mesh2);
-                const double DCondCoeff = -factor*geo.indicator(mesh1,mesh2);
+                log_stream(INFORMATION) << " (self) setting blocks" << std::endl;
 
-                const double coeffs[3] = { SCondCoeff, NCondCoeff, DCondCoeff };
+                // TODO: For the scalp the S factor is infinite (one conductivity being 0).
+                // What happens in this case ?
 
-                if (&mesh1==&mesh2) {
-                    log_stream(INFORMATION) << " (self) setting blocks" << std::endl;
-                    HeadMatrixBlocks<DiagonalBlock> operators(DiagonalBlock(mesh1,integrator));
-                    operators.set_blocks(coeffs,symmatrix);
-                } else {
-                    log_stream(INFORMATION) << " setting blocks" << std::endl;
-                    HeadMatrixBlocks<NonDiagonalBlock> operators(NonDiagonalBlock(mesh1,mesh2,integrator));
-                    operators.set_blocks(coeffs,symmatrix);
-                }
+                headmat.add_block(mesh,geo.domains(mesh),integrator);
             }
 
+            // Iterate over pairs of adjacent meshes (sharing a domain) to fill the
+            // lower half of the HeadMat (since it is symmetric).
+
+            for (const auto& mp : geo.adjacent_meshes()) {
+                const Mesh& mesh1 = mp(0);
+                const Mesh& mesh2 = mp(1);
+
+                log_stream(INFORMATION) << "Assembling " << mesh1.name() << " x " << mesh2.name() << " setting blocks" << std::endl;
+
+                headmat.add_block(mp,integrator);
+            }
+
+            #if 0
             // Deflate all current barriers as one
             log_stream(INFORMATION) << "Deflating current barriers" << std::endl;
             deflate(symmatrix,geo);
             log_stream(INFORMATION) << "done" << std::endl;
-            return symmatrix;
+            #endif
+            return headmat;
         }
     }
 
-    #if 0
-    SymMatrix conductivity_coefficients(const Geometry& geo) {
-        SymMatrix cond_coeffs(10,10);
-        for (const auto& mp : geo.communicating_mesh_pairs()) {
-            const Mesh& mesh1 = mp(0);
-            const Mesh& mesh2 = mp(1);
-            const double factor = mp.relative_orientation()*K;
-            const double Scoeff =  factor*geo.sigma_inv(mesh1,mesh2);
-            const double Ncoeff =  factor*geo.sigma(mesh1,mesh2);
-            const double Dcoeff = -factor*geo.indicator(mesh1,mesh2);
-        }
-        return cond_coeffs;
+    HeadMatrix BlockHeadMat(const Geometry& geo,const Integrator& integrator) {
+        return Details::make_head_matrix(geo,integrator,Details::AllBlocks());
     }
-    #endif
 
     SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator) {
-        return Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllBlocks());
+
+        const HeadMatrix& block_matrix = BlockHeadMat(geo,integrator);
+        SymMatrix         head_mat     = block_matrix.make_head_matrix();
+
+        // Deflate all current barriers as one
+
+        log_stream(INFORMATION) << "Deflating current barriers" << std::endl;
+        HeadMatrix::deflate(geo,head_mat);
+        log_stream(INFORMATION) << "done" << std::endl;
+
+        return head_mat;
     }
 
-    Matrix HeadMatrix(const Geometry& geo,const Interface& Cortex,const Integrator& integrator,const unsigned extension=0) {
+    // Construct the head matrix while ignoring the unknown related to the domain cortex (usually the inner domain).
+
+    Matrix PartialHeadMat(const Geometry& geo,const Mesh& cortex,const Integrator& integrator) {
 
         log_stream(INFORMATION) << "Computing HeadMatrix." << std::endl;
-        const Mesh& cortex = Cortex.oriented_meshes().front().mesh();
         log_stream(INFORMATION) << "    Found cortex mesh " << cortex.name() << std::endl;
-        const SymMatrix& symmatrix = Details::HeadMatrix<SymMatrix>(geo,integrator,Details::AllButBlock(cortex));
+        const HeadMatrix& block_matrix = Details::make_head_matrix(geo,integrator,Details::AllButBlock(cortex));
+        const SymMatrix   head_matrix  = block_matrix.make_head_matrix();
 
-        // Copy symmatrix into the returned matrix except for the lines related to the cortex
+        // Copy head_matrix into the returned matrix except for the lines related to the cortex
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
-        log_stream(INFORMATION) << "    Copying symmatrix into the returned matrix";
-        const unsigned Nl = geo.num_unknowns()-Cortex.num_unknowns()+extension;
+        log_stream(INFORMATION) << "    Copying head matrix into the returned matrix";
+        const unsigned Nl = geo.num_unknowns()-cortex.num_unknowns();
         log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
-        Matrix matrix = Matrix(Nl,symmatrix.ncol());
+        Matrix matrix = Matrix(Nl,head_matrix.ncol());
         matrix = 0.0;
         unsigned iNl = 0;
         for (const auto& mesh : geo.meshes())
             if (mesh!=cortex) {
                 log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
-                    matrix.row(iNl++) = symmatrix.row(vertex->index());
+                    matrix.row(iNl++) = head_matrix.row(vertex->index());
                 if (!mesh.is_current_barrier()) {
                     log_stream(INFORMATION) << " : triangles";
                     for (const auto& triangle : mesh.triangles())
-                        matrix.row(iNl++) = symmatrix.row(triangle.index());
+                        matrix.row(iNl++) = head_matrix.row(triangle.index());
                 }
                 log_stream(INFORMATION) << " done." << std::endl;
             }
@@ -167,43 +133,13 @@ namespace OpenMEEG {
         return matrix;
     }
 
-    Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                       const double alpha,const double beta,const std::string& filename,const Integrator& integrator)
-    {
+    Matrix
+    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta,const Integrator& integrator) {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using
         // a boundary element method".
-        // Assumptions:
-        // - domain_name: the domain containing the sources is an innermost domain (defined as the interior of
-        //   only one interface (called Cortex))
-        // - Cortex interface is composed of one mesh only (no shared vertices).
+        // M is the head to EEG matrix, while P is a projector
 
-        const Domain& SourceDomain = geo.domain(domain_name);
-        const Interface& Cortex    = SourceDomain.boundaries().front().interface();
-
-        om_error(SourceDomain.boundaries().size()==1);
-        om_error(Cortex.oriented_meshes().size()==1);
-
-        // shape of the new matrix:
-
-        Matrix P;
-        std::fstream f(filename.c_str());
-        if (!f) {
-            const Matrix& mat = HeadMatrix(geo,Cortex,integrator);
-
-            //  Construct P: the null-space projector.
-            //  P is a projector: P^2 = P and mat*P*X = 0
-
-            P = nullspace_projector(mat);
-            if (filename.length()!=0) {
-                log_stream(INFORMATION) << "Saving projector P (" << filename << ")." << std::endl;
-                P.save(filename);
-            }
-        } else {
-            log_stream(INFORMATION) << "Loading projector P (" << filename << ")." << std::endl;
-            P.load(filename);
-        }
-
-        // ** Get the gradient of P1&P0 elements on the meshes **
+        // Get the gradient of P1&P0 elements on the meshes.
 
         const unsigned Nc = geo.num_unknowns();
         SymMatrix RR(Nc,Nc);
@@ -247,9 +183,9 @@ namespace OpenMEEG {
         return P*Z.pinverse()*rhs;
     }
 
-    Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name,
-                        const double gamma,const std::string& filename,const Integrator& integrator)
-    {
+    Matrix
+    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma,const Integrator& integrator) {
+
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
         // with a Lagrangian formulation as in see http://www.math.uh.edu/~rohop/fall_06/Chapter3.pdf eq3.3
@@ -269,36 +205,21 @@ namespace OpenMEEG {
         //   interface (called Cortex)
         // - Cortex interface is composed of one mesh only (no shared vertices)
 
-        const Domain& SourceDomain = geo.domain(domain_name);
-        const Interface& Cortex    = SourceDomain.boundaries().front().interface();
+        // Concat M to H in HM.
 
-        om_error(SourceDomain.boundaries().size()==1);
-        om_error(Cortex.oriented_meshes().size()==1);
-
-        // shape of the new matrix:
-
-        std::fstream f(filename.c_str());
-        Matrix H;
-        if (!f) {
-            H = HeadMatrix(geo,Cortex,integrator,M.nlin());
-            if (filename.length()!=0) {
-                log_stream(INFORMATION) << "Saving matrix H (" << filename << ")." << std::endl;
-                H.save(filename);
-            }
-        } else {
-            log_stream(INFORMATION) << "Loading matrix H (" << filename << ")." << std::endl;
-            H.load(filename);
-        }
-
-        // Why don't we save the full matrix H instead of only the upper block ??
-        // Concat M to H
-        // TODO TODO TODO: Integrate in HeadMatrix...
-
-        const unsigned Nl = H.nlin()-M.nlin();
+        const unsigned Nl = H.nlin();
         const unsigned Nc = H.ncol();
-        for (unsigned i=Nl;i<H.nlin();++i)
+        const unsigned Nt = Nl+M.nlin();
+
+        Matrix HM(Nt,Nc);
+        
+        for (unsigned i=0; i<Nl; ++i)
+            for (unsigned j=0; j<Nc; ++j)
+                HM(i,j) = H(i,j);
+
+        for (unsigned i=Nl;i<Nt;++i)
             for (unsigned j=0;j<Nc;++j)
-                H(i,j) = M(i-Nl,j);
+                HM(i,j) = M(i-Nl,j);
 
         // Get the gradient of P1&P0 elements on the meshes.
 
@@ -318,7 +239,7 @@ namespace OpenMEEG {
         log_stream(INFORMATION) << "gamma = " << gamma << std::endl;
 
         G.invert();
-        return (G*H.transpose()*(H*G*H.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
+        return (G*HM.transpose()*(HM*G*HM.transpose()).inverse()).submat(0,Nc,Nl,M.nlin());
     }
 
     Matrix Surf2VolMat(const Geometry& geo,const Matrix& points) {
@@ -350,11 +271,11 @@ namespace OpenMEEG {
             for (const auto& boundary : domainptr->boundaries())
                 for (const auto& omesh : boundary.interface().oriented_meshes()) {
                     const Mesh& mesh = omesh.mesh();
-                    const PartialBlock block(mesh);
+                    const PartialBlockWriter writer(mesh);
                     const double coeff = boundary.mesh_orientation(omesh)*K;
-                    block.addD(-coeff,pts,mat);
+                    writer.addD(-coeff,pts,mat);
                     if (!mesh.is_current_barrier())
-                        block.S(coeff/domainptr->conductivity(),pts,mat);
+                        writer.S(coeff/domainptr->conductivity(),pts,mat);
                 }
         }
 

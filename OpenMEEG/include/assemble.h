@@ -16,6 +16,7 @@
 #include <interface.h>
 #include <sensors.h>
 #include <integrator.h>
+#include <HeadMatrix.h>
 
 #include <sparse_matrix.h>
 
@@ -29,8 +30,10 @@ namespace OpenMEEG {
     // For ADAPT_LHS change the 0 in Integrator below into 10
     // It would be nice to define some constant integrators for the default values but swig does not like them.
 
-    OPENMEEG_EXPORT SymMatrix HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005));
-    OPENMEEG_EXPORT Matrix    Surf2VolMat(const Geometry& geo,const Matrix& points);
+    OPENMEEG_EXPORT HeadMatrix BlockHeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT SymMatrix  HeadMat(const Geometry& geo,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix     PartialHeadMat(const Geometry& geo,const Mesh& Cortex,const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix     Surf2VolMat(const Geometry& geo,const Matrix& points);
 
     OPENMEEG_EXPORT SparseMatrix Head2EEGMat(const Geometry& geo,const Sensors& electrodes);
     OPENMEEG_EXPORT SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i);
@@ -39,10 +42,9 @@ namespace OpenMEEG {
     OPENMEEG_EXPORT Matrix SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
     OPENMEEG_EXPORT Matrix DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
 
-    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name="CORTEX",
-                                       const double alpha=-1.0,const double beta=-1.0,const std::string &filename="",
+    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta,
                                        const Integrator& integrator=Integrator(3,0,0.005));
 
-    OPENMEEG_EXPORT Matrix CorticalMat2(const Geometry& geo,const SparseMatrix& M,const std::string& domain_name="CORTEX",
-                                        const double gamma=1.0,const std::string &filename="",const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma,
+                                       const Integrator& integrator=Integrator(3,0,0.005));
 }

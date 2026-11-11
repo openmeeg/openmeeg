@@ -301,6 +301,41 @@ namespace OpenMEEG {
         bool             external        = false; ///< An external mesh has zero conductivity on its outside and a non-zero conductivity on its inside.
     };
 
+    // Describes a pair of adjacent (i.e. sharing a domain) meshes.
+    // TODO: Rename MeshPair into AdjacentMeshes and MeshPairs into InteractingMeshes ?
+    // TODO: Put this in a separate file, and inline compute_orientation ?
+
+    class MeshPair {
+    public:
+
+        MeshPair(const Mesh& m1,const Mesh& m2,const DomainsRefs& d):
+            meshes{&m1,&m2},doms(d),orientation(compute_orientation())
+        { }
+
+        const Mesh& operator()(const unsigned i) const { return *meshes[i]; }
+
+        int relative_orientation() const { return orientation; }
+        
+        const DomainsRefs& common_domains() const { return doms; }
+
+        // This is needed because MeshPair will be used to index a map.
+
+        bool operator<(const MeshPair& mp1) const {
+            if (meshes[0]==mp1.meshes[0])
+                return meshes[1]<mp1.meshes[1];
+            return meshes[0]<mp1.meshes[0];
+        }
+
+    private:
+
+        int compute_orientation() const; // Cannot be inlined because Domains definition is not known here.
+
+        const Mesh*       meshes[2];
+        const DomainsRefs doms;
+        const int         orientation;
+    };
+
+    using MeshPairs = std::vector<MeshPair>;
     using Meshes    = std::vector<Mesh>;
     using MeshList  = std::vector<const Mesh*>;
     using MeshRefs  = std::vector<Mesh*>;

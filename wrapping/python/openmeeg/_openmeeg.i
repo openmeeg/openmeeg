@@ -66,7 +66,6 @@
     #include <matrix.h>
     #include <symmatrix.h>
     #include <sparse_matrix.h>
-    #include <block_matrix.h>
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
     #include <geometry.h>
@@ -136,6 +135,7 @@ namespace std {
     %template(vector_int) vector<int>;
     %template(vector_unsigned) vector<unsigned>;
     %template(vector_double) vector<double>;
+    %template(vector_range) std::vector<OpenMEEG::maths::Range>;
     %template(vector_vertex) vector<OpenMEEG::Vertex>;
     %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
@@ -509,9 +509,9 @@ namespace OpenMEEG {
 
 // OpenMEEG
 
-%ignore OpenMEEG::Filetype;
+%ignore OpenMEEG::Details;
 
-%ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
+%ignore OpenMEEG::MeshPair;
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 %rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
 %rename(_Domain_Boundary) OpenMEEG::ImplementationDetails::SimpleDomain; // Wrap SimpleDomain as _Domain_Boundary (which will be later mapped to Domain.Boundary).
@@ -767,7 +767,6 @@ namespace OpenMEEG {
 // swig>=4.5 wraps `using base::base` ctors including the base copy ctor, which C++ does not inherit.
 %ignore OpenMEEG::maths::Ranges::Ranges;
 %include <range.h>
-%template(vector_range) std::vector<OpenMEEG::maths::Range>;
 %include <ranges.h>
 %include <linop.h>
 %include <vector.h>
@@ -782,6 +781,7 @@ namespace OpenMEEG {
 %include <integrator.h>
 %include <interface.h>
 %include <domain.h>
+%include <HeadMatrix.h>
 %include <assemble.h>
 %include <assembleSourceMat.h>
 %include <gain.h>

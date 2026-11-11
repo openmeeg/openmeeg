@@ -427,20 +427,24 @@ namespace OpenMEEG {
     //  Create the vector of pairs of communicating meshes.
 
     void Geometry::make_mesh_pairs() {
-        for (const auto& mesh1 : meshes())
-            if (!mesh1.is_isolated())
-                for (const auto& mesh2 : meshes()) {
-                    const int orientation = relative_orientation(mesh1,mesh2);
-                    if ((!mesh2.is_isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
-                        // Communicating meshes are used for the definition of a common domain
-                        meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
-                    }
+        for (const Mesh& mesh1 : meshes())
+            if (!mesh1.is_isolated()) {
+                non_isolated_meshes.push_back(&mesh1);
+                for (const Mesh& mesh2 : meshes()) {
 
-                    //  Lopp only over oriented pairs of meshes.
+                    //  Loop only over oriented pairs of different meshes.
 
                     if (&mesh2==&mesh1)
                         break;
+
+                    if (mesh2.is_isolated())
+                        continue;
+
+                    const DomainsRefs& domains = common_domains(mesh1,mesh2);
+                    if (domains.size()!=0)
+                        meshpairs.push_back(MeshPair(mesh1,mesh2,domains));
                 }
+            }
     }
 
     // Mark all meshes which touch domains with 0 conductivity
