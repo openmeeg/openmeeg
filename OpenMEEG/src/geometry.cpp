@@ -263,9 +263,11 @@ namespace OpenMEEG {
 
     void Geometry::generate_indices(const bool OLD_ORDERING) {
 
+        if (OLD_ORDERING)
+            om_error(is_nested()); // Our definition of nested is too strict (it rather means concentric). We could relax this.
+
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2, ...) (this is the OLD_ORDERING)
-        // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
-        // or by the user himself encoded into the vtp file.
+        // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT) or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
 
         unsigned index = 0;
@@ -273,28 +275,35 @@ namespace OpenMEEG {
             for (auto& vertex : vertices())
                 vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
 
-        for (auto& mesh : meshes()) {
+        // We first index non current barrier triangles.
+        // This allows for contiguous indices even when the current barrier triangles are not needed.
+
+        nb_current_barrier_triangles = 0;
+        for (Mesh& mesh : meshes()) {
             if (OLD_ORDERING) {
-                om_error(is_nested()); // OR non nested but without shared vertices
                 for (const auto& vertex : mesh.vertices())
                     vertex->index() = index++;
             }
-            if (!mesh.is_isolated() && !mesh.is_current_barrier())
-                for (auto& triangle : mesh.triangles())
+
+            if (!mesh.is_current_barrier())
+                for (Triangle& triangle : mesh.triangles())
                     triangle.index() = index++;
         }
 
-        // even the last surface triangles (yes for EIT... )
+        // Index current barrier triangles that do not belong to isolated meshes.
+        // Isolated meshes are unnecessary, we could remove them.
+        // Here, we just do not index their triangles.
+        // Their vertices are not indexed either through invalid_vertices.
+        // TODO: Remove isolated meshes completely.
 
-        nb_current_barrier_triangles = 0;
-        for (auto& mesh : meshes())
+        for (Mesh& mesh : meshes())
             if (mesh.is_current_barrier()) {
                 if (!mesh.is_isolated()) {
                     nb_current_barrier_triangles += mesh.triangles().size();
-                    for (auto& triangle : mesh.triangles())
+                    for (Triangle& triangle : mesh.triangles())
                         triangle.index() = index++;
                 } else {
-                    for (auto& triangle : mesh.triangles())
+                    for (Triangle& triangle : mesh.triangles())
                         triangle.index() = unsigned(-1);
                 }
             }
