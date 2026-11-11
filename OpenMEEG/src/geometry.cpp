@@ -79,14 +79,14 @@ namespace OpenMEEG {
 
     Mesh& Geometry::mesh(const std::string& id) {
 
-        for (auto& mesh: meshes())
+        for (Mesh& mesh: meshes())
             if (mesh.name()==id)
                 return mesh;
 
         // Should never happen
 
         std::ostringstream oss;
-        for (auto& mesh: meshes())
+        for (Mesh& mesh: meshes())
             oss << mesh.name() << ' ';
         log_stream(WARNING) << "Geometry::mesh: Error mesh id/name not found: " << id << " from candidates: " + oss.str();
         throw OpenMEEG::BadInterface(id);
@@ -225,13 +225,13 @@ namespace OpenMEEG {
         // Second really load the meshes
 
         meshes().reserve(mesh_descriptions.size());
-        for (const auto& desc : mesh_descriptions) {
+        for (const MeshDescription& desc : mesh_descriptions) {
             Mesh& mesh = add_mesh(desc.name);
             desc.io->load_triangles(mesh);
             mesh.update();
         }
 
-        for (auto& desc : mesh_descriptions)
+        for (MeshDescription& desc : mesh_descriptions)
             delete desc.io;
     }
 
@@ -378,7 +378,7 @@ namespace OpenMEEG {
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
         nested = true;
-        for (const auto& domain : domains()) {
+        for (const Domain& domain : domains()) {
             unsigned out_interface = 0;
             if (!is_external(domain))
                 for (const auto& boundary : domain.boundaries())
@@ -394,7 +394,7 @@ namespace OpenMEEG {
 
         for (const auto& mesh : meshes()) {
             unsigned m_oriented = 0;
-            for (const auto& domain : domains())
+            for (const Domain& domain : domains())
                 for (const auto& boundary : domain.boundaries())
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
@@ -491,7 +491,7 @@ namespace OpenMEEG {
         // Figure out the connectivity of meshes
 
         std::set<const Mesh*> mesh_candidates;
-        for (const auto& mesh : meshes())
+        for (const Mesh& mesh : meshes())
             mesh_candidates.insert(&mesh);
 
         while (!mesh_candidates.empty()) {

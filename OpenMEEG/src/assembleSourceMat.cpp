@@ -23,11 +23,12 @@ namespace OpenMEEG {
         if (!geo.check(source_mesh))
             throw OverlappingSourceMesh();
 
-        // The mesh is included in a domain of the geometry.
+        // By the previous test, source_mesh is included in a domain of the geometry.
+        // Find this domain.
 
         const Domain& domain = geo.domain(*source_mesh.vertices().front());
 
-        // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
+        // Set it as an outermost (to tell operatorN it doesn't belong to the geometry).
 
         source_mesh.set_external_property(true);
         source_mesh.set_current_barrier_property(true);
@@ -48,7 +49,7 @@ namespace OpenMEEG {
 
                 NonDiagonalBlock operators(mesh,source_mesh,integrator);
 
-                // First block is nVertexFistLayer*source_mesh.vertices().size()
+                // First block is nVertexFirstLayer x source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
                 operators.set_N_block(coeffN,mat);
                 // Second block is nFacesFistLayer*source_mesh.vertices().size()

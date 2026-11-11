@@ -75,14 +75,15 @@ namespace OpenMEEG {
         /// The conductivity of the domain.
 
         void set_conductivity(const double c) { cond = c;    }
-        bool has_conductivity() const { return cond != -1.0;    }
         const double& conductivity() const    { return cond; }
 
+        bool has_conductivity() const { return cond!=-1.0; }
+
         /// Print information about the domain.
-        /// \param outermost specifies if the domain is the outer domain
+        /// \param external specifies if the domain is the outer domain
         /// (the geometry knows this information).
 
-        void info(const bool outermost=false) const;
+        void info(const bool external=false) const;
 
         bool contains(const Mesh& m) const { return mesh_orientation(m)!=0; }
 

@@ -149,6 +149,7 @@ namespace std {
     // IndexMap returned by Geometry::add_vertices() was heap-allocated and never freed
     // (~48 bytes per vertex, per call). Every wrapped type needs one, which is why
     // SWIG_PYTHON_SILENT_MEMLEAK is no longer defined -- it hid exactly this.
+
     %template(IndexMap) map<unsigned,unsigned>;
 }
 

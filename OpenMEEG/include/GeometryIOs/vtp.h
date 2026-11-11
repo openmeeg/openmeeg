@@ -218,7 +218,7 @@ namespace OpenMEEG::GeometryIOs {
 
                 for (const auto& mesh : geometry.meshes())
                     for (const auto& triangle: mesh.triangles())
-                        currents[j]->InsertNextValue(((mesh.outermost() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
+                        currents[j]->InsertNextValue(((mesh.is_external() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
             }
 
             for (unsigned j=0; j<data.ncol(); ++j) {

@@ -201,7 +201,7 @@ namespace OpenMEEG {
 
         // P0 gradients: loop on triangles
 
-        if (!is_external()) // if it is an outermost mesh: p=0 thus no need for computing it
+        if (!is_external()) // An external mesh touches the air and has no outward currents (p=0). // TODO: Isn't this true of all current_barriers ?
             for (const auto& triangle1 : triangles()) {
                 A(triangle1.index(),triangle1.index()) = 0.0;
                 for (const auto& triangle2 : adjacent_triangles(triangle1))

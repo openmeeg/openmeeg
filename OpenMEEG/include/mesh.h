@@ -266,7 +266,7 @@ namespace OpenMEEG {
         VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
         Triangles        mesh_triangles;     ///< Vector of triangles.
 
-        /// Multiple 0 conductivity domains
+        /// Properties.
 
         bool             current_barrier = false; ///<
         bool             isolated        = false; ///<
