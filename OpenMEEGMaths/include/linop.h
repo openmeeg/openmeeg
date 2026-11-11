@@ -83,8 +83,10 @@ namespace OpenMEEG {
 
     typedef enum { DEEP_COPY } DeepCopy;
 
-    struct OPENMEEGMATHS_EXPORT LinOpValue: public std::shared_ptr<double[]> {
-        typedef std::shared_ptr<double[]> base;
+    class OPENMEEGMATHS_EXPORT LinOpValue: public std::shared_ptr<double[]> {
+        using base = std::shared_ptr<double[]>;
+
+    public:
 
         LinOpValue(): base(0) { }
         LinOpValue(const size_t n): base(new double[n]) { }
@@ -93,6 +95,6 @@ namespace OpenMEEG {
 
         ~LinOpValue() { }
 
-        bool empty() const { return static_cast<bool>(*this); }
+        bool empty() const { return !static_cast<bool>(*this); }
     };
 }
