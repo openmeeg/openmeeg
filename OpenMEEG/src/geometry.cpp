@@ -7,6 +7,7 @@
 
 #include <set>
 #include <vector>
+#include <sstream>
 #include <queue>
 
 #include <geometry.h>
@@ -360,15 +361,22 @@ namespace OpenMEEG {
         };
 
         const Interface& interface = innermost_interface();
-        unsigned n_outside = 0;
+        std::vector<unsigned> outside_points;
         for (unsigned i=0; i<mat.nlin(); ++i)
             if (!interface.contains(Vect3(mat(i,0),mat(i,1),mat(i,2))))
-                ++n_outside;
-        if (n_outside!=0) {
-            log_stream(WARNING) << n_outside << " points are outside of the inner compartment." << std::endl;
-            return false;
-        }
-        return true;
+                outside_points.push_back(i);
+
+        if (outside_points.size()==0)
+            return true;
+
+        std::stringstream oss;
+        oss << outside_points[0];
+        for (unsigned i=1; i<outside_points.size(); ++i)
+            oss << "," << outside_points[i];
+
+        const std::string header((outside_points.size()==1) ? "Point " : "Points ");
+        log_stream(WARNING) << header << oss.str() << " are outside of the inner compartment." << std::endl;
+        return false;
     }
 
     /// Determine whether the geometry is nested or not.
