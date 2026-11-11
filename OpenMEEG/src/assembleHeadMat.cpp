@@ -74,7 +74,7 @@ namespace OpenMEEG {
         TYPE HeadMatrix(const Geometry& geo,const Integrator& integrator,const Selector& disableBlock) {
 
             log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
-            TYPE symmatrix(geo.num_parameters()-geo.num_current_barrier_triangles());
+            TYPE symmatrix(geo.num_unknowns());
             HeadMatrixBlocks<TYPE>::init(symmatrix);
 
             // Iterate over pairs of communicating meshes (sharing a domains) to fill the
@@ -145,7 +145,7 @@ namespace OpenMEEG {
         // (vertices [i_vb_c, i_ve_c] and triangles [i_tb_c, i_te_c]).
 
         log_stream(INFORMATION) << "    Copying symmatrix into the returned matrix";
-        const unsigned Nl = geo.num_parameters()-geo.num_current_barrier_triangles()-Cortex.num_vertices()-Cortex.num_triangles()+extension;
+        const unsigned Nl = geo.num_unknowns()-Cortex.num_unknowns()+extension;
         log_stream(INFORMATION) << " with " << Nl << " lines" << std::endl;
 
         Matrix matrix = Matrix(Nl,symmatrix.ncol());
@@ -205,7 +205,7 @@ namespace OpenMEEG {
 
         // ** Get the gradient of P1&P0 elements on the meshes **
 
-        const unsigned Nc = geo.num_parameters()-geo.num_current_barrier_triangles();
+        const unsigned Nc = geo.num_unknowns();
         SymMatrix RR(Nc,Nc);
         RR = 0.0;
         for (const auto& mesh : geo.meshes())
@@ -343,7 +343,7 @@ namespace OpenMEEG {
 
         const unsigned size = index; // total number of inside points
 
-        Matrix mat(size,geo.num_parameters()-geo.num_current_barrier_triangles());
+        Matrix mat(size,geo.num_unknowns());
         mat = 0.0;
 
         for (const auto& [domainptr,pts] : m_points) {

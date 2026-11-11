@@ -37,7 +37,7 @@ namespace OpenMEEG {
                                 << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
                                 << std::endl;
 
-        Matrix mat(geo.num_parameters()-geo.num_current_barrier_triangles(),source_mesh.vertices().size());
+        Matrix mat(geo.num_unknowns(),source_mesh.vertices().size());
         mat = 0.0;
 
         const double L  = -1.0/domain.conductivity();
@@ -90,7 +90,7 @@ namespace OpenMEEG {
         }
 
         const size_t n_sensors = electrodes.getNumberOfSensors();
-        Matrix mat(geo.num_parameters()-geo.num_current_barrier_triangles(),n_sensors);
+        Matrix mat(geo.num_unknowns(),n_sensors);
         mat = 0.0;
 
         for (size_t ielec=0; ielec<n_sensors; ++ielec)

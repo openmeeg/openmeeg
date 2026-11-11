@@ -80,7 +80,7 @@ def test_python(subject, data_path, load_from_numpy, tmp_path):
 
     gain_eeg_dip = om.GainEEG(hminv, dsm, h2em)
     gain_adjoint_eeg_dip = om.GainEEGadjoint(geom, dipoles, hm, h2em)
-    n_hm_unknowns = geom.num_parameters() - geom.num_current_barrier_triangles()
+    n_hm_unknowns = geom.num_unknowns()
 
     assert hm.nlin() == hm.ncol() == n_hm_unknowns
     assert hminv.nlin() == hminv.ncol() == n_hm_unknowns

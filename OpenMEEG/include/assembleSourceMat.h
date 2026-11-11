@@ -27,10 +27,10 @@ namespace OpenMEEG {
     Matrix
     SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name) {
 
-        const size_t size      = geo.num_parameters()-geo.num_current_barrier_triangles();
+        const size_t n_unknowns = geo.num_unknowns();
         const size_t n_sources = sources.nlin();
 
-        Matrix rhs(size,n_sources);
+        Matrix rhs(n_unknowns,n_sources);
         rhs = 0.0;
 
         ProgressBar pb(n_sources);
@@ -48,11 +48,11 @@ namespace OpenMEEG {
                         //  Process the mesh.
                         const double coeffD = factorD*oriented_mesh.orientation();
                         const Mesh&  mesh   = oriented_mesh.mesh();
-                        rhs.column(s) += coeffD*operatorPotentialDerivative(size,source,mesh,integrator);
+                        rhs.column(s) += coeffD*operatorPotentialDerivative(n_unknowns,source,mesh,integrator);
 
                         if (!oriented_mesh.mesh().current_barrier()) {
                             const double coeff = coeffD/cond;;
-                            rhs.column(s) += coeff*operatorPotential(size,source,mesh,integrator);
+                            rhs.column(s) += coeff*operatorPotential(n_unknowns,source,mesh,integrator);
                         }
                     }
                 }

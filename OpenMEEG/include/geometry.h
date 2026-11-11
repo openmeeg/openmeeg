@@ -157,8 +157,6 @@ namespace OpenMEEG {
             return result;
         }
 
-        size_t num_parameters() const { return num_params; } ///< \brief the total number of vertices + triangles
-
         /// Returns the outermost domain.
         // It is unclear whether outermost_domain and set_outermost_domain need to be in the public interface.
 
@@ -250,12 +248,14 @@ namespace OpenMEEG {
 
         /// Handle multiple isolated domains
 
-        size_t  num_current_barrier_triangles() const { return num_current_barrier_triangles_; }
-        size_t& num_current_barrier_triangles()       { return num_current_barrier_triangles_; }
-        size_t  num_invalid_vertices()                { return invalid_vertices_.size();      }
+        size_t  num_current_barrier_triangles() const { return nb_current_barrier_triangles; }
+        size_t& num_current_barrier_triangles()       { return nb_current_barrier_triangles; }
+
+        size_t num_parameters() const { return nb_params;                                        } ///< \brief the total number of vertices + triangles
+        size_t num_unknowns()   const { return num_parameters()-num_current_barrier_triangles(); } ///< \brief the total number of unknowns
 
         const MeshParts& isolated_parts() const { return independant_parts; }
-              void       mark_current_barriers();
+        void mark_current_barriers();
         const Mesh&      mesh(const std::string& id) const; //  Is this useful ?? TODO.
 
     private:
@@ -266,7 +266,7 @@ namespace OpenMEEG {
             geom_domains.clear();
             nested = false;
             outer_domain = 0;
-            num_params = 0;
+            nb_params = 0;
         }
 
         void read_geometry_file(const std::string& filename);
@@ -280,9 +280,9 @@ namespace OpenMEEG {
         Meshes        geom_meshes;
         Domains       geom_domains;
 
-        const Domain* outer_domain   = 0;
-        bool          nested         = false;
-        size_t        num_params     = 0;   // total number = nb of vertices + nb of triangles
+        const Domain* outer_domain = 0;
+        bool          nested       = false;
+        size_t        nb_params    = 0;   // total number = nb of vertices + nb of triangles
 
         void generate_indices(const bool);
 
@@ -312,7 +312,7 @@ namespace OpenMEEG {
         /// Handle multiple isolated domains.
 
         std::set<Vertex> invalid_vertices_;  ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t           num_current_barrier_triangles_ = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        size_t           nb_current_barrier_triangles = 0;  ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
 
         MeshParts independant_parts;  ///< \brief Mesh names that belong to different isolated groups.
         MeshPairs meshpairs;

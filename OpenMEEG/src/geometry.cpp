@@ -282,11 +282,11 @@ namespace OpenMEEG {
 
         // even the last surface triangles (yes for EIT... )
 
-        num_current_barrier_triangles_ = 0;
+        nb_current_barrier_triangles = 0;
         for (auto& mesh : meshes())
             if (mesh.current_barrier()) {
                 if (!mesh.isolated()) {
-                    num_current_barrier_triangles_ += mesh.triangles().size();
+                    nb_current_barrier_triangles += mesh.triangles().size();
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
                 } else {
@@ -295,7 +295,7 @@ namespace OpenMEEG {
                 }
             }
 
-        num_params = index;
+        nb_params = index;
     }
 
     bool Geometry::selfCheck() const {
