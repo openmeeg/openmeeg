@@ -141,9 +141,9 @@ namespace std {
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
     %template(vector_string) vector<std::string>;
     %template(vector_interface) vector<OpenMEEG::Interface>;
-    %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
-    %template(vector_domain) vector<OpenMEEG::Domain>;
     %template(vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
+    %template(vector_boundary) vector<OpenMEEG::ImplementationDetails::SimpleDomain>; // Cannot use: OpenMEEG::Domain::Boundary.
+    %template(vector_domain) vector<OpenMEEG::Domain>;
 
     // OpenMEEG::IndexMap. Without this swig has no destructor for the type, so every
     // IndexMap returned by Geometry::add_vertices() was heap-allocated and never freed
@@ -163,7 +163,7 @@ namespace OpenMEEG {
     using Triangles      = std::vector<OpenMEEG::Triangle>;
     using Domains        = std::vector<OpenMEEG::Domain>;
     using Strings        = std::vector<std::string>;
-    using Boundaries     = std::vector<SimpleDomain>;
+    using Boundaries     = std::vector<Domain::Boundary>;
     using OrientedMeshes = std::vector<OrientedMesh>;
 }
 
@@ -514,6 +514,7 @@ namespace OpenMEEG {
 %ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 %rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
+%rename(_Domain_Boundary) OpenMEEG::ImplementationDetails::SimpleDomain; // Wrap SimpleDomain as _Domain_Boundary (which will be later mapped to Domain.Boundary).
 
 %extend OpenMEEG::Geometry {
 
@@ -785,6 +786,12 @@ namespace OpenMEEG {
 %include <assembleSourceMat.h>
 %include <gain.h>
 %include <forward.h>
+
+%pythoncode %{
+    # Allows to do: instance = om.Domain.Boundary()
+    Domain.Boundary = _Domain_Boundary
+    del _Domain_Boundary
+%}
 
 #ifdef _MSC_VER
 #pragma warning( pop )

@@ -26,9 +26,9 @@ namespace OpenMEEG {
         // This domain should be unique. Otherwise the decomposition of the geometry
         // into domains is wrong. We assume here that it is correct.
 
-        for (auto& domain : domains()) {
+        for (Domain& domain : domains()) {
             bool outer = true;
-            for (auto& boundary : domain.boundaries())
+            for (Domain::Boundary& boundary : domain.boundaries())
                 if (boundary.is_outer_boundary()) {
                     outer = false;
                     break;
@@ -52,7 +52,7 @@ namespace OpenMEEG {
         for (const auto& domain : domains()) {
             bool inner = true;
             for (const auto& boundary : domain.boundaries())
-                if (!boundary.is_outer_boundary()) {
+                if (boundary.is_inner_boundary()) {
                     inner = false;
                     break;
                 }

@@ -284,10 +284,10 @@ namespace OpenMEEG::GeometryIOs {
                               << " to the new 1.1 format (see data/README.rst)." << std::endl;
                     break;
                 }
-                const SimpleDomain::Side side = (extract_sign(token)) ? SimpleDomain::Outside : SimpleDomain::Inside;
+                const Domain::Boundary::Side side = (extract_sign(token)) ? Domain::Boundary::Outside : Domain::Boundary::Inside;
                 try {
                     Interface& interface = interfaces_map.at(token);
-                    domain.boundaries().push_back(SimpleDomain(interface,side));
+                    domain.boundaries().push_back(Domain::Boundary(interface,side));
                 } catch(...) {
                     throw OpenMEEG::NonExistingDomain<std::string>(domain.name(),token);
                 }
