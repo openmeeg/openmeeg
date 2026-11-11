@@ -28,7 +28,7 @@ namespace OpenMEEG {
     SourceMatrix(const Geometry& geo,const Matrix& sources,const Integrator& integrator,const std::string& domain_name) {
 
         const size_t n_unknowns = geo.num_unknowns();
-        const size_t n_sources = sources.nlin();
+        const size_t n_sources  = sources.nlin();
 
         Matrix rhs(n_unknowns,n_sources);
         rhs = 0.0;
