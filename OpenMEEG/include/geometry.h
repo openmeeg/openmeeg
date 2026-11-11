@@ -47,9 +47,8 @@ namespace OpenMEEG {
 
         typedef std::vector<MeshPair>                 MeshPairs;
 
-        typedef std::vector<const Domain*>            DomainsReference;
-        typedef std::vector<std::vector<const Mesh*>> MeshParts;
 
+        using MeshParts       = std::vector<MeshList>;
         using MeshDefinition  = std::pair<std::string,std::string>; // First and second strings are respectively the name and the path of the mesh.
         using MeshDefinitions = std::vector<MeshDefinition>;
 
@@ -150,8 +149,8 @@ namespace OpenMEEG {
 
         /// \brief  Return the list of domains containing a mesh.
 
-        DomainsReference domains(const Mesh& m) const {
-            DomainsReference result;
+        DomainsRefs domains(const Mesh& m) const {
+            DomainsRefs result;
             for (const auto& domain : domains())
                 if (domain.contains(m))
                     result.push_back(&domain);
@@ -174,7 +173,7 @@ namespace OpenMEEG {
         /// \brief Return the conductivity jump across a mesh (i.e. between the 2 domains it separates).
 
         double conductivity_jump(const Mesh& m) const {
-            const DomainsReference& doms = domains(m);
+            const DomainsRefs& doms = domains(m);
             double res = 0.0;
             for (const auto& domainptr : doms)
                 res += domainptr->conductivity()*domainptr->mesh_orientation(m);
@@ -189,7 +188,7 @@ namespace OpenMEEG {
         int relative_orientation(const Mesh& m1,const Mesh& m2) const {
             if (&m1==&m2) // Fast path for identical meshes.
                 return 1;
-            const DomainsReference& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
+            const DomainsRefs& doms = common_domains(m1,m2); // 2 meshes have either 0, 1 or 2 domains in common
             return (doms.size()==0) ? 0 : ((doms[0]->mesh_orientation(m1)==doms[0]->mesh_orientation(m2)) ? 1 : -1);
         }
 
@@ -295,10 +294,15 @@ namespace OpenMEEG {
 
         void generate_indices(const bool);
 
-        DomainsReference common_domains(const Mesh& m1,const Mesh& m2) const {
-            const DomainsReference& doms1 = domains(m1);
-            const DomainsReference& doms2 = domains(m2);
-            DomainsReference doms;
+        // Two meshes can have 0, 1 or 2 domains in common.
+        // - 0: they are not interacting.
+        // - 1: they are on two different boundaries of the domain.
+        // - 2: they are on the same boundary of the domain.
+
+        DomainsRefs common_domains(const Mesh& m1,const Mesh& m2) const {
+            const DomainsRefs& doms1 = domains(m1);
+            const DomainsRefs& doms2 = domains(m2);
+            DomainsRefs doms;
             std::set_intersection(doms1.begin(),doms1.end(),doms2.begin(),doms2.end(),std::back_inserter(doms));
             return doms;
         }
@@ -311,9 +315,9 @@ namespace OpenMEEG {
 
         template <double Function(const Domain&)>
         double eval_on_common_domains(const Mesh& m1,const Mesh& m2) const {
-            const DomainsReference& doms = common_domains(m1,m2);
+            const DomainsRefs& doms = common_domains(m1,m2);
             double result = 0.0;
-            for (const auto& domainptr : doms)
+            for (const Domain* domainptr : doms)
                 result += Function(*domainptr);
             return result;
         }

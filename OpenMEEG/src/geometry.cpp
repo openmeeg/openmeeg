@@ -507,8 +507,8 @@ namespace OpenMEEG {
             const Mesh* candidate = *mesh_candidates.begin();
             mesh_candidates.erase(candidate);
 
-            std::vector<const Mesh*> connected_meshes{candidate};
-            std::queue<const Mesh*>  pending;
+            MeshList interacting_meshes{candidate}; // Set of meshes connected by chains of non-zero conductivity domains.
+            std::queue<const Mesh*> pending;
             pending.push(candidate);
 
             while (!pending.empty()) {
@@ -520,7 +520,7 @@ namespace OpenMEEG {
                     if (common_domains(*current,**it).empty()) {
                         ++it;
                     } else {
-                        connected_meshes.push_back(*it);
+                        interacting_meshes.push_back(*it);
                         pending.push(*it);
                         it = mesh_candidates.erase(it);
                     }
@@ -529,8 +529,8 @@ namespace OpenMEEG {
             // Each connected conductor needs one deflation (potential defined up to a constant).
             // A lone isolated mesh has no unknowns.
 
-            if (connected_meshes.size()>1 || !connected_meshes.front()->is_isolated())
-                independant_parts.push_back(std::move(connected_meshes));
+            if (interacting_meshes.size()>1 || !interacting_meshes.front()->is_isolated())
+                independant_parts.push_back(std::move(interacting_meshes));
         }
 
         //  Report isolated geometries
@@ -541,9 +541,9 @@ namespace OpenMEEG {
                                     << std::endl;
 
             unsigned p =0;
-            for (const auto& part : independant_parts) {
+            for (const MeshList& part : independant_parts) {
                 log_stream(INFORMATION) << "Part " << ++p << " is formed by meshes: { ";
-                for (const auto& meshptr : part)
+                for (const Mesh* meshptr : part)
                     log_stream(INFORMATION) << "\"" << meshptr->name() << "\" ";
                 log_stream(INFORMATION) << "}." << std::endl;
             }

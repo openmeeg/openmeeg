@@ -23,9 +23,15 @@
 
 namespace OpenMEEG {
 
+    class Domain;
     class Geometry;
     using maths::Range;
     using maths::Ranges;
+
+    // Ideally, this should be defined in domain.h, but this would create a circular dependency,
+    // so declare it here instead.
+
+    using DomainsRefs = std::vector<const Domain*>;
 
     //  Mesh class
     //  \brief Mesh is a collection of triangles associated to a geometry containing the points
@@ -273,5 +279,7 @@ namespace OpenMEEG {
         bool             external        = false; ///< An external mesh has zero conductivity on its outside and a non-zero conductivity on its inside.
     };
 
-    typedef std::vector<Mesh> Meshes;
+    using Meshes    = std::vector<Mesh>;
+    using MeshList  = std::vector<const Mesh*>;
+    using MeshRefs  = std::vector<Mesh*>;
 }
