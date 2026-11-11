@@ -29,8 +29,8 @@ namespace OpenMEEG {
 
         // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
 
-        source_mesh.outermost()       = true;
-        source_mesh.current_barrier() = true;
+        source_mesh.set_external_property(true);
+        source_mesh.set_current_barrier_property(true);
 
         log_stream(INFORMATION) << std::endl
                                 << "assemble SurfSourceMat with " << source_mesh.vertices().size()
@@ -76,7 +76,7 @@ namespace OpenMEEG {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
 
-            if (mesh1.current_barrier()) {
+            if (mesh1.is_current_barrier()) {
                 const NonDiagonalBlock operators(mesh1,mesh2,integrator);
                 const int orientation = geo.relative_orientation(mesh1,mesh2);
                 operators.D(K*orientation,transmat); // D23 or D33 of the formula.

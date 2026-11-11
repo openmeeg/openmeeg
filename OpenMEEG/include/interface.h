@@ -66,8 +66,8 @@ namespace OpenMEEG {
               OrientedMeshes& oriented_meshes()       { return orientedmeshes; }
         const OrientedMeshes& oriented_meshes() const { return orientedmeshes; }
 
-        bool outermost() const { return outermost_interface; } ///< \return true if it is the outermost interface.
-        void set_to_outermost(); ///< set all interface meshes to outermost state.
+        bool external() const { return external_interface; } ///< \return true if it is the external interface.
+        void set_to_external(); ///< set all interface meshes to external state.
 
         bool contains(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
 
@@ -108,8 +108,8 @@ namespace OpenMEEG {
 
         double solid_angle(const Vect3& p) const; ///< Given a point p, compute the solid angle of the interface w.r.t. p. \return +/- 4 PI or 0.
 
-        std::string    interface_name      = "";    ///< interface name is "" by default
-        bool           outermost_interface = false; ///< whether or not the interface touches the Air (outermost) domain.
+        std::string    interface_name     = "";    ///< interface name is "" by default
+        bool           external_interface = false; ///< whether or not the interface touches the Air (external) domain.
         OrientedMeshes orientedmeshes;
     };
 

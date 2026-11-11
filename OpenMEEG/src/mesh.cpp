@@ -46,8 +46,8 @@ namespace OpenMEEG {
         }
         std::cout << "\t\tMin Area : " << min_area << std::endl;
         std::cout << "\t\tMax Area : " << max_area << std::endl;
-        if (current_barrier())
-            std::cout << "\t\tCurrent barrier : " << current_barrier() << std::endl;
+        if (is_current_barrier())
+            std::cout << "\t\tCurrent barrier" << std::endl;
         if (verbose) {
             std::cout << "Indices :" << std::endl;
             for (const auto& vertex : vertices())
@@ -83,7 +83,9 @@ namespace OpenMEEG {
         triangles().clear();
         mesh_name.clear();
         vertex_triangles.clear();
-        outermost_ = false;
+        set_current_barrier_property(false);
+        set_isolated_property(false);
+        set_external_property(false);
     }
 
     /// Update triangles area/normal, update vertex triangles and vertices normals if needed
@@ -195,7 +197,7 @@ namespace OpenMEEG {
 
         // P0 gradients: loop on triangles
 
-        if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
+        if (!is_external()) // if it is an outermost mesh: p=0 thus no need for computing it
             for (const auto& triangle1 : triangles()) {
                 A(triangle1.index(),triangle1.index()) = 0.0;
                 for (const auto& triangle2 : adjacent_triangles(triangle1))

@@ -32,14 +32,14 @@ namespace OpenMEEG {
                 unsigned num_vertices = 0;
                 unsigned i_first = 0;
                 for (const auto& meshptr : part)
-                    if (meshptr->outermost()){
+                    if (meshptr->is_external()){
                         num_vertices += meshptr->vertices().size();
                         if (i_first==0)
                             i_first = meshptr->vertices().front()->index();
                     }
                 const double coef = M(i_first,i_first)/num_vertices;
                 for (const auto& meshptr : part)
-                    if (meshptr->outermost()) {
+                    if (meshptr->is_external()) {
                         const auto& vertices = meshptr->vertices();
                         for (auto vit1=vertices.begin(); vit1!=vertices.end(); ++vit1) {
                             #pragma omp parallel for
@@ -156,7 +156,7 @@ namespace OpenMEEG {
                 log_stream(INFORMATION) << "Processing mesh " << mesh.name() << " : vertices";
                 for (const auto& vertex : mesh.vertices())
                     matrix.row(iNl++) = symmatrix.row(vertex->index());
-                if (!mesh.current_barrier()) {
+                if (!mesh.is_current_barrier()) {
                     log_stream(INFORMATION) << " : triangles";
                     for (const auto& triangle : mesh.triangles())
                         matrix.row(iNl++) = symmatrix.row(triangle.index());
@@ -231,7 +231,7 @@ namespace OpenMEEG {
             alphas(vertex.index(),vertex.index()) = alpha1;
 
         for (const auto& mesh : geo.meshes())
-            if (!mesh.current_barrier() )
+            if (!mesh.is_current_barrier() )
                 for (const auto& triangle : mesh.triangles())
                     alphas(triangle.index(),triangle.index()) = beta1;
 
@@ -310,7 +310,7 @@ namespace OpenMEEG {
         // Multiply by gamma the submat of current gradient norm2
 
         for (const auto& mesh : geo.meshes())
-            if (!mesh.current_barrier())
+            if (!mesh.is_current_barrier())
                 for (const auto& triangle1 : mesh.triangles())
                     for (const auto& triangle2 : mesh.triangles())
                         G(triangle1.index(),triangle2.index()) *= gamma;
@@ -353,7 +353,7 @@ namespace OpenMEEG {
                     const PartialBlock block(mesh);
                     const double coeff = boundary.mesh_orientation(omesh)*K;
                     block.addD(-coeff,pts,mat);
-                    if (!mesh.current_barrier())
+                    if (!mesh.is_current_barrier())
                         block.S(coeff/domainptr->conductivity(),pts,mat);
                 }
         }

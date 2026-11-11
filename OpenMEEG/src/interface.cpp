@@ -44,10 +44,10 @@ namespace OpenMEEG {
         return solangle;
     }
 
-    void Interface::set_to_outermost() {
+    void Interface::set_to_external() {
         for (auto& omesh : oriented_meshes())
-            omesh.mesh().outermost() = true;
-        outermost_interface = true;
+            omesh.mesh().set_external_property(true);
+        external_interface = true;
     }
 
     /// Check the global orientation: that the triangles are correctly oriented (outward-pointing normal)

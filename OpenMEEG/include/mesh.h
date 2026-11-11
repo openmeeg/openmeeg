@@ -91,11 +91,6 @@ namespace OpenMEEG {
 
         TriangleIndices triangle(const Triangle& t) const;
 
-        bool  current_barrier() const { return current_barrier_; }
-        bool& current_barrier()       { return current_barrier_; }
-        bool  isolated()        const { return isolated_;        }
-        bool& isolated()              { return isolated_;        }
-
         /// \brief Add a triangle specified by its indices in the geometry.
 
         Triangle& add_triangle(const TriangleIndices inds);
@@ -184,8 +179,15 @@ namespace OpenMEEG {
         Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
         void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
 
-        bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
-        bool  outermost() const { return outermost_; }
+        /// \brief Mesh properties.
+
+        void set_external_property(const bool b)        { external        = b; }
+        void set_current_barrier_property(const bool b) { current_barrier = b; }
+        void set_isolated_property(const bool b)        { isolated        = b; }
+
+        bool is_external()        const { return external;        }
+        bool is_current_barrier() const { return current_barrier; }
+        bool is_isolated()        const { return isolated;        }
 
         /// \brief Smooth Mesh
         /// \param smoothing_intensity
@@ -263,12 +265,12 @@ namespace OpenMEEG {
         Geometry*        geom;               ///< Pointer to the geometry containing the mesh.
         VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
         Triangles        mesh_triangles;     ///< Vector of triangles.
-        bool             outermost_ = false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
 
         /// Multiple 0 conductivity domains
 
-        bool             current_barrier_ = false;
-        bool             isolated_        = false;
+        bool             current_barrier = false; ///<
+        bool             isolated        = false; ///<
+        bool             external        = false; ///< An external mesh has zero conductivity on its outside and a non-zero conductivity on its inside.
     };
 
     typedef std::vector<Mesh> Meshes;

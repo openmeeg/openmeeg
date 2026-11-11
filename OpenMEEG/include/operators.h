@@ -227,7 +227,7 @@ namespace OpenMEEG {
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
-            if (!mesh.current_barrier()) {
+            if (!mesh.is_current_barrier()) {
                 S(coeff,matrix);
                 Scoeff = coeff;
             }
@@ -238,7 +238,7 @@ namespace OpenMEEG {
 
         template <typename T>
         void set_D_block(const double coeff,T& matrix) const {
-            if (!mesh.current_barrier())
+            if (!mesh.is_current_barrier())
                 D(coeff,matrix);
         }
 
@@ -411,7 +411,7 @@ namespace OpenMEEG {
 
         template <typename T>
         void set_S_block(const double coeff,T& matrix) {
-            if (!mesh1.current_barrier() && !mesh2.current_barrier()) {
+            if (!mesh1.is_current_barrier() && !mesh2.is_current_barrier()) {
                 S(coeff,matrix);
                 Scoeff = coeff;
             }
@@ -422,13 +422,13 @@ namespace OpenMEEG {
 
         template <typename T>
         void set_D_block(const double coeff,T& matrix) const {
-            if (!mesh1.current_barrier())
+            if (!mesh1.is_current_barrier())
                 D(coeff,matrix);
         }
 
         template <typename T>
         void set_Dstar_block(const double coeff,T& matrix) const {
-            if (mesh1!=mesh2 && !mesh2.current_barrier())
+            if (mesh1!=mesh2 && !mesh2.is_current_barrier())
                 Dstar(coeff,matrix);
         }
 

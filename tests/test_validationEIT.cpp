@@ -58,7 +58,7 @@ main(const int argc,const char* argv[]) {
     Geometry geo(argv[1],argv[2]);
 
     const unsigned totalsize  = geo.num_parameters();
-    const unsigned sourcesize = geo.outermost_interface().num_triangles();
+    const unsigned sourcesize = geo.external_interface().num_triangles();
     const unsigned newsize    = totalsize-sourcesize;
 
     const Matrix    dipoles(argv[3]);
@@ -97,7 +97,7 @@ main(const int argc,const char* argv[]) {
     for (unsigned ielec=0; ielec<nelec; ++ielec) {
         for (unsigned k=0; k<3; ++k)
             current_position(k) = electrodes_positions(ielec,k);
-        const auto& res = dist_point_interface(current_position,geo.outermost_interface(),current_alphas);
+        const auto& res = dist_point_interface(current_position,geo.external_interface(),current_alphas);
         const Triangle& current_nearest_triangle = std::get<1>(res); // Closest triangle to electrode
         for (unsigned k=0; k<3; ++k)
             matH2E(ielec,current_nearest_triangle.vertex(k).index()) = current_alphas(k);

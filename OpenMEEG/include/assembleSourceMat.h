@@ -50,7 +50,7 @@ namespace OpenMEEG {
                         const Mesh&  mesh   = oriented_mesh.mesh();
                         rhs.column(s) += coeffD*operatorPotentialDerivative(n_unknowns,source,mesh,integrator);
 
-                        if (!oriented_mesh.mesh().current_barrier()) {
+                        if (!oriented_mesh.mesh().is_current_barrier()) {
                             const double coeff = coeffD/cond;;
                             rhs.column(s) += coeff*operatorPotential(n_unknowns,source,mesh,integrator);
                         }

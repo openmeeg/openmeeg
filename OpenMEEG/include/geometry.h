@@ -157,20 +157,20 @@ namespace OpenMEEG {
             return result;
         }
 
-        /// Returns the outermost domain.
-        // It is unclear whether outermost_domain and set_outermost_domain need to be in the public interface.
+        /// Returns the external domain.
+        // It is unclear whether external_domain and set_external_domain need to be in the public interface.
 
-        Domain& outermost_domain();
+        Domain& external_domain();
 
-        void set_outermost_domain(Domain& domain) {
+        void set_external_domain(Domain& domain) {
             outer_domain = &domain;
             for (auto& boundary : domain.boundaries())
-                boundary.interface().set_to_outermost();
+                boundary.interface().set_to_external();
         }
 
-        bool    is_outermost(const Domain& domain) const { return outer_domain==&domain; }
+        bool is_external(const Domain& domain) const { return outer_domain==&domain; }
 
-        const Interface& outermost_interface() const; ///< \brief returns the outermost interface (only valid for nested geometries).
+        const Interface& external_interface()  const; ///< \brief returns the external interface (only valid for nested geometries).
         const Interface& innermost_interface() const; ///< \brief returns the innermost interface (only valid for nested geometries).
 
         const Interface& interface(const std::string& name) const; ///< \brief returns the Interface called \param name
@@ -226,15 +226,15 @@ namespace OpenMEEG {
         void finalize(const bool OLD_ORDERING=false) {
             // TODO: We should check the correct decomposition of the geometry into domains here.
             // In a correct decomposition, each interface is used exactly once ?? Unsure...
-            // Search for the outermost domain and set boolean OUTERMOST on the domain in the vector domains.
-            // An outermost domain is defined as the only domain which has no inside. It is supposed to be
+            // Search for the external domain and set boolean OUTERMOST on the domain in the vector domains.
+            // An external domain is defined as the only domain which has no inside. It is supposed to be
             // unique.
 
             if (has_conductivities())
                 mark_current_barriers(); // mark meshes that touch the domains of null conductivity.
 
             if (domains().size()!=0) {
-                set_outermost_domain(outermost_domain());
+                set_external_domain(external_domain());
                 check_geometry_is_nested();
             }
 

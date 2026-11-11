@@ -20,8 +20,8 @@ namespace OpenMEEG {
     /// Search for the outermost domain.
 
     Domain&
-    Geometry::outermost_domain() {
-        // The outermost domain is defined as the domain which has no inside.
+    Geometry::external_domain() {
+        // The external domain is defined as the domain which has no inside.
         // This domain should be unique. Otherwise the decomposition of the geometry
         // into domains is wrong. We assume here that it is correct.
 
@@ -66,9 +66,9 @@ namespace OpenMEEG {
     }
 
     const Interface&
-    Geometry::outermost_interface() const {
-        for (const auto& domain : domains())
-            if (is_outermost(domain))
+    Geometry::external_interface() const {
+        for (const Domain& domain : domains())
+            if (is_external(domain))
                 return domain.boundaries().front().interface();
 
         // Should never append
@@ -120,7 +120,7 @@ namespace OpenMEEG {
             mesh.info();
 
         for (const auto& domain : domains())
-            domain.info(is_outermost(domain));
+            domain.info(is_external(domain));
 
         if (verbose) {
             for (const auto& vertex : vertices())
@@ -275,7 +275,7 @@ namespace OpenMEEG {
                 for (const auto& vertex : mesh.vertices())
                     vertex->index() = index++;
             }
-            if (!mesh.isolated() && !mesh.current_barrier())
+            if (!mesh.is_isolated() && !mesh.is_current_barrier())
                 for (auto& triangle : mesh.triangles())
                     triangle.index() = index++;
         }
@@ -284,8 +284,8 @@ namespace OpenMEEG {
 
         nb_current_barrier_triangles = 0;
         for (auto& mesh : meshes())
-            if (mesh.current_barrier()) {
-                if (!mesh.isolated()) {
+            if (mesh.is_current_barrier()) {
+                if (!mesh.is_isolated()) {
                     nb_current_barrier_triangles += mesh.triangles().size();
                     for (auto& triangle : mesh.triangles())
                         triangle.index() = index++;
@@ -377,7 +377,7 @@ namespace OpenMEEG {
         nested = true;
         for (const auto& domain : domains()) {
             unsigned out_interface = 0;
-            if (!is_outermost(domain))
+            if (!is_external(domain))
                 for (const auto& boundary : domain.boundaries())
                     if (boundary.is_outer_boundary())
                         out_interface++;
@@ -408,10 +408,10 @@ namespace OpenMEEG {
 
     void Geometry::make_mesh_pairs() {
         for (const auto& mesh1 : meshes())
-            if (!mesh1.isolated())
+            if (!mesh1.is_isolated())
                 for (const auto& mesh2 : meshes()) {
                     const int orientation = relative_orientation(mesh1,mesh2);
-                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
+                    if ((!mesh2.is_isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
                         // Communicating meshes are used for the definition of a common domain
                         meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
                     }
@@ -436,11 +436,11 @@ namespace OpenMEEG {
             if (almost_equal(domain.conductivity(),0.0)) {
                 for (auto& boundary : domain.boundaries()) {
                     for (auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        const bool fully_immersed = (oriented_mesh.mesh().current_barrier()==true);
-                        oriented_mesh.mesh().current_barrier() = true;
+                        const bool fully_immersed = (oriented_mesh.mesh().is_current_barrier()==true);
+                        oriented_mesh.mesh().set_current_barrier_property(true);
                         if (fully_immersed) {
-                            oriented_mesh.mesh().isolated()  = true;
-                            oriented_mesh.mesh().outermost() = false;
+                            oriented_mesh.mesh().set_isolated_property(true);
+                            oriented_mesh.mesh().set_external_property(false);
                             log_stream(INFORMATION) << "Mesh \"" << oriented_mesh.mesh().name() << "\""
                                                     << " will be excluded from computation because it touches non-conductive domains on both sides."
                                                     << std::endl;
@@ -464,15 +464,15 @@ namespace OpenMEEG {
                 for (auto& boundary : domain.boundaries())
                     if (!boundary.is_outer_boundary())
                         for (auto& oriented_mesh : boundary.interface().oriented_meshes())
-                            if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
-                                oriented_mesh.mesh().outermost() = true;
+                            if (oriented_mesh.mesh().is_current_barrier() && !oriented_mesh.mesh().is_isolated())
+                                oriented_mesh.mesh().set_external_property(true);
 
         //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
 
         std::set<Vertex> shared_vertices;
         for (const auto& vertex : invalid_vertices_)
             for (const auto& mesh : meshes())
-                if (!mesh.isolated()) {
+                if (!mesh.is_isolated()) {
                     const auto comp = [vertex](const Vertex* v) { return *v==vertex; };
                     const auto& vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
                     if (vfind!=mesh.vertices().end())
@@ -518,7 +518,7 @@ namespace OpenMEEG {
             // Each connected conductor needs one deflation (potential defined up to a constant).
             // A lone isolated mesh has no unknowns.
 
-            if (connected_meshes.size()>1 || !connected_meshes.front()->isolated())
+            if (connected_meshes.size()>1 || !connected_meshes.front()->is_isolated())
                 independant_parts.push_back(std::move(connected_meshes));
         }
 
