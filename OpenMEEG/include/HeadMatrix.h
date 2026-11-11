@@ -15,7 +15,7 @@
 #include <block.h>
 #include <range.h>
 #include <mesh.h>
-#include <Conductivities.h>
+#include <ConductivityCoefficients.h>
 #include <operators.h>
 
 namespace OpenMEEG {
@@ -136,19 +136,19 @@ namespace OpenMEEG {
                 const auto vmap = [&](const size_t i) { return mapping.vertex_mesh_to_head_matrix(i);   };
                 const auto tmap = [&](const size_t i) { return mapping.triangle_mesh_to_head_matrix(i); };
 
-                const Conductivities conds(domains);
+                const ConductivityCoefficients cond_coeffs(domains);
 
                 BlockWriter<const SymMatrix> N(N_block,vmap,vmap);
-                N.add_block_contribution(conds.N(),head_matrix);
+                N.add_block_contribution(cond_coeffs.N(),head_matrix);
 
                 if (!S_block.empty()) {
                     BlockWriter<const SymMatrix> S(S_block,tmap,tmap);
-                    S.add_block_contribution(conds.S(),head_matrix);
+                    S.add_block_contribution(cond_coeffs.S(),head_matrix);
                 }
 
                 if (!D_block.empty()) {
                     BlockWriter<const Matrix> D(D_block,tmap,vmap);
-                    D.add_block_contribution(conds.D(),head_matrix);
+                    D.add_block_contribution(cond_coeffs.D(),head_matrix);
                 }
             }
 
@@ -216,24 +216,24 @@ namespace OpenMEEG {
                 const auto tmap1 = [&](const size_t i) { return mapping1.triangle_mesh_to_head_matrix(i); };
                 const auto tmap2 = [&](const size_t i) { return mapping2.triangle_mesh_to_head_matrix(i); };
 
-                const Conductivities conds(mesh_pair);
+                const ConductivityCoefficients cond_coeffs(mesh_pair);
 
                 BlockWriter<const Matrix> N(N_block,vmap1,vmap2);
-                N.add_block_contribution(conds.N(),head_matrix);
+                N.add_block_contribution(cond_coeffs.N(),head_matrix);
 
                 if (!S_block.empty()) {
                     BlockWriter<const Matrix> S(S_block,tmap1,tmap2);
-                    S.add_block_contribution(conds.S(),head_matrix);
+                    S.add_block_contribution(cond_coeffs.S(),head_matrix);
                 }
 
                 if (!D_block.empty()) {
                     BlockWriter<const Matrix> D(D_block,tmap1,vmap2);
-                    D.add_block_contribution(conds.D(),head_matrix);
+                    D.add_block_contribution(cond_coeffs.D(),head_matrix);
                 }
 
                 if (!D_star_block.empty()) {
                     BlockWriter<const Matrix> D_star(D_star_block,vmap1,tmap2);
-                    D_star.add_block_contribution(conds.D(),head_matrix);
+                    D_star.add_block_contribution(cond_coeffs.D(),head_matrix);
                 }
             }
 
@@ -272,7 +272,7 @@ namespace OpenMEEG {
                 set_blocks(block_writer,block);
             } else {
                 DiagonalBlockWriter block(mesh,integrator);
-                set_blocks(Conductivities(doms),block);
+                set_blocks(ConductivityCoefficients(doms),block);
             }
         }
 
@@ -292,10 +292,10 @@ namespace OpenMEEG {
                 set_blocks(block_writer,block);
                 set_Dstar_block(block_writer,block);
             } else {
-                const Conductivities conds(mp);
+                const ConductivityCoefficients cond_coeffs(mp);
                 NonDiagonalBlockWriter block(mesh1,mesh2,integrator);
-                set_blocks(conds,block);
-                set_Dstar_block(conds.D(),block);
+                set_blocks(cond_coeffs,block);
+                set_Dstar_block(cond_coeffs.D(),block);
             }
         }
 
@@ -383,10 +383,10 @@ namespace OpenMEEG {
         }
 
         template <typename BlockWriter>
-        void set_blocks(const Conductivities& conds,BlockWriter& writer) {
-            writer.set_S_block(conds.S(),headmat);
-            writer.set_N_block(conds.N(),headmat);
-            writer.set_D_block(conds.D(),headmat);
+        void set_blocks(const ConductivityCoefficients& cond_coeffs,BlockWriter& writer) {
+            writer.set_S_block(cond_coeffs.S(),headmat);
+            writer.set_N_block(cond_coeffs.N(),headmat);
+            writer.set_D_block(cond_coeffs.D(),headmat);
         }
 
         void set_Dstar_block(const double coeff,NonDiagonalBlockWriter& writer) {

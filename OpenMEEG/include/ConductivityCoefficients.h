@@ -13,9 +13,9 @@
 
 namespace OpenMEEG {
 
-    class Conductivities {
+    class ConductivityCoefficients {
 
-        Conductivities(const DomainsRefs& domains,const int orientation) {
+        ConductivityCoefficients(const DomainsRefs& domains,const int orientation) {
             const double factor = orientation*K;
             Ncond =  factor*eval_on_common_domains<IDENTITY>(domains); // Sum of the conductivity(ies) of the shared domain(s).
             Scond =  factor*eval_on_common_domains<INVERSE>(domains);  // Sum of the inverse of conductivity(ies) of the shared domain(s).
@@ -24,8 +24,8 @@ namespace OpenMEEG {
 
     public:
 
-        Conductivities(const DomainsRefs& doms): Conductivities(doms,1)                                        { } // Single mesh constructor
-        Conductivities(const MeshPair& mp):      Conductivities(mp.common_domains(),mp.relative_orientation()) { } // Adjacent meshes constructor.
+        ConductivityCoefficients(const DomainsRefs& doms): ConductivityCoefficients(doms,1)                                        { } // Single mesh constructor
+        ConductivityCoefficients(const MeshPair& mp):      ConductivityCoefficients(mp.common_domains(),mp.relative_orientation()) { } // Adjacent meshes constructor.
 
         double N() const { return Ncond; }
         double S() const { return Scond; }
