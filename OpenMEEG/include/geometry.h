@@ -57,6 +57,11 @@ namespace OpenMEEG {
         Geometry(const char* geomFileName,const char* condFileName,const bool OLD_ORDERING=false):
             Geometry(std::string(geomFileName),std::string(condFileName),OLD_ORDERING) { }
 
+        // MSVC complains because it synthetizes an assignement operator, but MeshPairs cannot have an assignment operator
+        // because of its const members. On the other hand, we do not need this assignment operator, so suppress it.
+
+        Geometry& operator=(const Geometry&) = delete;
+
         void info(const bool verbose=false) const; ///< \brief Print information on the geometry
         bool has_conductivities()           const {
             for (const auto& domain : domains())
