@@ -77,8 +77,8 @@ namespace OpenMEEG {
         LinOp() { }
         LinOp(const Dimension m,const Dimension n,const StorageType st,const unsigned d): base(m,n,st,d) { }
 
-        virtual size_t size() const = 0;
-        virtual void   info() const = 0;
+        virtual unsigned size() const = 0;
+        virtual void     info() const = 0;
     };
 
     typedef enum { DEEP_COPY } DeepCopy;

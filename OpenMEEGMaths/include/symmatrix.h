@@ -42,7 +42,7 @@ namespace OpenMEEG {
 
         explicit SymMatrix(const Matrix& A);
 
-        size_t size() const { return nlin()*(nlin()+1)/2; };
+        unsigned size() const { return nlin()*(nlin()+1)/2; };
         void info() const ;
 
         // SymMatrix has the same number of lines and colmns.
