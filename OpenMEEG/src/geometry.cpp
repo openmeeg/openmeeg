@@ -273,7 +273,7 @@ namespace OpenMEEG {
         unsigned index = 0;
         if (!OLD_ORDERING)
             for (Vertex& vertex : vertices())
-                vertex.index() = (invalid_vertices.count(vertex)==0) ? index++ : unsigned(-1);
+                vertex.index() = (unused_vertices.count(&vertex)==0) ? index++ : unsigned(-1);
 
         // We first index non current barrier triangles.
         // This allows for contiguous indices even when the current barrier triangles are not needed.
@@ -293,7 +293,7 @@ namespace OpenMEEG {
         // Index current barrier triangles that do not belong to isolated meshes.
         // Isolated meshes are unnecessary, we could remove them.
         // Here, we just do not index their triangles.
-        // Their vertices are not indexed either through invalid_vertices.
+        // Their vertices are not indexed either through unused_vertices.
         // TODO: Remove isolated meshes completely.
 
         for (Mesh& mesh : meshes())
@@ -464,7 +464,6 @@ namespace OpenMEEG {
             }
         std::sort(unnecessary_meshes.begin(),unnecessary_meshes.end());
 
-        std::set<Vertex*> invalid_vertices;
         for (Mesh* meshptr : unnecessary_meshes) {
             Mesh& mesh = *meshptr;
 
@@ -472,10 +471,10 @@ namespace OpenMEEG {
                                     << " will be excluded from computation because it touches non-conductive domains on both sides."
                                     << std::endl;
 
-            //  Add all of its vertices to invalid_vertices
+            //  Add all of its vertices to unused_vertices
 
-            for (const auto& vertex : mesh.vertices())
-                invalid_vertices.insert(vertex);
+            for (Vertex* vertex : mesh.vertices())
+                unused_vertices.insert(vertex);
         }
 
         // Remove unnecessary meshes and their unneeded vertices.
@@ -496,7 +495,7 @@ namespace OpenMEEG {
         //  Do not invalidate vertices of unnecessary meshes if they are shared by necessary meshes.
 
         std::set<Vertex*> shared_vertices;
-        for (const auto& vertex : invalid_vertices)
+        for (const Vertex* vertex : unused_vertices)
             for (const auto& mesh : meshes())
                 if (!mesh.is_isolated()) {
                     const auto comp = [vertex](const Vertex* v) { return v==vertex; };
@@ -505,8 +504,8 @@ namespace OpenMEEG {
                         shared_vertices.insert(*vfind); // An invalid vertex is found on a necessary mesh. We need to keep it.
                 }
 
-        for (const auto& vertex : shared_vertices)
-            invalid_vertices.erase(vertex);
+        for (Vertex* vertex : shared_vertices)
+            unused_vertices.erase(vertex);
 
         //  Redefine external interface.
         //  The inside of a 0-cond domain is considered as a new outermost

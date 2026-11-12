@@ -282,8 +282,8 @@ namespace OpenMEEG {
 
         /// Handle multiple isolated domains.
 
-        std::set<Vertex> invalid_vertices;                 ///< \brief  does not equal to the vertices of invalid meshes because there are shared vertices
-        size_t           nb_current_barrier_triangles = 0; ///< \brief number of triangles with 0 normal current. Including triangles of invalid meshes.
+        std::set<Vertex*> unused_vertices;                  ///< \brief Vertices used only in unnecessary meshes.
+        size_t            nb_current_barrier_triangles = 0; ///< \brief Number of triangles with 0 normal current. Including triangles of unused meshes.
 
         MeshParts independant_parts;   ///< \brief Meshes that belong to different isolated groups.
         MeshList  non_isolated_meshes; ///< \brief List of non isolated sub-meshes of the head.
