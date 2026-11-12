@@ -259,9 +259,9 @@ namespace OpenMEEG {
             for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1) {
                 const Triangle& triangle1 = *tit1;
             #else
-            for (int i1=0; i1<triangles.size(); ++i1,++pb) {
-                const Triangle& triangle1 = triangles[i1];
-                const Triangles::const_iterator tit1 = triangles.cbegin()+i1;
+            for (int i=0; i<triangles.size(); ++i) {
+                const Triangle& triangle1 = triangles[i];
+                const Triangles::const_iterator tit1 = triangles.cbegin()+i;
             #endif
                 e.run([&]() {
                     const OperatorS S(triangle1);
