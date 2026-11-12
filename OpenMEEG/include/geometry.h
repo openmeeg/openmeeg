@@ -19,6 +19,8 @@
 #include <domain.h>
 #include <matrix.h>
 
+#include <AdjacentMeshes.h>
+
 #include <OMExceptions.H>
 
 namespace OpenMEEG {
@@ -31,7 +33,7 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Geometry {
     public:
 
-        using MeshParts       = std::vector<MeshList>;
+        using MeshParts       = std::vector<ConstMeshRefs>;
         using MeshDefinition  = std::pair<std::string,std::string>; // First and second strings are respectively the name and the path of the mesh.
         using MeshDefinitions = std::vector<MeshDefinition>;
 
@@ -119,10 +121,10 @@ namespace OpenMEEG {
               Meshes& meshes()       { return geom_meshes; }
         const Meshes& meshes() const { return geom_meshes; }
 
-        const MeshList&  interacting_meshes() const { return non_isolated_meshes; }
-        const MeshPairs& adjacent_meshes()    const { return meshpairs;           }
+        const ConstMeshRefs&     active_meshes()      const { return non_isolated_meshes; }
+        const InteractingMeshes& interacting_meshes() const { return meshpairs;           }
 
-        /// \brief returns the Mesh called \param name .
+        /// \brief returns the Mesh called \param name.
 
         Mesh& mesh(const std::string& name);
 
@@ -285,8 +287,8 @@ namespace OpenMEEG {
         std::set<Vertex*> unused_vertices;                  ///< \brief Vertices used only in unnecessary meshes.
         size_t            nb_current_barrier_triangles = 0; ///< \brief Number of triangles with 0 normal current. Including triangles of unused meshes.
 
-        MeshParts independant_parts;   ///< \brief Meshes that belong to different isolated groups.
-        MeshList  non_isolated_meshes; ///< \brief List of non isolated sub-meshes of the head.
-        MeshPairs meshpairs;           ///< \brief Pairs of different and non isolated meshes.
+        MeshParts         independant_parts;   ///< \brief Meshes that belong to different isolated groups.
+        ConstMeshRefs     non_isolated_meshes; ///< \brief List of non isolated sub-meshes of the head.
+        InteractingMeshes meshpairs;           ///< \brief Pairs of different and non isolated meshes.
     };
 }

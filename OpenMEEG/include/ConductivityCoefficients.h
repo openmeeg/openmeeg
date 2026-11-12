@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <mesh.h>
 #include <domain.h>
 #include <constants.h>
+#include <AdjacentMeshes.h>
 
 namespace OpenMEEG {
 
@@ -24,8 +24,8 @@ namespace OpenMEEG {
 
     public:
 
-        ConductivityCoefficients(const DomainsRefs& doms): ConductivityCoefficients(doms,1)                                        { } // Single mesh constructor
-        ConductivityCoefficients(const MeshPair& mp):      ConductivityCoefficients(mp.common_domains(),mp.relative_orientation()) { } // Adjacent meshes constructor.
+        ConductivityCoefficients(const DomainsRefs&    doms): ConductivityCoefficients(doms,1)                                        { } // Single mesh constructor
+        ConductivityCoefficients(const AdjacentMeshes& mp):   ConductivityCoefficients(mp.common_domains(),mp.relative_orientation()) { } // Adjacent meshes constructor.
 
         double N() const { return Ncond; }
         double S() const { return Scond; }

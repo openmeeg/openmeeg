@@ -73,7 +73,7 @@ namespace OpenMEEG {
         // This is an overkill. Can we limit the computation only to injection triangles ?
         // We use only the few lines that correspond to injection triangles.
 
-        for (const Mesh* mp : geo.interacting_meshes()) {
+        for (const Mesh* mp : geo.active_meshes()) {
             const Mesh& mesh = *mp;
             if (mesh.is_current_barrier()) {
                 const DiagonalBlockWriter writer(mesh,integrator);
@@ -82,7 +82,7 @@ namespace OpenMEEG {
             }
         }
 
-        for (const auto& mp : geo.adjacent_meshes()) {
+        for (const auto& mp : geo.interacting_meshes()) {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
 

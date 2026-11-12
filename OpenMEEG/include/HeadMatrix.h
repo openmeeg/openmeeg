@@ -17,6 +17,7 @@
 #include <mesh.h>
 #include <ConductivityCoefficients.h>
 #include <operators.h>
+#include <AdjacentMeshes.h>
 
 namespace OpenMEEG {
 
@@ -167,7 +168,7 @@ namespace OpenMEEG {
         class NonDiagonalBlock {
         public:
 
-            NonDiagonalBlock(const MeshMapping& map1,const MeshMapping& map2,const MeshPair& mp):
+            NonDiagonalBlock(const MeshMapping& map1,const MeshMapping& map2,const AdjacentMeshes& mp):
                 mapping1(map1),mapping2(map2),mesh_pair(mp),N_block(map1.num_vertices(),map2.num_vertices())
             {
                 const Mesh& mesh1 = mp(0);
@@ -239,9 +240,9 @@ namespace OpenMEEG {
 
         private:
 
-            const MeshMapping& mapping1;  // Mapping of vertex and triangle indices for mesh 1.
-            const MeshMapping& mapping2;  // Mapping of vertex and triangle indices for mesh 2.
-            const MeshPair&    mesh_pair; // Domains that the mesh of this block delimits.
+            const MeshMapping&     mapping1;  // Mapping of vertex and triangle indices for mesh 1.
+            const MeshMapping&     mapping2;  // Mapping of vertex and triangle indices for mesh 2.
+            const AdjacentMeshes&  mesh_pair; // Adjacent meshes corresponding to the block.
 
             // Blocks.
 
@@ -278,7 +279,7 @@ namespace OpenMEEG {
 
         // Non diagonal block.
 
-        void add_block(const MeshPair& mp,const Integrator& integrator) {
+        void add_block(const AdjacentMeshes& mp,const Integrator& integrator) {
             using namespace Details;
 
             const Mesh& mesh1 = mp(0);
@@ -396,7 +397,7 @@ namespace OpenMEEG {
         using MeshIndex         = const Mesh*;
         using MeshMappings      = std::map<MeshIndex,Details::MeshMapping>;
         using DiagonalBlocks    = std::map<MeshIndex,Details::DiagonalBlock>;
-        using NonDiagonalBlocks = std::map<MeshPair,Details::NonDiagonalBlock>;
+        using NonDiagonalBlocks = std::map<AdjacentMeshes,Details::NonDiagonalBlock>;
 
         MeshMappings      mesh_mappings;        // Vertex/triangle mappings that allow to place individual block in the full head matrix.
         DiagonalBlocks    diag_mesh_blocks;     // Diagonal blocks involving a mesh bordering a domain with unknown conductivity.

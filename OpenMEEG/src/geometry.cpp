@@ -442,7 +442,7 @@ namespace OpenMEEG {
 
                     const DomainsRefs& domains = common_domains(mesh1,mesh2);
                     if (domains.size()!=0)
-                        meshpairs.push_back(MeshPair(mesh1,mesh2,domains));
+                        meshpairs.push_back(AdjacentMeshes(mesh1,mesh2,domains));
                 }
             }
     }
@@ -534,7 +534,7 @@ namespace OpenMEEG {
             const Mesh* candidate = *mesh_candidates.begin();
             mesh_candidates.erase(candidate);
 
-            MeshList interacting_meshes{candidate}; // Set of meshes connected by chains of non-zero conductivity domains.
+            ConstMeshRefs interacting_meshes{candidate}; // Set of meshes connected by chains of non-zero conductivity domains.
             std::queue<const Mesh*> pending;
             pending.push(candidate);
 
@@ -568,7 +568,7 @@ namespace OpenMEEG {
                                     << std::endl;
 
             unsigned p =0;
-            for (const MeshList& part : independant_parts) {
+            for (const ConstMeshRefs& part : independant_parts) {
                 log_stream(INFORMATION) << "Part " << ++p << " is formed by meshes: { ";
                 for (const Mesh* meshptr : part)
                     log_stream(INFORMATION) << "\"" << meshptr->name() << "\" ";

@@ -42,7 +42,7 @@ namespace OpenMEEG {
             log_stream(INFORMATION) << "Assembling Head Matrix" << std::endl;
 
             HeadMatrix headmat(geo);
-            for (const Mesh* mp : geo.interacting_meshes()) {
+            for (const Mesh* mp : geo.active_meshes()) {
                 const Mesh& mesh = *mp;
 
                 log_stream(INFORMATION) << "Assembling " << mesh.name() << " x " << mesh.name();
@@ -61,7 +61,7 @@ namespace OpenMEEG {
             // Iterate over pairs of adjacent meshes (sharing a domain) to fill the
             // lower half of the HeadMat (since it is symmetric).
 
-            for (const auto& mp : geo.adjacent_meshes()) {
+            for (const auto& mp : geo.interacting_meshes()) {
                 const Mesh& mesh1 = mp(0);
                 const Mesh& mesh2 = mp(1);
 
