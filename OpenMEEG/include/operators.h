@@ -136,7 +136,7 @@ namespace OpenMEEG {
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
             #else
-            for (int i=0; i<triangles.size(); ++i) {
+            for (int i=0; i<triangles1.size(); ++i) {
                 const Triangle& triangle1 = triangles1[i];
             #endif
                 e.run([&]() {
