@@ -13,6 +13,7 @@
 #include <cmath>
 #include <concepts>
 #include <limits>
+#include <algorithm>
 
 namespace OpenMEEG {
 
