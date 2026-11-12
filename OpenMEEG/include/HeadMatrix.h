@@ -317,11 +317,11 @@ namespace OpenMEEG {
             ThreadException e;
             for (const auto& part : geo.isolated_parts()) {
                 unsigned num_vertices = 0;
-                unsigned first_external_vertex = -1U;
+                unsigned first_external_vertex = std::numeric_limits<unsigned>::max();
                 for (const Mesh* meshptr : part)
                     if (meshptr->is_external()) {
                         num_vertices += meshptr->vertices().size();
-                        if (first_external_vertex==-1U)
+                        if (first_external_vertex==std::numeric_limits<unsigned>::max())
                             first_external_vertex = meshptr->vertices().front()->index();
                     }
                 const double coef = headmat(first_external_vertex,first_external_vertex)/num_vertices;
