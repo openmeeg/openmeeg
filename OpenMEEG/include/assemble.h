@@ -42,9 +42,6 @@ namespace OpenMEEG {
     OPENMEEG_EXPORT Matrix SurfSource2MEGMat(const Mesh& sources,const Sensors& sensors);
     OPENMEEG_EXPORT Matrix DipSource2MEGMat(const Matrix& dipoles,const Sensors& sensors);
 
-    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta,
-                                       const Integrator& integrator=Integrator(3,0,0.005));
-
-    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma,
-                                       const Integrator& integrator=Integrator(3,0,0.005));
+    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta);
+    OPENMEEG_EXPORT Matrix CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma);
 }

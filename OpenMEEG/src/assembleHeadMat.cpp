@@ -134,7 +134,7 @@ namespace OpenMEEG {
     }
 
     Matrix
-    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta,const Integrator& integrator) {
+    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& P,const double alpha,const double beta) {
         // Following the article: M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy transmission using
         // a boundary element method".
         // M is the head to EEG matrix, while P is a projector
@@ -184,7 +184,7 @@ namespace OpenMEEG {
     }
 
     Matrix
-    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma,const Integrator& integrator) {
+    CorticalMat(const Geometry& geo,const SparseMatrix& M,const Matrix& H,const double gamma) {
 
         // Re-writting of the optimization problem in M. Clerc, J. Kybic "Cortical mapping by Laplace–Cauchy
         // transmission using a boundary element method".
