@@ -52,7 +52,7 @@ main(int argc,char* argv[]) {
 
     Sensors squids;
     squids.load(squids_filename);
-    const size_t nb_positions = squids.getNumberOfPositions();
+    const size_t num_positions = squids.getNumberOfPositions();
 
     Matrix fiducials; fiducials.load(fiducials_filename);
 
@@ -80,7 +80,7 @@ main(int argc,char* argv[]) {
 
     const Vector& T = -(R*origin);
 
-    for (size_t i=0; i<nb_positions; ++i) {
+    for (size_t i=0; i<num_positions; ++i) {
 
         Vector position = squids.getPosition(i);
         Vector orientation = squids.getOrientation(i);

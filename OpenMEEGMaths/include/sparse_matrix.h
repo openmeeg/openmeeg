@@ -44,8 +44,8 @@ namespace OpenMEEG {
             return m_tank[std::make_pair(i,j)];
         }
 
-        size_t size() const {
-            return m_tank.size();
+        unsigned size() const {
+            return static_cast<unsigned>(m_tank.size());
         }
 
         const_iterator begin() const { return m_tank.begin(); }

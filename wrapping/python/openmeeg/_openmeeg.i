@@ -66,7 +66,6 @@
     #include <matrix.h>
     #include <symmatrix.h>
     #include <sparse_matrix.h>
-    #include <block_matrix.h>
     #include <fast_sparse_matrix.h>
     #include <sensors.h>
     #include <geometry.h>
@@ -136,19 +135,21 @@ namespace std {
     %template(vector_int) vector<int>;
     %template(vector_unsigned) vector<unsigned>;
     %template(vector_double) vector<double>;
+    %template(vector_range) std::vector<OpenMEEG::maths::Range>;
     %template(vector_vertex) vector<OpenMEEG::Vertex>;
     %template(vector_pvertex) vector<OpenMEEG::Vertex *>;
     %template(vector_triangle) vector<OpenMEEG::Triangle>;
     %template(vector_string) vector<std::string>;
     %template(vector_interface) vector<OpenMEEG::Interface>;
-    %template(vector_simple_dom) vector<OpenMEEG::SimpleDomain>;
-    %template(vector_domain) vector<OpenMEEG::Domain>;
     %template(vector_oriented_mesh) vector<OpenMEEG::OrientedMesh>;
+    %template(vector_boundary) vector<OpenMEEG::ImplementationDetails::SimpleDomain>; // Cannot use: OpenMEEG::Domain::Boundary.
+    %template(vector_domain) vector<OpenMEEG::Domain>;
 
     // OpenMEEG::IndexMap. Without this swig has no destructor for the type, so every
     // IndexMap returned by Geometry::add_vertices() was heap-allocated and never freed
     // (~48 bytes per vertex, per call). Every wrapped type needs one, which is why
     // SWIG_PYTHON_SILENT_MEMLEAK is no longer defined -- it hid exactly this.
+
     %template(IndexMap) map<unsigned,unsigned>;
 }
 
@@ -162,7 +163,7 @@ namespace OpenMEEG {
     using Triangles      = std::vector<OpenMEEG::Triangle>;
     using Domains        = std::vector<OpenMEEG::Domain>;
     using Strings        = std::vector<std::string>;
-    using Boundaries     = std::vector<SimpleDomain>;
+    using Boundaries     = std::vector<Domain::Boundary>;
     using OrientedMeshes = std::vector<OrientedMesh>;
 }
 
@@ -508,11 +509,12 @@ namespace OpenMEEG {
 
 // OpenMEEG
 
-%ignore OpenMEEG::Filetype;
+%ignore OpenMEEG::Details;
+%ignore OpenMEEG::MeshPair;
 
-%ignore OpenMEEG::Geometry::MeshPair;  // Warning 325: Nested struct not currently supported (MeshPair ignored)
 %rename(import_) import; // Warning 314: 'import' is a python keyword, renaming to '_import' (in Geometry)
 %rename(Head2ECoGMat_internal) OpenMEEG::Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i); // Hide the normal Head2ECoGMat function.
+%rename(_Domain_Boundary) OpenMEEG::ImplementationDetails::SimpleDomain; // Wrap SimpleDomain as _Domain_Boundary (which will be later mapped to Domain.Boundary).
 
 %extend OpenMEEG::Geometry {
 
@@ -765,7 +767,6 @@ namespace OpenMEEG {
 // swig>=4.5 wraps `using base::base` ctors including the base copy ctor, which C++ does not inherit.
 %ignore OpenMEEG::maths::Ranges::Ranges;
 %include <range.h>
-%template(vector_range) std::vector<OpenMEEG::maths::Range>;
 %include <ranges.h>
 %include <linop.h>
 %include <vector.h>
@@ -780,10 +781,17 @@ namespace OpenMEEG {
 %include <integrator.h>
 %include <interface.h>
 %include <domain.h>
+%include <HeadMatrix.h>
 %include <assemble.h>
 %include <assembleSourceMat.h>
 %include <gain.h>
 %include <forward.h>
+
+%pythoncode %{
+    # Allows to do: instance = om.Domain.Boundary()
+    Domain.Boundary = _Domain_Boundary
+    del _Domain_Boundary
+%}
 
 #ifdef _MSC_VER
 #pragma warning( pop )

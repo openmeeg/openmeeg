@@ -42,11 +42,19 @@ namespace OpenMEEG {
 
         explicit SymMatrix(const Matrix& A);
 
-        size_t size() const { return nlin()*(nlin()+1)/2; };
+        unsigned size() const { return nlin()*(nlin()+1)/2; };
         void info() const ;
 
-        Dimension  ncol() const { return nlin(); } // SymMatrix only need num_lines
-        Dimension& ncol()       { return nlin(); }
+        // SymMatrix has the same number of lines and colmns.
+
+        Dimension ncol() const { return nlin(); }
+        Dimension ncol()       { return nlin(); }
+
+        void resize(const Dimension N) {
+            nlin() = N;
+            LinOp::ncol() = N;
+            alloc_data();
+        }
 
         void alloc_data() { value = LinOpValue(size()); }
         void reference_data(const double* array) { value = LinOpValue(size(),array); }
@@ -117,6 +125,8 @@ namespace OpenMEEG {
 
         void operator /=(const double x) { (*this)*=(1/x); }
 
+        SymMatrix& transpose() { return *this; }
+
         SymMatrix inverse() const;
         void invert();
         SymMatrix posdefinverse() const;
@@ -131,6 +141,15 @@ namespace OpenMEEG {
 
         friend class Matrix;
     };
+
+    inline std::ostream& operator<<(std::ostream& os,const SymMatrix& M) {
+        for (unsigned i=0; i<M.nlin(); ++i) {
+            for (unsigned j=0; j<=i; ++j)
+                os << M(i,j) << ' ';
+            os << std::endl;
+        }
+        return os;
+    }
 
     // Returns the solution of (this)*X = B
 
@@ -220,7 +239,7 @@ namespace OpenMEEG {
         SymMatrix invA(*this,DEEP_COPY);
         double d = 1.0;
     #ifdef HAVE_LAPACK
-        // Bunch Kaufmqn
+        // Bunch Kaufman Factorization
         BLAS_INT *pivots=new BLAS_INT[nlin()];
         int Info = 0;
         // TUDUtTt

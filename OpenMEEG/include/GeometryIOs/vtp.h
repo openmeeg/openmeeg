@@ -198,7 +198,7 @@ namespace OpenMEEG::GeometryIOs {
 
             const bool outer_interface_used = data.nlin()!=geometry.meshes().size();
             if (outer_interface_used )
-                om_error(data.nlin()==geometry.meshes().size()-geometry.outermost_interface().nb_triangles());
+                om_error(data.nlin()==geometry.meshes().size()-geometry.external_interface().num_triangles());
 
             std::vector<vtkSmartPointer<vtkDoubleArray>> potentials(data.ncol()); // potential on vertices
             std::vector<vtkSmartPointer<vtkDoubleArray>> currents(data.ncol()); // current on triangles
@@ -218,7 +218,7 @@ namespace OpenMEEG::GeometryIOs {
 
                 for (const auto& mesh : geometry.meshes())
                     for (const auto& triangle: mesh.triangles())
-                        currents[j]->InsertNextValue(((mesh.outermost() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
+                        currents[j]->InsertNextValue(((mesh.is_external() && !outer_interface_used ) ? 0.0 : data(triangle.index(),j)));
             }
 
             for (unsigned j=0; j<data.ncol(); ++j) {

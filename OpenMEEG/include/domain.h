@@ -19,36 +19,41 @@
 
 namespace OpenMEEG {
 
-    /// \brief a SimpleDomain is a pair of an Interface and a boolean.
-    /// A simple domain (SimpleDomain) is given by an interface (of type Interface) identifying
-    /// a closed surface and a side information. The closed surface/interface splits the space
-    /// into two components. The side depicts which of these two components is the simple domain.
+    // We cannot name the namespace Details as usual, because we want to wrap SimpleDomain with swig.
 
-    class SimpleDomain {
-    public:
+    namespace ImplementationDetails {
 
-        typedef enum { Inside, Outside } Side;
+        /// \brief a SimpleDomain is a pair of an Interface and a boolean.
+        /// A simple domain (SimpleDomain) is given by an interface (of type Interface) identifying
+        /// a closed surface and a side information. The closed surface/interface splits the space
+        /// into two components. The side depicts which of these two components is the simple domain.
 
-         SimpleDomain() { }
-         SimpleDomain(Interface& i,const Side s): interf(i),side(s) { }
-        ~SimpleDomain() { }
+        class SimpleDomain {
+        public:
 
-              Interface& interface()       { return interf;  }
-        const Interface& interface() const { return interf;  }
+            typedef enum { Inside, Outside } Side;
 
-        bool inside() const { return (side==Inside); }
+            SimpleDomain() { }
+            SimpleDomain(Interface& i,const Side s): interf(i),side(s) { }
 
-        // omesh must belong to the interface.
+                  Interface& interface()       { return interf;  }
+            const Interface& interface() const { return interf;  }
 
-        int mesh_orientation(const OrientedMesh& omesh) const {
-            return (inside()) ? omesh.orientation() : -omesh.orientation();
-        }
+            bool is_outer_boundary() const { return (side==Inside);  }
+            bool is_inner_boundary() const { return (side==Outside); }
 
-    private:
+            // omesh must belong to the interface.
 
-        Interface interf;
-        Side      side;
-    };
+            int mesh_orientation(const OrientedMesh& omesh) const {
+                return (is_outer_boundary()) ? omesh.orientation() : -omesh.orientation();
+            }
+
+        private:
+
+            Interface interf;
+            Side      side;
+        };
+    }
 
     /// \brief a Domain is a vector of SimpleDomain
     /// A Domain is the intersection of simple domains (of type SimpleDomain).
@@ -57,7 +62,8 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Domain {
     public:
 
-        typedef std::vector<SimpleDomain> Boundaries;
+        using Boundary   = ImplementationDetails::SimpleDomain;
+        using Boundaries = std::vector<Boundary>;
 
          Domain(const std::string& dname=""): domain_name(dname) { }
         ~Domain() { }
@@ -75,14 +81,15 @@ namespace OpenMEEG {
         /// The conductivity of the domain.
 
         void set_conductivity(const double c) { cond = c;    }
-        bool has_conductivity() const { return cond != -1.0;    }
         const double& conductivity() const    { return cond; }
 
+        bool has_conductivity() const { return cond!=-1.0; }
+
         /// Print information about the domain.
-        /// \param outermost specifies if the domain is the outer domain
+        /// \param external specifies if the domain is the outer domain
         /// (the geometry knows this information).
 
-        void info(const bool outermost=false) const;
+        void info(const bool external=false) const;
 
         bool contains(const Mesh& m) const { return mesh_orientation(m)!=0; }
 
@@ -100,6 +107,17 @@ namespace OpenMEEG {
             return 0;
         }
 
+        /// \return a vector of the unnecessary meshes of a domain.
+
+        MeshRefs unnecessary_meshes() {
+            MeshRefs mesh_to_remove;
+            for (auto& boundary : boundaries()) {
+                const MeshRefs& meshes = boundary.interface().unnecessary_meshes();
+                mesh_to_remove.insert(mesh_to_remove.end(),meshes.begin(),meshes.end());
+            }
+            return mesh_to_remove;
+        }
+
     private:
 
         Boundaries  bounds;             ///< Interfaces (with side) delimiting the domain.
@@ -109,5 +127,14 @@ namespace OpenMEEG {
 
     /// A vector of Domain is called Domains
 
-    typedef std::vector<Domain> Domains;
+    class Domains: public std::vector<Domain> {
+
+        using base = std::vector<Domain>;
+
+        bool is_valid_decomposition() const { return true; }
+
+    private:
+
+        using base::base;
+    };
 }

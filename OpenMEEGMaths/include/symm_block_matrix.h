@@ -32,7 +32,7 @@ namespace OpenMEEG::maths {
         SymmetricBlockMatrix(): LinOp(0,0,BLOCK,2) { }
         SymmetricBlockMatrix(const size_t N): LinOp(N,N,BLOCK_SYMMETRIC,2) { }
 
-        size_t size() const override {
+        unsigned size() const override {
             unsigned sz = 0;
             for (const auto& block : blocks)
                 sz += block.second.size();

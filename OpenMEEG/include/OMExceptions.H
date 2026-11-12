@@ -20,17 +20,15 @@
 namespace OpenMEEG {
 
     //TODO  remove all unused exception
-#if 0
-    struct ReturnCode {
-        static const unsigned code =
-    };
-#endif
 
-    typedef enum { UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR,
-                   BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA, BAD_CONTENT, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
-                   UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
-                   BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN, UNKNOWN_VERTEX,
-                   SOURCE_MESH_OVERLAPS_GEOMETRY, NO_IMG_ARG, DIFF_IMG, BAD_VTK, BAD_SENSOR, BAD_DIPOLE, BAD_GENERIC } ExceptionCode;
+    enum ExceptionCode {
+        UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR, BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA,
+        BAD_CONTENT, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
+        UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
+        BAD_PLGIN_LIST, BAD_PLGIN_FILE, BAD_PLGIN, ALREADY_KN_TAG, NON_EXISTING_DOMAIN, UNKNOWN_VERTEX,
+        SOURCE_MESH_OVERLAPS_GEOMETRY, INVALID_ADJACENT_MESHES, NO_IMG_ARG, DIFF_IMG, BAD_VTK, BAD_SENSOR,
+        BAD_DIPOLE, BAD_GENERIC
+    };
 
     class Exception: public std::exception {
     public:
@@ -266,6 +264,18 @@ namespace OpenMEEG {
         ExceptionCode code() const noexcept { return SOURCE_MESH_OVERLAPS_GEOMETRY; }
     };
 
+    struct InvalidAdjacentMeshes: public Exception {
+        InvalidAdjacentMeshes(const std::string& mesh_name1,const std::string& mesh_name2):
+            Exception(std::string("Invalid adjacent mesh object: ")+mesh_name1+" and "+mesh_name2+" do not delimit a common domain.")
+        { }
+
+        InvalidAdjacentMeshes(const std::string& mesh_name):
+            Exception(std::string("Invalid adjacent mesh object made of two identical meshes ")+mesh_name+".")
+        { }
+
+        ExceptionCode code() const noexcept { return INVALID_ADJACENT_MESHES; }
+    };
+
     //  Revisit (TODO).
 
     struct NoImageArgument: public Exception {
@@ -331,32 +341,42 @@ namespace OpenMEEG {
     class ThreadException {
     public:
 
-        ThreadException(): ptr(nullptr) { }
+        ThreadException() = default;
 
-        void rethrow() {
-            if (ptr) {
-                std::unique_lock<std::mutex> guard(lock);
-                std::rethrow_exception(ptr);
-            }
-        }
+        ThreadException(const ThreadException&) = delete;
+        ThreadException& operator=(const ThreadException&) = delete;
 
-        template <typename Function,typename... Parameters>
-        void run(Function f,Parameters... params) {
+        template <typename Function>
+        void run(Function&& f) noexcept {
             try {
-                f(params...);
+                std::forward<Function>(f)();
             } catch (...) {
                 capture_exception();
             }
         }
 
-    private:
+        void rethrow() {
+            std::exception_ptr exception;
 
-        void capture_exception() {
-            std::unique_lock<std::mutex> guard(lock);
-            ptr = std::current_exception();
+            {
+                std::lock_guard<std::mutex> guard(lock);
+                exception = ptr;
+            }
+
+            if (exception)
+                std::rethrow_exception(exception);
         }
 
-        std::exception_ptr ptr;
+    private:
+
+        void capture_exception() noexcept {
+
+            std::lock_guard<std::mutex> guard(lock);
+            if (!ptr) // Keep the first exception.
+                ptr = std::current_exception();
+        }
+
+        std::exception_ptr ptr = nullptr;
         std::mutex         lock;
     };
 }

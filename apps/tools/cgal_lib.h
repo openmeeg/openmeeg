@@ -68,7 +68,7 @@ namespace OpenMEEG {
     #if CGAL_VERSION_NR >= CGAL_VERSION_NUMBER(4,6,0)
     Mesh cgal_refine(const Mesh& m_in,const double radius_bound,const double distance_bound,const char* sizing_field);
 
-    Mesh cgal_decimate(const Mesh& m_in,const unsigned nb_points);
+    Mesh cgal_decimate(const Mesh& m_in,const unsigned num_points);
     #endif
 
     #ifdef CGAL_ImageIO

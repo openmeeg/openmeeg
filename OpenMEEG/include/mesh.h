@@ -23,9 +23,15 @@
 
 namespace OpenMEEG {
 
+    class Domain;
     class Geometry;
     using maths::Range;
     using maths::Ranges;
+
+    // Ideally, this should be defined in domain.h, but this would create a circular dependency,
+    // so declare it here instead.
+
+    using DomainsRefs = std::vector<const Domain*>;
 
     //  Mesh class
     //  \brief Mesh is a collection of triangles associated to a geometry containing the points
@@ -40,7 +46,9 @@ namespace OpenMEEG {
         friend class Geometry;
         friend class MeshIO;
 
-        typedef std::map<const Vertex*,TrianglesRefs> VertexTriangles;
+        using VertexTriangles  = std::map<const Vertex*,TrianglesRefs>;
+        using VertexMapping    = std::vector<size_t>;
+        using InvVertexMapping = std::map<size_t,size_t>;
 
         /// Default constructor
         /// or constructor using a provided geometry \param geometry
@@ -81,6 +89,8 @@ namespace OpenMEEG {
         std::string&       name()       { return mesh_name; } ///< \return the mesh name
         const std::string& name() const { return mesh_name; } ///< \return the mesh name
 
+        size_t num_unknowns() const { return vertices().size()+triangles().size(); }
+
               VerticesRefs& vertices()       { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
         const VerticesRefs& vertices() const { return mesh_vertices; } ///< \return the vector of pointers to the mesh vertices
 
@@ -90,11 +100,6 @@ namespace OpenMEEG {
         const Triangles& triangles() const { return mesh_triangles; } ///< \return the triangles of the mesh
 
         TriangleIndices triangle(const Triangle& t) const;
-
-        bool  current_barrier() const { return current_barrier_; }
-        bool& current_barrier()       { return current_barrier_; }
-        bool  isolated()        const { return isolated_;        }
-        bool& isolated()              { return isolated_;        }
 
         /// \brief Add a triangle specified by its indices in the geometry.
 
@@ -133,14 +138,32 @@ namespace OpenMEEG {
         void check_consistency(const std::string&) const; ///< \brief Check mesh triangle/vertex consistency.
         #endif
 
+        /// \brief Get a mapping of the vertices in the mesh to the whole geometry.
+        /// \return a vector of indices.
+
+        VertexMapping vertices_mapping() const {
+            VertexMapping indices;
+            for (const auto& vertex : vertices())
+                indices.push_back(vertex->index());
+            std::sort(indices.begin(),indices.end());
+            return indices;
+        }
+
+        /// \brief Get a mapping of the vertices in the mesh to the whole geometry.
+        /// \return a map of geometry to mesh indices.
+
+        InvVertexMapping inverse_vertices_mapping(const VertexMapping& mapping) const {
+            InvVertexMapping inv_mapping;
+            for (unsigned i=0; i<mapping.size(); ++i)
+                inv_mapping[mapping[i]] = i;
+            return inv_mapping;
+        }
+
         /// \brief Get the ranges of the specific mesh in the global matrix.
         /// \return vector of Range \sa
 
         Ranges vertices_ranges() const {
-            std::vector<size_t> indices;
-            for (const auto& vertex : vertices())
-                indices.push_back(vertex->index());
-            std::sort(indices.begin(),indices.end());
+            const VertexMapping& indices = vertices_mapping();
             Ranges result;
             for (auto it=indices.begin(); it!=indices.end();) {
                 auto it1 = it;
@@ -178,14 +201,21 @@ namespace OpenMEEG {
                 triangle.change_orientation();
         }
 
-        void correct_local_orientation(); ///< \brief Correct the local orientation of the mesh triangles.
-        void correct_global_orientation(); ///< \brief Correct the global orientation (if there is one).
+        void correct_local_orientation();         ///< \brief Correct the local orientation of the mesh triangles.
+        void correct_global_orientation();        ///< \brief Correct the global orientation (if there is one).
         double solid_angle(const Vect3& p) const; ///< Given a point p, computes the solid angle of the mesh seen from \param p .
-        Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
-        void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
+        Normal normal(const Vertex& v) const;     ///< \brief Get normal at vertex.`
+        void laplacian(SymMatrix &A) const;       ///< \brief Compute mesh laplacian.
 
-        bool& outermost()       { return outermost_; } /// \brief Returns True if it is an outermost mesh.
-        bool  outermost() const { return outermost_; }
+        /// \brief Mesh properties.
+
+        void set_external_property(const bool b)        { external        = b; }
+        void set_current_barrier_property(const bool b) { current_barrier = b; }
+        void set_isolated_property(const bool b)        { isolated        = b; }
+
+        bool is_external()        const { return external;        }
+        bool is_current_barrier() const { return current_barrier; }
+        bool is_isolated()        const { return isolated;        }
 
         /// \brief Smooth Mesh
         /// \param smoothing_intensity
@@ -263,13 +293,15 @@ namespace OpenMEEG {
         Geometry*        geom;               ///< Pointer to the geometry containing the mesh.
         VerticesRefs     mesh_vertices;      ///< Vector of pointers to the mesh vertices.
         Triangles        mesh_triangles;     ///< Vector of triangles.
-        bool             outermost_ = false; ///< Is it an outermost mesh ? (i.e does it touch the Air domain)
 
-        /// Multiple 0 conductivity domains
+        /// Properties.
 
-        bool             current_barrier_ = false;
-        bool             isolated_        = false;
+        bool             current_barrier = false; ///<
+        bool             isolated        = false; ///<
+        bool             external        = false; ///< An external mesh has zero conductivity on its outside and a non-zero conductivity on its inside.
     };
 
-    typedef std::vector<Mesh> Meshes;
+    using Meshes        = std::vector<Mesh>;
+    using ConstMeshRefs = std::vector<const Mesh*>;
+    using MeshRefs      = std::vector<Mesh*>;
 }

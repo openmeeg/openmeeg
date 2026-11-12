@@ -30,7 +30,7 @@ int main(int argc,char **argv) {
 
     // Mesh input
     Mesh m_in(input_filename,false);
-    std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
+    std::cout << "Input surface:\n nb of points: " << m_in.num_vertices() << "\t nb of triangles:\t" << m_in.num_triangles() << std::endl;
 
     Mesh m_out = cgal_refine(m_in,radius_bound,distance_bound,sizing_field);
     m_out.save(output_filename);

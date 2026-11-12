@@ -11,17 +11,43 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include <OMassert.H>
 #include <limits>
+#include <algorithm>
+
+#if defined(__cpp_concepts) && __cpp_concepts >= 201907L && __has_include(<concepts>)
+#include <concepts>
+#define HAS_CONCEPTS 1
+#else
+#include <type_traits>
+#endif
 
 namespace OpenMEEG {
 
-    // a vector of string is called Strings
+    // A vector of string is called Strings.
+
     using Strings = std::vector<std::string>;
 
-    // how to compare doubles and floats
-    template <typename T>
-    bool almost_equal(const T x,const T y,const double eps=1e3) {
-        return (std::abs(x-y)<std::numeric_limits<T>::epsilon()*std::abs(x+y)*eps) || std::abs(x-y)<std::numeric_limits<T>::min();
+    // Compare doubles and floats.
+
+    #ifdef HAS_CONCEPTS
+    template <std::floating_point T>
+    #else
+    template <typename T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+    #endif
+    bool almost_equal(const T x,const T y,const T tol=T(1000)*std::numeric_limits<T>::epsilon()) {
+
+        // Exact match (also covers +inf == +inf and -inf == -inf)
+
+        if (x==y)
+            return true;
+
+        // NaN, or infinity vs. anything different: never equal
+
+        if (!std::isfinite(x) || !std::isfinite(y))
+            return false;
+
+        // Relative test (avoiding a problem around zero).
+
+        return std::abs(x-y)<=tol*std::max({1.0,std::abs(x),std::abs(y)});
     }
 }

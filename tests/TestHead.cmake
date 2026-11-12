@@ -156,7 +156,7 @@ function(TESTHEAD HEADNUM)
     #   ECoG gain matrix.
 
     if (${HEADNUM} EQUAL 1 OR ${HEADNUM} EQUAL 2 OR ${HEADNUM} EQUAL 3)
-        OPENMEEG_TEST(GAINECOG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${ECOGMMAT} ${GAINECOGMAT} DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} H2ECOGM-${SUBJECT})
+        OPENMEEG_TEST(GainECoG-${SUBJECT} ${GAIN} -EEG ${HMINVMAT} ${DSMMAT} ${ECOGMMAT} ${GAINECOGMAT} DEPENDS HMInv-${SUBJECT} DSM-${SUBJECT} H2ECOGM-${SUBJECT})
     endif()
 
     # om_assemble -H2IPM geometry.geom conductivity.cond internalpoints.txt h2ip.bin

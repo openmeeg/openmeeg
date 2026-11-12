@@ -49,9 +49,9 @@ def _assert_geometry(g1, g2, n_domains):
         assert d1.boundaries().size() == d2.boundaries().size()
         for b1, b2 in zip(d1.boundaries(), d2.boundaries()):
             i1, i2 = b1.interface(), b2.interface()
-            assert b1.inside() == b2.inside()
-            assert i1.nb_vertices() == i2.nb_vertices()
-            assert i1.nb_triangles() == i2.nb_triangles()
+            assert b1.is_outer_boundary() == b2.is_outer_boundary()
+            assert i1.num_vertices() == i2.num_vertices()
+            assert i1.num_triangles() == i2.num_triangles()
             assert b1.__class__ == b2.__class__
 
 
