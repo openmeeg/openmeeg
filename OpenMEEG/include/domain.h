@@ -127,5 +127,14 @@ namespace OpenMEEG {
 
     /// A vector of Domain is called Domains
 
-    typedef std::vector<Domain> Domains;
+    class Domains: public std::vector<Domain> {
+
+        using base = std::vector<Domain>;
+
+        bool is_valid_decomposition() const { return true; }
+
+    private:
+
+        using base::base;
+    };
 }
