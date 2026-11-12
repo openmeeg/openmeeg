@@ -201,11 +201,11 @@ namespace OpenMEEG {
                 triangle.change_orientation();
         }
 
-        void correct_local_orientation(); ///< \brief Correct the local orientation of the mesh triangles.
-        void correct_global_orientation(); ///< \brief Correct the global orientation (if there is one).
+        void correct_local_orientation();         ///< \brief Correct the local orientation of the mesh triangles.
+        void correct_global_orientation();        ///< \brief Correct the global orientation (if there is one).
         double solid_angle(const Vect3& p) const; ///< Given a point p, computes the solid angle of the mesh seen from \param p .
-        Normal normal(const Vertex& v) const; ///< \brief Get normal at vertex.`
-        void laplacian(SymMatrix &A) const; ///< \brief Compute mesh laplacian.
+        Normal normal(const Vertex& v) const;     ///< \brief Get normal at vertex.`
+        void laplacian(SymMatrix &A) const;       ///< \brief Compute mesh laplacian.
 
         /// \brief Mesh properties.
 

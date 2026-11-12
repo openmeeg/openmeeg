@@ -138,7 +138,7 @@ namespace OpenMEEG {
 
     void Mesh::smooth(const double& smoothing_intensity,const unsigned& niter) {
 
-        typedef std::map<const Vertex*,std::set<Vertex>> Neighbors;
+        using Neighbors = std::map<const Vertex*,std::set<Vertex>>;
         Neighbors neighbors;
         for (const auto& vertex : vertices())
             for (const auto& triangle : triangles(*vertex))
