@@ -69,7 +69,7 @@ namespace OpenMEEG {
         /// \brief Get Matrix size
         /// \return number of values (nb lines x nb columns)
 
-        size_t size() const { return nlin()*ncol(); };
+        unsigned size() const { return nlin()*ncol(); };
 
         /// \brief Get Matrix data
         /// \return pointer to Matrix values
