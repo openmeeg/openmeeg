@@ -415,7 +415,7 @@ namespace OpenMEEG {
             for (const Triangle& triangle1 : mesh1.triangles()) {
             #else
             for (int i=0; i<mesh1.triangles().size(); ++i) {
-                const Triangle& triangle1 = mesh1.triangle()[i];
+                const Triangle& triangle1 = mesh1.triangles()[i];
             #endif
                 e.run([&]() {
                     const OperatorS S(triangle1);
