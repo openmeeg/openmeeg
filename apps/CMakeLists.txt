@@ -9,7 +9,6 @@ OpenMEEG_Executable(om_minverser minverser.cpp)
 OpenMEEG_Executable(om_gain gain.cpp)
 OpenMEEG_Executable(om_forward forward.cpp)
 OpenMEEG_Executable(om_assemble assemble.cpp)
-#OpenMEEG_Executable(test_analyticS test_analyticS.cpp)
 
 # Installation
 
