@@ -40,7 +40,7 @@ namespace OpenMEEG {
         for (const auto& triangle : m.triangles()) {
         #else
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
+            const Triangle& triangle = m.triangles()[i];
         #endif
             e.run([&]() {
                 res(triangle.index()) += integrator.integrate(potential,triangle);
@@ -59,8 +59,8 @@ namespace OpenMEEG {
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
         #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
+        for (int i=0; i<m.triangles().size(); ++i) {
+            const Triangle& triangle = m.triangles()[i];
         #endif
             e.run([&]() {
                 const PotentialDerivative<Source> potential_derivative(source,triangle);
@@ -136,8 +136,8 @@ namespace OpenMEEG {
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
             #else
-            for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
-                const Triangle& triangle1 = *(triangles1.begin()+i1);
+            for (int i=0; i<triangles.size(); ++i) {
+                const Triangle& triangle1 = triangles1[i];
             #endif
                 e.run([&]() {
                     for (const auto& triangle2 : triangles2) {
@@ -292,8 +292,8 @@ namespace OpenMEEG {
             #if defined NO_OPENMP || defined OPENMP_ITERATOR
             for (auto vit1=mesh.vertices().begin(); vit1!=mesh.vertices().end(); ++vit1) {
             #else
-            for (int i1=0; i1!=mesh.vertices().size(); ++i1) {
-                const auto vit1 = mesh.vertices().begin()+i1;
+            for (int i=0; i<mesh.vertices().size(); ++i) {
+                const auto vit1 = mesh.vertices().begin()+i;
             #endif
                 e.run([&]() {
                     for (auto vit2=vit1; vit2<mesh.vertices().end(); ++vit2)
