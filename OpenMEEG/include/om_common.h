@@ -11,9 +11,15 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include <concepts>
 #include <limits>
 #include <algorithm>
+
+#if defined(__cpp_concepts) && __cpp_concepts >= 201907L && __has_include(<concepts>)
+#include <concepts>
+#define HAS_CONCEPTS 1
+#else
+#include <type_traits>
+#endif
 
 namespace OpenMEEG {
 
@@ -23,7 +29,11 @@ namespace OpenMEEG {
 
     // Compare doubles and floats.
 
+    #ifdef HAS_CONCEPTS
     template <std::floating_point T>
+    #else
+    template <typename T, typename = std::enable_if_t<std::is_floating_point<T>::value>>
+    #endif
     bool almost_equal(const T x,const T y,const T tol=T(1000)*std::numeric_limits<T>::epsilon()) {
 
         // Exact match (also covers +inf == +inf and -inf == -inf)
