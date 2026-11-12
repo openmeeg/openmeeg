@@ -403,9 +403,9 @@ namespace OpenMEEG {
 
     int MeshPair::compute_orientation() const {
         if (doms.empty())
-            throw 1;
+            throw InvalidAdjacentMeshes(meshes[0]->name(),meshes[1]->name());
         if (meshes[0]==meshes[1])
-            throw 1;
+            throw InvalidAdjacentMeshes(meshes[0]->name());
 
         // Adjacent meshes are meshes that share at least one domain with non null conductivity.
         // Mesh orientation should be coherent across domains so use only the first domain.
