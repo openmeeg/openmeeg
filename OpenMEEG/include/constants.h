@@ -11,11 +11,17 @@
 #define _USE_MATH_DEFINES
 #endif
 
+#if __cpp_lib_math_constants
 #include <numbers>
+#endif
 
 namespace OpenMEEG {
 
+    #if __cpp_lib_math_constants
     constexpr double Pi = std::numbers::pi;
+    #else
+    constexpr double Pi = 3.14159265358979323846;
+    #endif
     constexpr double MagFactor = 1e-7;
     constexpr double K = 1.0/(4*Pi);
 }
