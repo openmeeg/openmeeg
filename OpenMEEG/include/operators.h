@@ -259,8 +259,9 @@ namespace OpenMEEG {
             for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1) {
                 const Triangle& triangle1 = *tit1;
             #else
-            for (int i1=0; i1<triangles().size(); ++i1,++pb) {
+            for (int i1=0; i1<triangles.size(); ++i1,++pb) {
                 const Triangle& triangle1 = triangles[i1];
+                const Triangles::const_iterator tit1 = triangles.cbegin()+i1;
             #endif
                 e.run([&]() {
                     const OperatorS S(triangle1);
@@ -413,7 +414,7 @@ namespace OpenMEEG {
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const Triangle& triangle1 : mesh1.triangles()) {
             #else
-            for (int i1=0; i1<mesh1.triangles().size(); ++i1) {
+            for (int i=0; i<mesh1.triangles().size(); ++i) {
                 const Triangle& triangle1 = mesh1.triangle()[i];
             #endif
                 e.run([&]() {
@@ -439,8 +440,8 @@ namespace OpenMEEG {
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const Vertex* vertex1 : mesh1.vertices()) {
             #else
-            for (int i1=0; i1<mesh1.vertices().size(); ++i1) {
-                const Vertex* vertex1 = mesh1.vertices()[i1];
+            for (int i=0; i<mesh1.vertices().size(); ++i) {
+                const Vertex* vertex1 = mesh1.vertices()[i];
             #endif
                 e.run([&]() {
                     for (const auto& vertex2 : mesh2.vertices()) {
