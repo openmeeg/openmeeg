@@ -20,13 +20,8 @@
 namespace OpenMEEG {
 
     //TODO  remove all unused exception
-#if 0
-    struct ReturnCode {
-        static const unsigned code =
-    };
-#endif
 
-    using ExceptionCode = enum {
+    enum ExceptionCode {
         UNEXPECTED = 128, IO_EXCPT, OPEN_ERROR, BAD_FMT, NO_SUFFIX, NON_MATCH_FMT, BAD_HDR, BAD_DATA,
         BAD_CONTENT, WRONG_FILE_FMT, BAD_DIM, UNKN_DIM, BAD_SIZE_SPEC, UNKN_PIX, UNKN_PIX_TYPE,
         UNKN_FILE_FMT, UNKN_FILE_SUFFIX, UNKN_NAMED_FILE_FMT, NON_MATCH_NAMED_FILE_FMT, NO_FILE_FMT,
