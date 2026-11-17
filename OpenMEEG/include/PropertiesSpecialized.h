@@ -10,31 +10,32 @@
 #include "Properties.H"
 #include "DataTag.H"
 
+#include <OpenMEEG_Export.h>
+
 namespace OpenMEEG {
 
-    template <typename REP=double>
-    class OPENMEEG_EXPORT Conductivity {
+    class OPENMEEG_EXPORT ConductivityProperty {
     public:
 
-        Conductivity(): conductivity(1.0) { }
+        ConductivityProperty(): conductivity(1.0) { }
 
-        REP& sigma()       { return conductivity; }
-        REP  sigma() const { return conductivity; }
+        double& value()       { return conductivity; }
+        double  value() const { return conductivity; }
+
     private:
-        REP conductivity;    //  The conductivity of the layer (constant per layer).
+
+        double conductivity;    //  The conductivity of the layer (constant per layer).
     };
 
-    template <typename REP>
-    inline std::istream& operator>>(std::istream& is,Conductivity<REP>& m) { return is >> m.sigma(); }
+    inline std::istream& operator>>(std::istream& is,ConductivityProperty& m) { return is >> m.value(); }
 
-    template <typename REP>
-    inline std::ostream& operator<<(std::ostream& os,const Conductivity<REP>& m) { return os << m.sigma(); }
+    inline std::ostream& operator<<(std::ostream& os,const ConductivityProperty& m) { return os << m.value(); }
 }
 
 namespace Types {
     template<>
-    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >{
+    struct DataTrait<Utils::Properties::Named<std::string,OpenMEEG::ConductivityProperty>>{
         static const char TAG[];
     };
-    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::Conductivity<double> > >::TAG[]= "Conductivities";
+    const char DataTrait<Utils::Properties::Named<std::string,OpenMEEG::ConductivityProperty>>::TAG[]= "Conductivities";
 }

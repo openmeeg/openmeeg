@@ -16,11 +16,11 @@
 #include <vector.h>
 #include <matrix.h>
 #include <symmatrix.h>
-#include <symm_block_matrix.h>
-#include <sparse_matrix.h>
+#include <block.h>
 #include <geometry.h>
 #include <integrator.h>
 #include <analytics.h>
+#include <constants.h>
 
 #include <logger.h>
 #include <progressbar.h>
@@ -38,12 +38,9 @@ namespace OpenMEEG {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
         #else
         for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
+            const Triangle& triangle = m.triangles()[i];
         #endif
             e.run([&]() {
                 res(triangle.index()) += integrator.integrate(potential,triangle);
@@ -61,12 +58,9 @@ namespace OpenMEEG {
         #pragma omp parallel for
         #if defined NO_OPENMP || defined OPENMP_RANGEFOR
         for (const auto& triangle : m.triangles()) {
-        #elif defined OPENMP_ITERATOR
-        for (Triangles::const_iterator tit=m.triangles().begin(); tit<m.triangles().end(); ++tit) {
-            const Triangle& triangle = *tit;
         #else
-        for (int i=0; i<static_cast<int>(m.triangles().size()); ++i) {
-            const Triangle& triangle = *(m.triangles().begin()+i);
+        for (int i=0; i<m.triangles().size(); ++i) {
+            const Triangle& triangle = m.triangles()[i];
         #endif
             e.run([&]() {
                 const PotentialDerivative<Source> potential_derivative(source,triangle);
@@ -110,10 +104,10 @@ namespace OpenMEEG {
         }
     }
 
-    class BlocksBase {
+    class BlockWriterBase {
     public:
 
-        BlocksBase(const Integrator& intg): integrator(intg) { }
+        BlockWriterBase(const Integrator& intg): integrator(intg) { }
 
         void message(const char* op_name,const Mesh& mesh) const {
             log_stream(INFORMATION) << std::endl
@@ -129,8 +123,8 @@ namespace OpenMEEG {
 
     protected:
 
-        template <typename T>
-        void D(const Triangles& triangles1,const Triangles& triangles2,const double coeff,T& mat) const {
+        template <typename DMatrix>
+        void D(const Triangles& triangles1,const Triangles& triangles2,const double coeff,DMatrix& Dmat) const {
             // This function (OPTIMIZED VERSION) has the following arguments:
             //    - 2 interacting meshes (as sets of triangles).
             //    - coefficient to be applied to each matrix element (depending on conductivities, ...)
@@ -141,12 +135,9 @@ namespace OpenMEEG {
             #pragma omp parallel for
             #if defined NO_OPENMP || defined OPENMP_RANGEFOR
             for (const auto& triangle1 : triangles1) {
-            #elif defined OPENMP_ITERATOR
-            for (Triangles::const_iterator tit1=triangles1.begin(); tit1<triangles1.end(); ++tit1) {
-                const Triangle& triangle1 = *tit1;
             #else
-            for (int i1=0; i1<static_cast<int>(triangles1.size()); ++i1) {
-                const Triangle& triangle1 = *(triangles1.begin()+i1);
+            for (int i=0; i<triangles1.size(); ++i) {
+                const Triangle& triangle1 = triangles1[i];
             #endif
                 e.run([&]() {
                     for (const auto& triangle2 : triangles2) {
@@ -155,33 +146,16 @@ namespace OpenMEEG {
                         const Vect3& total = integrator.integrate(P1SLP,triangle1);
 
                         for (unsigned i=0; i<3; ++i)
-                            mat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
+                            Dmat(triangle1.index(),triangle2.vertex(i).index()) += total(i)*coeff;
                     }
-                    ++pb;
                 });
+                ++pb;
             }
             e.rethrow();
         }
 
-        // Operator N for two vertices of the same mesh.
-
-        template <typename T>
-        static double N(const Vertex& V1,const Vertex& V2,const Mesh& m,const T& matrix) {
-            return N(0.25,V1,V2,m,m,matrix);
-        }
-
-        // This function assumes that the two meshes are different.
-
-        template <typename T>
-        static double N(const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
-            const double coeff = (V1==V2) ? 0.5 : 0.25;
-            return N(coeff,V1,V2,m1,m2,matrix);
-        }
-
-    private:
-
-        template <typename T>
-        static double N(const double factor,const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const T& matrix) {
+        template <typename SMatrix>
+        static double N(const Vertex& V1,const Vertex& V2,const Mesh& m1,const Mesh& m2,const SMatrix& Smat) {
 
             double result = 0.0;
             for (const auto& tp1 : m1.triangles(V1)) {
@@ -190,72 +164,88 @@ namespace OpenMEEG {
                 for (const auto& tp2 : m2.triangles(V2)) {
                     const Edge& edge2 = tp2->edge(V2);
                     const Vect3& CB2 = edge2.vertex(0)-edge2.vertex(1);
-                    result -= factor*dotprod(CB1,CB2)*matrix(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
+                    result -= dotprod(CB1,CB2)*Smat(tp1->index(),tp2->index())/(tp1->area()*tp2->area());
                 }
             }
             return result;
         }
 
-    protected:
-
         const Integrator integrator;
     };
 
-    class DiagonalBlock: public BlocksBase {
+    class DiagonalBlockWriter: public BlockWriterBase {
 
-        typedef BlocksBase base;
-
-        class SymBloc: public SymMatrix {
-
-            typedef SymMatrix base;
-
-        public:
-
-            SymBloc(const unsigned off,const unsigned sz): base(sz),offset(off) { }
-
-            double& operator()(const unsigned i,const unsigned j)       { return base::operator()(i-offset,j-offset); }
-            double  operator()(const unsigned i,const unsigned j) const { return base::operator()(i-offset,j-offset); }
-
-        private:
-
-            const unsigned offset;
-        };
+        using base = BlockWriterBase;
 
     public:
 
-        DiagonalBlock(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
+        DiagonalBlockWriter(const Mesh& m,const Integrator& intg): base(intg),mesh(m) { }
 
-        template <typename T>
-        void set_S_block(const double coeff,T& matrix) {
-            if (!mesh.current_barrier()) {
-                S(coeff,matrix);
+        bool has_S_block() const { return !mesh.is_current_barrier(); }
+        bool has_D_block() const { return !mesh.is_current_barrier(); }
+
+        template <typename SMatrix>
+        void set_S_block(const double coeff,SMatrix& Smat) {
+            if (has_S_block()) {
+                S(coeff,Smat);
                 Scoeff = coeff;
             }
         }
 
-        template <typename T>
-        void set_N_block(const double coeff,T& matrix) const { N(coeff,matrix); }
-
-        template <typename T>
-        void set_D_block(const double coeff,T& matrix) const {
-            if (!mesh.current_barrier())
-                D(coeff,matrix);
+        template <typename SMatrix,typename NMatrix>
+        void set_N_block(const double coeff,const SMatrix& Smat,NMatrix& Nmat) const {
+            if (S_block_is_computed()) {
+                N(coeff/Scoeff,Smat,Nmat);
+            } else {
+                set_N_block(coeff,Nmat);
+            }
         }
 
-        template <typename T>
-        void set_Dstar_block(const double /* coeff */,T& /* matrix */) const { }
+        template <typename NMatrix>
+        void set_N_block(const double coeff,NMatrix& Nmat) const {
+
+            // In this case, Smat is invalid in the FullMatrix representation and not filled
+            // in the BlockMatrix representation. We need to compute this matrix.
+
+            SymMatrix Smat(mesh.triangles().size());
+            auto ind = [&](const unsigned i) { return i-mesh.triangles().front().index(); };
+            Block<SymMatrix> Sblock(Smat,ind,ind);
+            S(1.0,Sblock);
+            N(coeff,Sblock,Nmat);
+        }
+
+        template <typename DMatrix>
+        void set_D_block(const double coeff,DMatrix& Dmat) const {
+            if (has_D_block()) {
+                base::message("D",mesh,mesh);
+                base::D(mesh.triangles(),mesh.triangles(),coeff,Dmat);
+            }
+        }
+
+        // There is no need to compute a Dstar block in this case as it is the transpose(D).
 
         template <typename T>
         void addIdentity(const double coeff,T& matrix) const {
             // The Matrix is incremented by the identity P1P0 operator
             base::message("Id",mesh);
+            const double factor = coeff/3.0;
             for (const auto& triangle : mesh.triangles())
                 for (const auto& vertex : triangle)
-                    matrix(triangle.index(),vertex->index()) += Id(triangle,*vertex)*coeff;
+                    matrix(triangle.index(),vertex->index()) += (triangle.contains(*vertex)) ? factor*triangle.area() : 0.0;
         }
 
-        template <typename T>
-        void S(const double coeff,T& matrix) const {
+        template <typename DMatrix>
+        void set_D_block(DMatrix& Dmat) const {
+            base::message("D",mesh,mesh);
+            base::D(mesh.triangles(),mesh.triangles(),K,Dmat);
+        }
+
+    private:
+
+        bool S_block_is_computed() const { return Scoeff!=0.0; }
+
+        template <typename SMatrix>
+        void S(const double coeff,SMatrix& Smat) const {
             base::message("S",mesh,mesh);
             ProgressBar pb(mesh.triangles().size());
 
@@ -264,61 +254,31 @@ namespace OpenMEEG {
 
             ThreadException e;
             const Triangles& triangles = mesh.triangles();
-            for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1,++pb) {
+            #pragma omp parallel for
+            #if defined NO_OPENMP || defined OPENMP_ITERATOR
+            for (Triangles::const_iterator tit1=triangles.begin(); tit1!=triangles.end(); ++tit1) {
                 const Triangle& triangle1 = *tit1;
-                const OperatorS S(triangle1);
-                const auto& Sfunc = [&S](const Point3D& r) { return S(r); };
+            #else
+            for (int i=0; i<triangles.size(); ++i) {
+                const Triangle& triangle1 = triangles[i];
+                const Triangles::const_iterator tit1 = triangles.cbegin()+i;
+            #endif
+                e.run([&]() {
+                    const OperatorS S(triangle1);
+                    const auto& Sfunc = [&S](const Point3D& r) { return S(r); };
 
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                for (Triangles::const_iterator tit2=tit1; tit2!=triangles.end(); ++tit2) {
-                    const Triangle& triangle2 = *tit2;
-                #else
-                for (int i2=tit1-triangles.begin(); i2<static_cast<int>(triangles.size()); ++i2) {
-                    const Triangle& triangle2 = *(triangles.begin()+i2);
-                #endif
-                    e.run([&]() {
-                        matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
-                    });
-                }
-                e.rethrow();
+                    for (Triangles::const_iterator tit2=tit1; tit2!=triangles.end(); ++tit2) {
+                        const Triangle& triangle2 = *tit2;
+                        Smat(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                    }
+                });
+                ++pb;
             }
+            e.rethrow();
         }
 
-        template <typename T>
-        void N(const double coeff,T& matrix) const {
-            if (S_block_is_computed()) {
-                N(coeff/Scoeff,matrix,matrix);
-            } else {
-                SymBloc Sbloc(mesh.triangles().front().index(),mesh.triangles().size());
-                S(1.0,Sbloc);
-                N(coeff,Sbloc,matrix);
-            }
-        }
-
-        template <typename T>
-        void D(const double coeff,T& matrix) const {
-            base::message("D",mesh,mesh);
-            base::D(mesh.triangles(),mesh.triangles(),coeff,matrix);
-        }
-
-        template <typename T>
-        void Dstar(const double coeff,T& matrix) const {
-            base::message("D*",mesh,mesh);
-            base::D(mesh.triangles(),mesh.triangles(),coeff,matrix);
-        }
-
-
-    private:
-
-        bool S_block_is_computed() const { return Scoeff!=0.0; }
-
-        static double Id(const Triangle& T,const Vertex& V) {
-            return (T.contains(V)) ? T.area()/3.0 : 0.0;
-        }
-
-        template <typename T1,typename T2>
-        void N(const double coeff,const T1& S,T2& matrix) const {
+        template <typename SMatrix,typename NMatrix>
+        void N(const double coeff,const SMatrix& Smat,NMatrix& Nmat) const {
 
             base::message("N",mesh,mesh);
 
@@ -327,31 +287,31 @@ namespace OpenMEEG {
 
             // When meshes are equal, optimized computation for a symmetric matrix.
 
+            const double factor = 0.25*coeff;
+            #pragma omp parallel for
+            #if defined NO_OPENMP || defined OPENMP_ITERATOR
             for (auto vit1=mesh.vertices().begin(); vit1!=mesh.vertices().end(); ++vit1) {
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_ITERATOR
-                for (auto vit2=vit1; vit2<mesh.vertices().end(); ++vit2) {
-                #else
-                for (int i2=0;i2<=vit1-mesh.vertices().begin();++i2) {
-                    const auto vit2 = mesh.vertices().begin()+i2;
-                #endif
-                    e.run([&]() {
-                        matrix((*vit1)->index(),(*vit2)->index()) += base::N(**vit1,**vit2,mesh,S)*coeff;
-                    });
-                }
-                e.rethrow();
+            #else
+            for (int i=0; i<mesh.vertices().size(); ++i) {
+                const auto vit1 = mesh.vertices().begin()+i;
+            #endif
+                e.run([&]() {
+                    for (auto vit2=vit1; vit2<mesh.vertices().end(); ++vit2)
+                        Nmat((*vit1)->index(),(*vit2)->index()) += factor*base::N(**vit1,**vit2,mesh,mesh,Smat);
+                });
                 ++pb;
             }
+            e.rethrow();
         }
 
         const Mesh&  mesh;
               double Scoeff = 0.0;
     };
 
-    class PartialBlock {
+    class PartialBlockWriter {
     public:
 
-        PartialBlock(const Mesh& m): mesh(m) { }
+        PartialBlockWriter(const Mesh& m): mesh(m) { }
 
         void addD(const double coeff,const Vertices& points,Matrix& matrix) const {
             log_stream(INFORMATION) << "PARTAL OPERATOR D..." << std::endl;
@@ -379,65 +339,67 @@ namespace OpenMEEG {
         const Mesh& mesh;
     };
 
-    class NonDiagonalBlock: public BlocksBase  {
+    class NonDiagonalBlockWriter: public BlockWriterBase  {
 
-        typedef BlocksBase base;
-
-        class Bloc: public Matrix {
-
-            typedef Matrix base;
-
-        public:
-
-            Bloc(const unsigned r0,const unsigned c0,const unsigned n,const unsigned m): base(n,m),i0(r0),j0(c0) { }
-
-            double& operator()(const unsigned i,const unsigned j)       { return base::operator()(i-i0,j-j0); }
-            double  operator()(const unsigned i,const unsigned j) const { return base::operator()(i-i0,j-j0); }
-
-        private:
-
-            const unsigned i0;
-            const unsigned j0;
-        };
+        using base = BlockWriterBase;
 
     public:
 
         // This constructor takes the following arguments:
-        //  - The 2 interacting meshes.
-        //  - The gauss order parameter (for adaptive integration).
-        //  - A verbosity parameters (for printing the action on the terminal).
+        //  - The 2 adjacent (interacting) meshes.
+        //  - The integrator used to compute the operators.
 
-        NonDiagonalBlock(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
+        NonDiagonalBlockWriter(const Mesh& m1,const Mesh& m2,const Integrator& intg): base(intg),mesh1(m1),mesh2(m2) { }
 
-        template <typename T>
-        void set_S_block(const double coeff,T& matrix) {
-            if (!mesh1.current_barrier() && !mesh2.current_barrier()) {
-                S(coeff,matrix);
+        template <typename SMatrix>
+        void set_S_block(const double coeff,SMatrix& Smat) {
+            if (has_S_block()) {
+                S(coeff,Smat);
                 Scoeff = coeff;
             }
         }
 
-        template <typename T>
-        void set_N_block(const double coeff,T& matrix) const { N(coeff,matrix); }
-
-        template <typename T>
-        void set_D_block(const double coeff,T& matrix) const {
-            if (!mesh1.current_barrier())
-                D(coeff,matrix);
+        template <typename SMatrix,typename NMatrix>
+        void set_N_block(const double coeff,const SMatrix& Smat,NMatrix& Nmat) const {
+            if (S_block_is_computed()) {
+                N(coeff/Scoeff,Smat,Nmat);
+            } else {
+                set_N_block(coeff,Nmat);
+            }
         }
 
-        template <typename T>
-        void set_Dstar_block(const double coeff,T& matrix) const {
-            if (mesh1!=mesh2 && !mesh2.current_barrier())
-                Dstar(coeff,matrix);
+        template <typename NMatrix>
+        void set_N_block(const double coeff,NMatrix& Nmat) const {
+
+            // In this case, Smat is invalid in the FullMatrix representation and not filled
+            // in the BlockMatrix representation. We need to compute this matrix.
+
+            Matrix Smat(mesh1.triangles().size(),mesh2.triangles().size());
+            auto ind1 = [&](const unsigned i) { return i-mesh1.triangles().front().index(); };
+            auto ind2 = [&](const unsigned i) { return i-mesh2.triangles().front().index(); };
+            Block<Matrix> Sblock(Smat,ind1,ind2);
+            S(1.0,Sblock);
+            N(coeff,Sblock,Nmat);
+        }
+
+        template <typename DMatrix>
+        void set_D_block(const double coeff,DMatrix& Dmat) const {
+            if (has_D_block())
+                D(coeff,Dmat);
+        }
+
+        template <typename DstarMatrix>
+        void set_Dstar_block(const double coeff,DstarMatrix& Dstarmat) const {
+            if (has_Dstar_block())
+                Dstar(coeff,Dstarmat);
         }
 
         // Various operators take the following arguments:
         //  - The coefficient to be applied to each matrix element (depending on conductivities, ...)
         //  - The storage Matrix for the result
 
-        template <typename T>
-        void S(const double coeff,T& matrix) const {
+        template <typename SMatrix>
+        void S(const double coeff,SMatrix& Smat) const {
             base::message("S",mesh1,mesh2);
             ThreadException e;
             ProgressBar pb(mesh1.triangles().size());
@@ -448,133 +410,72 @@ namespace OpenMEEG {
             // if we invert tit1 with tit2: results in HeadMat differs at 4.e-5 which is too big.
             // using ADAPT_LHS with tolerance at 0.000005 (for S) drops this at 6.e-6 (but increase the computation time).
 
-            for (const auto& triangle1 : mesh1.triangles()) {
+            #pragma omp parallel for
+            #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+            for (const Triangle& triangle1 : mesh1.triangles()) {
+            #else
+            for (int i=0; i<mesh1.triangles().size(); ++i) {
+                const Triangle& triangle1 = mesh1.triangles()[i];
+            #endif
+                e.run([&]() {
+                    const OperatorS S(triangle1);
+                    const auto& Sfunc = [&S](const Point3D& r) { return S(r); };
 
-                const OperatorS S(triangle1);
-                const auto& Sfunc = [&S](const Point3D& r) { return S(r); };
-
-                const Triangles& m2_triangles = mesh2.triangles();
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-                for (const auto& triangle2 : m2_triangles) {
-                #elif defined OPENMP_ITERATOR
-                for (Triangles::const_iterator tit2=m2_triangles.begin();tit2<m2_triangles.end();++tit2) {
-                    const Triangle& triangle2 = *tit2;
-                #else
-                for (int i2=0;i2<static_cast<int>(m2_triangles.size());++i2) {
-                    const Triangle& triangle2 = *(m2_triangles.begin()+i2);
-                #endif
-                    e.run([&]() {
-                        matrix(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
-                    });
-                }
-                e.rethrow();
+                    for (const auto& triangle2 : mesh2.triangles())
+                        Smat(triangle1.index(),triangle2.index()) = base::integrator.integrate(Sfunc,triangle2)*coeff;
+                });
                 ++pb;
             }
+            e.rethrow();
         }
 
-        template <typename T>
-        void N(const double coeff,T& matrix) const {
-            if (S_block_is_computed()) {
-                N(coeff/Scoeff,matrix,matrix);
-            } else {
-                Bloc Sbloc(mesh1.triangles().front().index(),mesh2.triangles().front().index(),mesh1.triangles().size(),mesh2.triangles().size());
-                S(1.0,Sbloc);
-                N(coeff,Sbloc,matrix);
-            }
-        }
-
-        template <typename T>
-        void D(const double coeff,T& matrix) const {
-            base::message("D",mesh1,mesh2);
-            base::D(mesh1.triangles(),mesh2.triangles(),coeff,matrix);
-        }
-
-        template <typename T>
-        void Dstar(const double coeff,T& matrix) const {
-            base::message("D*",mesh1,mesh2);
-            base::D(mesh2.triangles(),mesh1.triangles(),coeff,matrix);
-        }
-
-    private:
-
-        bool S_block_is_computed() const { return Scoeff!=0.0; }
-
-        template <typename T1,typename T2>
-        void N(const double coeff,const T1& S,T2& matrix) const {
+        template <typename SMatrix,typename NMatrix>
+        void N(const double coeff,const SMatrix& Smat,NMatrix& Nmat) const {
 
             base::message("N",mesh1,mesh2);
 
             ThreadException e;
             ProgressBar pb(mesh1.vertices().size());
-            const VerticesRefs& m2_vertices = mesh2.vertices();
-            for (const auto& vertex1 : mesh1.vertices()) {
-                #pragma omp parallel for
-                #if defined NO_OPENMP || defined OPENMP_RANGEFOR
-                for (const auto& vertex2 : m2_vertices) {
-                #elif defined OPENMP_ITERATOR
-                for (auto vit2=m2_vertices.begin(); vit2<m2_vertices.end(); ++vit2) {
-                    const Vertex* vertex2 = *vit2;
-                #else
-                for (int i2=0; i2<static_cast<int>(m2_vertices.size()); ++i2) {
-                    const Vertex* vertex2 = *(m2_vertices.begin()+i2);
-                #endif
-                    e.run([&]() {
-                        matrix(vertex1->index(),vertex2->index()) += base::N(*vertex1,*vertex2,mesh1,mesh2,S)*coeff;
-                    });
-                }
-                e.rethrow();
+            #pragma omp parallel for
+            #if defined NO_OPENMP || defined OPENMP_RANGEFOR
+            for (const Vertex* vertex1 : mesh1.vertices()) {
+            #else
+            for (int i=0; i<mesh1.vertices().size(); ++i) {
+                const Vertex* vertex1 = mesh1.vertices()[i];
+            #endif
+                e.run([&]() {
+                    for (const auto& vertex2 : mesh2.vertices()) {
+                        const double factor = ((vertex1==vertex2) ? 0.5 : 0.25)*coeff;
+                        Nmat(vertex1->index(),vertex2->index()) += factor*base::N(*vertex1,*vertex2,mesh1,mesh2,Smat);
+                    }
+                });
                 ++pb;
             }
+            e.rethrow();
         }
 
-        const Mesh&  mesh1;
-        const Mesh&  mesh2;
-              double Scoeff = 0.0;
-    };
-
-    template <typename BlockType>
-    class HeadMatrixBlocks {
-    public:
-
-        HeadMatrixBlocks(const BlockType& blk): block(blk) { }
-
-        // SymMatrix is initialized at once, and there is nothing to for blockwise matrix.
-
-        static void init(SymMatrix& matrix) { matrix = 0.0; }
-        void set_blocks(SymMatrix&) const   { }
-
-        // SymmetricBlockMatrix is initialized blockwise.
-
-        static void init(maths::SymmetricBlockMatrix&) { }
-        #if 0
-        void set_blocks(maths::SymmetricBlockMatrix& matrix) const { // Integrate this in blocks.
-            const Ranges& vrange1 = mesh1.vertices_ranges();
-            const Ranges& vrange2 = mesh2.vertices_ranges();
-            const Ranges& trange1 = { mesh1.triangles_range() };
-            const Ranges& trange2 = { mesh2.triangles_range() };
-
-            matrix.add_blocks(trange1,trange2); // S blocks.
-            matrix.add_blocks(vrange1,vrange2); // N blocks.
-            matrix.add_blocks(trange1,vrange2); // D blocks.
-            if (!same_mesh)
-                matrix.add_blocks(trange2,vrange1); // D* blocks when they are not the transpose of D blocks.
+        template <typename DMatrix>
+        void D(const double coeff,DMatrix& Dmat) const {
+            base::message("D",mesh1,mesh2);
+            base::D(mesh1.triangles(),mesh2.triangles(),coeff,Dmat);
         }
-        #endif
 
-        template <typename T>
-        void set_blocks(const double coeffs[3],T& matrix) {
-            const double SCondCoeff = coeffs[0];
-            const double NCondCoeff = coeffs[1];
-            const double DCondCoeff = coeffs[2];
-            block.set_S_block(SCondCoeff,matrix);
-            block.set_N_block(NCondCoeff,matrix);
-            block.set_D_block(DCondCoeff,matrix);
-            block.set_Dstar_block(DCondCoeff,matrix);
+        template <typename DstarMatrix>
+        void Dstar(const double coeff,DstarMatrix& Dstarmat) const {
+            base::message("D*",mesh1,mesh2);
+            base::D(mesh2.triangles(),mesh1.triangles(),coeff,Dstarmat);
         }
 
     private:
 
-        BlockType block;
+        bool has_S_block()     const { return !(mesh1.is_current_barrier() || mesh2.is_current_barrier()); }
+        bool has_D_block()     const { return (!mesh1.is_current_barrier()); }
+        bool has_Dstar_block() const { return (!mesh2.is_current_barrier()); }
+
+        bool S_block_is_computed() const { return Scoeff!=0.0; }
+
+        const Mesh&  mesh1;
+        const Mesh&  mesh2;
+              double Scoeff = 0.0;
     };
 }

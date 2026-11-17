@@ -209,7 +209,7 @@ bool compare(const T& mat1,const T& mat2,const double eps,const size_t col) {
                     if (count==0)
                         std::cout << "ERROR NORM  mat(i,j) | mat2(i,j) | diff" << std::endl;
                     std::cout.precision(20);
-                    std::cout << "ERROR NORM  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                    std::cout << "ERROR NORM  " << '(' << i << ',' << j << ") " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                     std::cout.flush();
                 }
                 if (count>=100) {
@@ -225,7 +225,7 @@ bool compare(const T& mat1,const T& mat2,const double eps,const size_t col) {
                     flag = flag && (diff<eps);
                     if (diff>=eps && ++count<100) {
                         std::cout.precision(20);
-                        std::cout << "ERROR RELATIVE  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                        std::cout << "ERROR RELATIVE  " << '(' << i << ',' << j << ") " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }
                     if (count>=100) {
@@ -237,7 +237,7 @@ bool compare(const T& mat1,const T& mat2,const double eps,const size_t col) {
                     flag = flag && (diff<eps);
                     if (diff>=eps && ++count<100) {
                         std::cout.precision(20);
-                        std::cout << "ERROR DIFF  " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
+                        std::cout << "ERROR DIFF  " << '(' << i << ',' << j << ") " << mat1(i,j) << "  " << mat2(i,j) << "  " << diff << std::endl;
                         std::cout.flush();
                     }
                     if (count>=100) {

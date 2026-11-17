@@ -7,6 +7,7 @@
 
 #include <set>
 #include <vector>
+#include <sstream>
 #include <queue>
 
 #include <geometry.h>
@@ -20,15 +21,15 @@ namespace OpenMEEG {
     /// Search for the outermost domain.
 
     Domain&
-    Geometry::outermost_domain() {
-        // The outermost domain is defined as the domain which has no inside.
+    Geometry::external_domain() {
+        // The external domain is defined as the domain which has no inside.
         // This domain should be unique. Otherwise the decomposition of the geometry
         // into domains is wrong. We assume here that it is correct.
 
-        for (auto& domain : domains()) {
+        for (Domain& domain : domains()) {
             bool outer = true;
-            for (auto& boundary : domain.boundaries())
-                if (boundary.inside()) {
+            for (Domain::Boundary& boundary : domain.boundaries())
+                if (boundary.is_outer_boundary()) {
                     outer = false;
                     break;
                 }
@@ -51,7 +52,7 @@ namespace OpenMEEG {
         for (const auto& domain : domains()) {
             bool inner = true;
             for (const auto& boundary : domain.boundaries())
-                if (!boundary.inside()) {
+                if (boundary.is_inner_boundary()) {
                     inner = false;
                     break;
                 }
@@ -66,9 +67,9 @@ namespace OpenMEEG {
     }
 
     const Interface&
-    Geometry::outermost_interface() const {
-        for (const auto& domain : domains())
-            if (is_outermost(domain))
+    Geometry::external_interface() const {
+        for (const Domain& domain : domains())
+            if (is_external(domain))
                 return domain.boundaries().front().interface();
 
         // Should never append
@@ -79,14 +80,14 @@ namespace OpenMEEG {
 
     Mesh& Geometry::mesh(const std::string& id) {
 
-        for (auto& mesh: meshes())
+        for (Mesh& mesh: meshes())
             if (mesh.name()==id)
                 return mesh;
 
         // Should never happen
 
         std::ostringstream oss;
-        for (auto& mesh: meshes())
+        for (Mesh& mesh: meshes())
             oss << mesh.name() << ' ';
         log_stream(WARNING) << "Geometry::mesh: Error mesh id/name not found: " << id << " from candidates: " + oss.str();
         throw OpenMEEG::BadInterface(id);
@@ -116,11 +117,14 @@ namespace OpenMEEG {
             std::cout << "This geometry is a NON NESTED geometry. (There was " << shared << " demands for adding same vertices)." << std::endl;
         }
 
+        std::cout << "Meshes:" << std::endl;
         for (const auto& mesh : meshes())
-            mesh.info();
+            mesh.info(verbose);
+        std::cout << std::endl;
 
+        std::cout << "Domains:" << std::endl;
         for (const auto& domain : domains())
-            domain.info(is_outermost(domain));
+            domain.info(is_external(domain));
 
         if (verbose) {
             for (const auto& vertex : vertices())
@@ -198,7 +202,7 @@ namespace OpenMEEG {
         delete io;
     }
 
-    void Geometry::import(const MeshList& mesh_list) {
+    void Geometry::import(const MeshDefinitions& mesh_list) {
 
         struct MeshDescription {
             std::string name;
@@ -222,27 +226,27 @@ namespace OpenMEEG {
         // Second really load the meshes
 
         meshes().reserve(mesh_descriptions.size());
-        for (const auto& desc : mesh_descriptions) {
+        for (const MeshDescription& desc : mesh_descriptions) {
             Mesh& mesh = add_mesh(desc.name);
             desc.io->load_triangles(mesh);
             mesh.update();
         }
 
-        for (auto& desc : mesh_descriptions)
+        for (MeshDescription& desc : mesh_descriptions)
             delete desc.io;
     }
 
     void Geometry::read_conductivity_file(const std::string& filename) {
         try {
-            typedef Utils::Properties::Named<std::string,Conductivity<double>> HeadProperties;
+            using HeadProperties = Utils::Properties::Named<std::string,ConductivityProperty>;
             HeadProperties properties(filename.c_str());
 
             // Store the internal conductivity of the external boundary of domain i
             // and store the external conductivity of the internal boundary of domain i
 
-            for (auto& domain : domains()) try {
-                const Conductivity<double>& cond = properties.find(domain.name());
-                domain.set_conductivity(cond.sigma());
+            for (Domain& domain : domains()) try {
+                const ConductivityProperty& condprop = properties.find(domain.name());
+                domain.set_conductivity(condprop.value());
             } catch (const Utils::Properties::UnknownProperty<HeadProperties::Id>&) {
                 throw OpenMEEG::BadDomain(domain.name());
             }
@@ -259,43 +263,52 @@ namespace OpenMEEG {
 
     void Geometry::generate_indices(const bool OLD_ORDERING) {
 
+        if (OLD_ORDERING)
+            om_error(is_nested()); // Our definition of nested is too strict (it rather means concentric). We could relax this.
+
         // Either unknowns (potentials and currents) are ordered by mesh (i.e. V_1, p_1, V_2, p_2, ...) (this is the OLD_ORDERING)
-        // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT)
-        // or by the user himself encoded into the vtp file.
+        // or by type (V_1, V_2, V_3 .. p_1, p_2...) (by DEFAULT) or by the user himself encoded into the vtp file.
         // if you use OLD_ORDERING make sure to iterate only once on each vertex: not to overwrite index (meshes have shared vertices).
 
         unsigned index = 0;
         if (!OLD_ORDERING)
-            for (auto& vertex : vertices())
-                vertex.index() = (invalid_vertices_.count(vertex)==0) ? index++ : unsigned(-1);
+            for (Vertex& vertex : vertices())
+                vertex.index() = (unused_vertices.count(&vertex)==0) ? index++ : unsigned(-1);
 
-        for (auto& mesh : meshes()) {
+        // We first index non current barrier triangles.
+        // This allows for contiguous indices even when the current barrier triangles are not needed.
+
+        nb_current_barrier_triangles = 0;
+        for (Mesh& mesh : meshes()) {
             if (OLD_ORDERING) {
-                om_error(is_nested()); // OR non nested but without shared vertices
                 for (const auto& vertex : mesh.vertices())
                     vertex->index() = index++;
             }
-            if (!mesh.isolated() && !mesh.current_barrier())
-                for (auto& triangle : mesh.triangles())
+
+            if (!mesh.is_current_barrier())
+                for (Triangle& triangle : mesh.triangles())
                     triangle.index() = index++;
         }
 
-        // even the last surface triangles (yes for EIT... )
+        // Index current barrier triangles that do not belong to isolated meshes.
+        // Isolated meshes are unnecessary, we could remove them.
+        // Here, we just do not index their triangles.
+        // Their vertices are not indexed either through unused_vertices.
+        // TODO: Remove isolated meshes completely.
 
-        nb_current_barrier_triangles_ = 0;
-        for (auto& mesh : meshes())
-            if (mesh.current_barrier()) {
-                if (!mesh.isolated()) {
-                    nb_current_barrier_triangles_ += mesh.triangles().size();
-                    for (auto& triangle : mesh.triangles())
+        for (Mesh& mesh : meshes())
+            if (mesh.is_current_barrier()) {
+                if (!mesh.is_isolated()) {
+                    nb_current_barrier_triangles += mesh.triangles().size();
+                    for (Triangle& triangle : mesh.triangles())
                         triangle.index() = index++;
                 } else {
-                    for (auto& triangle : mesh.triangles())
+                    for (Triangle& triangle : mesh.triangles())
                         triangle.index() = unsigned(-1);
                 }
             }
 
-        num_params = index;
+        nb_params = index;
     }
 
     bool Geometry::selfCheck() const {
@@ -357,15 +370,22 @@ namespace OpenMEEG {
         };
 
         const Interface& interface = innermost_interface();
-        unsigned n_outside = 0;
+        std::vector<unsigned> outside_points;
         for (unsigned i=0; i<mat.nlin(); ++i)
             if (!interface.contains(Vect3(mat(i,0),mat(i,1),mat(i,2))))
-                ++n_outside;
-        if (n_outside!=0) {
-            log_stream(WARNING) << n_outside << " points are outside of the inner compartment." << std::endl;
-            return false;
-        }
-        return true;
+                outside_points.push_back(i);
+
+        if (outside_points.size()==0)
+            return true;
+
+        std::stringstream oss;
+        oss << outside_points[0];
+        for (unsigned i=1; i<outside_points.size(); ++i)
+            oss << "," << outside_points[i];
+
+        const std::string header((outside_points.size()==1) ? "Point " : "Points ");
+        log_stream(WARNING) << header << oss.str() << " are outside of the inner compartment." << std::endl;
+        return false;
     }
 
     /// Determine whether the geometry is nested or not.
@@ -375,11 +395,11 @@ namespace OpenMEEG {
         // (at least) one domain is defined as being outside two or more interfaces OR....
 
         nested = true;
-        for (const auto& domain : domains()) {
+        for (const Domain& domain : domains()) {
             unsigned out_interface = 0;
-            if (!is_outermost(domain))
+            if (!is_external(domain))
                 for (const auto& boundary : domain.boundaries())
-                    if (boundary.inside())
+                    if (boundary.is_outer_boundary())
                         out_interface++;
             if (out_interface>=2) {
                 nested = false;
@@ -391,7 +411,7 @@ namespace OpenMEEG {
 
         for (const auto& mesh : meshes()) {
             unsigned m_oriented = 0;
-            for (const auto& domain : domains())
+            for (const Domain& domain : domains())
                 for (const auto& boundary : domain.boundaries())
                     for (const auto& oriented_mesh : boundary.interface().oriented_meshes())
                         if (oriented_mesh.mesh()==mesh)
@@ -407,80 +427,98 @@ namespace OpenMEEG {
     //  Create the vector of pairs of communicating meshes.
 
     void Geometry::make_mesh_pairs() {
-        for (const auto& mesh1 : meshes())
-            if (!mesh1.isolated())
-                for (const auto& mesh2 : meshes()) {
-                    const int orientation = relative_orientation(mesh1,mesh2);
-                    if ((!mesh2.isolated()) && (sigma(mesh1,mesh2)!=0.0) && orientation!=0) {
-                        // Communicating meshes are used for the definition of a common domain
-                        meshpairs.push_back(MeshPair(mesh1,mesh2,orientation));
-                    }
+        for (const Mesh& mesh1 : meshes())
+            if (!mesh1.is_isolated()) {
+                non_isolated_meshes.push_back(&mesh1);
+                for (const Mesh& mesh2 : meshes()) {
 
-                    //  Lopp only over oriented pairs of meshes.
+                    //  Loop only over oriented pairs of different meshes.
 
                     if (&mesh2==&mesh1)
                         break;
+
+                    if (mesh2.is_isolated())
+                        continue;
+
+                    const DomainsRefs& domains = common_domains(mesh1,mesh2);
+                    if (domains.size()!=0)
+                        meshpairs.push_back(AdjacentMeshes(mesh1,mesh2,domains));
                 }
+            }
     }
 
     // Mark all meshes which touch domains with 0 conductivity
 
-    void Geometry::mark_current_barriers() {
+    void Geometry::set_mesh_properties() {
 
         // Find meshes that are current_barriers (that touch a zero-conductivity domain).
         // TODO: Should we also remove meshes for which there is no conductivity jump...
         // TODO: Instead of marking meshes and vertices, remove them from the model ?
         // TODO: isolated is not the proper name. immersed, redundant, unnecessary ?
 
-        for (auto& domain : domains()) {
+        MeshRefs unnecessary_meshes;
+        for (Domain& domain : domains())
             if (almost_equal(domain.conductivity(),0.0)) {
-                for (auto& boundary : domain.boundaries()) {
-                    for (auto& oriented_mesh : boundary.interface().oriented_meshes()) {
-                        const bool fully_immersed = (oriented_mesh.mesh().current_barrier()==true);
-                        oriented_mesh.mesh().current_barrier() = true;
-                        if (fully_immersed) {
-                            oriented_mesh.mesh().isolated()  = true;
-                            oriented_mesh.mesh().outermost() = false;
-                            log_stream(INFORMATION) << "Mesh \"" << oriented_mesh.mesh().name() << "\""
-                                                    << " will be excluded from computation because it touches non-conductive domains on both sides."
-                                                    << std::endl;
-
-                            //  Add all of its vertices to invalid_vertices
-
-                            for (const auto& vertex : oriented_mesh.mesh().vertices())
-                                invalid_vertices_.insert(*vertex);
-                        }
-                    }
-                }
+                const MeshRefs& meshes = domain.unnecessary_meshes();
+                unnecessary_meshes.insert(unnecessary_meshes.end(),meshes.begin(),meshes.end());
             }
+        std::sort(unnecessary_meshes.begin(),unnecessary_meshes.end());
+
+        for (Mesh* meshptr : unnecessary_meshes) {
+            Mesh& mesh = *meshptr;
+
+            log_stream(INFORMATION) << "Mesh \"" << mesh.name() << "\""
+                                    << " will be excluded from computation because it touches non-conductive domains on both sides."
+                                    << std::endl;
+
+            //  Add all of its vertices to unused_vertices
+
+            for (Vertex* vertex : mesh.vertices())
+                unused_vertices.insert(vertex);
         }
 
-        //  Redefine outermost interface.
-        //  The inside of a 0-cond domain is considered as a new outermost
-        //  TODO: Can we merge this loop in the previous one ?
+        // Remove unnecessary meshes and their unneeded vertices.
 
-        for (auto& domain : domains())
-            if (almost_equal(domain.conductivity(),0.0))
-                for (auto& boundary : domain.boundaries())
-                    if (!boundary.inside())
-                        for (auto& oriented_mesh : boundary.interface().oriented_meshes())
-                            if (oriented_mesh.mesh().current_barrier() && !oriented_mesh.mesh().isolated())
-                                oriented_mesh.mesh().outermost() = true;
+        Meshes& all_meshes = meshes();
+        for (unsigned i=0,j=0,k=0; i<all_meshes.size() && j<unnecessary_meshes.size(); ++i) {
+            if (&all_meshes[i]!=unnecessary_meshes[j]) {
+                std::cerr << "Mesh " << all_meshes[i].name() << " because it is unnecessary (separates domains with equal conductivities)." << std::endl;
+                j += 1;
+                continue;
+            }
+            if (k!=i)
+                all_meshes[k] = all_meshes[i];
+            k += 1;
+        }
+        all_meshes.resize(all_meshes.size()-unnecessary_meshes.size());
 
-        //  Do not invalidate vertices of isolated meshes if they are shared by non isolated meshes.
+        //  Do not invalidate vertices of unnecessary meshes if they are shared by necessary meshes.
 
-        std::set<Vertex> shared_vertices;
-        for (const auto& vertex : invalid_vertices_)
+        std::set<Vertex*> shared_vertices;
+        for (const Vertex* vertex : unused_vertices)
             for (const auto& mesh : meshes())
-                if (!mesh.isolated()) {
-                    const auto comp = [vertex](const Vertex* v) { return *v==vertex; };
+                if (!mesh.is_isolated()) {
+                    const auto comp = [vertex](const Vertex* v) { return v==vertex; };
                     const auto& vfind = std::find_if(mesh.vertices().begin(),mesh.vertices().end(),comp);
                     if (vfind!=mesh.vertices().end())
-                        shared_vertices.insert(**vfind); //a shared vertex is found
+                        shared_vertices.insert(*vfind); // An invalid vertex is found on a necessary mesh. We need to keep it.
                 }
 
-        for (const auto& vertex : shared_vertices)
-            invalid_vertices_.erase(vertex);
+        for (Vertex* vertex : shared_vertices)
+            unused_vertices.erase(vertex);
+
+        //  Redefine external interface.
+        //  The inside of a 0-cond domain is considered as a new outermost
+        //  TODO: Can we merge this loop with the first loop of this function ?
+        //        We definitely need to know/remove unnecessary meshes to determine external meshes.
+
+        for (Domain& domain : domains())
+            if (almost_equal(domain.conductivity(),0.0))
+                for (Domain::Boundary& boundary : domain.boundaries())
+                    if (boundary.is_inner_boundary())
+                        for (OrientedMesh& oriented_mesh : boundary.interface().oriented_meshes())
+                            if (oriented_mesh.mesh().is_current_barrier() && !oriented_mesh.mesh().is_isolated())
+                                oriented_mesh.mesh().set_external_property(true);
 
         // Find the various components in the geometry.
         // The various components are separated by zero-conductivity domains.
@@ -488,7 +526,7 @@ namespace OpenMEEG {
         // Figure out the connectivity of meshes
 
         std::set<const Mesh*> mesh_candidates;
-        for (const auto& mesh : meshes())
+        for (const Mesh& mesh : meshes())
             mesh_candidates.insert(&mesh);
 
         while (!mesh_candidates.empty()) {
@@ -496,8 +534,8 @@ namespace OpenMEEG {
             const Mesh* candidate = *mesh_candidates.begin();
             mesh_candidates.erase(candidate);
 
-            std::vector<const Mesh*> connected_meshes{candidate};
-            std::queue<const Mesh*>  pending;
+            ConstMeshRefs interacting_meshes{candidate}; // Set of meshes connected by chains of non-zero conductivity domains.
+            std::queue<const Mesh*> pending;
             pending.push(candidate);
 
             while (!pending.empty()) {
@@ -509,7 +547,7 @@ namespace OpenMEEG {
                     if (common_domains(*current,**it).empty()) {
                         ++it;
                     } else {
-                        connected_meshes.push_back(*it);
+                        interacting_meshes.push_back(*it);
                         pending.push(*it);
                         it = mesh_candidates.erase(it);
                     }
@@ -518,8 +556,8 @@ namespace OpenMEEG {
             // Each connected conductor needs one deflation (potential defined up to a constant).
             // A lone isolated mesh has no unknowns.
 
-            if (connected_meshes.size()>1 || !connected_meshes.front()->isolated())
-                independant_parts.push_back(std::move(connected_meshes));
+            if (interacting_meshes.size()>1 || !interacting_meshes.front()->is_isolated())
+                independant_parts.push_back(std::move(interacting_meshes));
         }
 
         //  Report isolated geometries
@@ -530,9 +568,9 @@ namespace OpenMEEG {
                                     << std::endl;
 
             unsigned p =0;
-            for (const auto& part : independant_parts) {
+            for (const ConstMeshRefs& part : independant_parts) {
                 log_stream(INFORMATION) << "Part " << ++p << " is formed by meshes: { ";
-                for (const auto& meshptr : part)
+                for (const Mesh* meshptr : part)
                     log_stream(INFORMATION) << "\"" << meshptr->name() << "\" ";
                 log_stream(INFORMATION) << "}." << std::endl;
             }
