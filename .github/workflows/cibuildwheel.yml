@@ -242,14 +242,14 @@ jobs:
       - name: Check files
         run: ls -alR .
       # https://github.com/softprops/action-gh-release
-      - uses: softprops/action-gh-release@v3.0.3
+      - uses: softprops/action-gh-release@v3.0.4
         if: github.event_name == 'push'
         with:
           draft: true
           body_path: body.md
           tag_name: dev
           files: OpenMEEG-*
-      - uses: softprops/action-gh-release@v3.0.3
+      - uses: softprops/action-gh-release@v3.0.4
         if: github.event_name == 'release'
         with:
           files: OpenMEEG-*
