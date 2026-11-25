@@ -29,7 +29,7 @@ endif()
 if (PYTHON_USE_SABI)
     find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development.SABIModule)
 else()
-    find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter NumPy Development.Module)
 endif()
 
 if (BUILD_TESTING)
