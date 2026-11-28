@@ -31,7 +31,7 @@ namespace OpenMEEG::maths {
         BlockMatrix(): LinOp(0,0,BLOCK,2) { }
         BlockMatrix(const size_t M,const size_t N): LinOp(M,N,BLOCK,2) { }
 
-        size_t size() const override {
+        unsigned size() const override {
             unsigned sz = 0;
             for (const auto& block : all_blocks)
                 sz += block.second.size();

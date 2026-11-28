@@ -33,10 +33,10 @@ namespace OpenMEEG {
     /// Print informations about the mesh
 
     void Mesh::info(const bool verbose) const {
-        std::cout << "Info:: Mesh name/ID : "  << name() << std::endl;
-        std::cout << "\t\t# vertices  : " << vertices().size() << std::endl;
-        std::cout << "\t\t# triangles : " << triangles().size() << std::endl;
-        std::cout << "\t\tEuler characteristic : " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
+        std::cout << "Info:: Mesh name/ID: "  << name() << std::endl;
+        std::cout << "\t\t# vertices : " << vertices().size() << std::endl;
+        std::cout << "\t\t# triangles: " << triangles().size() << std::endl;
+        std::cout << "\t\tEuler characteristic: " << vertices().size()-3*triangles().size()/2+triangles().size() << std::endl;
 
         double min_area = std::numeric_limits<double>::max();
         double max_area = 0.;
@@ -44,19 +44,23 @@ namespace OpenMEEG {
             min_area = std::min(triangle.area(),min_area);
             max_area = std::max(triangle.area(),max_area);
         }
-        std::cout << "\t\tMin Area : " << min_area << std::endl;
-        std::cout << "\t\tMax Area : " << max_area << std::endl;
-        if (current_barrier())
-            std::cout << "\t\tCurrent barrier : " << current_barrier() << std::endl;
+        std::cout << "\t\tMin Area: " << min_area << std::endl;
+        std::cout << "\t\tMax Area: " << max_area << std::endl;
+        if (is_current_barrier())
+            std::cout << "\t\tCurrent barrier" << std::endl;
         if (verbose) {
-            std::cout << "Indices :" << std::endl;
+            std::cout << "Vertices:" << std::endl;
             for (const auto& vertex : vertices())
-                std::cout << "[" << *vertex << "] = " << vertex->index() << std::endl;
+                std::cout << vertex->index() << "\t = [" << *vertex << "]" << std::endl;
+            std::cout << std::endl;
+
+            std::cout << "Triangles:" << std::endl;
             for (const auto& triangle : triangles())
-                std::cout << "[[" << triangle.vertex(0)
-                          << "] , [" << triangle.vertex(1)
-                          << "] , ["<< triangle.vertex(2)
-                          << "]] \t = " << triangle.index() << std::endl;
+                std::cout << triangle.index() << "\t = [" << triangle.vertex(0).index()
+                          << ", " << triangle.vertex(1).index()
+                          << ", "<< triangle.vertex(2).index()
+                          << "]" << std::endl;
+            std::cout << std::endl;
         }
     }
 
@@ -83,7 +87,9 @@ namespace OpenMEEG {
         triangles().clear();
         mesh_name.clear();
         vertex_triangles.clear();
-        outermost_ = false;
+        set_current_barrier_property(false);
+        set_isolated_property(false);
+        set_external_property(false);
     }
 
     /// Update triangles area/normal, update vertex triangles and vertices normals if needed
@@ -132,7 +138,7 @@ namespace OpenMEEG {
 
     void Mesh::smooth(const double& smoothing_intensity,const unsigned& niter) {
 
-        typedef std::map<const Vertex*,std::set<Vertex>> Neighbors;
+        using Neighbors = std::map<const Vertex*,std::set<Vertex>>;
         Neighbors neighbors;
         for (const auto& vertex : vertices())
             for (const auto& triangle : triangles(*vertex))
@@ -195,7 +201,7 @@ namespace OpenMEEG {
 
         // P0 gradients: loop on triangles
 
-        if (!outermost_) // if it is an outermost mesh: p=0 thus no need for computing it
+        if (!is_external()) // An external mesh touches the air and has no outward currents (p=0). // TODO: Isn't this true of all current_barriers ?
             for (const auto& triangle1 : triangles()) {
                 A(triangle1.index(),triangle1.index()) = 0.0;
                 for (const auto& triangle2 : adjacent_triangles(triangle1))

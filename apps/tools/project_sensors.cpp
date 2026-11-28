@@ -43,8 +43,8 @@ main(int argc,char* argv[]) {
 
     Matrix output(sensors.getNumberOfPositions(),3);
 
-    const size_t nb_positions = sensors.getNumberOfPositions();
-    for (size_t i=0; i<nb_positions; ++i) {
+    const size_t num_positions = sensors.getNumberOfPositions();
+    for (size_t i=0; i<num_positions; ++i) {
         const Vector position = sensors.getPosition(i);
         Vect3 current_position;
         for (unsigned k=0; k<3; ++k)

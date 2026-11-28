@@ -17,12 +17,12 @@ int main(int argc,char **argv) {
 
     command_usage("Decimate a mesh:");
     const char* input_filename  = command_option("-i",(const char *) NULL,"Input image or mesh");
-    const int   nb_points       = command_option("-n",1000,"desired output number of vertices");
+    const int   num_points      = command_option("-n",1000,"desired output number of vertices");
     const char* output_filename = command_option("-o",(const char *) NULL,"Output Mesh");
 
     const Mesh m_in(input_filename,false);
-    std::cout << "Input surface:\n nb of points: " << m_in.nb_vertices() << "\t nb of triangles:\t" << m_in.nb_triangles() << std::endl;
-    const Mesh m = cgal_decimate(m_in,nb_points);
+    std::cout << "Input surface:\n nb of points: " << m_in.num_vertices() << "\t nb of triangles:\t" << m_in.num_triangles() << std::endl;
+    const Mesh m = cgal_decimate(m_in,num_points);
     m.info();
     m.save(output_filename);
 

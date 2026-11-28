@@ -13,6 +13,7 @@ set(OPENMEEG_SOURCES
     src/mesh_ios.cpp
     src/GeometryIOs.cpp
     src/triangle.cpp
+    src/AdjacentMeshes.cpp
     ${CMAKE_BINARY_DIR}/OpenMEEGVersion.cpp
 )
 

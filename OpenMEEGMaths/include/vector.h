@@ -37,7 +37,7 @@ namespace OpenMEEG {
         void alloc_data() { value = LinOpValue(size()); }
         void reference_data(const double* array) { value = LinOpValue(size(),array); }
 
-        size_t size() const { return nlin(); }
+        unsigned size() const { return nlin(); }
 
         bool empty() const { return value.empty(); }
 

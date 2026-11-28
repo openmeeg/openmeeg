@@ -4,6 +4,7 @@ import warnings as _warnings
 from . import _distributor_init
 
 # https://github.com/swig/swig/issues/2881
+# Should no longer be useful starting with swig 4.4
 with _warnings.catch_warnings():
     _warnings.simplefilter("ignore")
     from ._openmeeg_wrapper import HeadMat  # noqa
@@ -14,6 +15,7 @@ with _warnings.catch_warnings():
 # possible
 from ._openmeeg_wrapper import (
     HeadMat,
+    BlockHeadMat,
     Sensors,
     Integrator,
     Head2EEGMat,

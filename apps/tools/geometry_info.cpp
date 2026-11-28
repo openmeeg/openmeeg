@@ -21,6 +21,8 @@ main(int argc,char* argv[]) {
     const CommandLine cmd(argc,argv,"Print Geometry information");
     const std::string& geom_filename = cmd.option("-g",std::string(),"Input .geom file");
     const std::string& cond_filename = cmd.option("-c",std::string(),"Input .cond file");
+    const bool         very_verbose  = cmd.option("-vv",false,"Very verbose");
+    const bool         verbose       = (very_verbose) ? false : cmd.option("-v",false,"Verbose");
 
     if (cmd.help_mode())
         return 0;
@@ -44,6 +46,12 @@ main(int argc,char* argv[]) {
         std::cerr << e.what() << std::endl;
         return e.code();
     }
+
+    if (verbose)
+        geo.info();
+
+    if (very_verbose)
+        geo.info(true);
 
     if (!geo.selfCheck())
         return 1;

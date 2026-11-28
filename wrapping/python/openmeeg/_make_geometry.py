@@ -7,7 +7,6 @@ from ._openmeeg_wrapper import (
     Interface,
     Mesh,
     OrientedMesh,
-    SimpleDomain,
 )
 from ._utils import mesh_vertices_and_triangles
 
@@ -100,7 +99,7 @@ def make_geometry(meshes, interfaces, domains):
                     f"Interface definition {iname} first argument should be a "
                     "non-empty list of (mesh,orientation)"
                 )
-            if side != SimpleDomain.Inside and side != SimpleDomain.Outside:
+            if side != Domain.Boundary.Inside and side != Domain.Boundary.Outside:
                 raise Exception(
                     f"Domain {dname}: interface {iname} has a wrong side "
                     "direction (In/Out)"
@@ -121,7 +120,7 @@ def make_geometry(meshes, interfaces, domains):
                 oriented_mesh = OrientedMesh(mesh, orientation)
                 om_interface.oriented_meshes().push_back(oriented_mesh)
 
-            om_domain.boundaries().push_back(SimpleDomain(om_interface, side))
+            om_domain.boundaries().push_back(Domain.Boundary(om_interface, side))
         geom.domains().push_back(om_domain)
 
     geom.finalize()
@@ -176,17 +175,17 @@ def make_nested_geometry(meshes, conductivity):
         domains = {
             "Scalp": (
                 [
-                    ("Skull", SimpleDomain.Outside),
-                    ("Head", SimpleDomain.Inside),
+                    ("Skull", Domain.Boundary.Outside),
+                    ("Head", Domain.Boundary.Inside),
                 ],
                 scalp_conductivity,
             ),
-            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
-            "Air": ([("Head", SimpleDomain.Outside)], 0.0),
+            "Brain": ([("Cortex", Domain.Boundary.Inside)], brain_conductivity),
+            "Air": ([("Head", Domain.Boundary.Outside)], 0.0),
             "Skull": (
                 [
-                    ("Cortex", SimpleDomain.Outside),
-                    ("Skull", SimpleDomain.Inside),
+                    ("Cortex", Domain.Boundary.Outside),
+                    ("Skull", Domain.Boundary.Inside),
                 ],
                 skull_conductivity,
             ),
@@ -203,8 +202,8 @@ def make_nested_geometry(meshes, conductivity):
         }
 
         domains = {
-            "Brain": ([("Cortex", SimpleDomain.Inside)], brain_conductivity),
-            "Air": ([("Cortex", SimpleDomain.Outside)], 0.0),
+            "Brain": ([("Cortex", Domain.Boundary.Inside)], brain_conductivity),
+            "Air": ([("Cortex", Domain.Boundary.Outside)], 0.0),
         }
 
     geom = make_geometry(meshes, interfaces, domains)

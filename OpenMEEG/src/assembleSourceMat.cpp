@@ -23,36 +23,37 @@ namespace OpenMEEG {
         if (!geo.check(source_mesh))
             throw OverlappingSourceMesh();
 
-        // The mesh is included in a domain of the geometry.
+        // By the previous test, source_mesh is included in a domain of the geometry.
+        // Find this domain.
 
         const Domain& domain = geo.domain(*source_mesh.vertices().front());
 
-        // Set it as an outermost (to tell _operarorN it doesn't belong to the geometry).
+        // Set it as an outermost (to tell operatorN it doesn't belong to the geometry).
 
-        source_mesh.outermost()       = true;
-        source_mesh.current_barrier() = true;
+        source_mesh.set_external_property(true);
+        source_mesh.set_current_barrier_property(true);
 
         log_stream(INFORMATION) << std::endl
                                 << "assemble SurfSourceMat with " << source_mesh.vertices().size()
                                 << " source_mesh located in domain \"" << domain.name() << "\"." << std::endl
                                 << std::endl;
 
-        Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),source_mesh.vertices().size());
+        Matrix mat(geo.num_unknowns(),source_mesh.vertices().size());
         mat = 0.0;
 
         const double L  = -1.0/domain.conductivity();
         for (const auto& boundary : domain.boundaries()) {
-            const double factorN = (boundary.inside()) ? K : -K;
+            const double factorN = (boundary.is_outer_boundary()) ? K : -K;
             for (const auto& oriented_mesh : boundary.interface().oriented_meshes()) {
                 const Mesh& mesh = oriented_mesh.mesh();
 
-                NonDiagonalBlock operators(mesh,source_mesh,integrator);
+                NonDiagonalBlockWriter writer(mesh,source_mesh,integrator);
 
-                // First block is nVertexFistLayer*source_mesh.vertices().size()
+                // First block is nVertexFirstLayer x source_mesh.vertices().size()
                 const double coeffN = factorN*oriented_mesh.orientation();
-                operators.set_N_block(coeffN,mat);
-                // Second block is nFacesFistLayer*source_mesh.vertices().size()
-                operators.D(coeffN*L,mat);
+                writer.set_N_block(coeffN,mat);
+                // Second block is nFacesFirstLayer x source_mesh.vertices().size()
+                writer.D(coeffN*L,mat);
             }
         }
 
@@ -66,31 +67,35 @@ namespace OpenMEEG {
         // (eq.14 (do not look at eq.16 since there is a mistake: D_23 -> S_23))
         // rhs = [0 ... 0  -D*_23  sigma_3^(-1)S_23  -I_33/2.+D*_33]
 
-        SymMatrix transmat(geo.nb_parameters());
+        SymMatrix transmat(geo.num_parameters()); // TODO: num_unknowns instead ?
         transmat = 0.0;
 
         // This is an overkill. Can we limit the computation only to injection triangles ?
         // We use only the few lines that correspond to injection triangles.
 
-        for (const auto& mp : geo.communicating_mesh_pairs()) {
+        for (const Mesh* mp : geo.active_meshes()) {
+            const Mesh& mesh = *mp;
+            if (mesh.is_current_barrier()) {
+                const DiagonalBlockWriter writer(mesh,integrator);
+                writer.set_D_block(transmat);      // D*_33 part of the formula.
+                writer.addIdentity(-0.5,transmat); // I_33 part of the formula.
+            }
+        }
+
+        for (const auto& mp : geo.interacting_meshes()) {
             const Mesh& mesh1 = mp(0);
             const Mesh& mesh2 = mp(1);
 
-            if (mesh1.current_barrier()) {
-                const NonDiagonalBlock operators(mesh1,mesh2,integrator);
-                const int orientation = geo.relative_orientation(mesh1,mesh2);
-                operators.D(K*orientation,transmat); // D23 or D33 of the formula.
-                if (&mesh1==&mesh2) { // I_33 of the formula, orientation is necessarily 1.
-                    DiagonalBlock block(mesh1,integrator);
-                    block.addIdentity(-0.5,transmat);
-                } else { // S_2 of the formula.
-                    operators.S(-K*orientation*geo.sigma_inv(mesh1,mesh2),transmat);
-                }
+            if (mesh1.is_current_barrier()) {
+                const ConductivityCoefficients cond_coeffs(mp);
+                const NonDiagonalBlockWriter writer(mesh1,mesh2,integrator);
+                writer.D(-cond_coeffs.D(),transmat); // D*_23 part of the formula.
+                writer.S(-cond_coeffs.S(),transmat); // S_23 part of the formula.
             }
         }
 
         const size_t n_sensors = electrodes.getNumberOfSensors();
-        Matrix mat(geo.nb_parameters()-geo.nb_current_barrier_triangles(),n_sensors);
+        Matrix mat(geo.num_unknowns(),n_sensors);
         mat = 0.0;
 
         for (size_t ielec=0; ielec<n_sensors; ++ielec)

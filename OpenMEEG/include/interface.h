@@ -30,8 +30,8 @@ namespace OpenMEEG {
 
         OrientedMesh(Mesh& m,const Orientation o): meshptr(&m),orient(o) { }
 
-              Mesh&  mesh()       { return *meshptr; } ///< \brief access mesh
-        const Mesh&  mesh() const { return *meshptr; } ///< \brief access mesh
+              Mesh& mesh()       { return *meshptr; } ///< \brief access mesh
+        const Mesh& mesh() const { return *meshptr; } ///< \brief access mesh
 
         int orientation() const { return orient; } ///< \brief orientation is +1 or -1 ?
 
@@ -49,9 +49,7 @@ namespace OpenMEEG {
     class OPENMEEG_EXPORT Interface {
     public:
 
-        //        using OrientedMesh::Orientation;
-
-        typedef std::vector<OrientedMesh> OrientedMeshes;
+        using OrientedMeshes = std::vector<OrientedMesh>;
 
         /// Default Constructor
 
@@ -66,8 +64,8 @@ namespace OpenMEEG {
               OrientedMeshes& oriented_meshes()       { return orientedmeshes; }
         const OrientedMeshes& oriented_meshes() const { return orientedmeshes; }
 
-        bool outermost() const { return outermost_interface; } ///< \return true if it is the outermost interface.
-        void set_to_outermost(); ///< set all interface meshes to outermost state.
+        bool external() const { return external_interface; } ///< \return true if it is the external interface.
+        void set_to_external(); ///< set all interface meshes to external state.
 
         bool contains(const Vect3& p) const; ///< \param p a point \return true if point is inside interface
 
@@ -75,7 +73,7 @@ namespace OpenMEEG {
 
         /// \return the total number of the interface vertices
 
-        size_t nb_vertices() const {
+        size_t num_vertices() const {
             size_t nb = 0;
             for (const auto& omesh : oriented_meshes())
                 nb += omesh.mesh().vertices().size();
@@ -84,12 +82,14 @@ namespace OpenMEEG {
 
         /// \return the total number of the interface triangles
 
-        size_t nb_triangles() const {
+        size_t num_triangles() const {
             size_t nb = 0;
             for (const auto& omesh : oriented_meshes())
                 nb += omesh.mesh().triangles().size();
             return nb;
         }
+
+        size_t num_unknowns() const { return num_vertices()+num_triangles(); }
 
         /// \return the adjacent triangles
 
@@ -102,12 +102,29 @@ namespace OpenMEEG {
             return triangles;
         }
 
+        MeshRefs unnecessary_meshes() {
+            MeshRefs mesh_to_remove;
+            for (auto& oriented_mesh : oriented_meshes()) {
+                Mesh& mesh = oriented_mesh.mesh();
+                // If the mesh is already a current barrier, this means that null conductivity is on both its sides.
+                // The mesh is thus unnecessary to the computations.
+                const bool fully_immersed = (mesh.is_current_barrier()==true);
+                mesh.set_current_barrier_property(true);
+                if (fully_immersed) {
+                    mesh.set_isolated_property(true);
+                    mesh.set_external_property(false);
+                    mesh_to_remove.push_back(&mesh);
+                }
+            }
+            return mesh_to_remove;
+        }
+
     private:
 
         double solid_angle(const Vect3& p) const; ///< Given a point p, compute the solid angle of the interface w.r.t. p. \return +/- 4 PI or 0.
 
-        std::string    interface_name      = "";    ///< interface name is "" by default
-        bool           outermost_interface = false; ///< whether or not the interface touches the Air (outermost) domain.
+        std::string    interface_name     = "";    ///< interface name is "" by default
+        bool           external_interface = false; ///< whether or not the interface touches the Air (external) domain.
         OrientedMeshes orientedmeshes;
     };
 

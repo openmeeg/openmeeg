@@ -24,7 +24,7 @@ namespace OpenMEEG {
 
     SparseMatrix Head2EEGMat(const Geometry& geo,const Sensors& electrodes) {
         const Matrix& positions = electrodes.getPositions();
-        SparseMatrix mat(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
+        SparseMatrix mat(positions.nlin(),geo.num_unknowns());
 
         for (unsigned i=0;i<positions.nlin();++i) {
             const Vect3 current_position(positions(i,0),positions(i,1),positions(i,2));
@@ -46,7 +46,7 @@ namespace OpenMEEG {
     SparseMatrix Head2ECoGMat(const Geometry& geo,const Sensors& electrodes,const Interface& i) {
 
         const Matrix& positions = electrodes.getPositions();
-        SparseMatrix mat(positions.nlin(),(geo.nb_parameters()-geo.nb_current_barrier_triangles()));
+        SparseMatrix mat(positions.nlin(),geo.num_unknowns());
 
         for (unsigned it=0;it<positions.nlin();++it) {
             Vect3 current_position;
@@ -71,14 +71,14 @@ namespace OpenMEEG {
         const Matrix& positions    = sensors.getPositions();
         const Matrix& orientations = sensors.getOrientations();
         const unsigned nbIntegrationPoints = sensors.getNumberOfPositions();
-        unsigned p0_p1_size = geo.nb_parameters()-geo.nb_current_barrier_triangles();
+        const unsigned n_unknowns  = geo.num_unknowns();
 
         Matrix FergusonMat(3*nbIntegrationPoints,geo.vertices().size());
         FergusonMat = 0.0;
 
         assemble_ferguson(geo,FergusonMat,positions);
 
-        Matrix mat(nbIntegrationPoints,p0_p1_size);
+        Matrix mat(nbIntegrationPoints,n_unknowns);
         mat = 0.0;
 
         ProgressBar pb(nbIntegrationPoints);

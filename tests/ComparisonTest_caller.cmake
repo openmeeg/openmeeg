@@ -1,19 +1,20 @@
 include(ComparisonTest.cmake)
 
 set_file_properties(Suffix
-    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "SurfGainEEG .sgem"
-    "ESTEEG .est_eeg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
-    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainMEG .sgmm" "ESTMEG .est_meg"
+    "HM .hm" "HMInv .hm_inv" "DSM .dsm" "SSM .ssm" "H2EM .h2em" "DGEM .dgem" "DGMM .dgmm" "DS2MM .ds2mm"
+    "H2MM .h2mm" "SS2MM .ss2mm" "SurfGainEEG .sgem" "SurfGainMEG .sgmm"
+    "ESTEEG .est_eeg" "ESTMEG .est_meg" "EEGadjointEST .est_eegadjoint" "MEGadjointEST .est_megadjoint"
 )
 
 set_file_properties(CompareOptions
     "HM -sym" "HMInv -sym" "DSM -full:-if1:binary:-if2:binary" "SSM -full:-if1:binary:-if2:binary" "H2EM -if:binary:-sparse"
-    "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
+    "DGEM -full" "DGMM -full" "DS2MM -full" "SurfGainEEG -full" "ESTEEG -full" "H2MM -full" "SS2MM -full" "SurfGainMEG -full" "ESTMEG -full"
 )
 
 #   TEST COMMON RESULTS ON HEAD1 (Regression test)
 
-foreach (COMPARISON HM HMInv SSM DSM H2EM SurfGainEEG ESTEEG H2MM SS2MM SurfGainMEG ESTMEG)
+#foreach (COMPARISON HM HMInv DSM SSM H2EM SurfGainEEG ESTEEG EEGadjointEST MEGadjointEST H2MM SS2MM SurfGainMEG ESTMEG)
+foreach (COMPARISON HM HMInv DSM SSM H2EM SurfGainEEG ESTEEG H2MM SS2MM SurfGainMEG ESTMEG)
     set(BASE_FILE_NAME Head1${Suffix_${COMPARISON}})
     OPENMEEG_COMPARISON_TEST(${COMPARISON}-Head1 ${BASE_FILE_NAME} initialTest/${BASE_FILE_NAME} ${CompareOptions_${COMPARISON}})
 endforeach()
@@ -153,9 +154,9 @@ set(DIP_EPSILON2 0.17)
 set(DIP_EPSILON3 0.59)
 foreach(HEADNUM 1 2 ${HEAD3})
     foreach(DIP 1 2 3)
-        OPENMEEG_COMPARISON_TEST("GAINECOG-Head${HEADNUM}-dip${DIP}"
+        OPENMEEG_COMPARISON_TEST("GainECoG-Head${HEADNUM}-dip${DIP}"
                                  Head${HEADNUM}ECoGGain.mat analytic/ecog_analytic.txt -eps ${DIP_EPSILON${DIP}} -col ${DIP} -full
-                                 DEPENDS GAINECOG-Head${HEADNUM})
+                                 DEPENDS GainECoG-Head${HEADNUM})
     endforeach()
 endforeach()
 

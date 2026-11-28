@@ -223,39 +223,39 @@ namespace OpenMEEG {
     }
 
     void Sensors::info() const {
-        size_t nb_to_display = (int)std::min((int)m_nb,(int)5);
+        const size_t num_to_display = std::min(m_nb,std::size_t(5));
         std::cout << "Nb of sensors : " << m_nb << std::endl;
         std::cout << "Positions" << std::endl;
-        for (size_t i=0; i<nb_to_display; ++i) {
+        for (size_t i=0; i<num_to_display; ++i) {
             for (size_t j=0; j<m_positions.ncol(); ++j)
                 std::cout << m_positions(i,j) << ' ';
             std::cout << std::endl;
         }
-        if (m_nb>nb_to_display)
+        if (m_nb>num_to_display)
             std::cout << "..." << std::endl;
 
         if (hasOrientations()) {
             std::cout << "Orientations" << std::endl;
-            for (size_t i=0; i<nb_to_display; ++i) {
+            for (size_t i=0; i<num_to_display; ++i) {
                 for (size_t j=0; j<m_orientations.ncol(); ++j)
                     std::cout << m_orientations(i,j) << " ";
                 std::cout << std::endl;
             }
-            if (m_nb>nb_to_display)
+            if (m_nb>num_to_display)
                 std::cout << "..." << std::endl;
         }
         if (hasRadii()) {
             std::cout << "Radii" << std::endl;
-            for (size_t i=0; i<nb_to_display; ++i)
+            for (size_t i=0; i<num_to_display; ++i)
                 std::cout << m_radii(i) << " " << std::endl;
-            if (m_nb>nb_to_display)
+            if (m_nb>num_to_display)
                 std::cout << "..." << std::endl;
         }
         if (hasNames()) {
             std::cout << "Names" << std::endl;
-            for (size_t i=0; i<nb_to_display; ++i)
+            for (size_t i=0; i<num_to_display; ++i)
                 std::cout << m_names[i] << std::endl;
-            if (m_nb>nb_to_display)
+            if (m_nb>num_to_display)
                 std::cout << "..." << std::endl;
         }
     }
