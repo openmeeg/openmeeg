@@ -3,7 +3,8 @@
 # Make a CPack Linux tarball self-contained, like auditwheel does for wheels:
 # copy every library the apps and libraries need that is not part of the base
 # system into lib/, and give the copies an $ORIGIN rpath so they find each
-# other (the OpenMEEG binaries already look in $ORIGIN/../lib).
+# other (the OpenMEEG binaries already look in $ORIGIN/../lib, since
+# cibw_before_all.sh sets CMAKE_INSTALL_LIBDIR=lib; see install.cmake).
 
 set -eo pipefail
 if [[ "$1" == "" ]]; then

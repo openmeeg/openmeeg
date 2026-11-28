@@ -6,9 +6,11 @@ if (APPLE)
     set(CMAKE_INSTALL_RPATH "@executable_path/../lib/")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 elseif (UNIX)  # means if LINUX
-    # to fix the installed rpath so it looks in ../lib
+    # to fix the installed rpath so it looks in the install libdir (lib, lib64,
+    # ...) relative to bin, so that installs are relocatable
     # https://www.semipol.de/2012/02/16/relative-rpath-settings-with-cmake.html
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+    file(RELATIVE_PATH OPENMEEG_REL_LIBDIR "${CMAKE_INSTALL_FULL_BINDIR}" "${CMAKE_INSTALL_FULL_LIBDIR}")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/${OPENMEEG_REL_LIBDIR}")
 endif()
 
 # Find absolute path to each external lib to avoid symlinks then package it
