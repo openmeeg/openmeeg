@@ -340,7 +340,6 @@ namespace OpenMEEG {
     }
 
     /// warning: a mesh may not be closed (as opposite to an interface)
-    /// this function is mainly needed when meshing closed mesh with CGAL.
 
     void Mesh::correct_global_orientation() {
 
